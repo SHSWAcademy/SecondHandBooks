@@ -44,7 +44,7 @@ public class MvcConfig implements WebMvcConfigurer{
         configurer.enable();
     }
 
-    // JSP     (ViewResolver)
+    // JSP ViewResolver
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         registry.jsp("/WEB-INF/views/", ".jsp");
@@ -55,12 +55,6 @@ public class MvcConfig implements WebMvcConfigurer{
     @Primary
     public HikariDataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
-//      dataSource.setDriverClassName("org.mariadb.jdbc.Driver");
-//      dataSource.setJdbcUrl("jdbc:mariadb://localhost:3306/study");
-//      dataSource.setDriverClassName("net.sf.log4jdbc.sql.jdbcapi.DriverSpy");
-//      dataSource.setJdbcUrl("jdbc:log4jdbc:mariadb://localhost:3306/study");
-//      dataSource.setUsername("testuser");
-//      dataSource.setPassword("root1234");
         dataSource.setDriverClassName(driver);
         dataSource.setJdbcUrl(url);
         dataSource.setUsername(username);
@@ -74,19 +68,15 @@ public class MvcConfig implements WebMvcConfigurer{
         SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
         ssf.setDataSource(dataSource());
 
-        //      PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        //      ssf.setMapperLocations(resolver.getResources("classpath:/mapper/**/*.xml"));
+        // Mapper XML 파일 위치 설정
+        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = 
+            new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
+        ssf.setMapperLocations(resolver.getResources("classpath:kr/co/project/**/*Mapper.xml"));
+        
         return ssf.getObject();
-
     }
 
-
-    //   @Bean
-    //   public SqlSessionTemplate sst() throws Exception {
-    //      return new SqlSessionTemplate(sqlSessionFactory()); // SqlSessionFactory      (          )
-    //   }
-
-
+    // MultipartResolver
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
@@ -95,30 +85,12 @@ public class MvcConfig implements WebMvcConfigurer{
         return resolver;
     }
 
-
+    // TransactionManager
     @Bean
     public PlatformTransactionManager transactionManager() {
         DataSourceTransactionManager dtm = new DataSourceTransactionManager(dataSource());
-    //      dtm.setDataSource(dataSource());
         return dtm;
     }
-
-
-    //   @Bean
-    //   public LoginInterceptor loginIngerceptor() {
-    //      return new LoginInterceptor();
-    //   }
-
-    //   @Override
-    //   public void addInterceptors(InterceptorRegistry registry) {
-    //      registry.addInterceptor(loginIngerceptor())
-    //         .addPathPatterns("/user/mypage");
-        //
-    //      registry.addInterceptor(adminLoginIngerceptor())
-    //      .addPathPatterns("/admin/**")
-    //      .excludePathPatterns("/admin/login");
-
-    //   }
 
     // property
     @Bean

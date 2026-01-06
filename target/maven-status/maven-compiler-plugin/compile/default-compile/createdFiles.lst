@@ -1,2 +1,7 @@
+kr/co/project/util/testing/TestMapper.class
 kr/co/project/HomeController.class
 kr/co/project/config/MvcConfig.class
+kr/co/project/util/testing/TestServiceImpl.class
+kr/co/project/util/testing/TestService.class
+kr/co/project/util/testing/TestVO.class
+kr/co/project/util/testing/TestController.class
