@@ -103,12 +103,121 @@
 ---
 
 ## 기술 스택
-- **Backend**: Spring Boot, JPA/Hibernate, Spring Security
-- **Database**: MySQL (RDS), Redis (ElastiCache or EC2 내장)
-- **Payment**: Toss Payments API
-- **External API**: 도서 정보 API (알라딘/교보문고)
+- **Backend**: Spring MVC 5.3.39, MyBatis 3.5.19
+- **Database**: PostgreSQL (AWS RDS)
+- **Build Tool**: Maven 3.6+
+- **Java Version**: Java 17
+- **Web Server**: Tomcat 9 (embedded via Cargo)
+- **Connection Pool**: HikariCP 4.0.3
+- **Payment**: Toss Payments API (예정)
+- **External API**: 도서 정보 API (알라딘/교보문고) (예정)
 - **Deployment**: AWS EC2, AWS RDS
-- **Real-time**: WebSocket (채팅)
+
+---
+
+## 개발 환경 설정
+
+### 필수 요구사항
+- **Java**: JDK 17 (정확히 17 버전 필요)
+- **Maven**: 3.6.0 이상 (또는 프로젝트에 포함된 Maven Wrapper 사용)
+- **Database**: PostgreSQL (AWS RDS 사용)
+
+### 1️⃣ 프로젝트 클론
+```bash
+git clone <repository-url>
+cd secondaryBook
+```
+
+### 2️⃣ 데이터베이스 설정
+1. `src/main/resources/db.properties.example` 파일을 복사하여 `db.properties` 파일 생성:
+   ```bash
+   cp src/main/resources/db.properties.example src/main/resources/db.properties
+   ```
+
+2. `db.properties` 파일 열어서 실제 데이터베이스 정보 입력:
+   ```properties
+   db.driver=net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+   db.url=jdbc:log4jdbc:postgresql://your-database-host:5432/your-database-name
+   db.username=your-username
+   db.password=your-password
+   ```
+
+   ⚠️ **중요**: `db.properties` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다.
+
+### 3️⃣ Java 17 설치 확인
+```bash
+java -version
+# 출력: openjdk version "17.x.x" 또는 java version "17.x.x"
+```
+
+Java 17이 설치되어 있지 않다면:
+- **macOS**: `brew install openjdk@17`
+- **Windows**: [Oracle JDK 17](https://www.oracle.com/java/technologies/downloads/#java17) 또는 [OpenJDK 17](https://adoptium.net/) 다운로드
+- **Linux**: `sudo apt install openjdk-17-jdk` (Ubuntu/Debian)
+
+### 4️⃣ 프로젝트 빌드 및 실행
+
+#### 방법 1: Maven Wrapper 사용 (권장)
+프로젝트에 Maven Wrapper가 포함되어 있어 Maven 설치 없이 실행 가능합니다:
+
+**macOS/Linux:**
+```bash
+# 빌드
+./mvnw clean package
+
+# Tomcat 서버 실행 (http://localhost:8080)
+./mvnw cargo:run
+```
+
+**Windows:**
+```cmd
+# 빌드
+mvnw.cmd clean package
+
+# Tomcat 서버 실행
+mvnw.cmd cargo:run
+```
+
+#### 방법 2: 로컬 Maven 사용
+```bash
+# 빌드
+mvn clean package
+
+# Tomcat 서버 실행
+mvn cargo:run
+```
+
+### 5️⃣ 접속 확인
+- **홈페이지**: http://localhost:8080/
+- **테스트 페이지**: http://localhost:8080/test/list
+
+서버 종료: `Ctrl + C`
+
+---
+
+## 프로젝트 구조
+```
+secondaryBook/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── project/               # 메인 패키지
+│   │   │       ├── config/            # Spring 설정
+│   │   │       ├── util/testing/      # 테스트 기능
+│   │   │       └── HomeController.java
+│   │   ├── resources/
+│   │   │   ├── project/               # MyBatis Mapper XML
+│   │   │   ├── db.properties          # DB 설정 (gitignore)
+│   │   │   ├── db.properties.example  # DB 설정 예제
+│   │   │   └── logback.xml            # 로그 설정
+│   │   └── webapp/
+│   │       └── WEB-INF/
+│   │           ├── spring/            # Spring 설정 XML
+│   │           └── views/             # JSP 뷰
+│   └── test/
+├── pom.xml                            # Maven 설정
+├── mvnw, mvnw.cmd                     # Maven Wrapper
+└── Readme.md
 
 ---
 

@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>kr.co</groupId>
+	<groupId>com.example</groupId>
 	<artifactId>project</artifactId>
 	<packaging>war</packaging>
 	<version>1.0.0-BUILD-SNAPSHOT</version>
@@ -180,6 +180,32 @@
 					<source>17</source>
 					<target>17</target>
 				</configuration>
+			</plugin>
+			<!-- Maven Enforcer Plugin: Java 및 Maven 버전 강제 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.4.1</version>
+				<executions>
+					<execution>
+						<id>enforce-versions</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireJavaVersion>
+									<version>[17,18)</version>
+									<message>❌ Java 17이 필요합니다. 현재 버전: ${java.version}</message>
+								</requireJavaVersion>
+								<requireMavenVersion>
+									<version>[3.6.0,)</version>
+									<message>❌ Maven 3.6.0 이상이 필요합니다.</message>
+								</requireMavenVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

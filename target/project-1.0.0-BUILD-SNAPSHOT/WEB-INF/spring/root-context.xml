@@ -8,6 +8,6 @@
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	
 	<!-- Java Config 스캔 -->
-	<context:component-scan base-package="kr.co.project.config" />
+	<context:component-scan base-package="project.config" />
 		
 </beans>
