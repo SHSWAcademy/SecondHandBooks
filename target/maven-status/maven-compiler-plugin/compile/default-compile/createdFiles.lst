@@ -1,5 +1,7 @@
 project/util/testing/TestController.class
 project/util/testing/TestServiceImpl.class
+project/MockupController.class
+project/config/RedisConfig.class
 project/util/testing/TestService.class
 project/util/testing/TestVO.class
 project/config/MvcConfig.class

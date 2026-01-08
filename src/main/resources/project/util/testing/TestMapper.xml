@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.util.testing.TestMapper">
+
+    <!-- 전체 조회 -->
+    <select id="selectAll" resultType="project.util.testing.TestVO">
+        SELECT 
+            no,
+            title,
+            regdate
+        FROM test
+        ORDER BY no
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="selectOne" parameterType="int" resultType="project.util.testing.TestVO">
+        SELECT 
+            no,
+            title,
+            regdate
+        FROM test 
+        WHERE no = #{no}
+    </select>
+
+</mapper>
