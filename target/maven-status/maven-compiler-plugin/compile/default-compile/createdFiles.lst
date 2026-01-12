@@ -1,5 +1,6 @@
 project/util/testing/TestController.class
 project/util/testing/TestServiceImpl.class
+project/config/WebClientConfig.class
 project/MockupController.class
 project/config/RedisConfig.class
 project/util/testing/TestService.class

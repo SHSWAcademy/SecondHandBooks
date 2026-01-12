@@ -10,8 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-@Configuration
-@PropertySource("classpath:redis.properties")
+//@Configuration
+//@PropertySource("classpath:redis.properties")
 public class RedisConfig {
 
     @Value("${redis.host}")
@@ -20,16 +20,15 @@ public class RedisConfig {
     @Value("${redis.port}")
     private int port;
 
-    @Value("${redis.password}")
+    @Value("${redis.password:}")   // 기본값 추가
     private String password;
 
-    @Value("${redis.database}")
+    @Value("${redis.database:0}") // 기본값 추가
     private int database;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        LettuceConnectionFactory factory =
-                new LettuceConnectionFactory(host, port);
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(host, port);
         factory.setDatabase(database);
 
         if (password != null && !password.isEmpty()) {
@@ -50,4 +49,3 @@ public class RedisConfig {
         return template;
     }
 }
-
