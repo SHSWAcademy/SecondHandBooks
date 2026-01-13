@@ -43,3 +43,4 @@ cargo/
 *.class
 
 pom.xml
+echo "target/" >> .gitignore
