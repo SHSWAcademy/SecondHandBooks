@@ -22,7 +22,7 @@ public class TradeVO {
     private LocalDateTime saleCompletedAt;
     private String postNo;
     private String addressHost;
-    private String addressDetails;
+    private String addressDetail;
     private String recipientTel; // 구매자 전화번호
     private String recipientName; // 구매자 이름
     private LocalDateTime saleCreatedAt;
