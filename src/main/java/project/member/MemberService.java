@@ -5,7 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-public interface MemberService {
+@Service
+@Slf4j
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class MemberService {
+    private final MemberMapper memberMapper;
 
 }

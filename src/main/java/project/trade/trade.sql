@@ -1,24 +1,27 @@
 
 
 -- 판매글 상세 조회
-select
+SELECT
     ,sb.CATEGORY_NM
-    ,sb.SALE_TITLE
-    ,b.BOOK_TITLE
-    ,b.BOOK_AUTHOR
-    ,b.BOOK_PUBLISHER
-    ,b.BOOK_ORG_PRICE
-    ,b.BOOK_IMG
     ,sb.BOOK_DELIVERY_COST
     ,sb.BOOK_ST
     ,sb.SALE_RG
     ,sb.SALE_CONT
     ,sb.SELLER_NM
     ,sb.CRT_DTM
-    ,i.IMG_URL
-from SB_TRADE_INFO as sb
-join BOOK_INFO as b
-on sb.BOOK_SEQ = b.BOOK_SEQ
-join BOOK_IMAGE as i
-on sb.TRADE_SEQ = i.TRADE_SEQ
-where sb.TRADE_SEQ = #{tradeSeq}
+    ,sb.SALE_TITLE
+    ,b.BOOK_TITLE
+    ,b.BOOK_AUTHOR
+    ,b.BOOK_PUBLISHER
+    ,b.BOOK_ORG_PRICE
+    ,b.BOOK_IMG
+FROM SB_TRADE_INFO AS sb
+JOIN BOOK_INFO AS b
+ON sb.BOOK_SEQ = b.BOOK_SEQ
+JOIN BOOK_IMAGE AS i
+ON sb.TRADE_SEQ = i.TRADE_SEQ
+WHERE sb.TRADE_SEQ = #{tradeSeq}
+
+SELECT IMG_URL
+FROM BOOK_IMAGE
+WHERE TRADE_SEQ = #{tradeSeq}
