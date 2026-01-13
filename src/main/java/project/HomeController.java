@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Slf4j
 public class HomeController {
 
-	
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */

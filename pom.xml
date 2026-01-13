@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.example</groupId>
 	<artifactId>project</artifactId>
@@ -12,6 +12,8 @@
 		<org.springframework-version>5.3.39</org.springframework-version>
 		<org.aspectj-version>1.9.25.1</org.aspectj-version>
 		<org.slf4j-version>1.7.36</org.slf4j-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<dependencies>
@@ -25,7 +27,7 @@
 				<exclusion>
 					<groupId>commons-logging</groupId>
 					<artifactId>commons-logging</artifactId>
-				 </exclusion>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -42,22 +44,22 @@
 		</dependency>
 
 		<!--
-		Reactor Netty (WebClient의 HTTP 커넥션 풀 역할)
-		WebClient -> Reactor Netty -> 외부 API
-		-->
+        Reactor Netty (WebClient의 HTTP 커넥션 풀 역할)
+        WebClient -> Reactor Netty -> 외부 API
+        -->
 		<dependency>
 			<groupId>io.projectreactor.netty</groupId>
 			<artifactId>reactor-netty</artifactId>
 			<version>1.0.39</version>
 		</dependency>
-				
+
 		<!-- AspectJ -->
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
 			<version>${org.aspectj-version}</version>
-		</dependency>	
-		
+		</dependency>
+
 		<!-- Logging (SLF4J + Logback) -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -103,7 +105,7 @@
 			<artifactId>jackson-datatype-jsr310</artifactId>
 			<version>2.15.3</version>
 		</dependency>
-				
+
 		<!-- Servlet -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -130,55 +132,55 @@
 			<version>5.13.4</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- PostgreSQL -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.6.0</version>
 		</dependency>
-		
+
 		<!-- HikariCP -->
 		<dependency>
-		    <groupId>com.zaxxer</groupId>
-		    <artifactId>HikariCP</artifactId>
-		    <version>4.0.3</version>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>4.0.3</version>
 		</dependency>
-		
+
 		<!-- MyBatis -->
 		<dependency>
-		    <groupId>org.mybatis</groupId>
-		    <artifactId>mybatis</artifactId>
-		    <version>3.5.19</version>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.5.19</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.mybatis</groupId>
-		    <artifactId>mybatis-spring</artifactId>
-		    <version>2.1.2</version>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>2.1.2</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.springframework</groupId>
-		    <artifactId>spring-tx</artifactId>
-		    <version>5.2.25.RELEASE</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>5.2.25.RELEASE</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.springframework</groupId>
-		    <artifactId>spring-jdbc</artifactId>
-		    <version>5.2.25.RELEASE</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>5.2.25.RELEASE</version>
 		</dependency>
-		
+
 		<!-- log4jdbc -->
 		<dependency>
-		    <groupId>org.bgee.log4jdbc-log4j2</groupId>
-		    <artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
-		    <version>1.16</version>
+			<groupId>org.bgee.log4jdbc-log4j2</groupId>
+			<artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
+			<version>1.16</version>
 		</dependency>
-		
+
 		<!-- 파일업로드 -->
 		<dependency>
-		    <groupId>commons-fileupload</groupId>
-		    <artifactId>commons-fileupload</artifactId>
-		    <version>1.6.0</version>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.6.0</version>
 		</dependency>
 
 		<!-- Lombok -->
@@ -188,30 +190,30 @@
 			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<!-- API -->
 		<dependency>
-		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId>
-		    <version>2.15.3</version>
-		</dependency>     
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.15.3</version>
+		</dependency>
 	</dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <additionalProjectnatures>
-                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
-                    </additionalProjectnatures>
-                    <additionalBuildcommands>
-                        <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
-                    </additionalBuildcommands>
-                    <downloadSources>true</downloadSources>
-                    <downloadJavadocs>true</downloadJavadocs>
-                </configuration>
-            </plugin>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<additionalProjectnatures>
+						<projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+					</additionalProjectnatures>
+					<additionalBuildcommands>
+						<buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+					</additionalBuildcommands>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -247,40 +249,49 @@
 					</execution>
 				</executions>
 			</plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <configuration>
-                    <mainClass>org.test.int1.Main</mainClass>
-                </configuration>
-            </plugin>
-            <!-- Cargo Maven Plugin for Tomcat 9 -->
-            <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven3-plugin</artifactId>
-                <version>1.10.10</version>
-                <configuration>
-                    <container>
-                        <containerId>tomcat9x</containerId>
-                        <type>embedded</type>
-                    </container>
-                    <configuration>
-                        <properties>
-                            <cargo.servlet.port>8080</cargo.servlet.port>
-                        </properties>
-                    </configuration>
-                    <deployables>
-                        <deployable>
-                            <location>${project.build.directory}/${project.build.finalName}.war</location>
-                            <type>war</type>
-                            <properties>
-                                <context>/</context>
-                            </properties>
-                        </deployable>
-                    </deployables>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<configuration>
+					<mainClass>org.test.int1.Main</mainClass>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.4.0</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+			<!-- Cargo Maven Plugin for Tomcat 9 -->
+			<plugin>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven3-plugin</artifactId>
+				<version>1.10.10</version>
+				<configuration>
+					<container>
+						<containerId>tomcat9x</containerId>
+						<type>embedded</type>
+					</container>
+					<configuration>
+						<properties>
+							<cargo.servlet.port>8080</cargo.servlet.port>
+						</properties>
+					</configuration>
+					<deployables>
+						<deployable>
+							<location>${project.build.directory}/${project.build.finalName}.war</location>
+							<type>war</type>
+							<properties>
+								<context>/</context>
+							</properties>
+						</deployable>
+					</deployables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
