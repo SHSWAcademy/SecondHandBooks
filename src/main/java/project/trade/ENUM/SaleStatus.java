@@ -1,4 +1,4 @@
 package project.trade.ENUM;
 
-public class SaleStatus {
+public enum SaleStatus {
 }

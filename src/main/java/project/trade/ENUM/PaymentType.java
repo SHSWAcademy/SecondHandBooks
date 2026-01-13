@@ -1,4 +1,4 @@
 package project.trade.ENUM;
 
-public class PaymentType {
+public enum PaymentType {
 }
