@@ -1,4 +1,4 @@
-package project.bookclub;
+package project.bookclub.vo;
 
 import lombok.Data;
 
