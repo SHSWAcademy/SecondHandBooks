@@ -1,7 +1,6 @@
 package project.trade;
 
 import lombok.Data;
-import org.springframework.cglib.core.Local;
 import project.trade.ENUM.BookStatus;
 import project.trade.ENUM.PaymentType;
 import project.trade.ENUM.SaleStatus;
@@ -23,10 +22,10 @@ public class TradeVO {
     private long wishCount;
     private LocalDateTime saleCompletedAt;
     private String postNo;
-    private String addrH; //
-    private String addrD; //
-    private String recipentTel;
-    private String recipentName;
+    private String addressHost; //
+    private String addressDetail; //
+    private String recipientTel;
+    private String recipientName;
     private LocalDateTime saleCreatedAt;
     private LocalDateTime saleUpdatedAt;
     private PaymentType paymentType;
