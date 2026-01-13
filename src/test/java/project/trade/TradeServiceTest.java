@@ -12,8 +12,8 @@ class TradeServiceTest {
         // given
         TradeVO tradeVO = new TradeVO();
         tradeVO.setTrade_seq(1L);
-        tradeVO.setSaleTitle("테스트 판매글");
-        tradeVO.setBookTitle("테스트 책");
+        tradeVO.setSale_title("테스트 판매글");
+        tradeVO.setBook_title("테스트 책");
 
         List<String> imgUrls = List.of("img1.jpg", "img2.jpg", "img3.jpg");
         tradeVO.setImgUrls(imgUrls);
@@ -25,8 +25,8 @@ class TradeServiceTest {
         // then: 값 검증
         assertNotNull(result);
         assertEquals(1L, result.getTrade_seq());
-        assertEquals("테스트 판매글", result.getSaleTitle());
-        assertEquals("테스트 책", result.getBookTitle());
+        assertEquals("테스트 판매글", result.getSale_title());
+        assertEquals("테스트 책", result.getBook_title());
 
         assertNotNull(result.getImgUrls());
         assertEquals(3, result.getImgUrls().size());
