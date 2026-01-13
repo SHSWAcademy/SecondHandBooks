@@ -3,5 +3,34 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="project.trade.TradeMapper">
+    <!-- 단건 조회 -->
+    <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
+        SELECT
+        ,sb.CATEGORY_NM
+        ,sb.BOOK_DELIVERY_COST
+        ,sb.BOOK_ST
+        ,sb.SALE_RG
+        ,sb.SALE_CONT
+        ,sb.SELLER_NM
+        ,sb.CRT_DTM
+        ,sb.SALE_TITLE
+        ,b.BOOK_TITLE
+        ,b.BOOK_AUTHOR
+        ,b.BOOK_PUBLISHER
+        ,b.BOOK_ORG_PRICE
+        ,b.BOOK_IMG
+        FROM SB_TRADE_INFO AS sb
+        JOIN BOOK_INFO AS b
+        ON sb.BOOK_SEQ = b.BOOK_SEQ
+        JOIN BOOK_IMAGE AS i
+        ON sb.TRADE_SEQ = i.TRADE_SEQ
+        WHERE sb.TRADE_SEQ = #{tradeSeq}
+    </select>
+
+    <select id="findImgUrl" parameterType="long" resultType="java.lang.String">
+        SELECT IMG_URL
+        FROM BOOK_IMAGE
+        WHERE TRADE_SEQ = #{tradeSeq}
+    </select>
 
 </mapper>
