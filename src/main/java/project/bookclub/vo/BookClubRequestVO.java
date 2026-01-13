@@ -7,12 +7,12 @@ import java.time.LocalDateTime;
 
 @Data
 public class BookClubRequestVO {
-    private Long bookClubSeq;
-    private Long bookClubRequestSeq;
-    private Long requestMemberSeq;
+    private Long book_club_seq;
+    private Long book_club_request_seq;
+    private Long request_member_seq;
 
-    private String requestCont;
-    private String requestSt;
-    private LocalDateTime requestDtm;
-    private LocalDate requestProcessedDt;
+    private String request_cont;
+    private String request_st;
+    private LocalDateTime request_dtm;
+    private LocalDate request_processed_dt;
 }

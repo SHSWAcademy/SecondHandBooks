@@ -6,18 +6,16 @@ import java.time.LocalDateTime;
 
 @Data
 public class BookClubBoardVO {
-    private Long BookClubBoardSeq; // pk
-    private Long bookClubSeq; // fk (해당 독서모임)
-    private Long memberSeq; // fk (작성자)
-    private Long parentBookClubBoardSeq; // fk (부모글/댓글)
+    private Long book_club_seq; // PK, FK
+    private Long book_club_board_seq; // PK
+    private Long member_seq; // FK
+    private Long parent_book_club_board_seq; // FK
 
-    private String title;
-    private String content;
-    private String imageUrl;
+    private String board_title;
+    private String board_cont;
+    private String board_img_url;
 
-    private Long bookSeq;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String deletedYn;
-    private LocalDateTime deletedAt;
+    private Long book_seq; // FK
+    private Boolean board_deleted_yn;
+    private LocalDateTime board_deleted_dtm;
 }
