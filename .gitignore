@@ -41,3 +41,6 @@ cargo/
 
 # Compiled
 *.class
+
+pom.xml
+.gitignore
