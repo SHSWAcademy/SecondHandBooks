@@ -41,3 +41,5 @@ cargo/
 
 # Compiled
 *.class
+
+pom.xml
