@@ -24,6 +24,7 @@ public class MemberService{
         return memberMapper.login(vo);
     }
     public int idCheck(String login_id) {
+        System.out.println(memberMapper.idCheck(login_id) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.idCheck(login_id);
     }
     public int nickNmCheck(String member_nicknm) {
