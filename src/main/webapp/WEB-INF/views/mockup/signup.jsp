@@ -66,7 +66,7 @@
                         중복확인
                     </button>
                 </div>
-                <p id="loginIdMsg" class="text-xs mt-1"></p>
+                <p id="nickNmMsg" class="text-xs mt-1"></p>
             </div>
 
             <!-- 6. Phone Number (Optional) -->
@@ -115,6 +115,8 @@
 
 <script>
 let loginIdChecked = false;
+let emailChecked = false;
+let nickNmChecked = false;
 
 function checkLoginId() {
     const login_id = document.getElementById('login_id').value;
@@ -136,8 +138,8 @@ function checkLoginId() {
             msg.textContent = '이미 사용 중인 아이디입니다.';
             msg.className = 'text-xs mt-1 text-red-500';
             loginIdChecked = false;
-            btn.textContent = 'x';
-            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-red-500 text-red-600 bg-white';
+            btn.textContent = '중복확인';
+            btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
         } else {
             msg.textContent = '사용 가능한 아이디입니다.';
             msg.className = 'text-xs mt-1 text-green-600';
@@ -168,13 +170,46 @@ function checkEmail() {
         if (member_email === 'admin@admin.com') { // ajax로 처리하기
             msg.textContent = '이미 사용 중인 이메일입니다.';
             msg.className = 'text-xs mt-1 text-red-500';
-            loginIdChecked = false;
-            btn.textContent = 'x';
-            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-red-500 text-red-600 bg-white';
+            emailChecked = false;
+            btn.textContent = '중복확인';
+            btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
         } else {
             msg.textContent = '사용 가능한 이메일입니다.';
             msg.className = 'text-xs mt-1 text-green-600';
-            loginIdChecked = true;
+            emailChecked = true;
+            btn.textContent = '✓';
+            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+        }
+        btn.disabled = false;
+    }, 800);
+}
+
+function checkNicknm() {
+    const member_nicknm = document.getElementById('member_nicknm').value;
+    const msg = document.getElementById('nickNmMsg');
+    const btn = document.getElementById('checkNicknmBtn');
+
+    if (member_nicknm.length < 2) {
+        msg.textContent = '닉네임은 2글자 이상이어야 합니다.';
+        msg.className = 'text-xs mt-1 text-red-500';
+        return;
+    }
+
+    // Simulate async check
+    btn.textContent = '확인 중...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+        if (member_nicknm === '배꼽시계') {
+            msg.textContent = '이미 사용 중인 닉네임입니다.';
+            msg.className = 'text-xs mt-1 text-red-500';
+            nickNmChecked = false;
+            btn.textContent = '중복확인';
+            btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+        } else {
+            msg.textContent = '사용 가능한 닉네임입니다.';
+            msg.className = 'text-xs mt-1 text-green-600';
+            nickNmChecked = true;
             btn.textContent = '✓';
             btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
         }
