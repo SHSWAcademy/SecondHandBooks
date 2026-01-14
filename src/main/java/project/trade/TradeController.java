@@ -37,8 +37,10 @@ public class TradeController {
         if (tradeVO == null || tradeVO.checkTradeVO()){
             throw new Exception("cannot upload trade");
         }
-        tradeService.process(tradeVO);
-
-        return "redirect:/main";
+        if (tradeService.process(tradeVO)) {
+            log.info("trade save success, book isbn : {}", tradeVO.getIsbn());
+            return "redirect:/main";
+        }
+        return "error/500";
     }
 }

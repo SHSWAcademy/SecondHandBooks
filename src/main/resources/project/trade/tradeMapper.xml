@@ -27,13 +27,12 @@
             sb.upd_dtm,
             sb.payment_type,
             sb.category_nm,
-            b.book_title,
-            b.book_author,
-            b.book_publisher,
-            b.book_org_price,
-            b.book_img
+            sb.book_title,
+            sb.book_author,
+            sb.book_publisher,
+            sb.book_org_price,
+            sb.book_img
         FROM sb_trade_info AS sb
-        JOIN book_info AS b ON sb.book_info_seq = b.book_info_seq
         WHERE sb.trade_seq = #{trade_seq}
     </select>
 
@@ -43,4 +42,36 @@
         WHERE trade_seq = #{trade_seq}
         ORDER BY SORT_SEQ
     </select>
+
+    <insert id="save" parameterType="project.trade.TradeVO" useGeneratedKeys="true" keyProperty="trade_seq">
+        INSERT INTO sb_trade_info (
+            sale_title,
+            book_img,
+            book_title,
+            book_author,
+            book_publisher,
+            book_org_price,
+            isbn,
+            category_nm,
+            book_st,
+            sale_cont,
+            sale_price,
+            delivery_cost,
+            sale_rg,
+        ) VALUES (
+            #{sale_title},
+            #{book_img},
+            #{book_title},
+            #{book_author},
+            #{book_publisher},
+            #{book_org_price},
+            #{isbn},
+            #{category_nm},
+            #{book_st},
+            #{sale_cont},
+            #{sale_price},
+            #{delivery_cost},
+            #{sale_rg}
+        )
+    </insert>
 </mapper>
