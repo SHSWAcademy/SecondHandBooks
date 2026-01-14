@@ -25,5 +25,8 @@
 
     </insert>
 
+    <select id="checkDuplicate" parameterType="String" resultType="Integer">
+
+    </select>
 
 </mapper>
