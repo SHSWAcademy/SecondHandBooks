@@ -47,12 +47,19 @@
                        placeholder="비밀번호 재입력" />
             </div>
 
-            <!-- 5. Nickname -->
+            <!-- 5. NickName Input & Duplicate Check -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">닉네임 <span class="text-red-500">*</span></label>
-                <input type="text" name="member_nicknm" id="member_nicknm" required
-                       class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
-                       placeholder="거래에 사용할 별명" />
+                <div class="flex gap-2">
+                    <input type="text" name="member_nicknm" id="member_nicknm" required
+                           class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                           placeholder="사용하실 별명을 입력하세요" />
+                    <button type="button" onclick="checkUsername()" id="checkUsernameBtn"
+                            class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
+                        중복확인
+                    </button>
+                </div>
+                <p id="usernameMsg" class="text-xs mt-1"></p>
             </div>
 
             <!-- 6. Phone (Optional) -->
