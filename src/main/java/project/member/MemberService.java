@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Member;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -14,6 +16,10 @@ public class MemberService{
 
     @Autowired
     private final MemberMapper memberMapper;
+
+    public boolean signUp(MemberVO vo) {
+        return memberMapper.signUp(vo) > 0;
+    }
 
     public int idCheck(String login_id) {
         return memberMapper.idCheck(login_id);

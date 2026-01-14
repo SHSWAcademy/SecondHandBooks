@@ -6,7 +6,7 @@
     <div class="bg-white p-8 rounded-md border border-gray-200 shadow-sm">
         <h2 class="text-xl font-bold mb-6 text-gray-900">회원가입</h2>
 
-        <form action="login/signup" method="post" onsubmit="return validateCheck()" class="space-y-4">
+        <form action="login/signup" method="post" onsubmit="return validateForm()" class="space-y-4">
 
             <!-- 1. ID Input & Duplicate Check -->
             <div>
@@ -218,13 +218,14 @@ function checkNicknm() {
 }
 
 function validateForm() {
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.textContent = '';
+
 
     if (!loginIdChecked) {
         errorMsg.textContent = '아이디 중복 확인을 해주세요.';
         return false;
     }
+
+
 
     const member_pwd = document.getElementById('member_pwd').value;
     const confirmPwd = document.getElementById('confirmPwd').value;
