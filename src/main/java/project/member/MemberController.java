@@ -25,7 +25,16 @@ public class MemberController {
 
     @PostMapping("/login")
     public String login(MemberVO vo, Model model, HttpSession sess) {
-        return null;
+        MemberVO memberVO = memberService.login(vo);
+        if (memberVO == null) {
+            model.addAttribute("msg", "아이디 또는 비밀번호가 올바르지 않습니다.");
+            model.addAttribute("cmd", "back");
+            return "common/return";
+        } else {
+            System.out.println("로그인 성공");
+            sess.setAttribute("loginSess", memberVO);
+            return "redirect:/";
+        }
     }
 
     @GetMapping("/signup")
