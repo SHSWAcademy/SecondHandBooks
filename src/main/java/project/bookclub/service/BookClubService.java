@@ -1,4 +1,4 @@
-package project.bookclub;
+package project.bookclub.service;
 
 public interface BookClubService {
 

@@ -1,4 +1,4 @@
-package project.bookclub;
+package project.bookclub.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
