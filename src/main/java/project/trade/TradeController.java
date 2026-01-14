@@ -19,7 +19,7 @@ public class TradeController {
         TradeVO findTrade = tradeService.findBySeq(trade_seq);
         log.info("findTrade.getTrade_seq() : {}", findTrade.getTrade_seq());
 
-        model.addAttribute("book", findTrade); // jsp에서 book으로 받고 있어서 book으로 임의 변경
+        model.addAttribute("findTrade", findTrade);
         return "/trade/tradeDetail";
     }
 }
