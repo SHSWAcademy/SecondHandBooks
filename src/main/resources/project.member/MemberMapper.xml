@@ -21,5 +21,9 @@
            AND MEMBER_PWD = #{MEMBER_PWD}
     </select>
 
+    <insert id="">
+
+    </insert>
+
 
 </mapper>
