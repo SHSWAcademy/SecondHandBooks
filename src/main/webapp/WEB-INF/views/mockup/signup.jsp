@@ -27,7 +27,7 @@
             <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일<span class="text-red-500">*</span></label>
                             <div class="flex gap-2">
-                                <input type="text" name="member_email" id="member_email" required
+                                <input type="email" name="member_email" id="member_email" required
                                        class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                                        placeholder="email@email.com" />
                                 <button type="button" onclick="checkEmail()" id="checkEmailBtn"
@@ -117,7 +117,7 @@
 let usernameChecked = false;
 
 function checkUsername() {
-    const username = document.getElementById('login_id').value;
+    const login_id = document.getElementById('login_id').value;
     const msg = document.getElementById('usernameMsg');
     const btn = document.getElementById('checkUsernameBtn');
 
@@ -132,7 +132,7 @@ function checkUsername() {
     btn.disabled = true;
 
     setTimeout(() => {
-        if (username === 'admin') {
+        if (login_id === 'admin') {
             msg.textContent = '이미 사용 중인 아이디입니다.';
             msg.className = 'text-xs mt-1 text-red-500';
             usernameChecked = false;
@@ -157,20 +157,20 @@ function validateForm() {
         return false;
     }
 
-    const password = document.getElementById('member_pwd').value;
-    const confirmPassword = document.getElementById('confirmPwd').value;
+    const member_pwd = document.getElementById('member_pwd').value;
+    const confirmPwd = document.getElementById('confirmPwd').value;
 
-    if (password.length < 8) {
+    if (member_pwd.length < 8) {
         errorMsg.textContent = '비밀번호는 8자 이상이어야 합니다.';
         return false;
     }
 
-    if (password !== confirmPassword) {
+    if (member_pwd !== confirmPwd) {
         errorMsg.textContent = '비밀번호가 일치하지 않습니다.';
         return false;
     }
 
-    const nickname = document.getElementById('member_nicknm').value;
+    const member_nicknm = document.getElementById('member_nicknm').value;
     if (member_nicknm.length < 2) {
         errorMsg.textContent = '닉네임은 2글자 이상이어야 합니다.';
         return false;
