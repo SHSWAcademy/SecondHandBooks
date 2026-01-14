@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.bookclub.BookClubMapper">
+
+    <!-- 전체 조회 -->
+    <select id="selectAll" resultType="project.bookclub.BookClubVO">
+        SELECT
+        book_club_seq,
+        book_club_name,
+        book_club_desc,
+        book_club_rg,
+        book_club_max_member,
+        book_club_deleted_dt, /* 생략 가능? */
+        banner_img_url,
+        book_club_schedule, /* 생략 가능? */
+        crt_dtm,
+        upd_dtm
+        FROM book_club
+        ORDER BY book_club_seq
+    </select>
+
+</mapper>
