@@ -136,11 +136,12 @@ function checkUsername() {
             msg.textContent = '이미 사용 중인 아이디입니다.';
             msg.className = 'text-xs mt-1 text-red-500';
             usernameChecked = false;
+            btn.textContent = 'x';
+            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-red-500 text-red-600 bg-white';
         } else {
             msg.textContent = '사용 가능한 아이디입니다.';
             msg.className = 'text-xs mt-1 text-green-600';
             usernameChecked = true;
-            document.getElementById('login_id').readOnly = true;
             btn.textContent = '✓';
             btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
         }
