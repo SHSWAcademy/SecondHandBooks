@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<jsp:include page="common/header.jsp" />
+<jsp:include page="../common/header.jsp" />
 
 <div class="max-w-6xl mx-auto">
     <h1 class="text-2xl font-bold mb-8">찜한 상품</h1>
@@ -55,4 +55,4 @@ function removeWishlist(bookId) {
 }
 </script>
 
-<jsp:include page="common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />
