@@ -25,18 +25,18 @@
 
             <!-- 2. Email Input -->
             <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일<span class="text-red-500">*</span></label>
-                            <div class="flex gap-2">
-                                <input type="email" name="member_email" id="member_email" required
-                                       class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
-                                       placeholder="email@email.com" />
-                                <button type="button" onclick="checkEmail()" id="checkEmailBtn"
-                                        class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
-                                    중복확인
-                                </button>
-                            </div>
-                            <p id="loginIdMsg" class="text-xs mt-1"></p>
-                        </div>
+                <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일<span class="text-red-500">*</span></label>
+                    <div class="flex gap-2">
+                        <input type="email" name="member_email" id="member_email" required
+                               class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                               placeholder="email@email.com" />
+                        <button type="button" onclick="checkEmail()" id="checkEmailBtn"
+                                class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
+                            중복확인
+                        </button>
+                    </div>
+                <p id="emailMsg" class="text-xs mt-1"></p>
+            </div>
 
             <!-- 3. Password -->
             <div>
@@ -132,7 +132,7 @@ function checkLoginId() {
     btn.disabled = true;
 
     setTimeout(() => {
-        if (login_id === 'admin') {
+        if (login_id === 'admin') { // ajax로 처리하기
             msg.textContent = '이미 사용 중인 아이디입니다.';
             msg.className = 'text-xs mt-1 text-red-500';
             loginIdChecked = false;
@@ -140,6 +140,39 @@ function checkLoginId() {
             btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-red-500 text-red-600 bg-white';
         } else {
             msg.textContent = '사용 가능한 아이디입니다.';
+            msg.className = 'text-xs mt-1 text-green-600';
+            loginIdChecked = true;
+            btn.textContent = '✓';
+            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+        }
+        btn.disabled = false;
+    }, 800);
+}
+
+function checkEmail() {
+    const member_email = document.getElementById('member_email').value;
+    const msg = document.getElementById('emailMsg');
+    const btn = document.getElementById('checkEmailBtn');
+
+    // if (login_id.equals()) {
+    //     msg.textContent = '아이디는 4글자 이상이어야 합니다.';
+    //     msg.className = 'text-xs mt-1 text-red-500';
+    //     return;
+    // }
+
+    // Simulate async check
+    btn.textContent = '확인 중...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+        if (member_email === 'admin@admin.com') { // ajax로 처리하기
+            msg.textContent = '이미 사용 중인 이메일입니다.';
+            msg.className = 'text-xs mt-1 text-red-500';
+            loginIdChecked = false;
+            btn.textContent = 'x';
+            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-red-500 text-red-600 bg-white';
+        } else {
+            msg.textContent = '사용 가능한 이메일입니다.';
             msg.className = 'text-xs mt-1 text-green-600';
             loginIdChecked = true;
             btn.textContent = '✓';
