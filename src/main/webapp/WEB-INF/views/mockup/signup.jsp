@@ -15,12 +15,12 @@
                     <input type="text" name="login_id" id="login_id" required
                            class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                            placeholder="영문 소문자/숫자 4자 이상" />
-                    <button type="button" onclick="checkUsername()" id="checkUsernameBtn"
+                    <button type="button" onclick="checkLoginId()" id="checkLoginIdBtn"
                             class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
                         중복확인
                     </button>
                 </div>
-                <p id="usernameMsg" class="text-xs mt-1"></p>
+                <p id="loginIdMsg" class="text-xs mt-1"></p>
             </div>
 
             <!-- 2. Email Input -->
@@ -35,7 +35,7 @@
                                     중복확인
                                 </button>
                             </div>
-                            <p id="usernameMsg" class="text-xs mt-1"></p>
+                            <p id="loginIdMsg" class="text-xs mt-1"></p>
                         </div>
 
             <!-- 3. Password -->
@@ -66,7 +66,7 @@
                         중복확인
                     </button>
                 </div>
-                <p id="usernameMsg" class="text-xs mt-1"></p>
+                <p id="loginIdMsg" class="text-xs mt-1"></p>
             </div>
 
             <!-- 6. Phone Number (Optional) -->
@@ -114,12 +114,12 @@
 </div>
 
 <script>
-let usernameChecked = false;
+let loginIdChecked = false;
 
-function checkUsername() {
+function checkLoginId() {
     const login_id = document.getElementById('login_id').value;
-    const msg = document.getElementById('usernameMsg');
-    const btn = document.getElementById('checkUsernameBtn');
+    const msg = document.getElementById('loginIdMsg');
+    const btn = document.getElementById('checkLoginIdBtn');
 
     if (login_id.length < 4) {
         msg.textContent = '아이디는 4글자 이상이어야 합니다.';
@@ -135,13 +135,13 @@ function checkUsername() {
         if (login_id === 'admin') {
             msg.textContent = '이미 사용 중인 아이디입니다.';
             msg.className = 'text-xs mt-1 text-red-500';
-            usernameChecked = false;
+            loginIdChecked = false;
             btn.textContent = 'x';
             btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-red-500 text-red-600 bg-white';
         } else {
             msg.textContent = '사용 가능한 아이디입니다.';
             msg.className = 'text-xs mt-1 text-green-600';
-            usernameChecked = true;
+            loginIdChecked = true;
             btn.textContent = '✓';
             btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
         }
@@ -153,7 +153,7 @@ function validateForm() {
     const errorMsg = document.getElementById('errorMsg');
     errorMsg.textContent = '';
 
-    if (!usernameChecked) {
+    if (!loginIdChecked) {
         errorMsg.textContent = '아이디 중복 확인을 해주세요.';
         return false;
     }
