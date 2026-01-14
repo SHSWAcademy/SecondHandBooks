@@ -25,7 +25,7 @@
 
     </insert>
 
-    <select id="checkDuplicate" parameterType="String" resultType="Integer">
+    <select id="idCheck" parameterType="String" resultType="Integer">
 
     </select>
 

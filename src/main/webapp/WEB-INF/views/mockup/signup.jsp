@@ -25,11 +25,18 @@
 
             <!-- 2. Email Input -->
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일 <span class="text-red-500">*</span></label>
-                <input type="email" name="member_email" id="member_email" required
-                       class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
-                       placeholder="example@email.com" />
-            </div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일<span class="text-red-500">*</span></label>
+                            <div class="flex gap-2">
+                                <input type="text" name="member_email" id="member_email" required
+                                       class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                                       placeholder="email@email.com" />
+                                <button type="button" onclick="checkEmail()" id="checkEmailBtn"
+                                        class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
+                                    중복확인
+                                </button>
+                            </div>
+                            <p id="usernameMsg" class="text-xs mt-1"></p>
+                        </div>
 
             <!-- 3. Password -->
             <div>
@@ -54,7 +61,7 @@
                     <input type="text" name="member_nicknm" id="member_nicknm" required
                            class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                            placeholder="사용하실 별명을 입력하세요" />
-                    <button type="button" onclick="checkUsername()" id="checkUsernameBtn"
+                    <button type="button" onclick="checkNicknm()" id="checkNicknmBtn"
                             class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
                         중복확인
                     </button>
@@ -110,11 +117,11 @@
 let usernameChecked = false;
 
 function checkUsername() {
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('login_id').value;
     const msg = document.getElementById('usernameMsg');
     const btn = document.getElementById('checkUsernameBtn');
 
-    if (username.length < 4) {
+    if (login_id.length < 4) {
         msg.textContent = '아이디는 4글자 이상이어야 합니다.';
         msg.className = 'text-xs mt-1 text-red-500';
         return;
@@ -133,7 +140,7 @@ function checkUsername() {
             msg.textContent = '사용 가능한 아이디입니다.';
             msg.className = 'text-xs mt-1 text-green-600';
             usernameChecked = true;
-            document.getElementById('username').readOnly = true;
+            document.getElementById('login_id').readOnly = true;
             btn.textContent = '✓';
             btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
         }
@@ -150,8 +157,8 @@ function validateForm() {
         return false;
     }
 
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    const password = document.getElementById('member_pwd').value;
+    const confirmPassword = document.getElementById('confirmPwd').value;
 
     if (password.length < 8) {
         errorMsg.textContent = '비밀번호는 8자 이상이어야 합니다.';
@@ -163,8 +170,8 @@ function validateForm() {
         return false;
     }
 
-    const nickname = document.getElementById('nickname').value;
-    if (nickname.length < 2) {
+    const nickname = document.getElementById('member_nicknm').value;
+    if (member_nicknm.length < 2) {
         errorMsg.textContent = '닉네임은 2글자 이상이어야 합니다.';
         return false;
     }
