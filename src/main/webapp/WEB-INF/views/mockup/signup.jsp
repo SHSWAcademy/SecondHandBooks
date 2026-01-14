@@ -62,7 +62,7 @@
                 <p id="usernameMsg" class="text-xs mt-1"></p>
             </div>
 
-            <!-- 6. Phone (Optional) -->
+            <!-- 6. Phone Number (Optional) -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">휴대폰 번호 (선택)</label>
                 <input type="tel" name="member_tel_no" id="member_tel_no"
