@@ -6,7 +6,7 @@
     <div class="bg-white p-8 rounded-md border border-gray-200 shadow-sm">
         <h2 class="text-xl font-bold mb-6 text-gray-900">회원가입</h2>
 
-        <form action="auth/signup" method="post" onsubmit="return validateForm()" class="space-y-4">
+        <form action="/auth/signup" method="post" onsubmit="return validateForm()" class="space-y-4">
 
             <!-- 1. ID Input & Duplicate Check -->
             <div>
@@ -273,4 +273,4 @@ document.querySelectorAll('.terms-checkbox').forEach(cb => {
 });
 </script>
 
-<jsp:include page="common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />
