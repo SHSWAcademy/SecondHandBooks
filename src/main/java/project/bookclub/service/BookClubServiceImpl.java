@@ -1,4 +1,4 @@
-package project.bookclub;
+package project.bookclub.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
