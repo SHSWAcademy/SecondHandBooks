@@ -152,26 +152,6 @@ function checkLoginId() {
             alert('서버 통신 중 오류가 발생했습니다.');
         }
     })
-    // Simulate async check
-    // btn.textContent = '확인 중...';
-    // btn.disabled = true;
-    //
-    // setTimeout(() => {
-    //     if (login_id === 'admin') { // ajax로 처리하기
-    //         msg.textContent = '이미 사용 중인 아이디입니다.';
-    //         msg.className = 'text-xs mt-1 text-red-500';
-    //         loginIdChecked = false;
-    //         btn.textContent = '중복확인';
-    //         btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-    //     } else {
-    //         msg.textContent = '사용 가능한 아이디입니다.';
-    //         msg.className = 'text-xs mt-1 text-green-600';
-    //         loginIdChecked = true;
-    //         btn.textContent = '✓';
-    //         btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
-    //     }
-    //     btn.disabled = false;
-    // }, 800);
 }
 
 function checkEmail() {
@@ -179,32 +159,57 @@ function checkEmail() {
     const msg = document.getElementById('emailMsg');
     const btn = document.getElementById('checkEmailBtn');
 
-    // if (login_id.equals()) {
-    //     msg.textContent = '아이디는 4글자 이상이어야 합니다.';
-    //     msg.className = 'text-xs mt-1 text-red-500';
-    //     return;
-    // }
+    const emailPattern = /^.+@.+\..+$/;
 
-    // Simulate async check
-    btn.textContent = '확인 중...';
-    btn.disabled = true;
+    if (!emailPattern.test(member_email)) {
+        msg.textContent = '올바른 이메일 형식이 아닙니다.';
+        msg.className = 'text-xs mt-1 text-red-500';
+        return;
+    }
 
-    setTimeout(() => {
-        if (member_email === 'admin@admin.com') { // ajax로 처리하기
-            msg.textContent = '이미 사용 중인 이메일입니다.';
-            msg.className = 'text-xs mt-1 text-red-500';
-            emailChecked = false;
-            btn.textContent = '중복확인';
-            btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-        } else {
-            msg.textContent = '사용 가능한 이메일입니다.';
-            msg.className = 'text-xs mt-1 text-green-600';
-            emailChecked = true;
-            btn.textContent = '✓';
-            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+    $.ajax({
+        url: '/auth/ajax/emailCheck',
+        type: 'GET',
+        data: {member_email: member_email},
+        success: function(res) {
+            if (res > 0) {
+                msg.textContent = '이미 사용 중인 이메일입니다.';
+                msg.className = 'text-xs mt-1 text-red-500';
+                emailChecked = false;
+                btn.textContent = '중복확인';
+                btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+            } else {
+                msg.textContent = '사용 가능한 이메일입니다.';
+                msg.className = 'text-xs mt-1 text-green-600';
+                emailChecked = true;
+                btn.textContent = '✓';
+                btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+            }
+        },
+        error: function() {
+            alert('서버 통신 중 오류가 발생했습니다.');
         }
-        btn.disabled = false;
-    }, 800);
+    })
+    // // Simulate async check
+    // btn.textContent = '확인 중...';
+    // btn.disabled = true;
+    //
+    // setTimeout(() => {
+    //     if (member_email === 'admin@admin.com') { // ajax로 처리하기
+    //         msg.textContent = '이미 사용 중인 이메일입니다.';
+    //         msg.className = 'text-xs mt-1 text-red-500';
+    //         emailChecked = false;
+    //         btn.textContent = '중복확인';
+    //         btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+    //     } else {
+    //         msg.textContent = '사용 가능한 이메일입니다.';
+    //         msg.className = 'text-xs mt-1 text-green-600';
+    //         emailChecked = true;
+    //         btn.textContent = '✓';
+    //         btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+    //     }
+    //     btn.disabled = false;
+    // }, 800);
 }
 
 function checkNicknm() {
@@ -218,26 +223,46 @@ function checkNicknm() {
         return;
     }
 
-    // Simulate async check
-    btn.textContent = '확인 중...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-        if (member_nicknm === '배꼽시계') {
-            msg.textContent = '이미 사용 중인 닉네임입니다.';
-            msg.className = 'text-xs mt-1 text-red-500';
-            nickNmChecked = false;
-            btn.textContent = '중복확인';
-            btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-        } else {
-            msg.textContent = '사용 가능한 닉네임입니다.';
-            msg.className = 'text-xs mt-1 text-green-600';
-            nickNmChecked = true;
-            btn.textContent = '✓';
-            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+    $.ajax({
+        url: '/auth/ajax/nicknmCheck',
+        type: 'GET',
+        data: {member_nicknm: member_nicknm},
+        success: function(res) {
+            if (res > 0) {
+                msg.textContent = '이미 사용 중인 닉네임입니다.';
+                msg.className = 'text-xs mt-1 text-red-500';
+                nickNmChecked = false;
+                btn.textContent = '중복확인';
+                btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+            } else {
+                msg.textContent = '사용 가능한 닉네임입니다.';
+                msg.className = 'text-xs mt-1 text-green-600';
+                nickNmChecked = true;
+                btn.textContent = '✓';
+                btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+            }
         }
-        btn.disabled = false;
-    }, 800);
+    })
+    // // Simulate async check
+    // btn.textContent = '확인 중...';
+    // btn.disabled = true;
+    //
+    // setTimeout(() => {
+    //     if (member_nicknm === '배꼽시계') {
+    //         msg.textContent = '이미 사용 중인 닉네임입니다.';
+    //         msg.className = 'text-xs mt-1 text-red-500';
+    //         nickNmChecked = false;
+    //         btn.textContent = '중복확인';
+    //         btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+    //     } else {
+    //         msg.textContent = '사용 가능한 닉네임입니다.';
+    //         msg.className = 'text-xs mt-1 text-green-600';
+    //         nickNmChecked = true;
+    //         btn.textContent = '✓';
+    //         btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+    //     }
+    //     btn.disabled = false;
+    // }, 800);
 }
 
 function validateForm() {
