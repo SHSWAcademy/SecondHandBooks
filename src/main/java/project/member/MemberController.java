@@ -38,7 +38,7 @@ public class MemberController {
         if (result) {
             model.addAttribute("msg", "회원가입 되었습니다.");
             model.addAttribute("cmd", "move");
-            model.addAttribute("url", "login");
+            model.addAttribute("url", "mockup/login");
         } else {
             model.addAttribute("msg", "회원가입에 실패했습니다.");
             model.addAttribute("cmd", "back");

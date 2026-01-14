@@ -114,15 +114,15 @@ public class MockupController {
         return "mockup/productDetail";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "mockup/login";
-    }
+//    @GetMapping("/login")
+//    public String login() {
+//        return "mockup/login";
+//    }
 
-    @GetMapping("/signup")
-    public String signup() {
-        return "mockup/signup";
-    }
+//    @GetMapping("/signup")
+//    public String signup() {
+//        return "mockup/signup";
+//    }
 
     @GetMapping("/profile")
     public String profile(Model model) {
