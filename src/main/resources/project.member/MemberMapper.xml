@@ -21,15 +21,15 @@
            AND MEMBER_PWD = #{MEMBER_PWD}
     </select>
 
-    <insert id="singUp" parameterType="project.member.MemberVO">
+    <insert id="signUp" parameterType="project.member.MemberVO">
         INSERT INTO MEMBER_INFO(
                                  LOGIN_ID, MEMBER_PWD
                                , MEMBER_EMAIL, MEMBER_TEL_NO, MEMBER_NICKNM
-                               , MEMBER_ST, CRT_DT
+                               , CRT_DTM
         ) VALUES (
                    #{login_id}, #{member_pwd}
                  , #{member_email}, #{member_tel_no}, #{member_nicknm}
-                 , #{member_st}, NOW()
+                 , NOW()
         )
 
     </insert>

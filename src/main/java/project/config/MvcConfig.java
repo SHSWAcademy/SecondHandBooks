@@ -72,7 +72,7 @@ public class MvcConfig implements WebMvcConfigurer{
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
 
         // 카멜케이스 자동 변환: member_id → memberId
-        config.setMapUnderscoreToCamelCase(true);
+        config.setMapUnderscoreToCamelCase(false);
 
         // NULL 값 처리
         config.setJdbcTypeForNull(org.apache.ibatis.type.JdbcType.NULL);
@@ -95,7 +95,7 @@ public class MvcConfig implements WebMvcConfigurer{
         // Mapper XML 파일 위치 설정
         org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = 
             new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        ssf.setMapperLocations(resolver.getResources("classpath:project/**/*Mapper.xml"));
+        ssf.setMapperLocations(resolver.getResources("classpath:project.member/*Mapper.xml"));
         
         return ssf.getObject();
     }

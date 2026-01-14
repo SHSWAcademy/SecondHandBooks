@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
 @Slf4j
 @RequiredArgsConstructor
@@ -16,11 +18,20 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @GetMapping("/login")
+    public void login() {
+
+    }
+
+    @PostMapping("/login")
+    public String login(MemberVO vo, Model model, HttpSession sess) {
+        return null;
+    }
+
     @GetMapping("/login/signup")
     public void signup() {
 
     }
-
     @PostMapping("/auth/signup")
     public String signUp(MemberVO vo, Model model) {
         boolean result = memberService.signUp(vo);
