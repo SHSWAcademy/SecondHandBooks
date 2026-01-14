@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.member.MemberMapper">
+
+    <select id="login" parameterType="project.member.MemberVO" resultType="project.member.MemberVO">
+        SELECT MEMBER_SEQ
+             , LOGIN_ID
+             , MEMBER_PWD
+             , MEMBER_EMAIL
+             , MEMBER_TEL_NO
+             , MEMBER_NICKNM
+             , MEMBER_DELETED_DTM
+             , MEMBER_LAST_LOGIN_DTM
+             , MEMBER_ST
+             , CRT_DTM
+             , UPD_DTM
+          FROM MEMBER_INFO
+         WHERE LOGIN_ID = #{login_id}
+           AND MEMBER_PWD = #{MEMBER_PWD}
+    </select>
+
+
+</mapper>
