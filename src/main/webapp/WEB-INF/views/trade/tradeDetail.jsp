@@ -86,8 +86,8 @@
                 <div>
                     배송비 :
                     <c:choose>
-                        <c:when test="${trade.book_delivery_cost > 0}">
-                            <fmt:formatNumber value="${trade.book_delivery_cost}" pattern="#,###" /> 원
+                        <c:when test="${trade.delivery_cost > 0}">
+                            <fmt:formatNumber value="${trade.delivery_cost}" pattern="#,###" /> 원
                         </c:when>
                         <c:otherwise>무료</c:otherwise>
                     </c:choose>

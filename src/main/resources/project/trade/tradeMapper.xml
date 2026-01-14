@@ -11,7 +11,7 @@
             sb.book_st,
             sb.sale_cont,
             sb.sale_price,
-            sb.book_delivery_cost,
+            sb.delivery_cost,
             sb.sale_rg,
             sb.sale_st,
             sb.sale_st_dtm,
