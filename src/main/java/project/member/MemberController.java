@@ -19,8 +19,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/login")
-    public void login() {
-
+    public String login() {
+        return "member/login";
     }
 
     @PostMapping("/login")
@@ -28,9 +28,9 @@ public class MemberController {
         return null;
     }
 
-    @GetMapping("/login/signup")
-    public void signup() {
-
+    @GetMapping("/signup")
+    public String signup() {
+        return "member/signup";
     }
     @PostMapping("/auth/signup")
     public String signUp(MemberVO vo, Model model) {
