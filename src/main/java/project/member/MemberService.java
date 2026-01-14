@@ -11,7 +11,7 @@ import java.lang.reflect.Member;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class MemberService{
 
     @Autowired
