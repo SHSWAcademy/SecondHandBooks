@@ -29,13 +29,27 @@
         ) VALUES (
                    #{login_id}, #{member_pwd}
                  , #{member_email}, #{member_tel_no}, #{member_nicknm}
-                 , #{MEMBER_ST}, NOW()
+                 , #{member_st}, NOW()
         )
 
     </insert>
 
-    <select id="idCheck" parameterType="String" resultType="Integer">
+    <select id="idCheck" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM MEMBER_INFO
+         WHERE LOGIN_ID = #{login_id}
+    </select>
 
+    <select id="emailCheck" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM MEMBER_INFO
+         WHERE MEMBER_EMAIL = #{member_email}
+    </select>
+
+    <select id="nickNmCheck" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM MEMBER_INFO
+         WHERE MEMBER_NICKNM = #{member_nicknm}
     </select>
 
 </mapper>

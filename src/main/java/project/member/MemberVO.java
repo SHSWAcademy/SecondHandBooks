@@ -1,6 +1,8 @@
 package project.member;
 
 import lombok.Data;
+import project.member.ENUM.MemberStatus;
+
 import java.time.LocalDateTime;
 
 
