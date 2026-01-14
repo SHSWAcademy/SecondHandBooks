@@ -6,7 +6,7 @@
 
     <insert id="save" parameterType="String">
         INSERT INTO book_image (
-            imgUrl,
+            img_url,
             trade_seq
         ) VALUES (
             #{imgUrl},
