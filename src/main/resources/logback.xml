@@ -17,9 +17,12 @@
     <logger name="org.springframework.context" level="INFO" />
     <logger name="org.springframework.web" level="INFO" />
 
+
     <!-- Root Logger -->
     <root level="WARN">
         <appender-ref ref="CONSOLE" />
     </root>
 
 </configuration>
+
+

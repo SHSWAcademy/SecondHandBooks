@@ -4,19 +4,28 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.util.exception.TradeNotFoundException;
 
 import java.util.List;
 
 @Service
-@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class TradeService {
     private final TradeMapper tradeMapper;
 
     public TradeVO findBySeq(long trade_seq) {
         TradeVO findTrade = tradeMapper.findBySeq(trade_seq);
-        findTrade.setImgUrls(tradeMapper.findImgUrl(trade_seq));
+
+        if (findTrade == null) {
+            log.debug("Cannot find trade_seq {}", trade_seq);
+            throw new TradeNotFoundException("Cannot find trade_seq=" + trade_seq);
+        }
+
+        List<String> imgUrl = tradeMapper.findImgUrl(trade_seq); // imgUrl은 null 이어도 된다 (썸네일 이미지만 보여진다)
+        findTrade.setImgUrls(imgUrl);
+
         return findTrade;
     }
 }

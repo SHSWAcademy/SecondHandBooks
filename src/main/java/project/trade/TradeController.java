@@ -17,7 +17,9 @@ public class TradeController {
     public String getSaleDetail(@PathVariable long trade_seq, Model model) {
 
         TradeVO findTrade = tradeService.findBySeq(trade_seq);
-        model.addAttribute("findTrade", findTrade);
-        return "tradeDetail";
+        log.info("findTrade.getTrade_seq() : {}", findTrade.getTrade_seq());
+
+        model.addAttribute("book", findTrade); // jsp에서 book으로 받고 있어서 book으로 임의 변경
+        return "/trade/tradeDetail";
     }
 }

@@ -26,7 +26,7 @@ public class TradeVO {
     private String post_no;
     private String address_h;
     private String address_d;
-    private String recipient_ph_no; // 구매자 전화번호
+    private String recipient_ph; // 구매자 전화번호
     private String recipient_nm; // 구매자 이름
     private LocalDateTime crt_dtm;
     private LocalDateTime upd_dtm;
@@ -41,4 +41,7 @@ public class TradeVO {
 
     // BookImgVO
     private List<String> imgUrls = new ArrayList<>();
+
+    // Category (join 으로 가져오는 것이 아니라 trade 테이블에 따로 넣어두었음)
+    private String category_nm;
 }
