@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.bookclub.BookClubMapper">
+
+    <!-- 전체 조회 -->
+    <select id="searchAll" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            book_club_seq
+            ,book_club_name
+            ,book_club_desc
+            ,book_club_rg
+            ,book_club_max_member
+            ,book_club_deleted_dt /* 생략 가능? */
+            ,banner_img_url
+            ,book_club_schedule /* 생략 가능? */
+            ,crt_dtm
+            ,upd_dtm
+        FROM book_club
+        ORDER BY book_club_seq
+        WHERE book_club_deleted_dt IS NULL
+    </select>
+
+    <!-- 키워드 조회 -->
+    <select id="searchByKeyword" parameterType="list" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            book_club_seq
+            ,book_club_name
+            ,book_club_desc
+            ,book_club_rg
+            ,book_club_max_member
+            ,crt_dtm
+        FROM book_club
+        WHERE  book_club_deleted_dt IS NULL
+
+        <!-- -->
+        <foreach collection="tokens" item="token" separator="AND">
+            (
+                book_club_name LIKE CONCAT('%', #{token}, '%')
+                OR
+                book_club_rg LIKE CONCAT('%', #{token}, '%')
+            )
+        </foreach>
+
+        ORDER BY book_club_seq DESC
+    </select>
+
+</mapper>
