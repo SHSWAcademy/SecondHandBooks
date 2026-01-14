@@ -28,9 +28,11 @@ public class MemberService{
         return memberMapper.idCheck(login_id);
     }
     public int nickNmCheck(String member_nicknm) {
+        System.out.println(memberMapper.nickNmCheck(member_nicknm) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.nickNmCheck(member_nicknm);
     }
     public int emailCheck(String member_email) {
+        System.out.println(memberMapper.emailCheck(member_email) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.emailCheck(member_email);
     }
 }
