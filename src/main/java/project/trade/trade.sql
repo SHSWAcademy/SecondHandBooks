@@ -2,7 +2,7 @@
 
 -- 판매글 상세 조회
 SELECT
-    ,sb.CATEGORY_NM
+     sb.CATEGORY_NM
     ,sb.BOOK_DELIVERY_COST
     ,sb.BOOK_ST
     ,sb.SALE_RG
@@ -22,6 +22,7 @@ JOIN BOOK_IMAGE AS i
 ON sb.TRADE_SEQ = i.TRADE_SEQ
 WHERE sb.TRADE_SEQ = #{tradeSeq}
 
+-- 이미지 조회
 SELECT IMG_URL
 FROM BOOK_IMAGE
 WHERE TRADE_SEQ = #{tradeSeq}

@@ -6,31 +6,41 @@
     <!-- 단건 조회 -->
     <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
         SELECT
-        ,sb.CATEGORY_NM
-        ,sb.BOOK_DELIVERY_COST
-        ,sb.BOOK_ST
-        ,sb.SALE_RG
-        ,sb.SALE_CONT
-        ,sb.SELLER_NM
-        ,sb.CRT_DTM
-        ,sb.SALE_TITLE
-        ,b.BOOK_TITLE
-        ,b.BOOK_AUTHOR
-        ,b.BOOK_PUBLISHER
-        ,b.BOOK_ORG_PRICE
-        ,b.BOOK_IMG
-        FROM SB_TRADE_INFO AS sb
-        JOIN BOOK_INFO AS b
-        ON sb.BOOK_SEQ = b.BOOK_SEQ
-        JOIN BOOK_IMAGE AS i
-        ON sb.TRADE_SEQ = i.TRADE_SEQ
-        WHERE sb.TRADE_SEQ = #{tradeSeq}
+        sb.trade_seq AS trade_seq,
+        sb.sale_title AS sale_title,
+        sb.book_st AS book_st,
+        sb.sale_cont AS sale_cont,
+        sb.sale_price AS sale_price,
+        sb.book_delivery_cost AS delivery_co,
+        sb.sale_rg AS book_sale_region,
+        sb.sale_st AS sale_st,
+        sb.sale_st_dtm AS sale_st_dtm,
+        sb.views AS views,
+        sb.wish_cnt AS wish_cnt,
+        sb.book_sale_dtm AS book_sale_dtm,
+        sb.post_no AS post_no,
+        sb.addr_h AS address_h,
+        sb.addr_d AS address_d,
+        sb.recipient_ph AS recipient_ph,
+        sb.recipient_nm AS recipient_nm,
+        sb.crt_dtm AS crt_dtm,
+        sb.upd_dtm AS upd_dtm,
+        sb.payment_type AS payment_type,
+        sb.category_nm AS category_nm,
+        b.book_title AS book_title,
+        b.book_author AS book_author,
+        b.book_publisher AS book_publisher,
+        b.book_org_price AS book_org_price,
+        b.book_img AS book_img
+        FROM sb_trade_info AS sb
+        JOIN book_info AS b ON sb.book_info_seq = b.book_info_seq
+        WHERE sb.trade_seq = #{tradeSeq}
+
     </select>
 
-    <select id="findImgUrl" parameterType="long" resultType="java.lang.String">
-        SELECT IMG_URL
-        FROM BOOK_IMAGE
-        WHERE TRADE_SEQ = #{tradeSeq}
+    <select id="findImgUrl" resultType="String">
+        SELECT img_url
+        FROM book_image
+        WHERE trade_seq = #{tradeSeq}
     </select>
-
 </mapper>
