@@ -3,44 +3,44 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="project.trade.TradeMapper">
-    <!-- 단건 조회 -->
+
     <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
         SELECT
-        sb.trade_seq AS trade_seq,
-        sb.sale_title AS sale_title,
-        sb.book_st AS book_st,
-        sb.sale_cont AS sale_cont,
-        sb.sale_price AS sale_price,
-        sb.book_delivery_cost AS delivery_co,
-        sb.sale_rg AS book_sale_region,
-        sb.sale_st AS sale_st,
-        sb.sale_st_dtm AS sale_st_dtm,
-        sb.views AS views,
-        sb.wish_cnt AS wish_cnt,
-        sb.book_sale_dtm AS book_sale_dtm,
-        sb.post_no AS post_no,
-        sb.addr_h AS address_h,
-        sb.addr_d AS address_d,
-        sb.recipient_ph AS recipient_ph,
-        sb.recipient_nm AS recipient_nm,
-        sb.crt_dtm AS crt_dtm,
-        sb.upd_dtm AS upd_dtm,
-        sb.payment_type AS payment_type,
-        sb.category_nm AS category_nm,
-        b.book_title AS book_title,
-        b.book_author AS book_author,
-        b.book_publisher AS book_publisher,
-        b.book_org_price AS book_org_price,
-        b.book_img AS book_img
+            sb.trade_seq,
+            sb.sale_title,
+            sb.book_st,
+            sb.sale_cont,
+            sb.sale_price,
+            sb.book_delivery_cost,
+            sb.sale_rg,
+            sb.sale_st,
+            sb.sale_st_dtm,
+            sb.views,
+            sb.wish_cnt,
+            sb.book_sale_dtm,
+            sb.post_no,
+            sb.addr_h,
+            sb.addr_d,
+            sb.recipient_ph,
+            sb.recipient_nm,
+            sb.crt_dtm,
+            sb.upd_dtm,
+            sb.payment_type,
+            sb.category_nm,
+            b.book_title,
+            b.book_author,
+            b.book_publisher,
+            b.book_org_price,
+            b.book_img
         FROM sb_trade_info AS sb
         JOIN book_info AS b ON sb.book_info_seq = b.book_info_seq
-        WHERE sb.trade_seq = #{tradeSeq}
-
+        WHERE sb.trade_seq = #{trade_seq}
     </select>
 
-    <select id="findImgUrl" resultType="String">
+    <select id="findImgUrl" parameterType="long" resultType="String">
         SELECT img_url
         FROM book_image
-        WHERE trade_seq = #{tradeSeq}
+        WHERE trade_seq = #{trade_seq}
+        ORDER BY SORT_SEQ
     </select>
 </mapper>

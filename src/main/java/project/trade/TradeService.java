@@ -11,7 +11,6 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class TradeService {
     private final TradeMapper tradeMapper;
 
@@ -19,7 +18,6 @@ public class TradeService {
         TradeVO findTrade = tradeMapper.findBySeq(trade_seq);
 
         if (findTrade == null) {
-            log.debug("Cannot find trade_seq {}", trade_seq);
             throw new TradeNotFoundException("Cannot find trade_seq=" + trade_seq);
         }
 

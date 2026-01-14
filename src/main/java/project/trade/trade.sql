@@ -2,27 +2,40 @@
 
 -- 판매글 상세 조회
 SELECT
-     sb.CATEGORY_NM
-    ,sb.BOOK_DELIVERY_COST
-    ,sb.BOOK_ST
-    ,sb.SALE_RG
-    ,sb.SALE_CONT
-    ,sb.SELLER_NM
-    ,sb.CRT_DTM
-    ,sb.SALE_TITLE
-    ,b.BOOK_TITLE
-    ,b.BOOK_AUTHOR
-    ,b.BOOK_PUBLISHER
-    ,b.BOOK_ORG_PRICE
-    ,b.BOOK_IMG
-FROM SB_TRADE_INFO AS sb
-JOIN BOOK_INFO AS b
-ON sb.BOOK_SEQ = b.BOOK_SEQ
-JOIN BOOK_IMAGE AS i
-ON sb.TRADE_SEQ = i.TRADE_SEQ
-WHERE sb.TRADE_SEQ = #{tradeSeq}
+    t.TRADE_SEQ            AS tradeSeq,
+    t.SALE_TITLE           AS saleTitle,
+    t.BOOK_ST              AS bookSt,
+    t.SALE_CONT            AS saleCont,
+    t.SALE_PRICE           AS salePrice,
+    t.BOOK_DELIVERY_COST   AS bookDeliveryCost,
+    t.SALE_RG              AS saleRg,
+    t.SALE_ST              AS saleSt,
+    t.SALE_ST_DTM          AS saleStDtm,
+    t.VIEWS                AS views,
+    t.WISH_CNT             AS wishCnt,
+    t.BOOK_SALE_DTM        AS bookSaleDtm,
+    t.POST_NO              AS postNo,
+    t.ADDR_H               AS addressH,
+    t.ADDR_D               AS addressD,
+    t.RECIPIENT_PH         AS recipientPh,
+    t.RECIPIENT_NM         AS recipientNm,
+    t.CRT_DTM              AS crtDtm,
+    t.UPD_DTM              AS updDtm,
+    t.PAYMENT_TYPE         AS paymentType,
+    t.CATEGORY_NM          AS categoryNm,
+    b.BOOK_TITLE           AS bookTitle,
+    b.BOOK_AUTHOR          AS bookAuthor,
+    b.BOOK_PUBLISHER       AS bookPublisher,
+    b.BOOK_IMG             AS bookImg,
+    b.BOOK_ORG_PRICE       AS bookOrgPrice
+FROM SB_TRADE_INFO t
+JOIN BOOK_INFO b
+  ON t.BOOK_INFO_SEQ = b.BOOK_INFO_SEQ
+WHERE t.TRADE_SEQ = #{?};
 
 -- 이미지 조회
-SELECT IMG_URL
+SELECT
+    IMG_URL
 FROM BOOK_IMAGE
-WHERE TRADE_SEQ = #{tradeSeq}
+WHERE TRADE_SEQ = #{?}
+ORDER BY SORT_SEQ;

@@ -13,13 +13,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class TradeController {
     private final TradeService tradeService;
 
-    @GetMapping("/main/trade/{trade_seq}")
-    public String getSaleDetail(@PathVariable long trade_seq, Model model) {
+    @GetMapping("/main/trade/{tradeSeq}")
+    public String getSaleDetail(@PathVariable long tradeSeq, Model model) {
+        TradeVO trade = tradeService.findBySeq(tradeSeq);
+        log.info("findTrade: {}", trade);
 
-        TradeVO findTrade = tradeService.findBySeq(trade_seq);
-        log.info("findTrade.getTrade_seq() : {}", findTrade.getTrade_seq());
-
-        model.addAttribute("findTrade", findTrade);
-        return "/trade/tradeDetail";
+        model.addAttribute("trade", trade);
+        return "trade/tradeDetail";
     }
 }
