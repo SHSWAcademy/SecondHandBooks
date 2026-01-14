@@ -72,7 +72,8 @@ public class MvcConfig implements WebMvcConfigurer{
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
 
         // 카멜케이스 자동 변환: member_id → memberId
-        config.setMapUnderscoreToCamelCase(true);
+        // 카멜 케이스 자동 변환 취소 : true -> false
+        config.setMapUnderscoreToCamelCase(false);
 
         // NULL 값 처리
         config.setJdbcTypeForNull(org.apache.ibatis.type.JdbcType.NULL);
