@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.bookclub.mapper.BookClubMapper">
+
+    <!-- 독서모임 1건 조회 (상세 페이지용) -->
+    <select id="selectById" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            book_club_seq,
+            book_club_name,
+            book_club_desc,
+            book_club_rg,
+            book_club_max_member,
+            book_club_deleted_dt,
+            banner_img_url,
+            book_club_schedule,
+            crt_dtm,
+            upd_dtm,
+            book_club_leader_seq
+        FROM book_club
+        WHERE book_club_seq = #{bookClubSeq}
+          AND book_club_deleted_dt IS NULL
+    </select>
+
+</mapper>
