@@ -129,26 +129,49 @@ function checkLoginId() {
         return;
     }
 
-    // Simulate async check
-    btn.textContent = '확인 중...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-        if (login_id === 'admin') { // ajax로 처리하기
-            msg.textContent = '이미 사용 중인 아이디입니다.';
-            msg.className = 'text-xs mt-1 text-red-500';
-            loginIdChecked = false;
-            btn.textContent = '중복확인';
-            btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-        } else {
-            msg.textContent = '사용 가능한 아이디입니다.';
-            msg.className = 'text-xs mt-1 text-green-600';
-            loginIdChecked = true;
-            btn.textContent = '✓';
-            btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+    $.ajax({
+        url: '/auth/ajax/idCheck',
+        type: 'GET',
+        data: {login_id: login_id},
+        success: function(res) {
+            if (res > 0) {
+                msg.textContent = '이미 사용 중인 아이디입니다.';
+                msg.className = 'text-xs mt-1 text-red-500';
+                loginIdChecked = false;
+                btn.textContent = '중복확인';
+                btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+            } else {
+                msg.textContent = '사용 가능한 아이디입니다.';
+                msg.className = 'text-xs mt-1 text-green-600';
+                loginIdChecked = true;
+                btn.textContent = '✓';
+                btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+            }
+        },
+        error: function() {
+            alert('서버 통신 중 오류가 발생했습니다.');
         }
-        btn.disabled = false;
-    }, 800);
+    })
+    // Simulate async check
+    // btn.textContent = '확인 중...';
+    // btn.disabled = true;
+    //
+    // setTimeout(() => {
+    //     if (login_id === 'admin') { // ajax로 처리하기
+    //         msg.textContent = '이미 사용 중인 아이디입니다.';
+    //         msg.className = 'text-xs mt-1 text-red-500';
+    //         loginIdChecked = false;
+    //         btn.textContent = '중복확인';
+    //         btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+    //     } else {
+    //         msg.textContent = '사용 가능한 아이디입니다.';
+    //         msg.className = 'text-xs mt-1 text-green-600';
+    //         loginIdChecked = true;
+    //         btn.textContent = '✓';
+    //         btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+    //     }
+    //     btn.disabled = false;
+    // }, 800);
 }
 
 function checkEmail() {
@@ -219,12 +242,15 @@ function checkNicknm() {
 
 function validateForm() {
 
-
     if (!loginIdChecked) {
         errorMsg.textContent = '아이디 중복 확인을 해주세요.';
         return false;
     }
 
+    if (!emailChecked) {
+        errorMsg.textContent = '이메일 중복 확인을 해주세요.';
+        return false;
+    }
 
 
     const member_pwd = document.getElementById('member_pwd').value;
