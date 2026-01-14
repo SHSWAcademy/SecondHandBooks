@@ -6,13 +6,13 @@
     <div class="bg-white p-8 rounded-md border border-gray-200 shadow-sm">
         <h2 class="text-xl font-bold mb-6 text-gray-900">회원가입</h2>
 
-        <form action="/signup" method="post" onsubmit="return validateForm()" class="space-y-4">
+        <form action="login/signup" method="post" onsubmit="return validateCheck()" class="space-y-4">
 
             <!-- 1. ID Input & Duplicate Check -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">아이디 <span class="text-red-500">*</span></label>
                 <div class="flex gap-2">
-                    <input type="text" name="username" id="username" required
+                    <input type="text" name="login_id" id="login_id" required
                            class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                            placeholder="영문 소문자/숫자 4자 이상" />
                     <button type="button" onclick="checkUsername()" id="checkUsernameBtn"
@@ -26,7 +26,7 @@
             <!-- 2. Email Input -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일 <span class="text-red-500">*</span></label>
-                <input type="email" name="email" id="email" required
+                <input type="email" name="member_email" id="member_email" required
                        class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                        placeholder="example@email.com" />
             </div>
@@ -34,7 +34,7 @@
             <!-- 3. Password -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">비밀번호 <span class="text-red-500">*</span></label>
-                <input type="password" name="password" id="password" required
+                <input type="password" name="member_pwd" id="member_pwd" required
                        class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                        placeholder="8자 이상 입력" />
             </div>
@@ -42,7 +42,7 @@
             <!-- 4. Confirm Password -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">비밀번호 확인 <span class="text-red-500">*</span></label>
-                <input type="password" name="confirmPassword" id="confirmPassword" required
+                <input type="password" name="confirmPwd" id="confirmPwd" required
                        class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                        placeholder="비밀번호 재입력" />
             </div>
@@ -50,7 +50,7 @@
             <!-- 5. Nickname -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">닉네임 <span class="text-red-500">*</span></label>
-                <input type="text" name="nickname" id="nickname" required
+                <input type="text" name="member_nicknm" id="member_nicknm" required
                        class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                        placeholder="거래에 사용할 별명" />
             </div>
@@ -58,7 +58,7 @@
             <!-- 6. Phone (Optional) -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">휴대폰 번호 (선택)</label>
-                <input type="tel" name="phoneNumber" id="phoneNumber"
+                <input type="tel" name="member_tel_no" id="member_tel_no"
                        class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
                        placeholder="010-0000-0000" />
             </div>
