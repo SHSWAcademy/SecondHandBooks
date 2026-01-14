@@ -31,7 +31,8 @@ public class TradeService {
     }
 
     // 판매글 등록
-    public boolean process(TradeVO tradeVO) {
+    @Transactional
+    public boolean save(TradeVO tradeVO) {
 
         int result = tradeMapper.save(tradeVO);
 
