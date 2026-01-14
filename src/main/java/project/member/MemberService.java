@@ -20,7 +20,9 @@ public class MemberService{
     public boolean signUp(MemberVO vo) {
         return memberMapper.signUp(vo) > 0;
     }
-
+    public MemberVO login(MemberVO vo) {
+        return memberMapper.login(vo);
+    }
     public int idCheck(String login_id) {
         return memberMapper.idCheck(login_id);
     }

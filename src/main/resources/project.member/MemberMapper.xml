@@ -18,7 +18,7 @@
              , UPD_DTM
           FROM MEMBER_INFO
          WHERE LOGIN_ID = #{login_id}
-           AND MEMBER_PWD = #{MEMBER_PWD}
+           AND MEMBER_PWD = #{member_pwd}
     </select>
 
     <insert id="signUp" parameterType="project.member.MemberVO">
