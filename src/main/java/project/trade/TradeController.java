@@ -34,10 +34,12 @@ public class TradeController {
     // 판매글 업로드
     @PostMapping("/trade")
     public String uploadTrade(TradeVO tradeVO) throws Exception {
-        if (tradeVO == null || tradeVO.checkTradeVO()){
+        if (tradeVO == null || !tradeVO.checkTradeVO()){
+            log.error("Invalid trade data: {}", tradeVO);
             throw new Exception("cannot upload trade");
         }
-        if (tradeService.process(tradeVO)) {
+
+        if (tradeService.save(tradeVO)) {
             log.info("trade save success, book isbn : {}", tradeVO.getIsbn());
             return "redirect:/main";
         }

@@ -57,7 +57,7 @@
             sale_cont,
             sale_price,
             delivery_cost,
-            sale_rg,
+            sale_rg
         ) VALUES (
             #{sale_title},
             #{book_img},
