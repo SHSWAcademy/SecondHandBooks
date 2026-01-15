@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<jsp:include page="/WEB-INF/views/common/header.jsp" />
+<jsp:include page="../common/header.jsp" />
 
 <div class="max-w-6xl mx-auto py-8">
     <!-- Breadcrumb -->
@@ -146,4 +146,4 @@ function update() {
 }
 </script>
 
-<jsp:include page="common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />
