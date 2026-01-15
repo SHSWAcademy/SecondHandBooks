@@ -25,9 +25,9 @@ public class BookClubService {
     // #1-2. 독서모임 검색
     public List<BookClubVO> searchBookClubs(String keyword) {
         // 키워드 없으면 전체 검색
-//        if (keyword == null || keyword.isBlank()) {
-//            return bookClubMapper.searchAll();
-//        }
+        if (keyword == null || keyword.isBlank()) {
+            return bookClubMapper.searchAll();
+        }
 
         List<String> tokens = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(keyword);
@@ -47,5 +47,9 @@ public class BookClubService {
     public boolean canCreateBookClub(Long memberId) {
         // 비로그인 시 생성 불가
         return memberId != null;
+    }
+
+    public List<BookClubVO> searchAll() {
+        return bookClubMapper.searchAll();
     }
 }
