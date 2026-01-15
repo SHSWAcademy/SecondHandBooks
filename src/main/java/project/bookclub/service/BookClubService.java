@@ -21,7 +21,7 @@ public class BookClubService {
     List<BookClubVO> getBookClubList() {
         return bookClubMapper.searchAll();
     }
-
+ 
     // #1-2. 독서모임 검색
     public List<BookClubVO> searchBookClubs(String keyword) {
         // 키워드 없으면 전체 검색
