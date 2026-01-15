@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 
@@ -33,18 +34,23 @@ public class BookClubController {
 
     @GetMapping
     public String getBookClubs(Model model) {
-        List<BookClubVO> bookClubs = bookClubService.searchAll();
-        model.addAttribute(bookClubs);
-        return "bookclub/bookclubs";
+        List<BookClubVO> bookClubs = bookClubService.getBookClubList();
+        model.addAttribute("bookclubList", bookClubs);
+        return "bookclub/bookclub_list";
     }
 
+    @GetMapping("/search")
+    @ResponseBody
+    public List<BookClubVO> searchBookClubs(@RequestParam(required = false) String keyword) {
+        return bookClubService.searchBookClubs(keyword);
+    }
 
 //    @GetMapping
 //    public String getBookClubs(@RequestParam(required = false) String keyword, Model model) {
 ////        log.info(">>> bookclubs. controller called");
-//        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword);
-//        model.addAttribute("bookClubs", bookClubs);
+//        List<BookClubVO> bookclubList = bookClubService.searchBookClubs(keyword);
+//        model.addAttribute("bookclubList", bookclubList);
 //        model.addAttribute("keyword", keyword);
-//        return "bookclub/bookclubs";
+//        return "bookclub/bookclub_list";
 //    }
 }
