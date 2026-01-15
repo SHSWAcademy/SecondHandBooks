@@ -33,7 +33,7 @@
             ,crt_dtm
         FROM book_club
         WHERE  book_club_deleted_dt IS NULL
-
+        AND
         <!-- -->
         <foreach collection="tokens" item="token" separator="AND">
             (
@@ -42,7 +42,6 @@
                 book_club_rg LIKE CONCAT('%', #{token}, '%')
             )
         </foreach>
-
         ORDER BY book_club_seq DESC
     </select>
 

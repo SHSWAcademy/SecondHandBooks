@@ -49,7 +49,7 @@ public class BookClubService {
         return memberId != null;
     }
 
-    public List<BookClubVO> searchAll() {
-        return bookClubMapper.searchAll();
-    }
+//    public List<BookClubVO> searchAll() {
+//        return bookClubMapper.searchAll();
+//    }
 }
