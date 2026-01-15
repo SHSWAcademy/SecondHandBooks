@@ -64,7 +64,11 @@ public class BookClubController {
             model.addAttribute("isMember", false);
         }
 
-        // 5. Model에 데이터 담기
+        // 5. 현재 참여 인원 수 조회
+        int joinedMemberCount = bookClubService.getTotalJoinedMemberCount(bookClubId);
+        model.addAttribute("joinedMemberCount", joinedMemberCount);
+
+        // 6. Model에 데이터 담기
         model.addAttribute("bookClub", bookClub);
         return "bookclub/bookclub_detail";
     }

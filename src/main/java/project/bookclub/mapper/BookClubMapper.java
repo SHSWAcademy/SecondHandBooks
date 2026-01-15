@@ -17,4 +17,7 @@ public interface BookClubMapper {
     // 특정 멤버가 JOINED 상태로 가입되어 있는지 확인 (count 반환)
     int selectJoinedMemberCount(@Param("bookClubSeq") Long bookClubSeq,
                                 @Param("memberSeq") Long memberSeq);
+
+    // 독서모임의 전체 JOINED 멤버 수 조회
+    int getTotalJoinedMemberCount(@Param("bookClubSeq") Long bookClubSeq);
 } 

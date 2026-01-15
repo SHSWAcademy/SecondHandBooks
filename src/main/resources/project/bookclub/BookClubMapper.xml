@@ -32,4 +32,12 @@
           AND join_st = 'JOINED'
     </select>
 
+    <!-- 독서모임의 전체 JOINED 멤버 수 조회 -->
+    <select id="getTotalJoinedMemberCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_member
+        WHERE book_club_seq = #{bookClubSeq}
+          AND join_st = 'JOINED'
+    </select>
+
 </mapper>
