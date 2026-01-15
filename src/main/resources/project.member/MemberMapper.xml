@@ -34,12 +34,28 @@
 
     </insert>
 
-    <insert id="signUpKakao" parameterType="map">
-        INSERT INTO MEMBER_OAUTH (
-            MEMBER_SEQ, PROVIDER, PROVIDER_ID, CRT_DTM
+    <select id="getMemberByOAuth" parameterType="map" resultType="project.member.MemberVO">
+        SELECT m.*
+        FROM MEMBER_INFO m
+                 JOIN MEMBER_OAUTH o ON m.MEMBER_SEQ = o.MEMBER_SEQ
+        WHERE o.PROVIDER = #{provider}::oauth_provider_enum
+          AND o.PROVIDER_ID = #{provider_id}
+    </select>
+
+    <insert id="insertSocialMemberInfo" parameterType="map" useGeneratedKeys="true" keyProperty="member_seq">
+        INSERT INTO MEMBER_INFO (
+            LOGIN_ID, MEMBER_EMAIL, MEMBER_PWD, MEMBER_NICKNM, CRT_DTM
         ) VALUES (
-            #{memberSeq}, #{provider}, #{providerId}, NOW()
-        )
+                     #{login_id}, #{email}, #{member_pwd}, #{nickname}, NOW()
+                 )
+    </insert>
+
+    <insert id="insertMemberOAuth" parameterType="map">
+        INSERT INTO MEMBER_OAUTH (
+            MEMBER_SEQ, PROVIDER, PROVIDER_ID, CONNECTED_DT
+        ) VALUES (
+                     #{member_seq}, #{provider}::oauth_provider_enum, #{provider_id}, NOW()
+                 )
     </insert>
 
     <select id="idCheck" parameterType="String" resultType="int">

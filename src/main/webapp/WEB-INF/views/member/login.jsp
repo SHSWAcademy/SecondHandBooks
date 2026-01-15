@@ -39,26 +39,17 @@
         </form>
 
         <div class="mt-6 pt-6 border-t border-gray-100 space-y-3">
-            <button onclick="alert('카카오 로그인은 준비 중입니다.')" class="w-full py-3.5 bg-[#FEE500] text-[#3c1e1e] rounded-md font-bold text-sm hover:bg-[#fdd835] transition flex items-center justify-center gap-2">
+            <a href="https://kauth.kakao.com/oauth/authorize?client_id=540d6c34f2540fb2c6e27bac5a1d8922&redirect_uri=http://localhost:8005/auth/kakao/callback&response_type=code"
+               class="w-full py-3.5 bg-[#FEE500] text-[#3c1e1e] rounded-md font-bold text-sm hover:bg-[#fdd835] transition flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 3C7.58 3 4 5.28 4 8.1c0 1.77 1.43 3.34 3.73 4.25-.16.59-.57 2.06-.66 2.4-.1.38.14.38.29.28.2.13 2.82-1.92 3.96-2.7.22.03.45.04.68.04 4.42 0 8-2.28 8-5.1S16.42 3 12 3z"/>
                 </svg>
                 카카오로 시작하기
-            </button>
+            </a>
             <button onclick="alert('네이버 로그인은 준비 중입니다.')" class="w-full py-3.5 bg-[#03C75A] text-white rounded-md font-bold text-sm hover:bg-[#02b351] transition flex items-center justify-center gap-2">
                 <span class="font-black">N</span>
                 네이버로 시작하기
             </button>
-        </div>
-
-        <div>
-            <a href="https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${kakaoRedirectUri}&response_type=code" ... >
-                카카오로 시작하기
-            </a>
-
-            <a href="https://nid.naver.com/oauth2.0/authorize?client_id=${naverClientId}&redirect_uri=${naverRedirectUri}&response_type=code&state=STATE_STRING" ... >
-                네이버로 시작하기
-            </a>
         </div>
 
         <div class="mt-6 pt-6 border-t border-gray-100">
