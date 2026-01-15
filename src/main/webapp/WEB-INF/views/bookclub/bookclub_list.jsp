@@ -161,6 +161,7 @@
         <div class="modal-content">
             <button class="modal-close">x</button>
             <h2 class="modal-title">새 독서모임 만들기</h2>
+            <form></form>
         </div>
     </div>
 
