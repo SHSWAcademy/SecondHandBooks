@@ -37,3 +37,12 @@ SELECT
 FROM BOOK_IMAGE
 WHERE TRADE_SEQ = #{?}
 ORDER BY SORT_SEQ;
+
+-- 판매글 게시할 때 사용자의 사진 업로드 (총 3장)
+INSERT INTO book_image (
+    img_url,
+    trade_seq
+) VALUES (
+    ?,
+    ?
+);
