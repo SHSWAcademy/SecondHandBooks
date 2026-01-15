@@ -37,8 +37,12 @@ public class TradeService {
 
         int result = tradeMapper.save(tradeVO);
         log.info("Saved result count = {}", result);
-        if (tradeVO.getImgUrls() != null) {
+        log.info("trade_seq after save = {}", tradeVO.getTrade_seq());
+        log.info("imgUrls in service = {}", tradeVO.getImgUrls());
+
+        if (tradeVO.getImgUrls() != null && !tradeVO.getImgUrls().isEmpty()) {
             for (String imgUrl : tradeVO.getImgUrls()) {
+                log.info("Saving image: {} for trade_seq: {}", imgUrl, tradeVO.getTrade_seq());
                 bookImgMapper.save(imgUrl, tradeVO.getTrade_seq());
             }
         }
