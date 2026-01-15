@@ -21,6 +21,7 @@ public class TradeService {
         TradeVO findTrade = tradeMapper.findBySeq(trade_seq);
 
         if (findTrade == null) {
+            log.info("데이터 조회 실패 : DB에서 데이터를 조회하지 못했습니다.");
             throw new TradeNotFoundException("Cannot find trade_seq=" + trade_seq);
         }
 
@@ -35,7 +36,7 @@ public class TradeService {
     public boolean save(TradeVO tradeVO) {
 
         int result = tradeMapper.save(tradeVO);
-
+        log.info("Saved result count = {}", result);
         if (tradeVO.getImgUrls() != null) {
             for (String imgUrl : tradeVO.getImgUrls()) {
                 bookImgMapper.save(imgUrl, tradeVO.getTrade_seq());
