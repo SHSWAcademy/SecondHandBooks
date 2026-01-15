@@ -27,6 +27,7 @@ src/main/resources/db.properties
 # API Configuration
 src/main/resources/application.properties
 
+*.properties
 
 # Logs
 *.log
