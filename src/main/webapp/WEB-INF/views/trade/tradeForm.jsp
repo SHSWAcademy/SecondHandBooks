@@ -14,7 +14,7 @@
     </div>
 
     <!-- Form -->
-    <form action="/trade" method="post" class="space-y-8">
+    <form action="/trade" method="post" enctype="multipart/form-data" class="space-y-8">
         
         <!-- 책 정보 섹션 -->
         <div class="bg-white rounded-lg border border-gray-200 p-6">
@@ -151,11 +151,17 @@
                 <!-- 판매지역 -->
                 <div>
                     <label for="sale_rg" class="block text-sm font-bold text-gray-700 mb-2">
-                        판매지역
+                        판매지역 [시, 군, 구만 표기됩니다.]
                     </label>
-                    <input type="text" id="sale_rg" name="sale_rg"
-                           placeholder="서울 강남구"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                    <div class="flex">
+                        <input type="text" id="sale_rg" name="sale_rg" readonly
+                               placeholder="주소 검색을 클릭하세요"
+                               class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                        <button type="button" onclick="searchRG()"
+                                class="px-6 py-3 bg-gray-900 text-white rounded-r-lg hover:bg-gray-800 transition font-bold">
+                            주소 검색
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 상세설명 -->
@@ -177,23 +183,11 @@
                 추가 이미지 (선택사항)
             </h2>
 
-            <div id="imageUrlsContainer" class="space-y-3">
-                <div class="image-url-input flex gap-2">
-                    <input type="text" name="imgUrls" 
-                           placeholder="https://example.com/image1.jpg"
-                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                    <button type="button" onclick="removeImageUrl(this)" 
-                            class="px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-bold">
-                        삭제
-                    </button>
-                </div>
+            <div class="space-y-3">
+                <input type="file" name="uploadFiles" accept="image/*" multiple
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary-500 file:text-white file:font-bold hover:file:bg-primary-600" />
+                <p class="text-xs text-gray-500">여러 이미지를 한 번에 선택할 수 있습니다. (Ctrl/Cmd + 클릭)</p>
             </div>
-
-            <button type="button" onclick="addImageUrl()" 
-                    class="mt-4 w-full px-4 py-3 bg-gray-50 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-bold flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                이미지 URL 추가
-            </button>
         </div>
 
         <!-- 제출 버튼 -->
@@ -317,47 +311,19 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 이미지 URL 추가
-function addImageUrl() {
-    const container = document.getElementById('imageUrlsContainer');
-    const newInput = document.createElement('div');
-    newInput.className = 'image-url-input flex gap-2';
-    newInput.innerHTML = `
-        <input type="text" name="imgUrls" 
-               placeholder="https://example.com/image.jpg"
-               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-        <button type="button" onclick="removeImageUrl(this)" 
-                class="px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-bold">
-            삭제
-        </button>
-    `;
-    container.appendChild(newInput);
-}
-
-// 이미지 URL 삭제
-function removeImageUrl(button) {
-    const container = document.getElementById('imageUrlsContainer');
-    const inputs = container.querySelectorAll('.image-url-input');
-    
-    // 최소 1개는 남겨둠
-    if (inputs.length > 1) {
-        button.closest('.image-url-input').remove();
-    } else {
-        alert('최소 1개의 이미지 입력 필드는 유지되어야 합니다.');
-    }
+// 판매지역 검색 (다음 우편번호 API)
+function searchRG() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            var region = data.sido + ' ' + data.sigungu;
+            document.getElementById('sale_rg').value = region;
+        }
+    }).open();
 }
 
 // 폼 제출 전 검증
 document.querySelector('form').addEventListener('submit', function(e) {
     // 필수 필드 체크는 HTML5 required 속성으로 자동 처리됨
-    
-    // 빈 이미지 URL 제거
-    const imgUrlInputs = document.querySelectorAll('input[name="imgUrls"]');
-    imgUrlInputs.forEach(input => {
-        if (!input.value.trim()) {
-            input.remove();
-        }
-    });
 });
 </script>
 
