@@ -121,7 +121,7 @@ public class MvcConfig implements WebMvcConfigurer{
     @Bean
     public static PropertyPlaceholderConfigurer properties() {
         PropertyPlaceholderConfigurer config = new PropertyPlaceholderConfigurer();
-        config.setLocation(new ClassPathResource("db.properties"));
+        config.setLocation(new ClassPathResource("application.properties"));
         return config;
     }
 }
