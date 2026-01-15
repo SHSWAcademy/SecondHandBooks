@@ -58,4 +58,12 @@ public class BookClubService {
         int count = bookClubMapper.selectJoinedMemberCount(bookClubSeq, memberSeq);
         return count > 0;
     }
+
+    // #2-3. 독서모임의 전체 JOINED 멤버 수 조회
+    public int getTotalJoinedMemberCount(Long bookClubSeq) {
+        if (bookClubSeq == null) {
+            return 0;
+        }
+        return bookClubMapper.getTotalJoinedMemberCount(bookClubSeq);
+    }
 }

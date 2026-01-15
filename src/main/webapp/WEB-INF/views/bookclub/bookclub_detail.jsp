@@ -274,10 +274,12 @@
                             </span>
                         </div>
                         <div class="bc-meta-item">
-                            <strong>최대 인원:</strong>
-                            <span id="bc-max-member">${bookClub.book_club_max_member}명</span>
+                            <strong>참여 인원:</strong>
+                            <span>
+                                <span id="bc-joined-member-count">${joinedMemberCount}</span> /
+                                <span id="bc-max-member">${bookClub.book_club_max_member}</span>명 참여중
+                            </span>
                         </div>
-                        <!-- TODO: 현재 멤버 수 조회 및 표시 (book_club_member 테이블 조인) -->
                     </div>
 
                     <div class="bc-desc" id="bc-club-desc">
