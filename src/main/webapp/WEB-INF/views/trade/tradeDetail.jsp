@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<jsp:include page="common/header.jsp" />
+<jsp:include page="../common/header.jsp" />
 
 <div class="max-w-6xl mx-auto py-8">
     <!-- Breadcrumb -->
@@ -86,8 +86,8 @@
                 <div>
                     배송비 :
                     <c:choose>
-                        <c:when test="${trade.book_delivery_cost > 0}">
-                            <fmt:formatNumber value="${trade.book_delivery_cost}" pattern="#,###" /> 원
+                        <c:when test="${trade.delivery_cost > 0}">
+                            <fmt:formatNumber value="${trade.delivery_cost}" pattern="#,###" /> 원
                         </c:when>
                         <c:otherwise>무료</c:otherwise>
                     </c:choose>
@@ -146,4 +146,4 @@ function update() {
 }
 </script>
 
-<jsp:include page="common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />
