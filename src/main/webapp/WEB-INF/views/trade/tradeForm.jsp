@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<jsp:include page="/WEB-INF/views/common/header.jsp" />
+<jsp:include page="../common/header.jsp" />
+<!-- 다음 주소 API -->
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!-- 내가 만든 JS -->
+<script src="<c:url value='/resources/js/trade/openDaumPostcode.js'/>"></script>
 
 <div class="max-w-4xl mx-auto py-8">
     <!-- Page Title -->
@@ -111,7 +115,7 @@
                         배송비 (원)
                     </label>
                     <input type="number" id="delivery_cost" name="delivery_cost"
-                           placeholder="3000"
+                           placeholder="3000" value="0"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                     <p class="text-xs text-gray-500 mt-1">무료배송인 경우 0을 입력하세요</p>
                 </div>
@@ -147,11 +151,17 @@
                 <!-- 판매지역 -->
                 <div>
                     <label for="sale_rg" class="block text-sm font-bold text-gray-700 mb-2">
-                        판매지역
+                        판매지역 [시, 군, 구만 표기됩니다.]
                     </label>
-                    <input type="text" id="sale_rg" name="sale_rg"
-                           placeholder="서울 강남구"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                    <div class="flex">
+                        <input type="text" id="sale_rg" name="sale_rg" readonly
+                               placeholder="주소 검색을 클릭하세요"
+                               class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                        <button type="button" onclick="openDaumPostcode()"
+                                class="px-6 py-3 bg-gray-900 text-white rounded-r-lg hover:bg-gray-800 transition font-bold">
+                            주소 검색
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 상세설명 -->
@@ -175,17 +185,17 @@
 
             <div id="imageUrlsContainer" class="space-y-3">
                 <div class="image-url-input flex gap-2">
-                    <input type="text" name="imgUrls" 
+                    <input type="text" name="imgUrls"
                            placeholder="https://example.com/image1.jpg"
                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                    <button type="button" onclick="removeImageUrl(this)" 
+                    <button type="button" onclick="removeImageUrl(this)"
                             class="px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-bold">
                         삭제
                     </button>
                 </div>
             </div>
 
-            <button type="button" onclick="addImageUrl()" 
+            <button type="button" onclick="addImageUrl()"
                     class="mt-4 w-full px-4 py-3 bg-gray-50 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-bold flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 이미지 URL 추가
@@ -206,6 +216,7 @@
     </form>
 </div>
 
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
 // 책 검색 기능
 const searchInput = document.getElementById('bookSearch');
@@ -319,10 +330,10 @@ function addImageUrl() {
     const newInput = document.createElement('div');
     newInput.className = 'image-url-input flex gap-2';
     newInput.innerHTML = `
-        <input type="text" name="imgUrls" 
+        <input type="text" name="imgUrls"
                placeholder="https://example.com/image.jpg"
                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-        <button type="button" onclick="removeImageUrl(this)" 
+        <button type="button" onclick="removeImageUrl(this)"
                 class="px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-bold">
             삭제
         </button>
@@ -334,7 +345,7 @@ function addImageUrl() {
 function removeImageUrl(button) {
     const container = document.getElementById('imageUrlsContainer');
     const inputs = container.querySelectorAll('.image-url-input');
-    
+
     // 최소 1개는 남겨둠
     if (inputs.length > 1) {
         button.closest('.image-url-input').remove();
@@ -357,4 +368,4 @@ document.querySelector('form').addEventListener('submit', function(e) {
 });
 </script>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />
