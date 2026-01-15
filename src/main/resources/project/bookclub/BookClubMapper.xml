@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="project.bookclub.BookClubMapper">
+<mapper namespace="project.bookclub.mapper.BookClubMapper">
 
     <!-- 전체 조회 -->
     <select id="searchAll" resultType="project.bookclub.vo.BookClubVO">
@@ -18,8 +18,8 @@
             ,crt_dtm
             ,upd_dtm
         FROM book_club
-        ORDER BY book_club_seq
         WHERE book_club_deleted_dt IS NULL
+        ORDER BY book_club_seq
     </select>
 
     <!-- 키워드 조회 -->

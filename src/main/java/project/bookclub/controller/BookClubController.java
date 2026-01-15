@@ -3,6 +3,7 @@ package project.bookclub.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,8 +25,26 @@ public class BookClubController {
     * keyword 없으면 모임 전체 조회
     * keyword 있으면 검색
     */
+//    @GetMapping
+//    public List<BookClubVO> getBookClubs(@RequestParam(required = false) String keyword) {
+//        log.info(">>> bookclubs. controller called");
+//        return bookClubService.searchBookClubs(keyword);
+//    }
+
     @GetMapping
-    public List<BookClubVO> getBookClubs(@RequestParam(required = false) String keyword) {
-        return bookClubService.searchBookClubs(keyword);
+    public String getBookClubs(Model model) {
+        List<BookClubVO> bookClubs = bookClubService.searchAll();
+        model.addAttribute(bookClubs);
+        return "bookclub/bookclubs";
     }
+
+
+//    @GetMapping
+//    public String getBookClubs(@RequestParam(required = false) String keyword, Model model) {
+////        log.info(">>> bookclubs. controller called");
+//        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword);
+//        model.addAttribute("bookClubs", bookClubs);
+//        model.addAttribute("keyword", keyword);
+//        return "bookclub/bookclubs";
+//    }
 }
