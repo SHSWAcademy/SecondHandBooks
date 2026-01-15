@@ -1,268 +1,349 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="_csrf" content="${_csrf.token}">
-    <meta name="_csrf_header" content="${_csrf.headerName}">
-    <title><c:out value="${bookclub.name}"/> - 신한북스</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub.css">
-</head>
-<body>
-    <jsp:include page="/WEB-INF/views/common/header.jsp" />
+<jsp:include page="/WEB-INF/views/common/header.jsp" />
 
-    <main class="bookclub-main">
-        <div class="container">
-            <!-- 상단 배너 영역 -->
-            <div class="detail-header">
-                <div class="detail-banner">
+<!-- ========== 🔍 JSP 렌더링 디버깅 마커 ========== -->
+<!-- JSP 파일: bookclub_detail.jsp -->
+<!-- 렌더링 시각: <%= new java.util.Date() %> -->
+<!-- bookClub 객체: ${bookClub} -->
+<!-- errorMessage: ${errorMessage} -->
+<!-- ============================================== -->
+
+<style>
+    /* 페이지 전용 CSS - bc- prefix 사용 */
+    .bc-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .bc-error {
+        text-align: center;
+        padding: 40px 20px;
+        color: #e53e3e;
+        font-size: 18px;
+    }
+
+    .bc-banner-wrapper {
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        background-color: #f7fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bc-banner-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .bc-banner-placeholder {
+        font-size: 80px;
+        color: #cbd5e0;
+    }
+
+    .bc-header {
+        background: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .bc-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2d3748;
+        margin-bottom: 20px;
+    }
+
+    .bc-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        color: #4a5568;
+    }
+
+    .bc-meta-item {
+        display: flex;
+        gap: 8px;
+    }
+
+    .bc-meta-item strong {
+        color: #2d3748;
+    }
+
+    .bc-desc {
+        line-height: 1.6;
+        color: #4a5568;
+        white-space: pre-wrap;
+    }
+
+    .bc-tabs-nav {
+        display: flex;
+        gap: 10px;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 20px;
+    }
+
+    .bc-tab-btn {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        font-size: 16px;
+        font-weight: 500;
+        color: #718096;
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+    }
+
+    .bc-tab-btn:hover {
+        color: #2d3748;
+    }
+
+    .bc-tab-btn.bc-active {
+        color: #3182ce;
+    }
+
+    .bc-tab-btn.bc-active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #3182ce;
+    }
+
+    .bc-tab-panel {
+        display: none;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .bc-tab-panel.bc-active {
+        display: block;
+    }
+
+    .bc-placeholder {
+        text-align: center;
+        padding: 40px 20px;
+        color: #a0aec0;
+        font-size: 16px;
+    }
+
+    .bc-info-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .bc-info-item {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 20px;
+    }
+
+    .bc-info-label {
+        font-weight: bold;
+        color: #2d3748;
+    }
+
+    .bc-info-value {
+        color: #4a5568;
+    }
+</style>
+
+<div class="bc-container">
+        <!-- 🔍 디버깅: bc-container 렌더링됨 -->
+        <c:choose>
+            <c:when test="${not empty errorMessage}">
+                <!-- 조회 실패 시 에러 메시지 -->
+                <!-- 🔍 디버깅: errorMessage 블록 실행됨 -->
+                <div class="bc-error">
+                    <p>${errorMessage}</p>
+                </div>
+            </c:when>
+            <c:when test="${not empty bookClub}">
+                <!-- 🔍 디버깅: bookClub 블록 실행됨 -->
+                <!-- 배너 이미지 영역 -->
+                <div class="bc-banner-wrapper">
                     <c:choose>
-                        <c:when test="${not empty bookclub.bannerImgUrl}">
-                            <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
-                                 alt="<c:out value='${bookclub.name}'/> 배너">
+                        <c:when test="${not empty bookClub.banner_img_url}">
+                            <img id="bc-banner"
+                                 src="${bookClub.banner_img_url}"
+                                 alt="${bookClub.book_club_name} 배너">
                         </c:when>
                         <c:otherwise>
-                            <div class="detail-banner-placeholder">
-                                <span>📚</span>
-                            </div>
+                            <div class="bc-banner-placeholder" id="bc-banner">📚</div>
                         </c:otherwise>
                     </c:choose>
                 </div>
 
-                <div class="detail-info">
-                    <h1 class="detail-title">
-                        <c:out value="${bookclub.name}"/>
+                <!-- 모임 정보 헤더 -->
+                <div class="bc-header">
+                    <h1 class="bc-title" id="bc-club-name">
+                        ${bookClub.book_club_name}
                     </h1>
 
-                    <div class="detail-meta">
-                        <span class="meta-item">
-                            <strong>지역:</strong> <c:out value="${bookclub.region}"/>
-                        </span>
-                        <span class="meta-item">
-                            <strong>일정:</strong> <c:out value="${bookclub.schedule}"/>
-                        </span>
-                        <span class="meta-item">
-                            <strong>인원:</strong> ${bookclub.memberCount}/${bookclub.maxMember}명
-                        </span>
+                    <div class="bc-meta">
+                        <div class="bc-meta-item">
+                            <strong>지역:</strong>
+                            <span id="bc-club-region">
+                                <c:choose>
+                                    <c:when test="${not empty bookClub.book_club_rg}">
+                                        ${bookClub.book_club_rg}
+                                    </c:when>
+                                    <c:otherwise>미설정</c:otherwise>
+                                </c:choose>
+                            </span>
+                        </div>
+                        <div class="bc-meta-item">
+                            <strong>정기 일정:</strong>
+                            <span id="bc-club-schedule">
+                                <c:choose>
+                                    <c:when test="${not empty bookClub.book_club_schedule}">
+                                        ${bookClub.book_club_schedule}
+                                    </c:when>
+                                    <c:otherwise>미설정</c:otherwise>
+                                </c:choose>
+                            </span>
+                        </div>
+                        <div class="bc-meta-item">
+                            <strong>최대 인원:</strong>
+                            <span id="bc-max-member">${bookClub.book_club_max_member}명</span>
+                        </div>
+                        <!-- TODO: 현재 멤버 수 조회 및 표시 (book_club_member 테이블 조인) -->
                     </div>
 
-                    <div class="detail-desc">
-                        <p><c:out value="${bookclub.desc}"/></p>
-                    </div>
-
-                    <!-- CTA 버튼 -->
-                    <div class="detail-actions">
+                    <div class="bc-desc" id="bc-club-desc">
                         <c:choose>
-                            <c:when test="${bookclub.isLeader}">
-                                <a href="${pageContext.request.contextPath}/bookclubs/${bookclub.bookClubSeq}/manage"
-                                   class="btn btn-primary">
-                                    모임 관리하기
-                                </a>
+                            <c:when test="${not empty bookClub.book_club_desc}">
+                                ${bookClub.book_club_desc}
                             </c:when>
-                            <c:when test="${bookclub.isMember}">
-                                <span class="badge badge-success">가입됨</span>
-                            </c:when>
-                            <c:otherwise>
-                                <button type="button"
-                                        class="btn btn-primary"
-                                        id="btnJoinRequest"
-                                        data-club-seq="${bookclub.bookClubSeq}">
-                                    가입 신청
-                                </button>
-                            </c:otherwise>
+                            <c:otherwise>소개글이 없습니다.</c:otherwise>
                         </c:choose>
+                    </div>
 
+                    <!-- TODO: 버튼 분기 처리 -->
+                    <!-- TODO: 1) 모임장이면 "모임 관리" 버튼 -->
+                    <!-- TODO: 2) 가입 멤버면 "가입됨" 뱃지 -->
+                    <!-- TODO: 3) 비멤버면 "가입 신청" 버튼 -->
+                    <!-- TODO: 4) "찜하기" 버튼 (book_club_wish 테이블 연동) -->
+                </div>
+
+                <!-- 탭 네비게이션 -->
+                <div class="bc-tabs">
+                    <nav class="bc-tabs-nav">
                         <button type="button"
-                                class="btn-wish ${bookclub.isWished ? 'wished' : ''}"
-                                data-club-seq="${bookclub.bookClubSeq}"
-                                aria-label="${bookclub.isWished ? '찜 취소' : '찜하기'}">
-                            <span class="wish-icon">${bookclub.isWished ? '❤️' : '🤍'}</span>
-                            찜
+                                class="bc-tab-btn bc-active"
+                                data-tab="home">
+                            홈
                         </button>
+                        <button type="button"
+                                class="bc-tab-btn"
+                                data-tab="board">
+                            게시판
+                        </button>
+                    </nav>
+
+                    <!-- 홈 탭 -->
+                    <div class="bc-tab-panel bc-active" data-panel="home">
+                        <h2>모임 정보</h2>
+                        <div class="bc-info-list">
+                            <div class="bc-info-item">
+                                <div class="bc-info-label">모임명</div>
+                                <div class="bc-info-value">${bookClub.book_club_name}</div>
+                            </div>
+                            <div class="bc-info-item">
+                                <div class="bc-info-label">지역</div>
+                                <div class="bc-info-value">
+                                    <c:choose>
+                                        <c:when test="${not empty bookClub.book_club_rg}">
+                                            ${bookClub.book_club_rg}
+                                        </c:when>
+                                        <c:otherwise>미설정</c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                            <div class="bc-info-item">
+                                <div class="bc-info-label">정기 일정</div>
+                                <div class="bc-info-value">
+                                    <c:choose>
+                                        <c:when test="${not empty bookClub.book_club_schedule}">
+                                            ${bookClub.book_club_schedule}
+                                        </c:when>
+                                        <c:otherwise>미설정</c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                            <div class="bc-info-item">
+                                <div class="bc-info-label">정원</div>
+                                <div class="bc-info-value">${bookClub.book_club_max_member}명</div>
+                            </div>
+                            <div class="bc-info-item">
+                                <div class="bc-info-label">생성일</div>
+                                <div class="bc-info-value">
+                                    ${bookClub.crt_dtm.toString().substring(0, 10).replace('-', '.')}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- TODO: 멤버 미리보기 (프로필 이미지 3~5명) -->
                     </div>
-                </div>
-            </div>
 
-            <!-- 게시판 탭 -->
-            <div class="detail-tabs">
-                <nav class="tabs-nav" role="tablist">
-                    <button type="button"
-                            class="tab-btn active"
-                            role="tab"
-                            aria-selected="true"
-                            aria-controls="tabBoard"
-                            id="tabBtnBoard">
-                        게시판
-                    </button>
-                    <button type="button"
-                            class="tab-btn"
-                            role="tab"
-                            aria-selected="false"
-                            aria-controls="tabInfo"
-                            id="tabBtnInfo">
-                        모임 정보
-                    </button>
-                </nav>
-
-                <div class="tabs-content">
                     <!-- 게시판 탭 -->
-                    <div class="tab-panel active" role="tabpanel" id="tabBoard" aria-labelledby="tabBtnBoard">
-                        <div class="board-header">
-                            <h2>게시판</h2>
-                            <c:if test="${bookclub.isMember}">
-                                <button type="button" class="btn btn-secondary" id="btnWritePost">
-                                    글쓰기
-                                </button>
-                            </c:if>
-                        </div>
-
-                        <div class="board-list">
-                            <c:choose>
-                                <c:when test="${empty posts}">
-                                    <div class="empty-state">
-                                        <p>아직 작성된 글이 없습니다.</p>
-                                        <c:if test="${bookclub.isMember}">
-                                            <button type="button" class="btn btn-primary" id="btnWritePostEmpty">
-                                                첫 글 작성하기
-                                            </button>
-                                        </c:if>
-                                    </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <ul class="post-list">
-                                        <c:forEach var="post" items="${posts}">
-                                            <li class="post-item" data-post-seq="${post.boardSeq}">
-                                                <div class="post-header">
-                                                    <span class="post-author">
-                                                        <c:out value="${post.memberNickname}"/>
-                                                    </span>
-                                                    <span class="post-date">
-                                                        <fmt:formatDate value="${post.createdAt}" pattern="yyyy.MM.dd HH:mm"/>
-                                                    </span>
-                                                </div>
-                                                <div class="post-body">
-                                                    <c:if test="${not empty post.title}">
-                                                        <h3 class="post-title">
-                                                            <c:out value="${post.title}"/>
-                                                        </h3>
-                                                    </c:if>
-                                                    <p class="post-content">
-                                                        <c:out value="${post.cont}"/>
-                                                    </p>
-                                                    <c:if test="${not empty post.imgUrl}">
-                                                        <div class="post-image">
-                                                            <img src="<c:out value='${post.imgUrl}'/>" alt="게시글 이미지">
-                                                        </div>
-                                                    </c:if>
-                                                </div>
-                                                <div class="post-footer">
-                                                    <button type="button"
-                                                            class="btn-link"
-                                                            data-action="comment"
-                                                            data-post-seq="${post.boardSeq}">
-                                                        댓글 (추후 구현)
-                                                    </button>
-                                                </div>
-                                            </li>
-                                        </c:forEach>
-                                    </ul>
-
-                                    <!-- 페이징 -->
-                                    <c:if test="${pageInfo.totalCount > 0}">
-                                        <div class="pagination">
-                                            <c:set var="totalPages" value="${(pageInfo.totalCount + pageInfo.size - 1) / pageInfo.size}" />
-                                            <c:set var="currentPage" value="${pageInfo.page}" />
-
-                                            <c:if test="${currentPage > 1}">
-                                                <a href="?page=${currentPage - 1}&size=${pageInfo.size}" class="page-link">이전</a>
-                                            </c:if>
-
-                                            <span class="page-current">
-                                                ${currentPage} / ${totalPages}
-                                            </span>
-
-                                            <c:if test="${currentPage < totalPages}">
-                                                <a href="?page=${currentPage + 1}&size=${pageInfo.size}" class="page-link">다음</a>
-                                            </c:if>
-                                        </div>
-                                    </c:if>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                    </div>
-
-                    <!-- 모임 정보 탭 -->
-                    <div class="tab-panel" role="tabpanel" id="tabInfo" aria-labelledby="tabBtnInfo">
-                        <div class="info-section">
-                            <h2>모임 정보</h2>
-                            <dl class="info-list">
-                                <dt>모임 이름</dt>
-                                <dd><c:out value="${bookclub.name}"/></dd>
-
-                                <dt>지역</dt>
-                                <dd><c:out value="${bookclub.region}"/></dd>
-
-                                <dt>일정</dt>
-                                <dd><c:out value="${bookclub.schedule}"/></dd>
-
-                                <dt>정원</dt>
-                                <dd>${bookclub.maxMember}명</dd>
-
-                                <dt>현재 인원</dt>
-                                <dd>${bookclub.memberCount}명</dd>
-
-                                <dt>소개</dt>
-                                <dd><c:out value="${bookclub.desc}"/></dd>
-                            </dl>
+                    <div class="bc-tab-panel" data-panel="board">
+                        <div class="bc-placeholder">
+                            <p>게시판 기능은 추후 구현됩니다.</p>
+                            <!-- TODO: book_club_board 테이블 조회 및 게시글 목록 출력 -->
+                            <!-- TODO: 게시글 작성 버튼 (멤버만) -->
+                            <!-- TODO: 게시글 상세 / 댓글 (parent_book_club_board_seq) -->
+                            <!-- TODO: 페이징 처리 -->
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </main>
+            </c:when>
+            <c:otherwise>
+                <!-- 🔍 디버깅: c:otherwise 블록 실행됨 (bookClub도 errorMessage도 없음) -->
+                <div class="bc-error">
+                    <p>독서모임을 찾을 수 없습니다.</p>
+                    <p style="font-size: 14px; color: #718096; margin-top: 10px;">
+                        (디버깅: bookClub = ${bookClub}, errorMessage = ${errorMessage})
+                    </p>
+                </div>
+            </c:otherwise>
+        </c:choose>
+</div>
 
-    <!-- 가입 신청 모달 -->
-    <div class="modal" id="joinRequestModal" role="dialog" aria-labelledby="joinRequestTitle" aria-hidden="true">
-        <div class="modal-overlay" data-dismiss="modal"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="joinRequestTitle">가입 신청</h2>
-                <button type="button" class="modal-close" data-dismiss="modal" aria-label="닫기">×</button>
-            </div>
-            <div class="modal-body">
-                <form id="joinRequestForm">
-                    <div class="form-group">
-                        <label for="joinRequestCont">
-                            신청 사유 <span class="required">*</span>
-                        </label>
-                        <textarea id="joinRequestCont"
-                                  name="cont"
-                                  rows="5"
-                                  class="form-textarea"
-                                  placeholder="가입 신청 사유를 작성해주세요"
-                                  required></textarea>
-                        <p class="form-help">최소 10자 이상 입력해주세요.</p>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                <button type="submit" class="btn btn-primary" form="joinRequestForm">신청하기</button>
-            </div>
-        </div>
-    </div>
+<script>
+    // 탭 전환 최소 구현
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabBtns = document.querySelectorAll('.bc-tab-btn');
+        const tabPanels = document.querySelectorAll('.bc-tab-panel');
 
-    <jsp:include page="/WEB-INF/views/common/footer.jsp" />
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
 
-    <script src="${pageContext.request.contextPath}/resources/js/bookclub.js"></script>
-    <script>
-        // 페이지별 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            BookClub.initDetail(${bookclub.bookClubSeq});
+                // 모든 탭/패널 비활성화
+                tabBtns.forEach(b => b.classList.remove('bc-active'));
+                tabPanels.forEach(p => p.classList.remove('bc-active'));
+
+                // 클릭한 탭/패널 활성화
+                this.classList.add('bc-active');
+                document.querySelector(`[data-panel="${targetTab}"]`).classList.add('bc-active');
+            });
         });
-    </script>
-</body>
-</html>
+    });
+</script>
+
+<jsp:include page="/WEB-INF/views/common/footer.jsp" />
