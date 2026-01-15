@@ -25,7 +25,7 @@ buildNumber.properties
 # Database Configuration
 src/main/resources/db.properties
 # API Configuration
-src/main/resources/api.properties
+src/main/resources/application.properties
 
 
 # Logs
