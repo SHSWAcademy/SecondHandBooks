@@ -37,7 +37,7 @@ public class MemberService{
         return memberMapper.emailCheck(member_email);
     }
     @Transactional // 2개 테이블 insert 보호
-    public MemberVO processKakaoLogin(Map<String, Object> params) {
+    public MemberVO processSocialLogin(Map<String, Object> params) {
         // 1. 소셜 ID로 가입 여부 확인
         MemberVO existMember = memberMapper.getMemberByOAuth(params);
 
