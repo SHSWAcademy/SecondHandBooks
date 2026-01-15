@@ -23,4 +23,13 @@
           AND book_club_deleted_dt IS NULL
     </select>
 
+    <!-- 특정 멤버가 JOINED 상태로 가입되어 있는지 확인 (count 반환) -->
+    <select id="selectJoinedMemberCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_member
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+          AND join_st = 'JOINED'
+    </select>
+
 </mapper>
