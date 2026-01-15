@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<jsp:include page="common/header.jsp" />
+<jsp:include page="../common/header.jsp" />
 
 <div class="max-w-[400px] mx-auto mt-12">
     <div class="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
@@ -59,4 +59,4 @@
     </div>
 </div>
 
-<jsp:include page="common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />
