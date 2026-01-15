@@ -13,4 +13,4 @@ public interface BookClubMapper {
 
     // 독서모임 상세 조회 (1건)
     BookClubVO selectById(@Param("bookClubSeq") Long bookClubSeq);
-}
+} 
