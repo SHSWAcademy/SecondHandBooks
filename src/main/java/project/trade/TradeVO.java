@@ -1,13 +1,12 @@
 package project.trade;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 import project.trade.ENUM.BookStatus;
 import project.trade.ENUM.PaymentType;
 import project.trade.ENUM.SaleStatus;
 import project.util.book.BookVO;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -50,7 +49,8 @@ public class TradeVO {
     private int book_org_price;     // 책 원가
 
     // 이미지 리스트
-    private List<String> imgUrls = new ArrayList<>();
+    private List<MultipartFile> uploadFiles; // form 에서 받아오는 데이터
+    private List<String> imgUrls; // db에 저장할 데이터
 
     public boolean checkTradeVO(
     ) {

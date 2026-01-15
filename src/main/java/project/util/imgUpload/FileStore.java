@@ -16,38 +16,44 @@ public class FileStore {
     @Value("${file.dir}")
     private String fileDir;
 
-    public String getFullPath(String filename) {
-        return fileDir + filename;
+    // 파라미터로 받은 파일 이름을 추가
+    public String getFullPath(String fileName) {
+        return fileDir + "/" + fileName;
     }
 
+    // 멀티파트 파일들을 서버에 저장될 파일 리스트로 리턴
     public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles) throws IOException {
         List<UploadFile> storeFileResult = new ArrayList<>();
-            for (MultipartFile multipartFile : multipartFiles) {
-                if (!multipartFile.isEmpty()) {
-                    storeFileResult.add(storeFile(multipartFile));
-                }
+
+        for (MultipartFile multipartFile : multipartFiles) {
+            if (!multipartFile.isEmpty()) {
+                storeFileResult.add(storeFile(multipartFile)); // uploadFIle 객체를 리스트에 추가
             }
-            return storeFileResult;
+        }
+        return storeFileResult;
     }
 
+    // 멀티파트 파일 -> 서버에 저장될 이름 변경
     public UploadFile storeFile(MultipartFile multipartFile) throws IOException {
-        if(multipartFile.isEmpty()) {
+
+        if (multipartFile.isEmpty()) {
             return null;
         }
-        String originFilename = multipartFile.getOriginalFilename();
-        String storeFileName = createStoreFileName(originFilename);
-        multipartFile.transferTo(new File(getFullPath(storeFileName)));
-        return new UploadFile(originFilename, storeFileName);
+
+        String orgFileName = multipartFile.getOriginalFilename();
+        String storeFileName = createStoreFileName(orgFileName); // 사용자가 업로드한 파일 이름 -> 서버에 저장될 이름
+        multipartFile.transferTo(new File(getFullPath(storeFileName))); // 서버에 저장될 파일 이름으로 실제 경로에 저장
+        return new UploadFile(orgFileName, storeFileName);
     }
 
-    private String createStoreFileName(String originalFilename) {
-        String ext = extractExt(originalFilename);
+    private String createStoreFileName(String orgFileName) {
+        String ext = extractExt(orgFileName); // png, jpg 등 확장자
         String uuid = UUID.randomUUID().toString();
         return uuid + "." + ext;
     }
 
-    private String extractExt(String orginalFilename) {
-        int pos = orginalFilename.lastIndexOf(".");
-        return orginalFilename.substring(pos + 1);
+    private String extractExt(String orgFileName) {
+        int pos = orgFileName.lastIndexOf(".");
+        return orgFileName.substring(pos + 1);
     }
 }
