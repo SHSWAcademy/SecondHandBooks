@@ -51,6 +51,16 @@
             </button>
         </div>
 
+        <div>
+            <a href="https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${kakaoRedirectUri}&response_type=code" ... >
+                카카오로 시작하기
+            </a>
+
+            <a href="https://nid.naver.com/oauth2.0/authorize?client_id=${naverClientId}&redirect_uri=${naverRedirectUri}&response_type=code&state=STATE_STRING" ... >
+                네이버로 시작하기
+            </a>
+        </div>
+
         <div class="mt-6 pt-6 border-t border-gray-100">
             <a href="/signup" class="block w-full py-3.5 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition text-sm text-center">
                 회원가입
