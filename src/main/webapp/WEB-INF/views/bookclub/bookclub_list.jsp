@@ -156,15 +156,16 @@
         </div>
     </main>
     <!-- 모임 생성 팝업 -->
+    <%--
     <div id="createBookClubModal" class="modal hidden">
         <div class="modal-overlay"></div>
         <div class="modal-content">
             <button class="modal-close">x</button>
             <h2 class="modal-title">새 독서모임 만들기</h2>
-            <form></form>
+            <form id="createBookClubForm" enctype="multipart/form-data"></form>
         </div>
     </div>
-
+    --%>
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
     <script src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub.js"></script>
