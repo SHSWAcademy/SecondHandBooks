@@ -30,6 +30,9 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    // ----------------------------------
+    // 카카오 로그인
+    // ----------------------------------
     @Value("${api.kakao.client.id}")
     private String kakaoClientId;
 
@@ -38,9 +41,31 @@ public class MemberController {
 
     @Value("${api.kakao.client_secret}")
     private String kakaoSecretCode;
+    // -----------------------------------
+
+    // -----------------------------------
+    // 네이버 로그인
+    // -----------------------------------
+    @Value("${api.naver.client.id}")
+    private String naverClientId;
+
+    @Value("${api.naver.client.secret}")
+    private String naverClientSecret;
+
+    @Value("${api.naver.redirect.uri}")
+    private String naverRedirectUri;
+    // -----------------------------------
 
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        // JSP의 ${kakaoClientId} 등에 전달할 값 설정
+        model.addAttribute("kakaoClientId", kakaoClientId);
+        model.addAttribute("kakaoRedirectUri", kakaoRedirectUri);
+
+        // 네이버 관련 값 추가
+        model.addAttribute("naverClientId", naverClientId);
+        model.addAttribute("naverRedirectUri", naverRedirectUri);
+
         return "member/login";
     }
 
@@ -101,7 +126,7 @@ public class MemberController {
 
         // 3. 서비스 호출
         try {
-            MemberVO loginUser = memberService.processKakaoLogin(kakaoUserInfo);
+            MemberVO loginUser = memberService.processSocialLogin(kakaoUserInfo);
             sess.setAttribute("loginSess", loginUser);
             return "redirect:/";
         } catch (Exception e) {
@@ -182,6 +207,75 @@ public class MemberController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return userInfo;
+    }
+
+    // --- 네이버 로그인 콜백 ---
+    @GetMapping("/auth/naver/callback")
+    public String naverCallBack(@RequestParam String code, @RequestParam String state, HttpSession sess, Model model) {
+        // 1. 액세스 토큰 받기
+        String accessToken = getNaverAccessToken(code, state);
+        if (accessToken == null) {
+            model.addAttribute("msg", "네이버 토큰 발급 실패");
+            model.addAttribute("cmd", "back");
+            return "common/return";
+        }
+
+        // 2. 사용자 정보 받기
+        Map<String, Object> naverUserInfo = getNaverUserInfo(accessToken);
+
+        // 3. 서비스 호출 (기존 카카오에서 쓴 메서드를 재사용하거나 새로 만듭니다)
+        try {
+            // provider를 "NAVER"로 넘겨서 구분합니다.
+            MemberVO loginUser = memberService.processSocialLogin(naverUserInfo);
+            sess.setAttribute("loginSess", loginUser);
+            return "redirect:/";
+        } catch (Exception e) {
+            log.error("Naver Login Error", e);
+            return "error/500";
+        }
+    }
+
+    // [Helper] 네이버 토큰 발급
+    private String getNaverAccessToken(String code, String state) {
+        String tokenUrl = "https://nid.naver.com/oauth2.0/token";
+        RestTemplate rt = new RestTemplate();
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", naverClientId);
+        params.add("client_secret", naverClientSecret);
+        params.add("code", code);
+
+        try {
+            ResponseEntity<Map> response = rt.postForEntity(tokenUrl, params, Map.class);
+            return (String) response.getBody().get("access_token");
+        } catch (Exception e) {
+            log.error("Naver Token Error", e);
+            return null;
+        }
+    }
+
+    // [Helper] 네이버 정보 가져오기
+    private Map<String, Object> getNaverUserInfo(String accessToken) {
+        String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
+        RestTemplate rt = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+        ResponseEntity<Map> response = rt.exchange(userInfoUrl, HttpMethod.GET, request, Map.class);
+
+        // 네이버는 응답 구조가 "response" 안에 데이터가 있음
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody().get("response");
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("provider_id", responseBody.get("id"));
+        userInfo.put("provider", "NAVER");
+        userInfo.put("nickname", responseBody.get("nickname"));
+        userInfo.put("email", responseBody.get("email"));
+
         return userInfo;
     }
 
