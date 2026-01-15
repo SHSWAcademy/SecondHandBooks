@@ -4,7 +4,7 @@
 
 <mapper namespace="project.trade.BookImgMapper">
 
-    <insert id="save" parameterType="String">
+    <insert id="save">
         INSERT INTO book_image (
             img_url,
             trade_seq

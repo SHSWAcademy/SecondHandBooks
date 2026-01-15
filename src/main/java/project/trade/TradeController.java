@@ -2,15 +2,22 @@ package project.trade;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import project.member.MemberVO;
 import project.util.Const;
 import project.util.book.BookApiService;
 import project.util.book.BookVO;
+import project.util.imgUpload.FileStore;
+import project.util.imgUpload.UploadFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -19,6 +26,10 @@ import java.util.List;
 public class TradeController {
     private final TradeService tradeService;
     private final BookApiService bookApiService;
+    private final FileStore fileStore; // 이미지 저장 기능을 수행하는 객체
+
+    @Value("${file.dir}")
+    private String fileDir;
 
     // 판매글 상세조회
     @GetMapping("/main/trade/{tradeSeq}")
@@ -39,26 +50,52 @@ public class TradeController {
 
     // 판매글 업로드
     @PostMapping("/trade")
-    public String uploadTrade(TradeVO tradeVO, HttpSession session) throws Exception {
+    public String uploadTrade(TradeVO tradeVO, HttpSession session,
+                              RedirectAttributes redirectAttributes) throws Exception {
 
+        /*
+        // memberVO 검증
         MemberVO loginMember = (MemberVO)session.getAttribute(Const.SESSION);
-
         if (loginMember == null) {
             log.info("no session");
             throw new Exception("no session");
         }
+        */
 
-        //tradeVO.setMember_seller_seq(loginMember.getMemberSeq());
-
+        // tradeVO 검증
         if (tradeVO == null || !tradeVO.checkTradeVO()){
-            log.error("Invalid trade data: {}", tradeVO);
+            log.info("Invalid trade data: {}", tradeVO);
             throw new Exception("cannot upload trade");
+        }
+        // tradeVO에 seller seq 할당
+        // tradeVO.setMember_seller_seq(loginMember.getMemberSeq());
+
+        // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
+        List<MultipartFile> uploadFiles = tradeVO.getUploadFiles(); // form 에서 받은 데이터 조회
+        log.info("uploadFiles: {}", uploadFiles);
+
+        if (uploadFiles != null && !uploadFiles.isEmpty()) {
+            List<UploadFile> storeImgFiles = fileStore.storeFiles(uploadFiles); // 서버 저장용, 내부에 multipartFile.transferTo로 서버 경로에 저장
+            log.info("storeImgFiles: {}", storeImgFiles);
+
+            List<String> imgUrls = new ArrayList<>(); // db 저장용
+
+            // storeImgFiles 리스트 반복
+            for (UploadFile file : storeImgFiles) {
+                String storeFileName = file.getStoreFileName();
+                imgUrls.add(storeFileName);
+            }
+
+            log.info("imgUrls: {}", imgUrls);
+            tradeVO.setImgUrls(imgUrls);
         }
 
         if (tradeService.save(tradeVO)) {
             log.info("trade save success, book isbn : {}", tradeVO.getIsbn());
-            return "redirect:/main";
+            redirectAttributes.addAttribute("tradeSeq", tradeVO.getTrade_seq());
+            return "redirect:/main/trade/{tradeSeq}";
         }
+        // 실패 시
         return "error/500";
     }
 
