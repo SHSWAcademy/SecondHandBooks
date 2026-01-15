@@ -49,4 +49,13 @@ public class BookClubService {
     public BookClubVO getBookClubById(Long bookClubSeq) {
         return bookClubMapper.selectById(bookClubSeq);
     }
+
+    // #2-2. 특정 멤버가 JOINED 상태로 가입되어 있는지 확인
+    public boolean isMemberJoined(Long bookClubSeq, Long memberSeq) {
+        if (bookClubSeq == null || memberSeq == null) {
+            return false;
+        }
+        int count = bookClubMapper.selectJoinedMemberCount(bookClubSeq, memberSeq);
+        return count > 0;
+    }
 }

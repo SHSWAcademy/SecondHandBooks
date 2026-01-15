@@ -161,6 +161,61 @@
     .bc-info-value {
         color: #4a5568;
     }
+
+    .bc-action-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 12px;
+    }
+
+    .bc-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .bc-btn-primary {
+        background-color: #3182ce;
+        color: white;
+    }
+
+    .bc-btn-primary:hover {
+        background-color: #2c5aa0;
+    }
+
+    .bc-btn-secondary {
+        background-color: #718096;
+        color: white;
+    }
+
+    .bc-btn-secondary:hover {
+        background-color: #4a5568;
+    }
+
+    .bc-btn-danger {
+        background-color: #e53e3e;
+        color: white;
+    }
+
+    .bc-btn-danger:hover {
+        background-color: #c53030;
+    }
+
+    .bc-btn-outline {
+        background-color: white;
+        color: #3182ce;
+        border: 2px solid #3182ce;
+    }
+
+    .bc-btn-outline:hover {
+        background-color: #ebf8ff;
+    }
 </style>
 
 <div class="bc-container">
@@ -234,11 +289,45 @@
                         </c:choose>
                     </div>
 
-                    <!-- TODO: 버튼 분기 처리 -->
-                    <!-- TODO: 1) 모임장이면 "모임 관리" 버튼 -->
-                    <!-- TODO: 2) 가입 멤버면 "가입됨" 뱃지 -->
-                    <!-- TODO: 3) 비멤버면 "가입 신청" 버튼 -->
-                    <!-- TODO: 4) "찜하기" 버튼 (book_club_wish 테이블 연동) -->
+                    <!-- 버튼 분기 처리 -->
+                    <div class="bc-action-buttons">
+                        <c:choose>
+                            <%-- 1순위: 비로그인 상태 --%>
+                            <c:when test="${not isLogin}">
+                                <a href="/login" class="bc-btn bc-btn-secondary">
+                                    로그인 후 이용
+                                </a>
+                            </c:when>
+
+                            <%-- 2순위: 모임장 --%>
+                            <c:when test="${isLeader}">
+                                <a href="/bookclubs/${bookClub.book_club_seq}/edit" class="bc-btn bc-btn-primary">
+                                    모임 관리하기
+                                </a>
+                                <span style="color: #718096; font-size: 14px; align-self: center;">
+                                    (URL 연결만 완료, 관리 페이지는 TODO)
+                                </span>
+                            </c:when>
+
+                            <%-- 3순위: 가입된 멤버 --%>
+                            <c:when test="${isMember}">
+                                <button type="button" class="bc-btn bc-btn-danger"
+                                        onclick="if(confirm('정말 모임을 나가시겠습니까?')) { alert('TODO: 모임 나가기 API 구현 예정'); }">
+                                    모임 나가기
+                                </button>
+                            </c:when>
+
+                            <%-- 4순위: 비멤버 (로그인했지만 가입하지 않음) --%>
+                            <c:otherwise>
+                                <button type="button" class="bc-btn bc-btn-outline"
+                                        onclick="alert('TODO: 가입 신청 기능 구현 예정')">
+                                    가입하기
+                                </button>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <!-- TODO: 찜하기 버튼 (book_club_wish 테이블 연동) -->
+                    </div>
                 </div>
 
                 <!-- 탭 네비게이션 -->
