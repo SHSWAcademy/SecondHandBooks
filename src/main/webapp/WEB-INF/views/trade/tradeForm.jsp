@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<jsp:include page="../mockup/common/header.jsp" />
+<jsp:include page="/WEB-INF/views/common/header.jsp" />
 
 <div class="max-w-4xl mx-auto py-8">
     <!-- Page Title -->
@@ -357,4 +357,4 @@ document.querySelector('form').addEventListener('submit', function(e) {
 });
 </script>
 
-<jsp:include page="../mockup/common/footer.jsp" />
+<jsp:include page="/WEB-INF/views/common/footer.jsp" />
