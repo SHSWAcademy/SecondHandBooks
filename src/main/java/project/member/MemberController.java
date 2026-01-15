@@ -2,6 +2,7 @@ package project.member;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,13 @@ import javax.servlet.http.HttpSession;
 public class MemberController {
 
     private final MemberService memberService;
+
+    @Value("${api.kakao.client.id}")
+    private String kakaoClientId;
+
+    @Value("${api.kakao.redirect.uri}")
+    private String kakaoRedirectUri;
+
 
     @GetMapping("/login")
     public String login() {
@@ -53,6 +61,22 @@ public class MemberController {
             model.addAttribute("cmd", "back");
         }
         return "common/return";
+    }
+
+    @GetMapping("/auth/kakao/callback")
+    public String kakaoCallBack(@RequestParam String code, HttpSession sess) {
+        // 엑세스 토큰 받기
+        String accessToken = getKakaoAccessToken(code);
+
+        // 사용자 정보 받기
+        MemberVO kakaoUser = getKakaoUserInfo(accessToken);
+
+        // 로그인/회원가입 처리 서비스 호출 (소셜 ID 포함)
+        MemberVO loginUser = memberService.processSocialLogin("KAKAO", kakaoUser.getLogin_id(), kakaoUser);
+
+        // 세션 저장 및 이동
+        sess.setAttribute("loginSess", loginUser);
+        return "redirect:/";
     }
 
     @GetMapping("/auth/ajax/idCheck")

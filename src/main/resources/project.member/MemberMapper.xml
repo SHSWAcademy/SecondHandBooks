@@ -34,6 +34,14 @@
 
     </insert>
 
+    <insert id="signUpKakao" parameterType="map">
+        INSERT INTO MEMBER_OAUTH (
+            MEMBER_SEQ, PROVIDER, PROVIDER_ID, CRT_DTM
+        ) VALUES (
+            #{memberSeq}, #{provider}, #{providerId}, NOW()
+        )
+    </insert>
+
     <select id="idCheck" parameterType="String" resultType="int">
         SELECT COUNT(*)
           FROM MEMBER_INFO
