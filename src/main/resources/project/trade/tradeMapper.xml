@@ -45,6 +45,7 @@
 
     <insert id="save" parameterType="project.trade.TradeVO" useGeneratedKeys="true" keyProperty="trade_seq">
         INSERT INTO sb_trade_info (
+            member_seller_seq,
             sale_title,
             book_img,
             book_title,
@@ -57,8 +58,10 @@
             sale_cont,
             sale_price,
             delivery_cost,
-            sale_rg
+            sale_rg,
+            crt_dtm
         ) VALUES (
+            #{member_seller_seq},
             #{sale_title},
             #{book_img},
             #{book_title},
@@ -67,11 +70,12 @@
             #{book_org_price},
             #{isbn},
             #{category_nm},
-            #{book_st},
+            #{book_st}::book_st_enum,
             #{sale_cont},
             #{sale_price},
             #{delivery_cost},
-            #{sale_rg}
+            #{sale_rg},
+            now()
         )
     </insert>
 </mapper>
