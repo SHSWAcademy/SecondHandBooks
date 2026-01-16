@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.trade.TradeMapper">
+
+    <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
+        SELECT
+            sb.trade_seq,
+            sb.sale_title,
+            sb.book_st,
+            sb.sale_cont,
+            sb.sale_price,
+            sb.book_delivery_cost,
+            sb.sale_rg,
+            sb.sale_st,
+            sb.sale_st_dtm,
+            sb.views,
+            sb.wish_cnt,
+            sb.book_sale_dtm,
+            sb.post_no,
+            sb.addr_h,
+            sb.addr_d,
+            sb.recipient_ph,
+            sb.recipient_nm,
+            sb.crt_dtm,
+            sb.upd_dtm,
+            sb.payment_type,
+            sb.category_nm,
+            b.book_title,
+            b.book_author,
+            b.book_publisher,
+            b.book_org_price,
+            b.book_img
+        FROM sb_trade_info AS sb
+        JOIN book_info AS b ON sb.book_info_seq = b.book_info_seq
+        WHERE sb.trade_seq = #{trade_seq}
+    </select>
+
+    <select id="findImgUrl" parameterType="long" resultType="String">
+        SELECT img_url
+        FROM book_image
+        WHERE trade_seq = #{trade_seq}
+        ORDER BY SORT_SEQ
+    </select>
+</mapper>
