@@ -36,25 +36,11 @@
         WHERE sb.trade_seq = #{trade_seq}
     </select>
 
-    <select id="findImgUrl" parameterType="long" resultType="String">
-        SELECT img_url
+    <select id="findImgUrl" parameterType="long" resultType="project.trade.TradeImageVO">
+        SELECT book_img_seq, trade_seq, img_url, sort_seq
         FROM book_image
         WHERE trade_seq = #{trade_seq}
-        ORDER BY SORT_SEQ
-    </select>
-    <select id="findAll" resultType="project.trade.TradeVO">
-        SELECT
-            trade_seq,
-            book_title,
-            book_author,
-            book_publisher,
-            book_img,
-            sale_title,
-            sale_price,
-            sale_rg,
-            crt_dtm
-        FROM sb_trade_info
-        ORDER BY crt_dtm DESC
+        ORDER BY sort_seq
     </select>
 
     <insert id="save" parameterType="project.trade.TradeVO" useGeneratedKeys="true" keyProperty="trade_seq">
@@ -115,4 +101,47 @@
         SET del_dtm = now()
         WHERE trade_seq = #{trade_seq}
     </update>
+
+    <select id="findAll" resultType="project.trade.TradeVO">
+        SELECT
+        trade_seq,
+        book_title,
+        book_author,
+        book_publisher,
+        book_img,
+        sale_title,
+        sale_price,
+        sale_rg,
+        crt_dtm
+        FROM sb_trade_info
+        WHERE del_dtm is null
+        ORDER BY crt_dtm DESC
+    </select>
+
+    <!-- 페이징 처리 -->
+    <select id="findAllWithPaging" resultType="project.trade.TradeVO">
+        SELECT
+            trade_seq,
+            book_title,
+            book_author,
+            book_publisher,
+            book_img,
+            sale_title,
+            sale_price,
+            sale_rg,
+            crt_dtm
+        FROM sb_trade_info
+        WHERE del_dtm IS NULL
+        ORDER BY crt_dtm DESC
+        LIMIT #{limit}
+        OFFSET #{offset}
+    </select>
+
+    <!-- 전체 개수 조회 (페이지 수 계산용) -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM sb_trade_info
+        WHERE del_dtm IS NULL
+    </select>
+
 </mapper>

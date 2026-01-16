@@ -28,11 +28,29 @@ public class HomeController {
 	 */
 	private final TradeService tradeService;
 
+	/*
 	@GetMapping({"/", "/home"})
 	public String home(Model model) {
 		List<TradeVO> trades = tradeService.searchAll();
 		model.addAttribute("trades", trades);
 		return "/common/home";
 	}
+	 */
+	@GetMapping("/")
+	public String home(@RequestParam(defaultValue = "1") int page, Model model) {
+		int size = 14;  // 한 페이지에 14개
+
+		List<TradeVO> trades = tradeService.searchAllWithPaging(page, size);
+		int totalCount = tradeService.countAll();
+		int totalPages = (int) Math.ceil((double) totalCount / size);
+
+		model.addAttribute("trades", trades);
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", totalPages);
+
+		return "common/home";
+	}
+
+
 	
 }

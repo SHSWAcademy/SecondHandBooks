@@ -116,11 +116,11 @@
     <!-- Product Grid - 5 Columns -->
     <c:choose>
         <c:when test="${not empty trades}">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
+            <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 gap-y-6">
                 <c:forEach var="trade" items="${trades}">
                     <div onclick="location.href='/trade/${trade.trade_seq}'" class="group flex flex-col cursor-pointer">
                         <!-- Image Container -->
-                        <div class="relative aspect-[1/1.2] overflow-hidden bg-gray-100 rounded-lg border border-gray-200 mb-3 hover:shadow-md transition-all">
+                        <div class="relative aspect-[1/1.2] overflow-hidden bg-gray-100 rounded-lg border border-gray-200 mb-2 hover:shadow-md transition-all">
                             <img src="${trade.book_img}" alt="${trade.book_title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                             <div class="absolute top-2 left-2 flex gap-1">
                                 <c:choose>
@@ -177,6 +177,24 @@
             </div>
         </c:otherwise>
     </c:choose>
+
+    <!-- Pagination -->
+    <div class="flex justify-center gap-2 mt-8">
+        <c:if test="${currentPage > 1}">
+            <a href="/?page=${currentPage - 1}" class="px-3 py-2 border rounded hover:bg-gray-100">이전</a>
+        </c:if>
+
+        <c:forEach begin="1" end="${totalPages}" var="i">
+            <a href="/?page=${i}"
+               class="px-3 py-2 border rounded ${i == currentPage ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'}">
+                ${i}
+            </a>
+        </c:forEach>
+
+        <c:if test="${currentPage < totalPages}">
+            <a href="/?page=${currentPage + 1}" class="px-3 py-2 border rounded hover:bg-gray-100">다음</a>
+        </c:if>
+    </div>
 </div>
 
 <script>

@@ -136,8 +136,6 @@ public class TradeController {
     @PostMapping("/trade/delete/{tradeSeq}")
     public String remove(@PathVariable Long tradeSeq,
                          RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
-        log.info("=== delete 메서드 진입, tradeSeq: {} ===", tradeSeq);
-        //checkSessionAndTrade(session, updateTrade);
 
         if (tradeService.remove(tradeSeq)) {
             log.info("delete Success");

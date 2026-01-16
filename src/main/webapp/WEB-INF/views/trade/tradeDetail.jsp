@@ -23,10 +23,16 @@
                 <c:choose>
                     <c:when test="${not empty trade.trade_img && trade.trade_img.size() > 0}">
                         <img id="mainImage"
-                             src="${pageContext.request.contextPath}/img/${trade.trade_img[0]}"
+                             src="${pageContext.request.contextPath}/img/${trade.trade_img[0].img_url}"
                              alt="${trade.book_title}"
                              class="w-full h-full object-contain p-4 bg-white" />
                     </c:when>
+                    <c:otherwise>
+                        <img id="mainImage"
+                             src="${trade.book_img}"
+                             alt="${trade.book_title}"
+                             class="w-full h-full object-contain p-4 bg-white" />
+                    </c:otherwise>
                 </c:choose>
 
                 <!-- 이미지 슬라이더 -->
@@ -50,7 +56,7 @@
                         <div onclick="setImage(${status.index})"
                              id="thumb-${status.index}"
                              class="w-20 h-20 border-2 ${status.index == 0 ? 'border-blue-500' : 'border-transparent'}">
-                            <img src="${pageContext.request.contextPath}/img/${img}" class="w-full h-full object-cover"/>
+                            <img src="${pageContext.request.contextPath}/img/${img.img_url}" class="w-full h-full object-cover"/>
                         </div>
                     </c:forEach>
                 </div>
@@ -125,9 +131,12 @@ const images = [
 <c:choose>
     <c:when test="${not empty trade.trade_img}">
         <c:forEach var="img" items="${trade.trade_img}" varStatus="s">
-            "${img}"<c:if test="${!s.last}">,</c:if>
+            "${img.img_url}"<c:if test="${!s.last}">,</c:if>
         </c:forEach>
     </c:when>
+    <c:otherwise>
+        "${trade.book_img}"
+    </c:otherwise>
 </c:choose>
 ];
 

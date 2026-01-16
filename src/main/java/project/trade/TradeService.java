@@ -43,6 +43,17 @@ public class TradeService {
         return findTrade;
     }
 
+    // 페이징 조회
+    public List<TradeVO> searchAllWithPaging(int page, int size) {
+        int offset = (page - 1) * size;  // page가 1부터 시작한다고 가정
+        return tradeMapper.findAllWithPaging(size, offset);
+    }
+
+    // 전체 개수
+    public int countAll() {
+        return tradeMapper.countAll();
+    }
+
     // 판매글 등록
     @Transactional
     public boolean upload(TradeVO tradeVO) {
@@ -87,10 +98,10 @@ public class TradeService {
     public boolean remove(Long tradeSeq) {
 
         // 이미지 url 조회
-        List<String> imgUrls = tradeMapper.findImgUrl(tradeSeq);
+        List<TradeImageVO> imgUrls = tradeMapper.findImgUrl(tradeSeq);
         if (imgUrls != null && !imgUrls.isEmpty()) {
-            for (String imgUrl : imgUrls) {
-                File file = new File(fileDir + "/" + imgUrl);
+            for (TradeImageVO vo : imgUrls) {
+                File file = new File(fileDir + "/" + vo.getImg_url());
                 if (file.exists()) file.delete();
             }
         }
