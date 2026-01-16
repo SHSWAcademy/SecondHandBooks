@@ -42,6 +42,20 @@
         WHERE trade_seq = #{trade_seq}
         ORDER BY SORT_SEQ
     </select>
+    <select id="findAll" resultType="project.trade.TradeVO">
+        SELECT
+            trade_seq,
+            book_title,
+            book_author,
+            book_publisher,
+            book_img,
+            sale_title,
+            sale_price,
+            sale_rg,
+            crt_dtm
+        FROM sb_trade_info
+        ORDER BY crt_dtm DESC
+    </select>
 
     <insert id="save" parameterType="project.trade.TradeVO" useGeneratedKeys="true" keyProperty="trade_seq">
         INSERT INTO sb_trade_info (
@@ -76,4 +90,29 @@
             now()
         )
     </insert>
+    <update id="update" parameterType="project.trade.TradeVO">
+        UPDATE sb_trade_info
+            SET
+                sale_title        = #{sale_title},
+                book_img          = #{book_img},
+                book_title        = #{book_title},
+                book_author       = #{book_author},
+                book_publisher    = #{book_publisher},
+                book_org_price    = #{book_org_price},
+                isbn              = #{isbn},
+                category_nm       = #{category_nm},
+                book_st           = #{book_st}::book_st_enum,
+                sale_cont         = #{sale_cont},
+                sale_price        = #{sale_price},
+                delivery_cost     = #{delivery_cost},
+                sale_rg           = #{sale_rg},
+                upd_dtm           = now()
+                WHERE trade_seq   = #{trade_seq}
+    </update>
+
+    <update id="delete" parameterType="long">
+        UPDATE sb_trade_info
+        SET del_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
 </mapper>

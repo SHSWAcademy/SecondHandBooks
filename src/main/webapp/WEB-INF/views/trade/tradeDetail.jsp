@@ -101,6 +101,21 @@
                 <h3 class="font-bold mb-2">상품 설명</h3>
                 <p class="whitespace-pre-wrap">${trade.sale_cont}</p>
             </div>
+
+            <!-- 수정/삭제 버튼 -->
+            <div class="mt-6 flex gap-3">
+                <a href="/trade/modify/${trade.trade_seq}"
+                   class="flex-1 px-6 py-3 bg-primary-500 text-white text-center rounded-lg hover:bg-primary-600 transition font-bold">
+                    수정
+                </a>
+                <form action="${pageContext.request.contextPath}/trade/delete/${trade.trade_seq}" method="post" class="flex-1"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <button type="submit"
+                            class="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-bold">
+                        삭제
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
