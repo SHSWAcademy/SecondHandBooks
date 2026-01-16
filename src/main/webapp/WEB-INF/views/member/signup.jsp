@@ -26,16 +26,44 @@
             <!-- 2. Email Input -->
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일<span class="text-red-500">*</span></label>
+
+                <div class="flex gap-2">
+                    <input type="email" name="member_email" id="member_email" required
+                           class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                           placeholder="email@email.com" />
+                    <button type="button" onclick="checkEmail()" id="checkEmailBtn"
+                            class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
+                        중복확인
+                    </button>
+                </div>
+                <p id="emailMsg" class="text-xs mt-1"></p>
+
+                <button type="button" id="sendAuthBtn" onclick="sendEmailAuth()"
+                        class="hidden w-full mt-2 bg-blue-500 text-white py-2 rounded-sm text-xs font-bold hover:bg-blue-600 transition">
+                    인증번호 발송
+                </button>
+
+                <div id="authCodeBox" class="hidden mt-2 p-3 bg-gray-50 border border-gray-200 rounded-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-gray-600">인증번호 입력</span>
+                        <span id="timer" class="text-xs font-bold text-red-500">03:00</span>
+                    </div>
                     <div class="flex gap-2">
-                        <input type="email" name="member_email" id="member_email" required
-                               class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
-                               placeholder="email@email.com" />
-                        <button type="button" onclick="checkEmail()" id="checkEmailBtn"
-                                class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
-                            중복확인
+                        <input type="text" id="authCodeInput"
+                               class="flex-1 px-3 py-2 border border-gray-300 rounded-sm text-sm outline-none"
+                               placeholder="6자리 번호" maxlength="6" />
+                        <button type="button" onclick="verifyAuthCode()" id="verifyBtn"
+                                class="px-3 py-2 bg-white border border-gray-300 text-xs font-bold rounded-sm hover:bg-gray-50">
+                            확인
                         </button>
                     </div>
-                <p id="emailMsg" class="text-xs mt-1"></p>
+                    <div class="flex justify-between items-center mt-1">
+                        <p id="authMsg" class="text-xs text-gray-500"></p>
+                        <button type="button" onclick="sendEmailAuth()" class="text-xs text-gray-500 underline hover:text-gray-800">
+                            재전송
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- 3. Password -->
@@ -116,6 +144,8 @@
 <script>
 let loginIdChecked = false;
 let emailChecked = false;
+let emailVerified = false; // 인증번호 통과 여부
+let timerInterval; // 인증번호 만료 제한시간
 let nickNmChecked = false;
 
 function checkLoginId() {
@@ -158,6 +188,8 @@ function checkEmail() {
     const member_email = document.getElementById('member_email').value;
     const msg = document.getElementById('emailMsg');
     const btn = document.getElementById('checkEmailBtn');
+    const sendAuthBtn = document.getElementById('sendAuthBtn');
+    const authCodeBox = document.getElementById('authCodeBox');
 
     const emailPattern = /^.+@.+\..+$/;
 
@@ -178,40 +210,143 @@ function checkEmail() {
                 emailChecked = false;
                 btn.textContent = '중복확인';
                 btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+                sendAuthBtn.classList.add('hidden');
+                authCodeBox.classList.add('hidden');
             } else {
-                msg.textContent = '사용 가능한 이메일입니다.';
+                msg.textContent = '사용 가능한 이메일입니다. 인증번호를 발송해 입력해주세요.';
                 msg.className = 'text-xs mt-1 text-green-600';
                 emailChecked = true;
                 btn.textContent = '✓';
                 btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+
+                sendAuthBtn.classList.remove('hidden');
             }
         },
         error: function() {
             alert('서버 통신 중 오류가 발생했습니다.');
         }
     })
-    // // Simulate async check
-    // btn.textContent = '확인 중...';
-    // btn.disabled = true;
-    //
-    // setTimeout(() => {
-    //     if (member_email === 'admin@admin.com') { // ajax로 처리하기
-    //         msg.textContent = '이미 사용 중인 이메일입니다.';
-    //         msg.className = 'text-xs mt-1 text-red-500';
-    //         emailChecked = false;
-    //         btn.textContent = '중복확인';
-    //         btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-    //     } else {
-    //         msg.textContent = '사용 가능한 이메일입니다.';
-    //         msg.className = 'text-xs mt-1 text-green-600';
-    //         emailChecked = true;
-    //         btn.textContent = '✓';
-    //         btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
-    //     }
-    //     btn.disabled = false;
-    // }, 800);
 }
 
+function sendEmailAuth() {
+    const email = document.getElementById('member_email').value;
+    if (!emailChecked) {
+        alert("이메일 중복 확인을 먼저 해주세요.");
+        return;
+    }
+
+    // UI 초기화 (재전송 시)
+    const sendAuthBtn = document.getElementById('sendAuthBtn');
+    const authCodeBox = document.getElementById('authCodeBox');
+    const authInput = document.getElementById('authCodeInput');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const authMsg = document.getElementById('authMsg');
+
+    sendAuthBtn.textContent = "전송 중..";
+    sendAuthBtn.disabled = true;
+
+    $.ajax({
+        url: '/auth/ajax/sendEmail',
+        type: 'GET',
+        data: {email: email},
+        success: function(res) {
+            if (res === "success") {
+                alert("인증번호가 발송되었습니다. 메일함을 확인해주세요.");
+
+                // UI 변경
+                sendAuthBtn.classList.add('hidden');
+                authCodeBox.classList.remove('hidden');
+                authInput.value = '';
+                authInput.disabled = false;
+                verifyBtn.disabled = false;
+                authMsg.textContent = "3분 이내에 입력해주세요.";
+                authMsg.className = "text-xs text-gray-500";
+
+                // 타이머 시작
+                startTimer(180); // 3분  타이머
+            } else {
+                alert("메일 발송에 실패했습니다. 이메일 주소를 확인해주세요.");
+                sendAuthBtn.textContent = "인증번호 발송";
+                sendAuthBtn.disabled = false;
+            }
+        },
+        error: function() {
+            alert("서버 오류로 메일 발송에 실패했습니다.");
+            sendAuthBtn.textContent = "인증번호 발송";
+            sendAuthBtn.disabled = false;
+        }
+    })
+}
+
+function startTimer(duration) {
+    let timer = duration, minutes, seconds;
+    const display = document.getElementById('timer');
+
+    // 기존 타이머 있을 시 제거하기
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(function() {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if (--timer < 0) {
+            clearInterval(timerInterval);
+            display.textContent = "시간만료";
+            document.getElementById('authCodeInput').disabled = true;
+            document.getElementById('verifyBtn').disabled = true;
+            document.getElementById('authMsg').textContent = "인증 시간이 만료되었습니다.";
+            document.getElementById('authMsg').className = "text-xs text-red-500";
+        }
+    }, 1000);
+}
+
+// 인증번호 확인
+function verifyAuthCode() {
+    const email = document.getElementById('member_email').value;
+    const code = document.getElementById('authCodeInput').value;
+    const authMsg = document.getElementById('authMsg');
+    const authInput = document.getElementById('authCodeInput');
+    const verifyBtn = document.getElementById('verifyBtn');
+
+    if (code.length < 6) {
+        authMsg.textContent = "6자리 인증번호를 입력해주세요.";
+        authMsg.className = "text-xs text-red-500";
+        return;
+    }
+
+    $.ajax({
+        url: '/auth/ajax/checkEmailCode',
+        type: 'GET',
+        data: {email: email, code: code},
+        success: function(res) {
+            if (res) {
+                authMsg.textContent = "인증이 완료되었습니다.";
+                authMsg.className = "text-xs text-green-600 font-bold";
+                clearInterval(timerInterval);
+                document.getElementById('timer').textContent = "";
+
+                // 입력창 잠금 및 완료 처리
+                authInput.disabled = true;
+                verifyBtn.disabled = true;
+                document.getElementById('member_email').readOnly = true;
+
+                emailVerified = true;
+            } else {
+                authMsg.textContent = "인증번호가 일치하지 않거나 만료되었습니다.";
+                authMsg.className = "text-xs text-red-500";
+                emailVerified = false;
+            }
+        },
+        error: function() {
+            alert("인증 확인 중 오류가 발생했습니다.");
+        }
+    })
+}
 function checkNicknm() {
     const member_nicknm = document.getElementById('member_nicknm').value;
     const msg = document.getElementById('nickNmMsg');
@@ -243,26 +378,6 @@ function checkNicknm() {
             }
         }
     })
-    // // Simulate async check
-    // btn.textContent = '확인 중...';
-    // btn.disabled = true;
-    //
-    // setTimeout(() => {
-    //     if (member_nicknm === '배꼽시계') {
-    //         msg.textContent = '이미 사용 중인 닉네임입니다.';
-    //         msg.className = 'text-xs mt-1 text-red-500';
-    //         nickNmChecked = false;
-    //         btn.textContent = '중복확인';
-    //         btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-    //     } else {
-    //         msg.textContent = '사용 가능한 닉네임입니다.';
-    //         msg.className = 'text-xs mt-1 text-green-600';
-    //         nickNmChecked = true;
-    //         btn.textContent = '✓';
-    //         btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
-    //     }
-    //     btn.disabled = false;
-    // }, 800);
 }
 
 function validateForm() {
@@ -277,6 +392,10 @@ function validateForm() {
         return false;
     }
 
+    if (!emailVerified) {
+        document.getElementById('errorMsg').textContent = "이메일 인증을 완료해주세요.";
+        return false;
+    }
 
     const member_pwd = document.getElementById('member_pwd').value;
     const confirmPwd = document.getElementById('confirmPwd').value;
