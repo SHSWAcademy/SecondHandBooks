@@ -25,7 +25,6 @@ buildNumber.properties
 # properties Configuration
 *.properties
 
-
 # Logs
 *.log
 logs/

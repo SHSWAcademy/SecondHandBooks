@@ -109,6 +109,7 @@ public class MemberController {
 
         // 1. 엑세스 토큰 받기
         String accessToken = getKakaoAccessToken(code);
+
         if (accessToken == null || accessToken.isEmpty()) {
             log.error("Failed to get Kakao Access Token"); // 에러 로그
             model.addAttribute("msg", "카카오 토큰 발급에 실패했습니다.");
