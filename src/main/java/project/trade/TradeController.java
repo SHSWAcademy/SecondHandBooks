@@ -34,8 +34,7 @@ public class TradeController {
     // 판매글 상세조회
     @GetMapping("/main/trade/{tradeSeq}")
     public String getSaleDetail(@PathVariable long tradeSeq, Model model) {
-        log.info("hello");
-        TradeVO trade = tradeService.findBySeq(tradeSeq);
+        TradeVO trade = tradeService.search(tradeSeq);
         log.info("findTrade: {}", trade);
 
         model.addAttribute("trade", trade);
@@ -90,7 +89,7 @@ public class TradeController {
             tradeVO.setImgUrls(imgUrls);
         }
 
-        if (tradeService.save(tradeVO)) {
+        if (tradeService.upload(tradeVO)) {
             log.info("trade save success, book isbn : {}", tradeVO.getIsbn());
             redirectAttributes.addAttribute("tradeSeq", tradeVO.getTrade_seq());
             return "redirect:/main/trade/{tradeSeq}";
