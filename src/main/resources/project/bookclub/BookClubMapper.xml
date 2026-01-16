@@ -57,7 +57,7 @@
             ,book_club_leader_seq
             ,crt_dtm
             ,upd_dtm
-        ) VALUES (침
+        ) VALUES (
             #{book_club_name}
             ,#{book_club_desc}
             ,#{book_club_rg}
