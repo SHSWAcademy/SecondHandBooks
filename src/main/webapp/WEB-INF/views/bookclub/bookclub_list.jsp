@@ -156,16 +156,41 @@
         </div>
     </main>
     <!-- 모임 생성 팝업 -->
-    <%--
     <div id="createBookClubModal" class="modal hidden">
         <div class="modal-overlay"></div>
         <div class="modal-content">
-            <button class="modal-close">x</button>
-            <h2 class="modal-title">새 독서모임 만들기</h2>
-            <form id="createBookClubForm" enctype="multipart/form-data"></form>
+            <button id="closeCreateModal" type="button">x</button>
+            <h2>새 독서모임 만들기</h2>
+
+            <form id="createBookClubForm" enctype="multipart/form-data">
+                <!-- 모임 배너 사진 (선택) -->
+                <input type="file" name="banner_img_url" accept="image/*">
+                <!-- 모임 이름 (필수) -->
+                <input type="text" name="book_club_name" placeholder="모임 이름" required>
+
+                <!-- 지역 (핋수) -->
+                <select name="book_club_rg" required>
+                    <option value="">지역 선택</option>
+                    <option value="서울">서울</option>
+                    <option value="경기">경기</option>
+                    <option value="온라인">온라인</option>
+                </select>
+
+                <!-- 모임 소개 (선택) -->
+                <textarea name="book_club_desc" rows="4" placeholder="모임 소개글"></textarea>
+
+                <!-- 최대 인원 (필수) -->
+                <input type="text" name="book_club_max_member" min="2" value="10" required>
+
+                <!-- 정기 모임 일정 (선택) -->
+                <input type="text" name="book_club_schedule" placeholder="정기 모임 일정 (예: 매주 토요일 오전 10시)">
+                <button type="submit">
+                    모임 개설하기
+                </button>
+            </form>
         </div>
     </div>
-    --%>
+
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
     <script src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub.js"></script>
@@ -173,7 +198,9 @@
         // 페이지별 초기화
         document.addEventListener('DOMContentLoaded', function() {
             BookClub.initList();
+            initCreateModal();
         });
     </script>
 </body>
 </html>
+

@@ -10,4 +10,6 @@ import java.util.List;
 public interface BookClubMapper {
     List<BookClubVO> searchAll();
     List<BookClubVO> searchByKeyword(@Param("tokens") List<String> tokens);
+
+    void insertBookClub(BookClubVO vo);
 }

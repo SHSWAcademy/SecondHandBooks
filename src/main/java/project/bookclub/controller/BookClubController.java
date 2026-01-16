@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import project.bookclub.dto.BookClubCreateDTO;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 
@@ -26,11 +24,6 @@ public class BookClubController {
     * keyword 없으면 모임 전체 조회
     * keyword 있으면 검색
     */
-//    @GetMapping
-//    public List<BookClubVO> getBookClubs(@RequestParam(required = false) String keyword) {
-//        log.info(">>> bookclubs. controller called");
-//        return bookClubService.searchBookClubs(keyword);
-//    }
 
     @GetMapping
     public String getBookClubs(Model model) {
@@ -53,4 +46,28 @@ public class BookClubController {
 //        model.addAttribute("keyword", keyword);
 //        return "bookclub/bookclub_list";
 //    }
+
+//    @PostMapping
+//    @ResponseBody
+//    public void createBookClub(BookClubCreateDTO dto) {
+////        bookClubService.create(vo);
+////        BookClubCreateDTO dto = new BookClubCreateDTO();
+//        dto.setBook_club_name("테스트 모임");
+//        dto.setBook_club_desc("설명");
+//        dto.setBook_club_rg("서울");
+//        dto.setBook_club_max_member(10);
+//        dto.setBanner_img_url("test.png");
+//        dto.setBook_club_schedule("매주 토요일");
+//
+//        Long leaderId = 1L;
+//        bookClubService.create(dto, leaderId);
+//    }
+
+    @PostMapping//("/bookclubs")
+    @ResponseBody
+    public void create(BookClubVO vo) {
+        log.info("vo = {}", vo);
+        bookClubService.create(vo);
+//        return "redirect:/bookclubs";
+    }
 }

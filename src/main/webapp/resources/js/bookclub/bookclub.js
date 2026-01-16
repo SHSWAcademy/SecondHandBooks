@@ -84,3 +84,54 @@ const BookClub = (() => {
         initList
     };
 })();
+
+function initCreateModal() {
+    const openBtn = document.getElementById("openCreateModal");
+    const modal = document.getElementById("createBookClubModal");
+    const closeBtn = document.getElementById("closeCreateModal");
+    const overlay = modal?.querySelector(".modal-overlay");
+    const form = document.getElementById("createBookClubForm");
+
+    if (!openBtn || !modal || !closeBtn || !overlay || !form) return;
+
+    openBtn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+    });
+
+    overlay.addEventListener("click", () => {
+        modal.classList.add("hidden");
+    });
+
+    form.addEventListener("submit", e=> {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        console.log("=== submit form data ===");
+        for (let [k, v] of formData.entries()) {
+            console.log(k, v);
+        }
+
+        fetch("/bookclubs", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => {
+            console.log("status:", res.status);
+            if (!res.ok) {
+                throw new Error("create failed");
+            }
+        })
+//        .then(() => {
+//            modal.classList.add("hidden");
+//            location.reload();
+//        })
+        .catch(err => {
+            console.error("create error", err);
+        })
+    });
+}
