@@ -280,6 +280,10 @@
                                 <span id="bc-max-member">${bookClub.book_club_max_member}</span>명 참여중
                             </span>
                         </div>
+                        <div class="bc-meta-item">
+                            <strong>찜:</strong>
+                            <span id="bc-wish-count">${wishCount}</span>
+                        </div>
                     </div>
 
                     <div class="bc-desc" id="bc-club-desc">
@@ -319,12 +323,21 @@
                                 </button>
                             </c:when>
 
-                            <%-- 4순위: 비멤버 (로그인했지만 가입하지 않음) --%>
-                            <c:otherwise>
-                                <button type="button" class="bc-btn bc-btn-outline"
-                                        onclick="alert('TODO: 가입 신청 기능 구현 예정')">
-                                    가입하기
+                            <%-- 4순위: 신청중 상태 (request_st='WAIT') --%>
+                            <c:when test="${hasPendingRequest}">
+                                <button type="button" class="bc-btn bc-btn-secondary" disabled
+                                        style="cursor: not-allowed; opacity: 0.6;">
+                                    신청중
                                 </button>
+                            </c:when>
+
+                            <%-- 5순위: 비멤버 (로그인했지만 가입하지 않음, 신청하지도 않음) --%>
+                            <c:otherwise>
+                                <form method="post" action="/bookclubs/${bookClub.book_club_seq}/join-requests" style="display: inline;">
+                                    <button type="submit" class="bc-btn bc-btn-outline">
+                                        가입하기
+                                    </button>
+                                </form>
                             </c:otherwise>
                         </c:choose>
 
