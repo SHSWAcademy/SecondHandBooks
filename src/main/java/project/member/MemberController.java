@@ -87,6 +87,7 @@ public class MemberController {
     public String signup() {
         return "member/signup";
     }
+
     @PostMapping("/auth/signup")
     public String signUp(MemberVO vo, Model model) {
         boolean result = memberService.signUp(vo);
@@ -162,7 +163,6 @@ public class MemberController {
             return jsonNode.get("access_token").asText();
 
         } catch (org.springframework.web.client.HttpClientErrorException e) {
-            // ★ 여기가 핵심입니다 ★
             // 카카오가 400/401 에러를 냈을 때 이유를 로그로 출력합니다.
             log.error("Kakao Token Error: {}", e.getResponseBodyAsString());
             e.printStackTrace();

@@ -12,18 +12,21 @@ import java.util.Map;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class MemberService{
 
     @Autowired
     private final MemberMapper memberMapper;
 
+    @Transactional
     public boolean signUp(MemberVO vo) {
         return memberMapper.signUp(vo) > 0;
     }
+
     public MemberVO login(MemberVO vo) {
         return memberMapper.login(vo);
     }
+
     public int idCheck(String login_id) {
         System.out.println(memberMapper.idCheck(login_id) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.idCheck(login_id);
