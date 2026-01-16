@@ -21,22 +21,16 @@
 
                 <!-- 대표 이미지 -->
                 <c:choose>
-                    <c:when test="${not empty trade.imgUrls && trade.imgUrls.size() > 0}">
+                    <c:when test="${not empty trade.trade_img && trade.trade_img.size() > 0}">
                         <img id="mainImage"
-                             src="${trade.imgUrls[0]}"
+                             src="${pageContext.request.contextPath}/img/${trade.trade_img[0]}"
                              alt="${trade.book_title}"
                              class="w-full h-full object-contain p-4 bg-white" />
                     </c:when>
-                    <c:otherwise>
-                        <img id="mainImage"
-                             src="${trade.book_img}"
-                             alt="${trade.book_title}"
-                             class="w-full h-full object-contain p-4 bg-white" />
-                    </c:otherwise>
                 </c:choose>
 
                 <!-- 이미지 슬라이더 -->
-                <c:if test="${not empty trade.imgUrls && trade.imgUrls.size() > 1}">
+                <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
                     <button onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100">
                         ◀
                     </button>
@@ -44,19 +38,19 @@
                         ▶
                     </button>
                     <div id="imageIndicator" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs">
-                        1 / ${trade.imgUrls.size()}
+                        1 / ${trade.trade_img.size()}
                     </div>
                 </c:if>
             </div>
 
             <!-- Thumbnail -->
-            <c:if test="${not empty trade.imgUrls && trade.imgUrls.size() > 1}">
+            <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
                 <div class="flex gap-2 overflow-x-auto">
-                    <c:forEach var="img" items="${trade.imgUrls}" varStatus="status">
+                    <c:forEach var="img" items="${trade.trade_img}" varStatus="status">
                         <div onclick="setImage(${status.index})"
                              id="thumb-${status.index}"
                              class="w-20 h-20 border-2 ${status.index == 0 ? 'border-blue-500' : 'border-transparent'}">
-                            <img src="${img}" class="w-full h-full object-cover"/>
+                            <img src="${pageContext.request.contextPath}/img/${img}" class="w-full h-full object-cover"/>
                         </div>
                     </c:forEach>
                 </div>
@@ -114,14 +108,11 @@
 <script>
 const images = [
 <c:choose>
-    <c:when test="${not empty trade.imgUrls}">
-        <c:forEach var="img" items="${trade.imgUrls}" varStatus="s">
+    <c:when test="${not empty trade.trade_img}">
+        <c:forEach var="img" items="${trade.trade_img}" varStatus="s">
             "${img}"<c:if test="${!s.last}">,</c:if>
         </c:forEach>
     </c:when>
-    <c:otherwise>
-        "${trade.book_img}"
-    </c:otherwise>
 </c:choose>
 ];
 
@@ -140,9 +131,19 @@ function nextImage() {
     update();
 }
 function update() {
-    document.getElementById("mainImage").src = images[idx];
+    document.getElementById("mainImage").src = "/img/" + images[idx];
+
     const ind = document.getElementById("imageIndicator");
     if (ind) ind.innerText = (idx + 1) + " / " + images.length;
+
+    // 썸네일 테두리 업데이트 (선택사항이지만 추천)
+    images.forEach((_, i) => {
+        const t = document.getElementById("thumb-" + i);
+        if (t) {
+            t.classList.toggle("border-blue-500", i === idx);
+            t.classList.toggle("border-transparent", i !== idx);
+        }
+    });
 }
 </script>
 
