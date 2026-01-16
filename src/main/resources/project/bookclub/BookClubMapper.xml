@@ -4,7 +4,7 @@
 
 <mapper namespace="project.bookclub.mapper.BookClubMapper">
 
-    <!-- 전체 조회 -->
+    <!-- 독서모임 전체 조회 -->
     <select id="searchAll" resultType="project.bookclub.vo.BookClubVO">
         SELECT
             book_club_seq
@@ -22,7 +22,7 @@
         ORDER BY book_club_seq
     </select>
 
-    <!-- 키워드 조회 -->
+    <!-- 독서모임 키워드 조회 -->
     <select id="searchByKeyword" parameterType="list" resultType="project.bookclub.vo.BookClubVO">
         SELECT
             book_club_seq
@@ -45,4 +45,28 @@
         ORDER BY book_club_seq DESC
     </select>
 
+    <!-- 독서모임 생성 -->
+    <insert id="insertBookClub" parameterType="project.bookclub.vo.BookClubVO" useGeneratedKeys="true" keyProperty="book_club_seq">
+        INSERT INTO book_club (
+            book_club_name
+            ,book_club_desc
+            ,book_club_rg
+            ,book_club_max_member
+            ,banner_img_url
+            ,book_club_schedule
+            ,book_club_leader_seq
+            ,crt_dtm
+            ,upd_dtm
+        ) VALUES (
+            #{book_club_name}
+            ,#{book_club_desc}
+            ,#{book_club_rg}
+            ,#{book_club_max_member}
+            ,#{banner_img_url}
+            ,#{book_club_schedule}
+            ,#{book_club_leader_seq}
+            ,#{crt_dtm}
+            ,#{upd_dtm}
+        )
+    </insert>
 </mapper>
