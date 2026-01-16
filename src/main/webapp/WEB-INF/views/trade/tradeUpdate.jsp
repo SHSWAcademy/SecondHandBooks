@@ -24,25 +24,23 @@
             </h2>
 
             <div class="space-y-4">
-                <!-- 책 검색 -->
-                <div class="relative">
-                    <label for="bookSearch" class="block text-sm font-bold text-gray-700 mb-2">
-                        책 검색 <span class="text-red-500">*</span>
-                    </label>
-                    <div class="flex gap-2">
-                        <input type="text" id="bookSearch"
-                               placeholder="책 제목을 입력하세요"
-                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                        <button type="button" id="searchBtn"
-                                class="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-bold">
-                            검색
-                        </button>
+                <div class="relative flex gap-2">
+                            <input type="text" id="bookSearch"
+                             placeholder="책 제목을 입력하세요"
+                              class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                         <button type="button" id="searchBtn"
+                             class="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-bold">
+                             검색
+                         </button>
+
+                         <div id="searchResults" class="absolute left-0 z-50 w-full mt-12 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
+                         </div>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">책 제목으로 검색하여 도서를 선택하세요</p>
 
                     <!-- 검색 결과 드롭다운 -->
-                    <div id="searchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
-                    </div>
+                   <div id="searchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
+                   </div>
                 </div>
 
                 <!-- 선택된 책 미리보기 -->
@@ -185,7 +183,7 @@
         <div class="bg-white rounded-lg border border-gray-200 p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                추가 이미지 (선택사항)
+                추가 이미지 (최대 3장 업로드 가능합니다.)
             </h2>
 
             <!-- 기존 이미지 표시 -->
@@ -206,7 +204,7 @@
             <div class="space-y-3">
                 <input type="file" name="uploadFiles" accept="image/*" multiple
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary-500 file:text-white file:font-bold hover:file:bg-primary-600" />
-                <p class="text-xs text-gray-500">여러 이미지를 한 번에 선택할 수 있습니다. (Ctrl/Cmd + 클릭)</p>
+                <p id="fileMsg" class="text-xs text-gray-500">여러 이미지를 한 번에 선택할 수 있습니다. (Ctrl/Cmd + 클릭)</p>
             </div>
         </div>
 
@@ -231,6 +229,37 @@ const searchBtn = document.getElementById('searchBtn');
 const searchResults = document.getElementById('searchResults');
 const selectedBookPreview = document.getElementById('selectedBookPreview');
 const clearBookBtn = document.getElementById('clearBookBtn');
+
+// 첨부파일 갯수제한
+function limitFileUploadTo3(inputEl, msgEl) {
+    inputEl.addEventListener('change', () => {
+        const files = inputEl.files;
+        // 3개로 제한
+        if (files.length > 3) { // 최대 3개
+            msgEl.textContent = `최대 3개까지 업로드 가능합니다.`;
+
+            // 스타일 적용
+            msgEl.style.color = 'red';
+            msgEl.style.fontWeight = 'bold';
+            msgEl.style.fontSize = '1rem'; // 원하면 더 키울 수 있음
+            inputEl.value = ''; // 선택 초기화
+        } else {
+            msgEl.textContent = ''; // 메시지 초기화
+
+            // 스타일 초기화
+            msgEl.style.color = '';
+            msgEl.style.fontWeight = '';
+            msgEl.style.fontSize = '';
+        }
+    });
+}
+
+// 적용
+const fileInput = document.querySelector('input[name="uploadFiles"]');
+const msg = document.getElementById('fileMsg');
+limitFileUploadTo3(fileInput, msg);
+
+
 
 // 검색 버튼 클릭
 searchBtn.addEventListener('click', searchBooks);
@@ -266,29 +295,46 @@ function searchBooks() {
 function displaySearchResults(books) {
     searchResults.innerHTML = '';
 
-    if (books.length === 0) {
+    if (!books || books.length === 0) {
         searchResults.innerHTML = '<div class="p-4 text-center text-gray-500">검색 결과가 없습니다</div>';
-        searchResults.classList.remove('hidden');
+        searchResults.classList.replace('hidden', 'block');
         return;
     }
-
     books.forEach(book => {
+        // 디버깅용
+        console.log("서버 데이터:", book);
+
         const item = document.createElement('div');
-        item.className = 'flex gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0';
-        item.innerHTML = `
-            <img src="${book.book_img || '/resources/images/no-image.png'}" alt="${book.book_title}" class="w-12 h-16 object-cover rounded" onerror="this.src='/resources/images/no-image.png'" />
-            <div class="flex-1 min-w-0">
-                <p class="font-bold text-gray-900 truncate">${book.book_title}</p>
-                <p class="text-sm text-gray-600">${book.book_author}</p>
-                <p class="text-sm text-gray-500">${book.book_publisher}</p>
-                <p class="text-sm text-primary-600 font-bold">${book.book_org_price ? book.book_org_price.toLocaleString() + '원' : ''}</p>
-            </div>
-        `;
+        item.className = 'flex gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 text-left';
+
+        // 데이터 변수에 담기 (jstl 코드화 혼용하지 말것)
+        const bTitle = book.book_title;
+        const bIsbn = book.isbn || "isbn 조회 불가";
+        const bAuthor = book.book_author;
+        const bImg = book.book_img;
+        const bPrice = book.book_org_price;
+
+        // html데이터에 삽입
+        item.innerHTML =
+            '<img src="' + (bImg ? bImg : '/resources/images/no-image.png') + '" ' +
+            '     alt="' + bTitle + '" ' +
+            '     class="w-12 h-16 object-cover rounded shadow-sm" />' +
+            '<div class="flex-1 min-w-0">' +
+            '    <p class="font-bold text-gray-900 truncate">' + bTitle + '</p>' +
+            '    <p class="text-sm text-gray-600 truncate">' + bAuthor + '</p>' +
+            '    <p class="text-sm text-gray-600 truncate">' + bIsbn + '</p>' +
+            '    <p class="text-sm text-primary-600 font-bold mt-1">' +
+                 (bPrice ? bPrice.toLocaleString() + '원' : '가격 정보 없음') +
+            '    </p>' +
+            '</div>';
+
         item.addEventListener('click', () => selectBook(book));
         searchResults.appendChild(item);
     });
 
+    // 드롭다운 보이게 전환
     searchResults.classList.remove('hidden');
+    searchResults.classList.add('block');
 }
 
 // 책 선택
