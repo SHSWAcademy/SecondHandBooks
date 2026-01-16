@@ -50,7 +50,7 @@ public class BookClubController {
 
         // 4. 로그인 상태일 때만 추가 상태 계산
         if (isLogin) {
-            Long loginMemberSeq = loginMember.getMemberSeq();
+            Long loginMemberSeq = loginMember.getMember_seq();
             model.addAttribute("loginMemberSeq", loginMemberSeq);
 
             // 4-1. 모임장 여부 판단 (book_club_leader_seq == loginMemberSeq)
@@ -115,7 +115,7 @@ public class BookClubController {
         // 2. Service 호출 → enum 결과 받기 (비즈니스 로직은 Service에 위임)
         JoinRequestResult result = bookClubService.createJoinRequest(
                 bookClubId,
-                loginMember.getMemberSeq(),
+                loginMember.getMember_seq(),
                 null
         );
 
