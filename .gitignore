@@ -23,10 +23,9 @@ buildNumber.properties
 .vscode/
 
 # Database Configuration
-src/main/resources/db.properties
 *.properties
-# API Configuration
-src/main/resources/api.properties
+
+
 
 
 # Logs

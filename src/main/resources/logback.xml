@@ -1,25 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
-    <!-- Console Appender -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%-5level: %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <!-- SQL 로그 - 실행된 SQL만 보기 -->
+    <logger name="jdbc.sqlonly" level="OFF"/>
+    <logger name="jdbc.sqltiming" level="INFO"/>  <!-- SQL + 실행 시간 -->
+    <logger name="jdbc.resultsettable" level="OFF"/>  <!-- 결과 테이블 끄기 -->
+    <logger name="jdbc.audit" level="OFF"/>  <!-- 상세 audit 로그 끄기 -->
 
-    <!-- Application Loggers -->
-    <logger name="kr.co.project" level="INFO" />
+    <!-- MyBatis 로그 -->
+    <logger name="project.trade" level="INFO"/>
 
-    <!-- 3rdparty Loggers -->
-    <logger name="org.springframework.core" level="INFO" />
-    <logger name="org.springframework.beans" level="INFO" />
-    <logger name="org.springframework.context" level="INFO" />
-    <logger name="org.springframework.web" level="INFO" />
+    <!-- Spring 로그 -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.web" level="INFO"/>
 
-    <!-- Root Logger -->
-    <root level="WARN">
-        <appender-ref ref="CONSOLE" />
+    <!-- HikariCP 로그 끄기 -->
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    <logger name="com.zaxxer.hikari.HikariDataSource" level="WARN"/>
+    <logger name="com.zaxxer.hikari.pool" level="WARN"/>
+
+    <!-- JDBC 커넥션 로그 끄기 -->
+    <logger name="jdbc.connection" level="OFF"/>
+    <logger name="jdbc.audit" level="OFF"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
     </root>
-
 </configuration>

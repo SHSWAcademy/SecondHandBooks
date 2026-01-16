@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.member.MemberMapper">
+
+    <select id="login" parameterType="project.member.MemberVO" resultType="project.member.MemberVO">
+        SELECT MEMBER_SEQ
+             , LOGIN_ID
+             , MEMBER_PWD
+             , MEMBER_EMAIL
+             , MEMBER_TEL_NO
+             , MEMBER_NICKNM
+             , MEMBER_DELETED_DTM
+             , MEMBER_LAST_LOGIN_DTM
+             , MEMBER_ST
+             , CRT_DTM
+             , UPD_DTM
+          FROM MEMBER_INFO
+         WHERE LOGIN_ID = #{login_id}
+           AND MEMBER_PWD = #{member_pwd}
+    </select>
+
+    <insert id="signUp" parameterType="project.member.MemberVO">
+        INSERT INTO MEMBER_INFO(
+                                 LOGIN_ID, MEMBER_PWD
+                               , MEMBER_EMAIL, MEMBER_TEL_NO, MEMBER_NICKNM
+                               , CRT_DTM
+        ) VALUES (
+                   #{login_id}, #{member_pwd}
+                 , #{member_email}, #{member_tel_no}, #{member_nicknm}
+                 , NOW()
+        )
+
+    </insert>
+
+    <select id="idCheck" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM MEMBER_INFO
+         WHERE LOGIN_ID = #{login_id}
+    </select>
+
+    <select id="emailCheck" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM MEMBER_INFO
+         WHERE MEMBER_EMAIL = #{member_email}
+    </select>
+
+    <select id="nickNmCheck" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+          FROM MEMBER_INFO
+         WHERE MEMBER_NICKNM = #{member_nicknm}
+    </select>
+
+</mapper>
