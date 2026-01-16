@@ -95,7 +95,12 @@ public class MvcConfig implements WebMvcConfigurer{
         // Mapper XML 파일 위치 설정
         org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver =
             new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        ssf.setMapperLocations(resolver.getResources("classpath:project/**/*Mapper.xml"));
+        org.springframework.core.io.Resource[] projectMappers = resolver.getResources("classpath:project/**/*Mapper.xml");
+        org.springframework.core.io.Resource[] memberMappers = resolver.getResources("classpath:project.member/*Mapper.xml");
+        org.springframework.core.io.Resource[] allMappers = new org.springframework.core.io.Resource[projectMappers.length + memberMappers.length];
+        System.arraycopy(projectMappers, 0, allMappers, 0, projectMappers.length);
+        System.arraycopy(memberMappers, 0, allMappers, projectMappers.length, memberMappers.length);
+        ssf.setMapperLocations(allMappers);
         
         return ssf.getObject();
     }

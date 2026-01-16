@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import project.bookclub.dto.BookClubCreateDTO;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
+import project.member.MemberVO;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Slf4j
@@ -38,36 +41,24 @@ public class BookClubController {
         return bookClubService.searchBookClubs(keyword);
     }
 
-//    @GetMapping
-//    public String getBookClubs(@RequestParam(required = false) String keyword, Model model) {
-////        log.info(">>> bookclubs. controller called");
-//        List<BookClubVO> bookclubList = bookClubService.searchBookClubs(keyword);
-//        model.addAttribute("bookclubList", bookclubList);
-//        model.addAttribute("keyword", keyword);
-//        return "bookclub/bookclub_list";
-//    }
-
-//    @PostMapping
-//    @ResponseBody
-//    public void createBookClub(BookClubCreateDTO dto) {
-////        bookClubService.create(vo);
-////        BookClubCreateDTO dto = new BookClubCreateDTO();
-//        dto.setBook_club_name("테스트 모임");
-//        dto.setBook_club_desc("설명");
-//        dto.setBook_club_rg("서울");
-//        dto.setBook_club_max_member(10);
-//        dto.setBanner_img_url("test.png");
-//        dto.setBook_club_schedule("매주 토요일");
-//
-//        Long leaderId = 1L;
-//        bookClubService.create(dto, leaderId);
-//    }
-
-    @PostMapping//("/bookclubs")
+    @PostMapping
     @ResponseBody
-    public void create(BookClubVO vo) {
-        log.info("vo = {}", vo);
+    public Map<String, Object> create(BookClubVO vo, HttpSession session) {
+        MemberVO loginUser = (MemberVO) session.getAttribute("loginSess");
+
+        if (loginUser == null) {
+            return Map.of(
+                    "status", "fail",
+                    "message", "로그인이 필요합니다."
+            );
+        }
+        log.info("login member_seq = {}", loginUser.getMember_seq());
+
+        vo.setBook_club_leader_seq(loginUser.getMember_seq());
         bookClubService.create(vo);
+//        log.info("vo = {}", vo);
+        return Map.of("status", "ok");
 //        return "redirect:/bookclubs";
+
     }
 }
