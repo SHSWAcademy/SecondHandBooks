@@ -73,7 +73,7 @@ public class MockupController {
         return books;
     }
 
-    @GetMapping({"/", "/home"})
+    // @GetMapping({"/", "/home"})
     public String home(Model model) {
         List<Map<String, Object>> books = createMockBooks();
         model.addAttribute("books", books);

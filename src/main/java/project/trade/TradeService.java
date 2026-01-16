@@ -2,10 +2,12 @@ package project.trade;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.util.exception.TradeNotFoundException;
 
+import java.io.File;
 import java.util.List;
 
 @Service
@@ -16,7 +18,16 @@ public class TradeService {
     private final TradeMapper tradeMapper;
     private final BookImgMapper bookImgMapper;
 
-    // 판매글 상세조회
+    @Value("${file.dir}")
+    private String fileDir;
+
+
+    // 판매글 전체 조회
+    public List<TradeVO> searchAll() {
+        return tradeMapper.findAll();
+    }
+
+    // 판매글 단일 조회
     public TradeVO search(long trade_seq) {
         TradeVO findTrade = tradeMapper.findBySeq(trade_seq);
 
@@ -38,15 +49,57 @@ public class TradeService {
 
         int result = tradeMapper.save(tradeVO);
         log.info("Saved result count = {}", result);
-        log.info("trade_seq after save = {}", tradeVO.getTrade_seq());
-        log.info("imgUrls in service = {}", tradeVO.getImgUrls());
 
+        // 등록된 이미지 처리
         if (tradeVO.getImgUrls() != null && !tradeVO.getImgUrls().isEmpty()) {
             for (String imgUrl : tradeVO.getImgUrls()) {
                 log.info("Saving image: {} for trade_seq: {}", imgUrl, tradeVO.getTrade_seq());
                 bookImgMapper.save(imgUrl, tradeVO.getTrade_seq());
             }
         }
+        return result > 0;
+    }
+
+    // 판매글 수정
+    @Transactional
+    public boolean modify(Long tradeSeq, TradeVO updateTrade) {
+        // tradeSeq : 기존 trade의 seq, updateTrade : 변경값을 담은 trade 객체
+        // 변경하려는 trade에 현재 seq을 넣기
+        updateTrade.setTrade_seq(tradeSeq);
+
+        int result = tradeMapper.update(updateTrade);
+        log.info("Updated result count = {}", result);
+
+        // 업데이트 이미지 처리
+        if (updateTrade.getImgUrls() != null && !updateTrade.getImgUrls().isEmpty()) {
+            bookImgMapper.deleteBySeq(tradeSeq); // 기존 이미지들을 먼저 삭제한다
+            for (String imgUrl : updateTrade.getImgUrls()) {
+                log.info("Updating image: {} for trade_seq: {}", imgUrl, updateTrade.getTrade_seq());
+                bookImgMapper.save(imgUrl, updateTrade.getTrade_seq());
+            }
+        }
+        return result > 0;
+    }
+
+
+    // 판매글 삭제
+    @Transactional
+    public boolean remove(Long tradeSeq) {
+
+        // 이미지 url 조회
+        List<String> imgUrls = tradeMapper.findImgUrl(tradeSeq);
+        if (imgUrls != null && !imgUrls.isEmpty()) {
+            for (String imgUrl : imgUrls) {
+                File file = new File(fileDir + "/" + imgUrl);
+                if (file.exists()) file.delete();
+            }
+        }
+
+        bookImgMapper.deleteBySeq(tradeSeq); // 기존 이미지 url들을 db에서 먼저 삭제
+
+        int result = tradeMapper.delete(tradeSeq);
+        log.info("Deleted result count = {}", result);
+
         return result > 0;
     }
 

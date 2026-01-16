@@ -2,7 +2,6 @@ package project.trade;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,6 @@ import project.util.imgUpload.FileStore;
 import project.util.imgUpload.UploadFile;
 
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +26,9 @@ public class TradeController {
     private final BookApiService bookApiService;
     private final FileStore fileStore; // 이미지 저장 기능을 수행하는 객체
 
-    @Value("${file.dir}")
-    private String fileDir;
 
-    // 판매글 상세조회
-    @GetMapping("/main/trade/{tradeSeq}")
+    // 판매글 단일 조회
+    @GetMapping("/trade/{tradeSeq}")
     public String getSaleDetail(@PathVariable long tradeSeq, Model model) {
         TradeVO trade = tradeService.search(tradeSeq);
         log.info("findTrade: {}", trade);
@@ -47,27 +43,13 @@ public class TradeController {
         return "trade/tradeForm";
     }
 
-    // 판매글 업로드
+    // 판매글 create
     @PostMapping("/trade")
     public String uploadTrade(TradeVO tradeVO, HttpSession session,
                               RedirectAttributes redirectAttributes) throws Exception {
 
-        /*
-        // memberVO 검증
-        MemberVO loginMember = (MemberVO)session.getAttribute(Const.SESSION);
-        if (loginMember == null) {
-            log.info("no session");
-            throw new Exception("no session");
-        }
-        */
+        //checkSessionAndTrade(session, tradeVO);
 
-        // tradeVO 검증
-        if (tradeVO == null || !tradeVO.checkTradeVO()){
-            log.info("Invalid trade data: {}", tradeVO);
-            throw new Exception("cannot upload trade");
-        }
-        // tradeVO에 seller seq 할당
-        // tradeVO.setMember_seller_seq(loginMember.getMemberSeq());
 
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
         List<MultipartFile> uploadFiles = tradeVO.getUploadFiles(); // form 에서 받은 데이터 조회
@@ -92,11 +74,78 @@ public class TradeController {
         if (tradeService.upload(tradeVO)) {
             log.info("trade save success, book isbn : {}", tradeVO.getIsbn());
             redirectAttributes.addAttribute("tradeSeq", tradeVO.getTrade_seq());
-            return "redirect:/main/trade/{tradeSeq}";
+            return "redirect:/trade/{tradeSeq}";
         }
         // 실패 시
         return "error/500";
     }
+
+    // 판매글 update 요청
+    @GetMapping("/trade/modify/{tradeSeq}")
+    public String modifyRequest(@PathVariable Long tradeSeq, Model model) {
+        TradeVO trade = tradeService.search(tradeSeq);
+        log.info("findTrade: {}", trade);
+
+        model.addAttribute("trade", trade);
+        return "trade/tradeUpdate";
+    }
+
+    // 판매글 update 등록
+    @PostMapping("/trade/modify/{tradeSeq}")
+    public String modifyUpload(@PathVariable Long tradeSeq, TradeVO updateTrade,
+                               RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
+
+        //checkSessionAndTrade(session, updateTrade);
+        // if (updateTrade.getMember_seller_seq() != (MemberVO)session.getAttribute(Const.SESSION).getMember_seq())
+
+        // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
+        List<MultipartFile> uploadFiles = updateTrade.getUploadFiles(); // form 에서 받은 데이터 조회
+        log.info("uploadFiles: {}", uploadFiles);
+
+        if (uploadFiles != null && !uploadFiles.isEmpty()) {
+            List<UploadFile> storeImgFiles = fileStore.storeFiles(uploadFiles); // 서버 저장용, 내부에 multipartFile.transferTo로 서버 경로에 저장
+            log.info("storeImgFiles: {}", storeImgFiles);
+
+            List<String> imgUrls = new ArrayList<>(); // db 저장용
+
+            // storeImgFiles 리스트 반복
+            for (UploadFile file : storeImgFiles) {
+                String storeFileName = file.getStoreFileName();
+                imgUrls.add(storeFileName);
+            }
+
+            log.info("imgUrls: {}", imgUrls);
+            updateTrade.setImgUrls(imgUrls);
+        }
+
+        // 수정에 성공했을 때
+        try {
+            if (tradeService.modify(tradeSeq, updateTrade)) {
+                log.info("update Success");
+                redirectAttributes.addAttribute("tradeSeq", tradeSeq);
+                return "redirect:/trade/{tradeSeq}";
+            }
+        } catch (Exception e) {
+            return "error/500";
+        }
+
+        return "error/500";
+    }
+
+    // 판매글 delete
+    @PostMapping("/trade/delete/{tradeSeq}")
+    public String remove(@PathVariable Long tradeSeq,
+                         RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
+        log.info("=== delete 메서드 진입, tradeSeq: {} ===", tradeSeq);
+        //checkSessionAndTrade(session, updateTrade);
+
+        if (tradeService.remove(tradeSeq)) {
+            log.info("delete Success");
+            return "redirect:/";
+        }
+        return "error/500";
+    }
+
 
     // 도서 검색
     @GetMapping("/trade/book")
@@ -106,4 +155,23 @@ public class TradeController {
         log.info(query);
         return bookApiService.searchBooks(query);
     }
+
+    private void checkSessionAndTrade(HttpSession session, TradeVO tradeVO) throws Exception {
+
+        // 세션 검증
+        MemberVO loginMember = (MemberVO)session.getAttribute(Const.SESSION);
+        if (loginMember == null) {
+            log.info("no session");
+            throw new Exception("no session");
+        }
+
+        // tradeVO 검증
+        if (tradeVO == null || !tradeVO.checkTradeVO()){
+            log.info("Invalid trade data: {}", tradeVO);
+            throw new Exception("cannot upload trade");
+        }
+        // tradeVO에 seller seq 할당
+        tradeVO.setMember_seller_seq(loginMember.getMemberSeq());
+    }
+
 }

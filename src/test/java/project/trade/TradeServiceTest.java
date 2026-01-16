@@ -38,7 +38,7 @@ class TradeServiceTest {
 
 
     @Test
-    @DisplayName("판매글 상세조회 성공 - 이미지 URL이 있는 경우")
+    @DisplayName("판매글 상세조회 성공 - 이미지 URL 존재")
     void findBySeq_WithImgUrls_Success() {
         // given
         long tradeSeq = 1L;
@@ -189,4 +189,30 @@ class TradeServiceTest {
         // tradeMapper가 실패해도 imgUrls는 처리된다 (현재 코드 로직)
         verify(bookImgMapper, times(1)).save("img1.jpg", 1L);
     }
+
+    // 판매글 update
+    @Test
+    void update () {
+        // given
+
+        // when
+
+        // then
+
+
+    }
+
+    // 판매글 delete
+    @Test
+    void delete () {
+        // given
+
+        // when
+
+        // then
+
+
+    }
+
+
 }
