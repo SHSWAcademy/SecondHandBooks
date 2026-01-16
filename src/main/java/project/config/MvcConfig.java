@@ -12,7 +12,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -22,6 +26,8 @@ import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.zaxxer.hikari.HikariDataSource;
+
+import java.util.Properties;
 
 @Configuration
 @MapperScan(basePackages = {"project"}, annotationClass = Mapper.class)
@@ -39,6 +45,11 @@ public class MvcConfig implements WebMvcConfigurer{
     @Value("${db.password}")
     private String password;
 
+    @Value("${mail.username}")
+    private String mailUsername;
+
+    @Value("${mail.password}")
+    private String mailPassword;
 
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
@@ -72,7 +83,6 @@ public class MvcConfig implements WebMvcConfigurer{
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
 
         // 카멜케이스 자동 변환: member_id → memberId
-        // 카멜 케이스 자동 변환 취소 : true -> false
         config.setMapUnderscoreToCamelCase(false);
 
         // NULL 값 처리
@@ -96,7 +106,7 @@ public class MvcConfig implements WebMvcConfigurer{
         // Mapper XML 파일 위치 설정
         org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = 
             new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        ssf.setMapperLocations(resolver.getResources("classpath:project/**/*Mapper.xml"));
+        ssf.setMapperLocations(resolver.getResources("classpath:project.member/*Mapper.xml"));
         
         return ssf.getObject();
     }
@@ -121,7 +131,50 @@ public class MvcConfig implements WebMvcConfigurer{
     @Bean
     public static PropertyPlaceholderConfigurer properties() {
         PropertyPlaceholderConfigurer config = new PropertyPlaceholderConfigurer();
-        config.setLocation(new ClassPathResource("db.properties"));
+        config.setLocations(
+                new ClassPathResource("db.properties"),
+                new ClassPathResource("api.properties")
+        );
         return config;
+    }
+    @Bean
+    public JavaMailSenderImpl mailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+
+        // SMTP 서버 설정 (Gmail 기준)
+        mailSender.setHost("smtp.gmail.com");
+        mailSender.setPort(587); // TLS 포트번호
+
+        // 발신용 계정 정보
+        mailSender.setUsername(mailUsername);
+        mailSender.setPassword(mailPassword); // 구글 앱 비밀번호 16자리
+
+        // 상세 속성 설정
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true"); // TLS 보안 설정 필수
+        props.put("mail.debug", "true"); // 콘솔에 메일 발송 과정 로그 출력
+
+        // SSL 관련 추가 설정 (간혹 인증서 문제 발생 시 필요)
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+        return mailSender;
+    }
+
+    // Redis 임시 주입
+    // 1. Redis 연결 팩토리 생성 (localhost:6379 접속)
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        // 호스트: localhost, 포트: 6379
+        return new LettuceConnectionFactory("localhost", 6379);
+    }
+
+    // 2. StringRedisTemplate 빈 등록 (이게 없어서 에러가 난 것임)
+    @Bean
+    public StringRedisTemplate redisTemplate() {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory());
+        return template;
     }
 }

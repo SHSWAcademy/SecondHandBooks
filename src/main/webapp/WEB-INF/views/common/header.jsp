@@ -85,17 +85,17 @@
             <a href="/readingGroups" class="px-3 py-2 text-sm font-bold hover:text-primary-600 transition-colors text-gray-600">독서모임</a>
             <a href="/upload" class="px-3 py-2 text-sm font-bold hover:text-primary-600 transition-colors text-gray-600">판매하기</a>
 
-            <c:if test="${not empty user and user.isAdmin}">
-                <a href="/admin" class="flex items-center gap-1.5 px-3 py-2 text-sm font-bold transition-colors text-gray-500 hover:text-gray-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                    관리자
-                </a>
-            </c:if>
+<%--            <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.isAdmin}">--%>
+<%--                <a href="/admin" class="flex items-center gap-1.5 px-3 py-2 text-sm font-bold transition-colors text-gray-500 hover:text-gray-900">--%>
+<%--                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>--%>
+<%--                    관리자--%>
+<%--                </a>--%>
+<%--            </c:if>--%>
 
             <div class="h-4 w-px bg-gray-300 mx-2"></div>
 
             <c:choose>
-                <c:when test="${not empty user}">
+                <c:when test="${not empty sessionScope.loginSess}">
                     <div class="flex items-center gap-3">
                         <a href="/wishlist" class="relative p-2 transition hover:text-primary-600 text-gray-600" title="찜한 상품">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
@@ -105,9 +105,9 @@
                         </a>
                         <a href="/profile" class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 group ml-1">
                             <div class="w-9 h-9 bg-primary-50 text-primary-600 rounded-full border border-primary-100 flex items-center justify-center font-bold text-sm overflow-hidden group-hover:bg-primary-100 transition">
-                                ${user.nickname.substring(0, 1)}
+                                ${sessionScope.loginSess.member_nicknm.substring(0, 1)}
                             </div>
-                            <span class="font-bold hidden lg:block">${user.nickname}님</span>
+                            <span class="font-bold hidden lg:block">${sessionScope.loginSess.member_nicknm}님</span>
                         </a>
                     </div>
                 </c:when>
