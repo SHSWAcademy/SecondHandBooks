@@ -6,6 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import project.bookclub.ENUM.JoinRequestResult;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
@@ -18,7 +21,6 @@ import javax.servlet.http.HttpSession;
 public class BookClubController {
     //주석 테스트
     private final BookClubService bookClubService;
-
     /**
      * 독서모임 상세 페이지 (2단계: 버튼 분기/상태 계산)
      * GET /bookclubs/{bookClubId}
@@ -58,18 +60,78 @@ public class BookClubController {
             // 4-2. 멤버 여부 판단 (book_club_member 테이블에서 join_st='JOINED' 확인)
             boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
             model.addAttribute("isMember", isMember);
+
+            // 4-3. 대기중인 가입 신청 여부 판단 (book_club_request 테이블에서 request_st='WAIT' 확인)
+            boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
+            model.addAttribute("hasPendingRequest", hasPendingRequest);
         } else {
             // 비로그인 시 기본값 설정
             model.addAttribute("isLeader", false);
             model.addAttribute("isMember", false);
+            model.addAttribute("hasPendingRequest", false);
         }
 
         // 5. 현재 참여 인원 수 조회
         int joinedMemberCount = bookClubService.getTotalJoinedMemberCount(bookClubId);
         model.addAttribute("joinedMemberCount", joinedMemberCount);
 
-        // 6. Model에 데이터 담기
+        // 6. 찜 개수 조회
+        int wishCount = bookClubService.getWishCount(bookClubId);
+        model.addAttribute("wishCount", wishCount);
+
+        // 7. Model에 데이터 담기
         model.addAttribute("bookClub", bookClub);
         return "bookclub/bookclub_detail";
+    }
+
+    /**
+     * 독서모임 가입 신청 (승인형) - 개선판
+     * POST /bookclubs/{bookClubId}/join-requests
+     *
+     * 개선사항:
+     * - Controller에서 비즈니스 검증(isMemberJoined) 제거 → Service로 이동
+     * - try-catch 예외 처리 제거 → enum 결과로 통일
+     * - Flash 메시지 추가 (enum.getMessage() 활용)
+     *
+     * @param bookClubId 독서모임 ID
+     * @param session 세션 (로그인 확인용)
+     * @param redirectAttributes Flash 메시지 전달용
+     * @return redirect URL
+     */
+    
+    @PostMapping("/bookclubs/{bookClubId}/join-requests")
+    public String createJoinRequest(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        // 1. 로그인 확인 (Controller 책임 유지)
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 가입 신청 시도: bookClubId={}", bookClubId);
+            return "redirect:/login";
+        }
+
+        // 2. Service 호출 → enum 결과 받기 (비즈니스 로직은 Service에 위임)
+        JoinRequestResult result = bookClubService.createJoinRequest(
+                bookClubId,
+                loginMember.getMemberSeq(),
+                null
+        );
+
+        // 3. enum 기반 분기 처리 (간결하고 명확)
+        switch (result) {
+            case SUCCESS:
+                redirectAttributes.addFlashAttribute("successMessage", result.getMessage());
+                break;
+
+            case ALREADY_JOINED:
+            case ALREADY_REQUESTED:
+            case INVALID_PARAMETERS:
+                redirectAttributes.addFlashAttribute("errorMessage", result.getMessage());
+                break;
+        }
+
+        return "redirect:/bookclubs/" + bookClubId;
     }
 } 

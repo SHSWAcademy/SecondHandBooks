@@ -40,4 +40,37 @@
           AND join_st = 'JOINED'
     </select>
 
+    <!-- 특정 멤버의 대기중인 가입 신청 확인 (request_st='WAIT') -->
+    <select id="selectPendingRequestCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_request
+        WHERE book_club_seq = #{bookClubSeq}
+          AND request_member_seq = #{memberSeq}
+          AND request_st = 'WAIT'
+    </select>
+
+    <!-- 가입 신청 INSERT -->
+    <insert id="insertJoinRequest">
+        INSERT INTO book_club_request (
+            book_club_seq,
+            request_member_seq,
+            request_st,
+            request_dtm,
+            request_cont
+        ) VALUES (
+            #{bookClubSeq},
+            #{memberSeq},
+            'WAIT',
+            CURRENT_TIMESTAMP,
+            #{requestCont}
+        )
+    </insert>
+
+    <!-- 독서모임의 찜 개수 조회 -->
+    <select id="selectWishCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_wish
+        WHERE book_club_seq = #{bookClubSeq}
+    </select>
+
 </mapper>

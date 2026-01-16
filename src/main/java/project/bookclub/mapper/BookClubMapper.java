@@ -20,4 +20,16 @@ public interface BookClubMapper {
 
     // 독서모임의 전체 JOINED 멤버 수 조회
     int getTotalJoinedMemberCount(@Param("bookClubSeq") Long bookClubSeq);
+
+    // 특정 멤버의 대기중인 가입 신청 확인 (request_st='WAIT')
+    int selectPendingRequestCount(@Param("bookClubSeq") Long bookClubSeq,
+                                   @Param("memberSeq") Long memberSeq);
+
+    // 가입 신청 INSERT
+    void insertJoinRequest(@Param("bookClubSeq") Long bookClubSeq,
+                           @Param("memberSeq") Long memberSeq,
+                           @Param("requestCont") String requestCont);
+
+    // 독서모임의 찜 개수 조회
+    int selectWishCount(@Param("bookClubSeq") Long bookClubSeq);
 } 
