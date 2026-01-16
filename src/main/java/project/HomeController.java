@@ -36,7 +36,7 @@ public class HomeController {
 		return "/common/home";
 	}
 	 */
-	@GetMapping("/")
+	@GetMapping({"/", "/home"})
 	public String home(@RequestParam(defaultValue = "1") int page, Model model) {
 		int size = 14;  // 한 페이지에 14개
 
