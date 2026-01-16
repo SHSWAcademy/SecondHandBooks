@@ -13,4 +13,9 @@
             #{trade_seq}
         )
     </insert>
+
+    <select id="findImgUrl" parameterType="long" resultType="project.trade.TradeImageVO">
+        SELECT img_url FROM book_image
+        WHERE trade_seq = #{trade_seq}
+    </select>
 </mapper>

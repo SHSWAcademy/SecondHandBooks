@@ -51,7 +51,7 @@ class TradeServiceTest {
         List<String> imgUrls = Arrays.asList("img1.jpg", "img2.jpg", "img3.jpg");
 
         when(tradeMapper.findBySeq(tradeSeq)).thenReturn(mockTradeVO);
-        when(tradeMapper.findImgUrl(tradeSeq)).thenReturn(imgUrls);
+        when(bookImgMapper.findImgUrl(tradeSeq)).thenReturn(imgUrls);
 
         // when
         TradeVO result = tradeService.search(tradeSeq);

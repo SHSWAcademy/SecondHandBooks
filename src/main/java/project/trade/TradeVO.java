@@ -51,6 +51,7 @@ public class TradeVO {
     // 이미지 리스트
     private List<MultipartFile> uploadFiles; // form 에서 받아오는 데이터
     private List<String> imgUrls; // db에 저장할 데이터
+    private List<TradeImageVO> trade_img; // 화면 출력용
 
     public boolean checkTradeVO(
     ) {
