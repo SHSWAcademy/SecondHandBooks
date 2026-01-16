@@ -18,9 +18,8 @@
         SELECT img_url FROM book_image
         WHERE trade_seq = #{trade_seq}
     </select>
-    <update id="delete" parameterType="long">
-        UPDATE sb_trade_info
-        SET del_dtm = now()
+    <delete id="deleteBySeq" parameterType="long">
+        DELETE FROM book_image
         WHERE trade_seq = #{trade_seq}
-    </update>
+    </delete>
 </mapper>
