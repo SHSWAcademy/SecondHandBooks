@@ -17,7 +17,7 @@ public class TradeService {
     private final BookImgMapper bookImgMapper;
 
     // 판매글 상세조회
-    public TradeVO findBySeq(long trade_seq) {
+    public TradeVO search(long trade_seq) {
         TradeVO findTrade = tradeMapper.findBySeq(trade_seq);
 
         if (findTrade == null) {
@@ -33,7 +33,7 @@ public class TradeService {
 
     // 판매글 등록
     @Transactional
-    public boolean save(TradeVO tradeVO) {
+    public boolean upload(TradeVO tradeVO) {
 
         int result = tradeMapper.save(tradeVO);
         log.info("Saved result count = {}", result);
