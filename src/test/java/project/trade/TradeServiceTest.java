@@ -54,7 +54,7 @@ class TradeServiceTest {
         when(tradeMapper.findImgUrl(tradeSeq)).thenReturn(imgUrls);
 
         // when
-        TradeVO result = tradeService.findBySeq(tradeSeq);
+        TradeVO result = tradeService.search(tradeSeq);
 
         // then
         assertNotNull(result);
@@ -86,7 +86,7 @@ class TradeServiceTest {
         when(tradeMapper.findImgUrl(tradeSeq)).thenReturn(null);
 
         // when
-        TradeVO result = tradeService.findBySeq(tradeSeq);
+        TradeVO result = tradeService.search(tradeSeq);
 
         // then
         assertNotNull(result);
@@ -107,7 +107,7 @@ class TradeServiceTest {
         // when & then
         TradeNotFoundException exception = assertThrows(
                 TradeNotFoundException.class,
-                () -> tradeService.findBySeq(nonExistentSeq)
+                () -> tradeService.search(nonExistentSeq)
         );
 
         assertEquals("Cannot find trade_seq=" + nonExistentSeq, exception.getMessage());
@@ -128,7 +128,7 @@ class TradeServiceTest {
         when(bookImgMapper.save(anyString(), anyLong())).thenReturn(1);
 
         // when
-        boolean result = tradeService.save(tradeVO);
+        boolean result = tradeService.upload(tradeVO);
 
         // then
         assertTrue(result);
@@ -147,7 +147,7 @@ class TradeServiceTest {
         when(tradeMapper.save(tradeVO)).thenReturn(1);
 
         // when
-        boolean result = tradeService.save(tradeVO);
+        boolean result = tradeService.upload(tradeVO);
 
         // then
         assertTrue(result);
@@ -163,7 +163,7 @@ class TradeServiceTest {
         when(tradeMapper.save(tradeVO)).thenReturn(1);
 
         // when
-        boolean result = tradeService.save(tradeVO);
+        boolean result = tradeService.upload(tradeVO);
 
         // then
         assertTrue(result);
@@ -181,7 +181,7 @@ class TradeServiceTest {
         when(bookImgMapper.save(anyString(), anyLong())).thenReturn(1);
 
         // when
-        boolean result = tradeService.save(tradeVO);
+        boolean result = tradeService.upload(tradeVO);
 
         // then
         assertFalse(result);
