@@ -45,7 +45,6 @@
 
     <insert id="save" parameterType="project.trade.TradeVO" useGeneratedKeys="true" keyProperty="trade_seq">
         INSERT INTO sb_trade_info (
-            member_seller_seq,
             sale_title,
             book_img,
             book_title,
@@ -61,7 +60,6 @@
             sale_rg,
             crt_dtm
         ) VALUES (
-            #{member_seller_seq},
             #{sale_title},
             #{book_img},
             #{book_title},
