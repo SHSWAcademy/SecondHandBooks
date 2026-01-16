@@ -104,9 +104,9 @@ public class MvcConfig implements WebMvcConfigurer{
         //ssf.setConfigLocation(new ClassPathResource("mybatis-config.xml"));
 
         // Mapper XML 파일 위치 설정
-        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = 
+        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver =
             new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        ssf.setMapperLocations(resolver.getResources("classpath:project.member/*Mapper.xml"));
+        ssf.setMapperLocations(resolver.getResources("classpath*:**/*Mapper.xml"));
         
         return ssf.getObject();
     }
