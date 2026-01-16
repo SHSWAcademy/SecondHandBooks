@@ -81,7 +81,7 @@ public class MockupController {
             "소설/문학", "경영/경제", "인문/사회", "자기계발", "과학/IT",
             "예술/대중문화", "학습/참고서", "만화", "기타"
         ));
-        return "mockup/home";
+        return "common/home";
     }
 
     @GetMapping("/productDetail")
@@ -114,15 +114,15 @@ public class MockupController {
         return "mockup/productDetail";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "mockup/login";
-    }
+//    @GetMapping("/login")
+//    public String login() {
+//        return "mockup/login";
+//    }
 
-    @GetMapping("/signup")
-    public String signup() {
-        return "mockup/signup";
-    }
+//    @GetMapping("/signup")
+//    public String signup() {
+//        return "mockup/signup";
+//    }
 
     @GetMapping("/profile")
     public String profile(Model model) {

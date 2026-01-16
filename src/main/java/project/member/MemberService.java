@@ -2,14 +2,67 @@ package project.member;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Member;
+import java.util.Map;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MemberService {
+public class MemberService{
+
+    @Autowired
     private final MemberMapper memberMapper;
 
+    @Transactional
+    public boolean signUp(MemberVO vo) {
+        return memberMapper.signUp(vo) > 0;
+    }
+
+    public MemberVO login(MemberVO vo) {
+        return memberMapper.login(vo);
+    }
+
+    public int idCheck(String login_id) {
+        System.out.println(memberMapper.idCheck(login_id) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
+        return memberMapper.idCheck(login_id);
+    }
+    public int nickNmCheck(String member_nicknm) {
+        System.out.println(memberMapper.nickNmCheck(member_nicknm) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
+        return memberMapper.nickNmCheck(member_nicknm);
+    }
+    public int emailCheck(String member_email) {
+        System.out.println(memberMapper.emailCheck(member_email) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
+        return memberMapper.emailCheck(member_email);
+    }
+    @Transactional // 2개 테이블 insert 보호
+    public MemberVO processSocialLogin(Map<String, Object> params) {
+        // 1. 소셜 ID로 가입 여부 확인
+        MemberVO existMember = memberMapper.getMemberByOAuth(params);
+
+        if (existMember != null) {
+            // 이미 가입됨 -> 로그인
+            return existMember;
+        }
+
+        // 2. 미가입 -> 회원가입 진행
+        // (1) MEMBER_INFO 저장 (Map 사용)
+        //params.put("member_st", "ACTIVE");
+        String generatedLoginId = "봉근" + "_" + params.get("provider_id");
+        params.put("login_id", generatedLoginId);
+        String generatedPwd = "봉근로그인";
+        params.put("member_pwd", generatedPwd);
+        memberMapper.insertSocialMemberInfo(params);
+
+        // (2) MEMBER_OAUTH 저장 (방금 생성된 member_seq 사용)
+        // insertSocialMemberInfo 실행 시 params에 member_seq가 담겨옴
+        memberMapper.insertMemberOAuth(params);
+
+        // 3. 가입된 정보 다시 조회해서 리턴
+        return memberMapper.getMemberByOAuth(params);
+    }
 }
