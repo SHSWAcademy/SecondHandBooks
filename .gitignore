@@ -27,6 +27,7 @@ buildNumber.properties
 *.properties
 
 
+
 # Logs
 *.log
 logs/
