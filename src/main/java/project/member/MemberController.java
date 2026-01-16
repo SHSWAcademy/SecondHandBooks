@@ -29,7 +29,7 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
-
+    private final MailService mailService;
     // ----------------------------------
     // 카카오 로그인
     // ----------------------------------
@@ -278,6 +278,19 @@ public class MemberController {
         userInfo.put("email", responseBody.get("email"));
 
         return userInfo;
+    }
+
+    @GetMapping("/auth/ajax/sendEmail")
+    @ResponseBody
+    public String sendEmail(@RequestParam String email) {
+        boolean isSent = mailService.sendAuthEmail(email);
+        return isSent ? "success" : "fail";
+    }
+
+    @GetMapping("/auth/ajax/checkEmailCode")
+    @ResponseBody
+    public boolean checkEmailCode(@RequestParam String email, @RequestParam String code) {
+        return mailService.verifyEmailCode(email, code);
     }
 
     @GetMapping("/auth/ajax/idCheck")
