@@ -6,8 +6,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="_csrf" content="${_csrf.token}">
-    <meta name="_csrf_header" content="${_csrf.headerName}">
+    <c:if test="${not empty _csrf}">
+        <meta name="_csrf" content="${_csrf.token}">
+        <meta name="_csrf_header" content="${_csrf.headerName}">
+    </c:if>
     <title>독서모임 목록 - 신한북스</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub.css">
 </head>
@@ -164,7 +166,9 @@
 
             <form id="createBookClubForm" enctype="multipart/form-data">
                 <!-- 모임 배너 사진 (선택) -->
+                <%--
                 <input type="file" name="banner_img_url" accept="image/*">
+                --%>
                 <!-- 모임 이름 (필수) -->
                 <input type="text" name="book_club_name" placeholder="모임 이름" required>
 

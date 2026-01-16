@@ -54,41 +54,19 @@ public class BookClubService {
         return memberId != null;
     }
 
-//    public void create(BookClubVO vo) {
-//
-//        // 1. 필수값 방어
-//        if (vo.getBook_club_name() == null || vo.getBook_club_name().isBlank()) {
-//            throw new IllegalArgumentException("모임 이름은 필수입니다.");
-//        }
-//
-//        if (vo.getBook_club_max_member() <= 0) {
-//            vo.setBook_club_max_member(10); // 기본값
-//        }
-//
-//        // 2. 서버에서 관리하는 값 세팅
-//        vo.setCrt_dtm(java.time.LocalDateTime.now());
-//        vo.setUpd_dtm(java.time.LocalDateTime.now());
-//
-//        // 3. 삭제일은 생성 시 null
-//        vo.setBook_club_deleted_dt(null);
-//
-//        // 4. DB 저장
-//        bookClubMapper.insertBookClub(vo);
-//    }
-
-
-//    public List<BookClubVO> searchAll() {
-//        return bookClubMapper.searchAll();
-//    }
     @Transactional
     public void create(BookClubVO vo) {
         // 1. 값 들어왔는지 확인
         log.info("service create vo = {}", vo);
+        log.info("leader_seq = {}", vo.getBook_club_leader_seq());
 
         // 2. 서버에서 관리하는 기본값만 세팅
-        vo.setCrt_dtm(java.time.LocalDateTime.now());
-        vo.setUpd_dtm(null); // null이어도 됨. 수정했을 때 반영
-        vo.setBook_club_deleted_dt(null);
+//        vo.setCrt_dtm(java.time.LocalDateTime.now());
+//        vo.setUpd_dtm(java.time.LocalDateTime.now()); // null이어도 됨. 수정했을 때 반영
+        // TODO: 로그인 연동 후 세션에서 사용자 ID 가져오도록 수정
+        if (vo.getBook_club_leader_seq() == null) {
+            vo.setBook_club_leader_seq(1L); // 임시 기본값
+        }
 
         // 3. DB 저장은 다음 단계
         bookClubMapper.insertBookClub(vo);
