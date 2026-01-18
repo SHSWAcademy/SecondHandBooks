@@ -16,6 +16,8 @@
     <c:when test="${not empty bookClub}">
         <!-- 페이지 래퍼 -->
         <div class="bc-page-wrapper">
+            <!-- 한 덩어리 카드 래퍼 -->
+            <div class="bc-detail-shell">
             <!-- 배너(히어로) 섹션 -->
             <section class="bc-hero-section">
                 <!-- 배경 이미지 또는 기본 그라데이션 -->
@@ -225,6 +227,7 @@
                     </c:choose>
                 </div>
             </div>
+            </div><!-- /.bc-detail-shell -->
         </div>
     </c:when>
     <c:otherwise>
