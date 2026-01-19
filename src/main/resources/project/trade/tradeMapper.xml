@@ -6,12 +6,13 @@
 
     <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
         SELECT
+            sb.member_seller_seq,
             sb.trade_seq,
             sb.sale_title,
             sb.book_st,
             sb.sale_cont,
             sb.sale_price,
-            sb.book_delivery_cost,
+            sb.delivery_cost,
             sb.sale_rg,
             sb.sale_st,
             sb.sale_st_dtm,
@@ -27,20 +28,165 @@
             sb.upd_dtm,
             sb.payment_type,
             sb.category_nm,
-            b.book_title,
-            b.book_author,
-            b.book_publisher,
-            b.book_org_price,
-            b.book_img
+            sb.book_title,
+            sb.book_author,
+            sb.book_publisher,
+            sb.book_org_price,
+            sb.book_img,
+            sb.isbn
         FROM sb_trade_info AS sb
-        JOIN book_info AS b ON sb.book_info_seq = b.book_info_seq
         WHERE sb.trade_seq = #{trade_seq}
     </select>
 
-    <select id="findImgUrl" parameterType="long" resultType="String">
-        SELECT img_url
+    <select id="findImgUrl" parameterType="long" resultType="project.trade.TradeImageVO">
+        SELECT book_img_seq, trade_seq, img_url, sort_seq
         FROM book_image
         WHERE trade_seq = #{trade_seq}
-        ORDER BY SORT_SEQ
+        ORDER BY sort_seq
     </select>
+
+    <insert id="save" parameterType="project.trade.TradeVO" useGeneratedKeys="true" keyProperty="trade_seq">
+        INSERT INTO sb_trade_info (
+            member_seller_seq,
+            sale_title,
+            book_img,
+            book_title,
+            book_author,
+            book_publisher,
+            book_org_price,
+            isbn,
+            category_nm,
+            category_seq,
+            book_st,
+            sale_cont,
+            sale_price,
+            delivery_cost,
+            sale_rg,
+            crt_dtm
+        ) VALUES (
+            #{member_seller_seq},
+            #{sale_title},
+            #{book_img},
+            #{book_title},
+            #{book_author},
+            #{book_publisher},
+            #{book_org_price},
+            #{isbn},
+            #{category_nm},
+            #{category_seq},
+            #{book_st}::book_st_enum,
+            #{sale_cont},
+            #{sale_price},
+            #{delivery_cost},
+            #{sale_rg},
+            now()
+        )
+    </insert>
+    <update id="update" parameterType="project.trade.TradeVO">
+        UPDATE sb_trade_info
+            SET
+                sale_title        = #{sale_title},
+                book_img          = #{book_img},
+                book_title        = #{book_title},
+                book_author       = #{book_author},
+                book_publisher    = #{book_publisher},
+                book_org_price    = #{book_org_price},
+                isbn              = #{isbn},
+                category_seq      = #{category_seq},
+                category_nm       = #{category_nm},
+                book_st           = #{book_st}::book_st_enum,
+                sale_cont         = #{sale_cont},
+                sale_price        = #{sale_price},
+                delivery_cost     = #{delivery_cost},
+                sale_rg           = #{sale_rg},
+                upd_dtm           = now()
+                WHERE trade_seq   = #{trade_seq}
+    </update>
+
+    <update id="delete" parameterType="long">
+        UPDATE sb_trade_info
+        SET del_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <select id="findAll" resultType="project.trade.TradeVO">
+        SELECT
+        trade_seq,
+        book_title,
+        book_author,
+        book_publisher,
+        book_img,
+        sale_title,
+        sale_price,
+        sale_rg,
+        crt_dtm
+        FROM sb_trade_info
+        WHERE del_dtm is null
+        ORDER BY crt_dtm DESC
+    </select>
+
+    <!-- 페이징 처리 -->
+    <select id="findAllWithPaging" resultType="project.trade.TradeVO">
+        SELECT
+            trade_seq,
+            book_title,
+            book_author,
+            book_publisher,
+            book_img,
+            sale_title,
+            sale_price,
+            sale_rg,
+            crt_dtm
+        FROM sb_trade_info
+        WHERE del_dtm IS NULL
+        <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
+        <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
+            AND category_seq = #{searchVO.category_seq}
+        </if>
+        <if test="searchVO.book_st != null">
+            AND book_st = #{searchVO.book_st}::book_st_enum
+        </if>
+        <if test="searchVO.search_word != null and searchVO.search_word != ''">
+            AND (
+                book_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR sale_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
+            )
+        </if>
+        ORDER BY crt_dtm DESC
+        LIMIT #{limit}
+        OFFSET #{offset}
+    </select>
+
+    <!-- 전체 개수 조회 (페이지 수 계산용) -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM sb_trade_info
+        WHERE del_dtm IS NULL
+        <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
+        <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
+            AND category_seq = #{searchVO.category_seq}
+        </if>
+        <if test="searchVO.book_st != null">
+            AND book_st = #{searchVO.book_st}::book_st_enum
+        </if>
+        <if test="searchVO.search_word != null and searchVO.search_word != ''">
+            AND (
+                book_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR sale_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
+            )
+        </if>
+    </select>
+
+    <!-- 카테고리 조회 -->
+    <select id="selectCategory" resultType="project.trade.TradeVO">
+        SELECT
+            category_nm,
+            category_seq
+        FROM category
+    </select>
+
 </mapper>

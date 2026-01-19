@@ -21,9 +21,9 @@
 
                 <!-- 대표 이미지 -->
                 <c:choose>
-                    <c:when test="${not empty trade.imgUrls && trade.imgUrls.size() > 0}">
+                    <c:when test="${not empty trade.trade_img && trade.trade_img.size() > 0}">
                         <img id="mainImage"
-                             src="${trade.imgUrls[0]}"
+                             src="${pageContext.request.contextPath}/img/${trade.trade_img[0].img_url}"
                              alt="${trade.book_title}"
                              class="w-full h-full object-contain p-4 bg-white" />
                     </c:when>
@@ -36,7 +36,7 @@
                 </c:choose>
 
                 <!-- 이미지 슬라이더 -->
-                <c:if test="${not empty trade.imgUrls && trade.imgUrls.size() > 1}">
+                <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
                     <button onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100">
                         ◀
                     </button>
@@ -44,19 +44,19 @@
                         ▶
                     </button>
                     <div id="imageIndicator" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs">
-                        1 / ${trade.imgUrls.size()}
+                        1 / ${trade.trade_img.size()}
                     </div>
                 </c:if>
             </div>
 
             <!-- Thumbnail -->
-            <c:if test="${not empty trade.imgUrls && trade.imgUrls.size() > 1}">
+            <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
                 <div class="flex gap-2 overflow-x-auto">
-                    <c:forEach var="img" items="${trade.imgUrls}" varStatus="status">
+                    <c:forEach var="img" items="${trade.trade_img}" varStatus="status">
                         <div onclick="setImage(${status.index})"
                              id="thumb-${status.index}"
                              class="w-20 h-20 border-2 ${status.index == 0 ? 'border-blue-500' : 'border-transparent'}">
-                            <img src="${img}" class="w-full h-full object-cover"/>
+                            <img src="${pageContext.request.contextPath}/img/${img.img_url}" class="w-full h-full object-cover"/>
                         </div>
                     </c:forEach>
                 </div>
@@ -107,6 +107,21 @@
                 <h3 class="font-bold mb-2">상품 설명</h3>
                 <p class="whitespace-pre-wrap">${trade.sale_cont}</p>
             </div>
+
+            <!-- 수정/삭제 버튼 -->
+            <div class="mt-6 flex gap-3">
+                <a href="/trade/modify/${trade.trade_seq}"
+                   class="flex-1 px-6 py-3 bg-primary-500 text-white text-center rounded-lg hover:bg-primary-600 transition font-bold">
+                    수정
+                </a>
+                <form action="${pageContext.request.contextPath}/trade/delete/${trade.trade_seq}" method="post" class="flex-1"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <button type="submit"
+                            class="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-bold">
+                        삭제
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -114,9 +129,9 @@
 <script>
 const images = [
 <c:choose>
-    <c:when test="${not empty trade.imgUrls}">
-        <c:forEach var="img" items="${trade.imgUrls}" varStatus="s">
-            "${img}"<c:if test="${!s.last}">,</c:if>
+    <c:when test="${not empty trade.trade_img}">
+        <c:forEach var="img" items="${trade.trade_img}" varStatus="s">
+            "${img.img_url}"<c:if test="${!s.last}">,</c:if>
         </c:forEach>
     </c:when>
     <c:otherwise>
@@ -140,9 +155,19 @@ function nextImage() {
     update();
 }
 function update() {
-    document.getElementById("mainImage").src = images[idx];
+    document.getElementById("mainImage").src = "/img/" + images[idx];
+
     const ind = document.getElementById("imageIndicator");
     if (ind) ind.innerText = (idx + 1) + " / " + images.length;
+
+    // 썸네일 테두리 업데이트 (선택사항이지만 추천)
+    images.forEach((_, i) => {
+        const t = document.getElementById("thumb-" + i);
+        if (t) {
+            t.classList.toggle("border-blue-500", i === idx);
+            t.classList.toggle("border-transparent", i !== idx);
+        }
+    });
 }
 </script>
 
