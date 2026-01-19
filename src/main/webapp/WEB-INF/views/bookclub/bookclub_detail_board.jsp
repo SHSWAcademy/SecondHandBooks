@@ -56,62 +56,73 @@
                                                 ${fn:escapeXml(board.board_title)}
                                             </h3>
 
-                                        <!-- 본문 미리보기 -->
-                                        <c:if test="${not empty board.board_cont}">
-                                            <p
-                                                style="color: #718096; font-size: 0.875rem; line-height: 1.6; margin: 0 0 0.75rem 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                                                ${fn:escapeXml(board.board_cont)}
-                                            </p>
-                                        </c:if>
+                                            <!-- 본문 미리보기 -->
+                                            <c:if test="${not empty board.board_cont}">
+                                                <p
+                                                    style="color: #718096; font-size: 0.875rem; line-height: 1.6; margin: 0 0 0.75rem 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                                    ${fn:escapeXml(board.board_cont)}
+                                                </p>
+                                            </c:if>
 
-                                        <!-- 이미지 썸네일 (있을 경우) -->
-                                        <c:if test="${not empty board.board_img_url}">
+                                            <!-- 이미지 썸네일 (있을 경우) -->
+                                            <c:if test="${not empty board.board_img_url}">
+                                                <div
+                                                    style="margin-bottom: 0.75rem; border-radius: 0.5rem; overflow: hidden; max-height: 200px;">
+                                                    <c:choose>
+                                                        <c:when
+                                                            test="${board.board_img_url.startsWith('http://') or board.board_img_url.startsWith('https://')}">
+                                                            <img src="${board.board_img_url}" alt="게시글 이미지"
+                                                                style="width: 100%; height: auto; object-fit: cover;">
+                                                        </c:when>
+                                                        <c:when test="${board.board_img_url.startsWith('/')}">
+                                                            <img src="${pageContext.request.contextPath}${board.board_img_url}"
+                                                                alt="게시글 이미지"
+                                                                style="width: 100%; height: auto; object-fit: cover;">
+                                                        </c:when>
+                                                    </c:choose>
+                                                </div>
+                                            </c:if>
+
+                                            <!-- 메타 정보 (작성자 + 작성일 + 댓글 수) -->
                                             <div
-                                                style="margin-bottom: 0.75rem; border-radius: 0.5rem; overflow: hidden; max-height: 200px;">
-                                                <c:choose>
-                                                    <c:when
-                                                        test="${board.board_img_url.startsWith('http://') or board.board_img_url.startsWith('https://')}">
-                                                        <img src="${board.board_img_url}" alt="게시글 이미지"
-                                                            style="width: 100%; height: auto; object-fit: cover;">
-                                                    </c:when>
-                                                    <c:when test="${board.board_img_url.startsWith('/')}">
-                                                        <img src="${pageContext.request.contextPath}${board.board_img_url}"
-                                                            alt="게시글 이미지"
-                                                            style="width: 100%; height: auto; object-fit: cover;">
-                                                    </c:when>
-                                                </c:choose>
+                                                style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; color: #a0aec0;">
+                                                <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                                    <svg width="14" height="14" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                    ${fn:escapeXml(board.member_nicknm)}
+                                                </span>
+                                                <span style="display: flex; align-items: center; gap: 0.25rem;">
+                                                    <svg width="14" height="14" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <c:choose>
+                                                        <c:when test="${not empty board.board_crt_dtm_text}">
+                                                            ${board.board_crt_dtm_text}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            방금
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </span>
+                                                <span class="bc-board-comment-count"
+                                                    style="display: flex; align-items: center; gap: 0.25rem;">
+                                                    <svg width="14" height="14" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                    </svg>
+                                                    <!-- 댓글 ${empty board.commentCount ? 0 : board.commentCount} -->
+                                                    댓글 ${board.commentCount}
+                                                </span>
                                             </div>
-                                        </c:if>
-
-                                        <!-- 메타 정보 (작성자 + 작성일) -->
-                                        <div
-                                            style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; color: #a0aec0;">
-                                            <span style="display: flex; align-items: center; gap: 0.25rem;">
-                                                <svg width="14" height="14" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                                ${fn:escapeXml(board.member_nicknm)}
-                                            </span>
-                                            <span style="display: flex; align-items: center; gap: 0.25rem;">
-                                                <svg width="14" height="14" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <c:choose>
-                                                    <c:when test="${not empty board.board_crt_dtm_text}">
-                                                        ${board.board_crt_dtm_text}
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        방금
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </span>
-                                        </div>
                                         </div>
                                     </a>
                                 </c:forEach>
