@@ -44,14 +44,14 @@ public class TradeService {
     }
 
     // 페이징 조회
-    public List<TradeVO> searchAllWithPaging(int page, int size) {
+    public List<TradeVO> searchAllWithPaging(int page, int size, TradeVO searchVO) {
         int offset = (page - 1) * size;  // page가 1부터 시작한다고 가정
-        return tradeMapper.findAllWithPaging(size, offset);
+        return tradeMapper.findAllWithPaging(size, offset, searchVO);
     }
 
     // 전체 개수
-    public int countAll() {
-        return tradeMapper.countAll();
+    public int countAll(TradeVO searchVO) {
+        return tradeMapper.countAll(searchVO);
     }
 
     // 판매글 등록
@@ -112,6 +112,11 @@ public class TradeService {
         log.info("Deleted result count = {}", result);
 
         return result > 0;
+    }
+
+    // 카테고리조회
+    public List<TradeVO> selectCategory() {
+        return tradeMapper.selectCategory();
     }
 
 }

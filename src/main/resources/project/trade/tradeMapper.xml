@@ -53,6 +53,7 @@
             book_org_price,
             isbn,
             category_nm,
+            category_seq,
             book_st,
             sale_cont,
             sale_price,
@@ -68,6 +69,7 @@
             #{book_org_price},
             #{isbn},
             #{category_nm},
+            #{category_seq},
             #{book_st}::book_st_enum,
             #{sale_cont},
             #{sale_price},
@@ -86,6 +88,7 @@
                 book_publisher    = #{book_publisher},
                 book_org_price    = #{book_org_price},
                 isbn              = #{isbn},
+                category_seq      = #{category_seq},
                 category_nm       = #{category_nm},
                 book_st           = #{book_st}::book_st_enum,
                 sale_cont         = #{sale_cont},
@@ -132,6 +135,21 @@
             crt_dtm
         FROM sb_trade_info
         WHERE del_dtm IS NULL
+        <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
+        <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
+            AND category_seq = #{searchVO.category_seq}
+        </if>
+        <if test="searchVO.book_st != null">
+            AND book_st = #{searchVO.book_st}::book_st_enum
+        </if>
+        <if test="searchVO.search_word != null and searchVO.search_word != ''">
+            AND (
+                book_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR sale_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
+            )
+        </if>
         ORDER BY crt_dtm DESC
         LIMIT #{limit}
         OFFSET #{offset}
@@ -142,6 +160,29 @@
         SELECT COUNT(*)
         FROM sb_trade_info
         WHERE del_dtm IS NULL
+        <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
+        <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
+            AND category_seq = #{searchVO.category_seq}
+        </if>
+        <if test="searchVO.book_st != null">
+            AND book_st = #{searchVO.book_st}::book_st_enum
+        </if>
+        <if test="searchVO.search_word != null and searchVO.search_word != ''">
+            AND (
+                book_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR sale_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
+            )
+        </if>
+    </select>
+
+    <!-- 카테고리 조회 -->
+    <select id="selectCategory" resultType="project.trade.TradeVO">
+        SELECT
+            category_nm,
+            category_seq
+        FROM category
     </select>
 
 </mapper>

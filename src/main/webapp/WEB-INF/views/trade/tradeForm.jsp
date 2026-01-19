@@ -89,12 +89,23 @@
 
                 <!-- 카테고리 -->
                 <div>
-                    <label for="category_nm" class="block text-sm font-bold text-gray-700 mb-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
                         카테고리 <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="category_nm" name="category_nm" required
-                           placeholder="IT/컴퓨터"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+
+                    <select id="categorySelect" name="category_seq" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <option value="">카테고리 선택</option>
+
+                        <c:forEach var="cat" items="${category}">
+                            <option value="${cat.category_seq}"
+                                    data-nm="${cat.category_nm}">
+                                ${cat.category_nm}
+                            </option>
+                        </c:forEach>
+                    </select>
+                    <!-- 카테고리 네임 히든으로 보내기 위에는 seq보냄 -->
+                    <input type="hidden" name="category_nm" id="category_nm">
                 </div>
 
                 <!-- 판매가격 -->
@@ -209,6 +220,20 @@ const searchBtn = document.getElementById('searchBtn');
 const searchResults = document.getElementById('searchResults');
 const selectedBookPreview = document.getElementById('selectedBookPreview');
 const clearBookBtn = document.getElementById('clearBookBtn');
+
+bindCategoryName('categorySelect', 'category_nm');
+// 카테고리 선택시 input타입의 카테고리 네임도 넣기
+function bindCategoryName(selectId, hiddenId) {
+    const select = document.getElementById(selectId);
+    const hidden = document.getElementById(hiddenId);
+
+    if (!select || !hidden) return;
+
+    select.addEventListener('change', function () {
+        const option = this.options[this.selectedIndex];
+        hidden.value = option.dataset.nm || '';
+    });
+}
 
 // 첨부파일 갯수제한
 function limitFileUploadTo3(inputEl, msgEl) {

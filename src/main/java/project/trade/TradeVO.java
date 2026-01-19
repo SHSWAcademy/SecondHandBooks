@@ -53,6 +53,9 @@ public class TradeVO {
     private List<String> imgUrls; // db에 저장할 데이터
     private List<TradeImageVO> trade_img; // 화면 출력용
 
+    // 검색용
+    private String search_word;
+
     public boolean checkTradeVO(
     ) {
         return sale_title != null && !sale_title.equals("") &&
