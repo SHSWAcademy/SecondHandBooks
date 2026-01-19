@@ -79,6 +79,12 @@ public class MemberController {
         } else {
             System.out.println("로그인 성공");
             sess.setAttribute("loginSess", memberVO);
+            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+            if (logUpdate) {
+                System.out.println("로그 찍기 성공");
+            } else {
+                System.out.println("로그 찍기 실패");
+            }
             return "redirect:/";
         }
     }
@@ -150,8 +156,14 @@ public class MemberController {
 
         // 3. 서비스 호출
         try {
-            MemberVO loginUser = memberService.processSocialLogin(kakaoUserInfo);
-            sess.setAttribute("loginSess", loginUser);
+            MemberVO memberVO = memberService.processSocialLogin(kakaoUserInfo);
+            sess.setAttribute("loginSess", memberVO);
+            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+            if (logUpdate) {
+                System.out.println("로그 찍기 성공");
+            } else {
+                System.out.println("로그 찍기 실패");
+            }
             return "redirect:/";
         } catch (Exception e) {
             log.error("Kakao Login Error", e); // 스택트레이스 출력
@@ -271,8 +283,14 @@ public class MemberController {
 
         // 5. 서비스 호출 (기존 로직 유지)
         try {
-            MemberVO loginUser = memberService.processSocialLogin(naverUserInfo);
-            sess.setAttribute("loginSess", loginUser);
+            MemberVO memberVO = memberService.processSocialLogin(naverUserInfo);
+            sess.setAttribute("loginSess", memberVO);
+            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+            if (logUpdate) {
+                System.out.println("로그 찍기 성공");
+            } else {
+                System.out.println("로그 찍기 실패");
+            }
             return "redirect:/";
         } catch (Exception e) {
             log.error("Naver Login Error", e);
@@ -354,4 +372,60 @@ public class MemberController {
         return memberService.nickNmCheck(member_nicknm);
     }
 
+    // 프로필 페이지 기능
+    // 회원 정보 수정
+    @PostMapping("/member/update")
+    public String updateMember(MemberVO vo, HttpSession sess, Model model) {
+        // 1. 세션에서 로그인 중인 유저 정보 가져오기
+        MemberVO loginUser = (MemberVO) sess.getAttribute("loginSess");
+
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        // 2. pk(seq) 설정
+        vo.setMember_seq(loginUser.getMember_seq());
+
+        // 3. DB 업데이트
+        boolean result = memberService.updateMember(vo);
+        if (result) {
+            // 4. 업데이트 성공 시 세션 정보도 최신화
+            loginUser.setMember_nicknm(vo.getMember_nicknm());
+            loginUser.setMember_email(vo.getMember_email());
+            loginUser.setMember_tel_no(vo.getMember_tel_no());
+            sess.setAttribute("loginSess", loginUser); // 세션 갱신
+
+            model.addAttribute("msg", "회원 정보가 수정되었습니다.");
+            model.addAttribute("url", "/profile");
+            model.addAttribute("cmd", "move");
+        } else {
+            model.addAttribute("msg", "정보 수집에 실패했습니다.");
+            model.addAttribute("cmd", "back");
+        }
+        return "common/return";
+    }
+
+    // 회원 탈퇴 처리
+    @GetMapping("/member/delete")
+    public String deleteMember(HttpSession sess, Model model) {
+        MemberVO loginUser = (MemberVO) sess.getAttribute("loginSess");
+
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        // SOFT DELETE 수행
+        boolean result = memberService.deleteMember(loginUser.getMember_seq());
+
+        if (result) {
+            sess.invalidate(); // 탈퇴 성공 시 세션 전체 삭제 (로그아웃)
+            model.addAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+            model.addAttribute("url", "/");
+            model.addAttribute("cmd", "move");
+        } else {
+            model.addAttribute("msg", "탈퇴 처리에 실패했습니다.");
+            model.addAttribute("cmd", "back");
+        }
+        return "common/return";
+    }
 }

@@ -19,8 +19,13 @@
           FROM MEMBER_INFO
          WHERE LOGIN_ID = #{login_id}
            AND MEMBER_PWD = #{member_pwd}
+           AND MEMBER_DELETED_DTM IS NULL
     </select>
-
+    <update id="loginLogUpdate" parameterType="long">
+        UPDATE MEMBER_INFO
+           SET MEMBER_LAST_LOGIN_DTM = NOW()
+         WHERE MEMBER_SEQ = #{member_seq}
+    </update>
     <insert id="signUp" parameterType="project.member.MemberVO">
         INSERT INTO MEMBER_INFO(
                                  LOGIN_ID, MEMBER_PWD
@@ -76,4 +81,19 @@
          WHERE MEMBER_NICKNM = #{member_nicknm}
     </select>
 
+    <!-- 프로필 회원 정보 수정 || 삭제 -->
+    <update id="updateMember" parameterType="project.member.MemberVO">
+        UPDATE MEMBER_INFO
+           SET MEMBER_NICKNM = #{member_nicknm}
+             , MEMBER_EMAIL = #{member_email}
+             , MEMBER_TEL_NO = #{member_tel_no}
+             , UPD_DTM = NOW()
+         WHERE MEMBER_SEQ = #{member_seq}
+    </update>
+
+    <update id="deleteMember" parameterType="long">
+        UPDATE MEMBER_INFO
+           SET MEMBER_DELETED_DTM = NOW()
+         WHERE MEMBER_SEQ = #{member_seq}
+    </update>
 </mapper>
