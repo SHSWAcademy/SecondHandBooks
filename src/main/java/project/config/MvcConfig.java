@@ -132,7 +132,6 @@ public class MvcConfig implements WebMvcConfigurer {
         return resolver;
     }
 
-    // TransactionManager
     @Bean
     public JavaMailSenderImpl mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
