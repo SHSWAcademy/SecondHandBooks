@@ -111,7 +111,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
         org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver =
                 new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        ssf.setMapperLocations(resolver.getResources("classpath:project.member/*Mapper.xml"));
+        ssf.setMapperLocations(resolver.getResources("classpath:**/*Mapper.xml"));
 
         return ssf.getObject();
     }
@@ -133,7 +133,6 @@ public class MvcConfig implements WebMvcConfigurer {
         return resolver;
     }
 
-    // TransactionManager
     @Bean
     public JavaMailSenderImpl mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
