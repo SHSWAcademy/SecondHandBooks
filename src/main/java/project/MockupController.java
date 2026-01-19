@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @Controller
@@ -124,22 +125,38 @@ public class MockupController {
 //        return "mockup/signup";
 //    }
 
-    @GetMapping("/profile")
-    public String profile(Model model) {
-        // Mock user data
-        Map<String, Object> user = new HashMap<>();
-        user.put("id", "user-1");
-        user.put("username", "user123");
-        user.put("email", "user@shinhan.com");
-        user.put("nickname", "모닝커피");
-        user.put("temperature", 36.5);
-        user.put("points", 1000);
-        user.put("phoneNumber", "010-1234-5678");
-        user.put("address", "서울특별시 중구 세종대로 9길 20");
-        user.put("joinedAt", "2024-01-01");
+//    @GetMapping("/profile")
+//    public String profile(Model model) {
+//        // Mock user data
+//        Map<String, Object> user = new HashMap<>();
+//        user.put("id", "user-1");
+//        user.put("username", "user123");
+//        user.put("email", "user@shinhan.com");
+//        user.put("nickname", "모닝커피");
+//        user.put("temperature", 36.5);
+//        user.put("points", 1000);
+//        user.put("phoneNumber", "010-1234-5678");
+//        user.put("address", "서울특별시 중구 세종대로 9길 20");
+//        user.put("joinedAt", "2024-01-01");
+//
+//        model.addAttribute("user", user);
+//        return "mockup/profile";
+//    }
 
-        model.addAttribute("user", user);
-        return "mockup/profile";
+    @GetMapping("/profile")
+    public String profile(HttpSession sess, Model model) {
+        // 로그인 안 되어 있으면 로그인 페이지로
+        if (sess.getAttribute("loginSess") == null) {
+            model.addAttribute("msg", "로그인이 필요한 서비스입니다.");
+            model.addAttribute("url", "/login");
+            model.addAttribute("cmd", "move");
+            return "common/return";
+        }
+
+        // 여기에 실제로는 DB에서 구매내역(orders), 판매내역(sales) 등을 조회해서 model에 담아야 합니다.
+        // 현재는 UI 구현이 목적이므로 JSP에서 하드코딩된 예시 데이터를 보여줍니다.
+
+        return "member/profile";
     }
 
     @GetMapping("/wishlist")
