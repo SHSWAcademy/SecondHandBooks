@@ -3,12 +3,79 @@ package project.chat.chatroom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import project.chat.message.MessageVO;
+import project.member.MemberVO;
+import project.trade.TradeVO;
+import project.util.Const;
+
+import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatroomController {
 
+    private final ChatroomService chatroomService;
 
+
+    // 메인 화면 -> 채팅방 조회
+    @GetMapping("/chatrooms")
+    public String showChatrooms(Model model, HttpSession session) {
+
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+
+        // home 에서 로그인하지 않고 채팅방 접근 시 home 으로 리다이렉트
+        if (sessionMember == null) {
+            return "redirect:/";
+        }
+
+        List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
+
+        // 이후 페이징 처리 필요
+        model.addAttribute("chatrooms", chatrooms);
+        model.addAttribute("member_seq", sessionMember.getMember_seq());
+
+        return "chat/chatrooms";
+    }
+
+
+
+    // 판매글 -> 채팅방
+    @PostMapping("/chatrooms")
+    public String showChatrooms(Model model, HttpSession session, TradeVO tradeVO) {
+
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+
+        // 로그인하지 않고 채팅방 접근 시 home 으로 리다이렉트
+        if (sessionMember == null) {
+            return "redirect:/";
+        }
+
+        List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
+
+        // 이후 페이징 처리 필요
+        model.addAttribute("chatrooms", chatrooms);
+        model.addAttribute("member_seq", sessionMember.getMember_seq());
+
+        // 판매글에서 채팅하기로 채팅에 들어왔을 경우
+        if (tradeVO != null) {
+
+            long trade_seq = tradeVO.getTrade_seq();
+            long member_seller_seq = tradeVO.getMember_seller_seq();
+            long member_buyer_seq = sessionMember.getMember_seq();
+
+            ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq);
+            List<MessageVO> messages = chatroomService.getAllMessages(tradeChatroom.getChat_room_seq());
+            model.addAttribute("trade_chat_room", tradeChatroom);
+            model.addAttribute("messages", messages);
+        }
+
+        return "chat/chatrooms";
+    }
 
 }
