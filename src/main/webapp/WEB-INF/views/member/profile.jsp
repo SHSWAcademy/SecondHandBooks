@@ -89,7 +89,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일</label>
-                        <input type="email" name="member_email" value="${sessionScope.loginSess.member_email}" class="w-full px-3 py-2.5 border border-gray-300 rounded-sm outline-none focus:border-primary-500 text-sm" />
+                        <input type="email" name="member_email" value="${sessionScope.loginSess.member_email}" readonly class="w-full px-3 py-2.5 border bg-gray-50 border-gray-300 rounded-sm outline-none focus:border-primary-500 text-sm" />
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1.5">휴대폰 번호</label>
@@ -310,7 +310,9 @@
     }
 
     function saveAddress() {
-        // 여기에 AJAX로 저장하는 로직 필요
+        $.ajax({
+            url: "/member/"
+        })
         alert('저장되었습니다 (UI 데모)');
         closeAddressModal();
     }
