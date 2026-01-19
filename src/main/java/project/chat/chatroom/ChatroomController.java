@@ -13,7 +13,6 @@ import project.chat.message.MessageVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
 import project.util.Const;
-
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
