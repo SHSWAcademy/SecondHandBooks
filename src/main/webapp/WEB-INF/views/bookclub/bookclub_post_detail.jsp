@@ -94,7 +94,7 @@
         margin-bottom: 1rem;
     }
 
-    .bc-comments-todo {
+    .bc-comments-empty {
         background: #f7fafc;
         border: 1px dashed #cbd5e0;
         border-radius: 0.5rem;
@@ -102,6 +102,47 @@
         text-align: center;
         color: #718096;
         font-size: 0.875rem;
+    }
+
+    .bc-comment-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .bc-comment-item {
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .bc-comment-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .bc-comment-author {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.875rem;
+    }
+
+    .bc-comment-date {
+        font-size: 0.75rem;
+        color: #a0aec0;
+    }
+
+    .bc-comment-content {
+        color: #4a5568;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
     }
 
     .bc-error-message {
@@ -189,7 +230,7 @@
                     ${fn:escapeXml(post.board_cont)}
                 </div>
 
-                <!-- 댓글 영역 (TODO) -->
+                <!-- 댓글 영역 -->
                 <div class="bc-comments-section">
                     <h2 class="bc-comments-title">
                         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -199,9 +240,38 @@
                         </svg>
                         댓글
                     </h2>
-                    <div class="bc-comments-todo">
-                        <p style="margin: 0;">TODO: 댓글 목록 및 작성 기능 구현 예정</p>
-                    </div>
+
+                    <c:choose>
+                        <c:when test="${empty comments}">
+                            <!-- 댓글 없음 -->
+                            <div class="bc-comments-empty">
+                                <p style="margin: 0;">댓글이 없습니다</p>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <!-- 댓글 목록 -->
+                            <ul class="bc-comment-list">
+                                <c:forEach var="c" items="${comments}">
+                                    <li class="bc-comment-item">
+                                        <div class="bc-comment-header">
+                                            <span class="bc-comment-author">${fn:escapeXml(c.member_nicknm)}</span>
+                                            <span class="bc-comment-date">
+                                                <c:choose>
+                                                    <c:when test="${not empty c.board_crt_dtm_text}">
+                                                        ${c.board_crt_dtm_text}
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        방금
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </span>
+                                        </div>
+                                        <p class="bc-comment-content">${fn:escapeXml(c.board_cont)}</p>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
         </div>
