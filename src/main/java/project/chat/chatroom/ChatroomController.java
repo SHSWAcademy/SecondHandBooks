@@ -8,7 +8,4 @@ import org.springframework.stereotype.Controller;
 @Controller
 @RequiredArgsConstructor
 public class ChatroomController {
-
-
-
 }
