@@ -39,7 +39,9 @@ public class TradeController {
 
     // 판매글 등록
     @GetMapping("/trade")
-    public String getTrade() {
+    public String getTrade(Model model) {
+        // 카테고리 데이터 add
+        model.addAttribute("category", tradeService.selectCategory());
         return "trade/tradeForm";
     }
 
@@ -86,6 +88,8 @@ public class TradeController {
         TradeVO trade = tradeService.search(tradeSeq);
         log.info("findTrade: {}", trade);
 
+        // 카테고리 데이터 add
+        model.addAttribute("category", tradeService.selectCategory());
         model.addAttribute("trade", trade);
         return "trade/tradeUpdate";
     }

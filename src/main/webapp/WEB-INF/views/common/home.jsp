@@ -61,6 +61,16 @@
                     <span class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">${trades.size()}개</span>
                 </c:if>
             </h2>
+            <div class="ml-4 flex items-center gap-2">
+                    <input type="text"
+                         id="searchInput"
+                         placeholder="책 제목, 저자, 출판, 게시글 제목등"
+                         class="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"/>
+                   <button onclick="searchTrade()"
+                        class="px-3 py-1.5 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-700 transition">
+                        검색
+                  </button>
+             </div>
             <div class="flex gap-4 text-sm text-gray-500 font-medium">
                 <a href="/?sort=newest" class="transition-colors ${param.sort == 'newest' || empty param.sort ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">최신순</a>
                 <span class="text-gray-300">|</span>
@@ -71,136 +81,144 @@
         </div>
 
         <!-- Filter Toolbar -->
-        <div class="flex gap-3 -mt-2">
-            <!-- Category Filter -->
-            <div class="relative">
-                <button onclick="toggleDropdown('category')" id="categoryBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
-                    <span>카테고리</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
+        <div class="flex gap-3 mt-4">
+                    <div class="relative">
+                        <button onclick="toggleDropdown('category')" id="categoryBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
+                            <span id="categoryText">카테고리</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
 
-                <div id="categoryDropdown" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1 max-h-[300px] overflow-y-auto">
-                    <a href="/?category=All" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">전체</a>
-                    <a href="/?category=소설/문학" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">소설/문학</a>
-                    <a href="/?category=경영/경제" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">경영/경제</a>
-                    <a href="/?category=인문/사회" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">인문/사회</a>
-                    <a href="/?category=자기계발" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">자기계발</a>
-                    <a href="/?category=과학/IT" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">과학/IT</a>
-                    <a href="/?category=예술/대중문화" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">예술/대중문화</a>
-                    <a href="/?category=학습/참고서" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">학습/참고서</a>
-                    <a href="/?category=만화" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">만화</a>
-                    <a href="/?category=기타" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">기타</a>
-                </div>
-            </div>
-
-            <!-- Condition Filter -->
-            <div class="relative">
-                <button onclick="toggleDropdown('condition')" id="conditionBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                    <span>상품 상태</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-
-                <div id="conditionDropdown" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1">
-                    <a href="/?condition=All" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">전체보기</a>
-                    <a href="/?condition=NEW" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">새책</a>
-                    <a href="/?condition=LIKE_NEW" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">거의 새책</a>
-                    <a href="/?condition=GOOD" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">좋음</a>
-                    <a href="/?condition=USED" class="block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 text-gray-700">사용됨</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Grid - 5 Columns -->
-    <c:choose>
-        <c:when test="${not empty trades}">
-            <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 gap-y-6">
-                <c:forEach var="trade" items="${trades}">
-                    <div onclick="location.href='/trade/${trade.trade_seq}'" class="group flex flex-col cursor-pointer">
-                        <!-- Image Container -->
-                        <div class="relative aspect-[1/1.2] overflow-hidden bg-gray-100 rounded-lg border border-gray-200 mb-2 hover:shadow-md transition-all">
-                            <img src="${trade.book_img}" alt="${trade.book_title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                            <div class="absolute top-2 left-2 flex gap-1">
-                                <c:choose>
-                                    <c:when test="${trade.sale_st == 'SOLD'}">
-                                        <div class="bg-gray-800/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">판매완료</div>
-                                    </c:when>
-                                    <c:when test="${trade.sale_st == 'RESERVED'}">
-                                        <div class="bg-orange-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">예약중</div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="bg-green-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">판매중</div>
-                                    </c:otherwise>
-                                </c:choose>
-                                <c:if test="${trade.book_st == 'NEW'}">
-                                    <div class="bg-gray-900/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">새책</div>
-                                </c:if>
-                            </div>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="flex-1 flex flex-col">
-                            <h3 class="font-bold text-gray-900 text-base mb-1 line-clamp-1 leading-snug group-hover:text-primary-600 transition-colors">
-                                ${trade.book_title}
-                            </h3>
-                            <div class="text-xs text-gray-500 mb-2 truncate">
-                                ${trade.book_author} <c:if test="${not empty trade.book_publisher}"><span class="mx-1 text-gray-300">|</span> ${trade.book_publisher}</c:if>
-                            </div>
-
-                            <c:if test="${not empty trade.sale_title}">
-                                <p class="text-sm text-gray-700 font-medium mb-2 truncate">${trade.sale_title}</p>
-                            </c:if>
-
-                            <div class="mt-auto">
-                                <div class="flex items-baseline gap-1.5 mb-2">
-                                    <span class="font-bold text-lg text-gray-900"><fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /></span>
-                                    <span class="text-xs text-gray-500">원</span>
-                                </div>
-
-                                <div class="flex items-center justify-between border-t border-gray-100 pt-2 text-[11px] text-gray-400">
-                                    <div class="flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-0.5"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-                                        <span class="truncate max-w-[60px]">${trade.sale_rg}</span>
-                                    </div>
-                                </div>
-                            </div>
+                        <div id="categoryDropdown" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1 max-h-[300px] overflow-y-auto">
+                            <a href="javascript:selectCategory(null, '전체')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">전체</a>
+                            <c:forEach var="cat" items="${category}">
+                                <a href="javascript:selectCategory(${cat.category_seq}, '${cat.category_nm}')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">
+                                    ${cat.category_nm}
+                                </a>
+                            </c:forEach>
                         </div>
                     </div>
-                </c:forEach>
+
+                    <div class="relative">
+                        <button onclick="toggleDropdown('condition')" id="conditionBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                            <span id="conditionText">상품 상태</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+
+                        <div id="conditionDropdown"
+                             class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1">
+
+                            <a href="javascript:selectBookStatus(null, '전체보기')"
+                               class="block px-4 py-2.5 text-sm hover:bg-gray-50">전체보기</a>
+
+                            <a href="javascript:selectBookStatus('NEW', '새책')"
+                               class="block px-4 py-2.5 text-sm hover:bg-gray-50">새책</a>
+
+                            <a href="javascript:selectBookStatus('LIKE_NEW', '보통')"
+                               class="block px-4 py-2.5 text-sm hover:bg-gray-50">보통</a>
+
+                            <a href="javascript:selectBookStatus('GOOD', '좋음')"
+                               class="block px-4 py-2.5 text-sm hover:bg-gray-50">좋음</a>
+
+                            <a href="javascript:selectBookStatus('USED', '사용됨')"
+                               class="block px-4 py-2.5 text-sm hover:bg-gray-50">사용됨</a>
+                        </div>
+                    </div>
+                     <!-- 상품영역 jsp로 별도 분리 비동기 처리를  위함 -->
+                </div> </div> <div id="tradeList" class="mt-10">
+                <jsp:include page="/WEB-INF/views/trade/tradeList.jsp" />
             </div>
-        </c:when>
-        <c:otherwise>
-            <div class="py-20 text-center text-gray-500 bg-white rounded-lg border border-gray-200">
-                <p>등록된 상품이 없습니다.</p>
-            </div>
-        </c:otherwise>
-    </c:choose>
-
-    <!-- Pagination -->
-    <div class="flex justify-center gap-2 mt-8">
-        <c:if test="${currentPage > 1}">
-            <a href="/?page=${currentPage - 1}" class="px-3 py-2 border rounded hover:bg-gray-100">이전</a>
-        </c:if>
-
-        <c:forEach begin="1" end="${totalPages}" var="i">
-            <a href="/?page=${i}"
-               class="px-3 py-2 border rounded ${i == currentPage ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'}">
-                ${i}
-            </a>
-        </c:forEach>
-
-        <c:if test="${currentPage < totalPages}">
-            <a href="/?page=${currentPage + 1}" class="px-3 py-2 border rounded hover:bg-gray-100">다음</a>
-        </c:if>
-    </div>
 </div>
 
 <script>
 // Banner carousel
 let currentBanner = 0;
 const totalBanners = 3;
+
+// 카테고리, 상품상태, 검색어 조합 처리를 위한 객체
+const tradeFilter = {
+    categorySeq: null,   // 카테고리
+    book_st: null,        // 상품상태
+    search_word: null,       // 검색어
+    page: 1              // 페이지
+};
+
+// AJAX 호출 함수
+function loadTrade() {
+    const data = {
+        page: tradeFilter.page
+    };
+
+    if (tradeFilter.categorySeq !== null && tradeFilter.categorySeq !== '') {
+        data.category_seq = tradeFilter.categorySeq;
+    }
+
+    if (tradeFilter.book_st !== null && tradeFilter.book_st !== '') {
+        data.book_st = tradeFilter.book_st;
+    }
+
+    if (tradeFilter.search_word !== null && tradeFilter.search_word.trim() !== '') {
+        data.search_word = tradeFilter.search_word;
+    }
+
+    $.ajax({
+        url: '/home',
+        type: 'GET',
+        data: data,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function (html) {
+            $('#tradeList').html(html);
+            openDropdown = null;
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX 오류:', error);
+        }
+    });
+}
+
+// 카테고리 선택
+function selectCategory(seq, name) {
+    tradeFilter.categorySeq = seq;
+    tradeFilter.page = 1;
+
+    // 선택 시 카테고리 영역 hidden처리
+    document.getElementById('categoryText').innerText = name;
+    document.getElementById('categoryDropdown').classList.add('hidden');
+    openDropdown = null;
+
+    loadTrade();
+}
+
+// 상품 상태 선택
+function selectBookStatus(book_st, name) {
+    tradeFilter.book_st = book_st;
+    tradeFilter.page = 1;
+
+    document.getElementById('conditionText').innerText = name;
+    document.getElementById('conditionDropdown').classList.add('hidden');
+    openDropdown = null;
+
+    loadTrade();
+}
+
+// 검색버튼
+function searchTrade() {
+    const keyword = document.getElementById('searchInput').value;
+
+    tradeFilter.search_word = keyword;
+    tradeFilter.page = 1; // 검색 시 항상 1페이지부터
+
+    loadTrade();
+}
+
+document.getElementById('searchInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        searchTrade();
+    }
+});
 
 function setBanner(index) {
     currentBanner = index;

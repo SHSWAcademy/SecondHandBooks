@@ -51,7 +51,7 @@ public class MvcConfig implements WebMvcConfigurer{
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/img/**")
-                .addResourceLocations("/Users/aaa/Downloads/secondaryBook/img/");
+                .addResourceLocations("file:///D:/Project/SecondHandBooks/img/");
     }
 
     // hikaricp
