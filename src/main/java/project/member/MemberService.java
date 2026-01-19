@@ -52,9 +52,9 @@ public class MemberService{
         // 2. 미가입 -> 회원가입 진행
         // (1) MEMBER_INFO 저장 (Map 사용)
         //params.put("member_st", "ACTIVE");
-        String generatedLoginId = "봉근" + "_" + params.get("provider_id");
+        String generatedLoginId = params.get("provider") + "_" + params.get("provider_id");
         params.put("login_id", generatedLoginId);
-        String generatedPwd = "봉근로그인";
+        String generatedPwd = params.get("provider") + "_로그인";
         params.put("member_pwd", generatedPwd);
         memberMapper.insertSocialMemberInfo(params);
 
