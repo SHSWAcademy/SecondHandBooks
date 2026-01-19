@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import project.chat.message.MessageService;
 import project.chat.message.MessageVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
@@ -21,6 +23,7 @@ import java.util.List;
 public class ChatroomController {
 
     private final ChatroomService chatroomService;
+    private final MessageService messageService;
 
 
     // 메인 화면 -> 채팅방 조회
@@ -63,11 +66,16 @@ public class ChatroomController {
         model.addAttribute("member_seq", sessionMember.getMember_seq());
 
         // 판매글에서 채팅하기로 채팅에 들어왔을 경우
-        if (tradeVO != null) {
+        if (tradeVO != null && tradeVO.getTrade_seq() > 0) {
 
             long trade_seq = tradeVO.getTrade_seq();
             long member_seller_seq = tradeVO.getMember_seller_seq();
             long member_buyer_seq = sessionMember.getMember_seq();
+
+            // 본인 채팅 방지
+            if (member_seller_seq == member_buyer_seq) {
+                return "chat/chatrooms";  // 채팅방 목록만 보여줌
+            }
 
             ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq);
             List<MessageVO> messages = chatroomService.getAllMessages(tradeChatroom.getChat_room_seq());
@@ -76,6 +84,14 @@ public class ChatroomController {
         }
 
         return "chat/chatrooms";
+    }
+
+    // 채팅 메시지 조회 API
+    @GetMapping("/chat/messages")
+    @ResponseBody
+    public List<MessageVO> getMessages(@RequestParam("roomSeq") long roomSeq)
+    {
+        return messageService.getMessages(roomSeq);
     }
 
 }
