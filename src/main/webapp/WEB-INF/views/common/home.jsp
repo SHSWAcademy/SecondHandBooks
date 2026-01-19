@@ -57,42 +57,171 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 gap-4">
             <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                 전체 상품
+                <c:if test="${not empty trades}">
+                    <span class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">${trades.size()}개</span>
+                </c:if>
             </h2>
+            <div class="ml-4 flex items-center gap-2">
+                    <input type="text"
+                         id="searchInput"
+                         placeholder="책 제목, 저자, 출판, 게시글 제목등"
+                         class="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"/>
+                   <button onclick="searchTrade()"
+                        class="px-3 py-1.5 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-700 transition">
+                        검색
+                  </button>
+             </div>
             <div class="flex gap-4 text-sm text-gray-500 font-medium">
+                <a href="/?sort=newest" class="transition-colors ${param.sort == 'newest' || empty param.sort ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">최신순</a>
                 <span class="text-gray-300">|</span>
+                <a href="/?sort=priceAsc" class="transition-colors ${param.sort == 'priceAsc' ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">낮은가격순</a>
                 <span class="text-gray-300">|</span>
+                <a href="/?sort=likes" class="transition-colors ${param.sort == 'likes' ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">인기순</a>
             </div>
         </div>
 
         <!-- Filter Toolbar -->
-                    <div class="relative">
-                        <button onclick="toggleDropdown('category')" id="categoryBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
-                        </button>
+        <div class="flex gap-3 mt-4">
+            <div class="relative">
+                <button onclick="toggleDropdown('category')" id="categoryBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
+                    <span id="categoryText">카테고리</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
 
-                        <div id="categoryDropdown" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1 max-h-[300px] overflow-y-auto">
-                            </c:forEach>
-                        </div>
-                    </div>
-
-                    <div class="relative">
-                        <button onclick="toggleDropdown('condition')" id="conditionBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
-                        </button>
-
-
-
-                        </div>
-                    </div>
+                <div id="categoryDropdown" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1 max-h-[300px] overflow-y-auto">
+                    <a href="javascript:selectCategory(null, '전체')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">전체</a>
+                    <c:forEach var="cat" items="${category}">
+                        <a href="javascript:selectCategory(${cat.category_seq}, '${cat.category_nm}')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">
+                            ${cat.category_nm}
+                        </a>
+                    </c:forEach>
+                </div>
             </div>
+
+            <div class="relative">
+                <button onclick="toggleDropdown('condition')" id="conditionBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    <span id="conditionText">상품 상태</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+
+                <div id="conditionDropdown"
+                     class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1">
+
+                    <a href="javascript:selectBookStatus(null, '전체보기')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">전체보기</a>
+
+                    <a href="javascript:selectBookStatus('NEW', '새책')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">새책</a>
+
+                    <a href="javascript:selectBookStatus('LIKE_NEW', '보통')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">보통</a>
+
+                    <a href="javascript:selectBookStatus('GOOD', '좋음')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">좋음</a>
+
+                    <a href="javascript:selectBookStatus('USED', '사용됨')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">사용됨</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상품영역 jsp로 별도 분리 비동기 처리를 위함 -->
+    <div id="tradeList" class="mt-10">
+        <jsp:include page="/WEB-INF/views/trade/tradeList.jsp" />
+    </div>
 </div>
 
 <script>
 // Banner carousel
 let currentBanner = 0;
 const totalBanners = 3;
+
+// 카테고리, 상품상태, 검색어 조합 처리를 위한 객체
+const tradeFilter = {
+    categorySeq: null,   // 카테고리
+    book_st: null,        // 상품상태
+    search_word: null,       // 검색어
+    page: 1              // 페이지
+};
+
+// AJAX 호출 함수
+function loadTrade() {
+    const data = {
+        page: tradeFilter.page
+    };
+
+    if (tradeFilter.categorySeq !== null && tradeFilter.categorySeq !== '') {
+        data.category_seq = tradeFilter.categorySeq;
+    }
+
+    if (tradeFilter.book_st !== null && tradeFilter.book_st !== '') {
+        data.book_st = tradeFilter.book_st;
+    }
+
+    if (tradeFilter.search_word !== null && tradeFilter.search_word.trim() !== '') {
+        data.search_word = tradeFilter.search_word;
+    }
+
+    $.ajax({
+        url: '/home',
+        type: 'GET',
+        data: data,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function (html) {
+            $('#tradeList').html(html);
+            openDropdown = null;
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX 오류:', error);
+        }
+    });
+}
+
+// 카테고리 선택
+function selectCategory(seq, name) {
+    tradeFilter.categorySeq = seq;
+    tradeFilter.page = 1;
+
+    // 선택 시 카테고리 영역 hidden처리
+    document.getElementById('categoryText').innerText = name;
+    document.getElementById('categoryDropdown').classList.add('hidden');
+    openDropdown = null;
+
+    loadTrade();
+}
+
+// 상품 상태 선택
+function selectBookStatus(book_st, name) {
+    tradeFilter.book_st = book_st;
+    tradeFilter.page = 1;
+
+    document.getElementById('conditionText').innerText = name;
+    document.getElementById('conditionDropdown').classList.add('hidden');
+    openDropdown = null;
+
+    loadTrade();
+}
+
+// 검색버튼
+function searchTrade() {
+    const keyword = document.getElementById('searchInput').value;
+
+    tradeFilter.search_word = keyword;
+    tradeFilter.page = 1; // 검색 시 항상 1페이지부터
+
+    loadTrade();
+}
+
+document.getElementById('searchInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        searchTrade();
+    }
+});
 
 function setBanner(index) {
     currentBanner = index;

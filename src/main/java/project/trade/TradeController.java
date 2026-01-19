@@ -173,7 +173,7 @@ public class TradeController {
             throw new Exception("cannot upload trade");
         }
         // tradeVO에 seller seq 할당
-        tradeVO.setMember_seller_seq(loginMember.getMemberSeq());
+        tradeVO.setMember_seller_seq(loginMember.getMember_seq());
     }
 
 }
