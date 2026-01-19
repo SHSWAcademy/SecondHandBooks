@@ -16,7 +16,7 @@ buildNumber.properties
 *.iws
 *.ipr
 .classpath
-.project
+.projectgit
 .settings/
 .springBeans
 .sts4-cache/
