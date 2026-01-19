@@ -99,7 +99,4 @@
             switchTab(tabName);
         });
     });
-
-    // 초기 상태: 홈 탭 활성화 (서버에서 이미 렌더링됨)
-    console.log('[bookclub_detail.js] 탭 전환 스크립트 초기화 완료');
 })();

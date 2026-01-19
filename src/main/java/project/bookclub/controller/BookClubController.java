@@ -117,7 +117,38 @@ public class BookClubController {
         List<BookClubBoardVO> boards = bookClubService.getRecentBoards(bookClubId);
         model.addAttribute("boards", boards);
 
+        // bookClubId를 model에 추가 (fragment에서 링크 생성 시 필요)
+        model.addAttribute("bookClubId", bookClubId);
+
         return "bookclub/bookclub_detail_board";
+    }
+
+    /**
+     * 독서모임 게시글 상세 페이지
+     * GET /bookclubs/{bookClubId}/posts/{postId}
+     * - 게시글 단건 조회 (본문 렌더링)
+     * - 댓글 조회/작성은 TODO (추후 구현)
+     */
+    @GetMapping("/bookclubs/{bookClubId}/posts/{postId}")
+    public String getPostDetail(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("postId") Long postId,
+            Model model
+    ) {
+        // 게시글 조회
+        BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
+
+        // 게시글 없음 처리
+        if (post == null) {
+            model.addAttribute("errorMessage", "게시글을 찾을 수 없거나 삭제되었습니다.");
+            return "error/404"; // 또는 redirect:/bookclubs/{bookClubId}
+        }
+
+        // model에 데이터 담기
+        model.addAttribute("post", post);
+        model.addAttribute("bookClubId", bookClubId);
+
+        return "bookclub/bookclub_post_detail";
     }
 
     /**
@@ -134,7 +165,7 @@ public class BookClubController {
      * @param redirectAttributes Flash 메시지 전달용
      * @return redirect URL
      */
-    
+
     @PostMapping("/bookclubs/{bookClubId}/join-requests")
     public String createJoinRequest(
             @PathVariable("bookClubId") Long bookClubId,

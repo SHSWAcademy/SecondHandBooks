@@ -43,17 +43,18 @@
                             <!-- 게시글 카드 리스트 -->
                             <div style="display: flex; flex-direction: column; gap: 1rem;">
                                 <c:forEach var="board" items="${boards}">
-                                    <div class="bc-card"
-                                        style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
-                                        onclick="alert('TODO: /bookclubs/${bookClub.book_club_seq}/posts/${board.book_club_board_seq} 상세 페이지 이동 예정')"
-                                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';"
-                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06)';">
+                                    <a href="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${board.book_club_board_seq}"
+                                        style="text-decoration: none; color: inherit;">
+                                        <div class="bc-card"
+                                            style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';"
+                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06)';">
 
-                                        <!-- 제목 -->
-                                        <h3
-                                            style="font-size: 1rem; font-weight: 600; color: #2d3748; margin: 0 0 0.5rem 0; line-height: 1.5;">
-                                            ${fn:escapeXml(board.board_title)}
-                                        </h3>
+                                            <!-- 제목 -->
+                                            <h3
+                                                style="font-size: 1rem; font-weight: 600; color: #2d3748; margin: 0 0 0.5rem 0; line-height: 1.5;">
+                                                ${fn:escapeXml(board.board_title)}
+                                            </h3>
 
                                         <!-- 본문 미리보기 -->
                                         <c:if test="${not empty board.board_cont}">
@@ -111,7 +112,8 @@
                                                 </c:choose>
                                             </span>
                                         </div>
-                                    </div>
+                                        </div>
+                                    </a>
                                 </c:forEach>
                             </div>
                         </c:otherwise>
