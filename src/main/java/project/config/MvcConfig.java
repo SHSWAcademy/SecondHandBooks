@@ -24,7 +24,7 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+//import org.springframework.web.servlet.config.annotation.CorsRegistry; // CORS 설정 관련 임포트
 
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -179,13 +179,13 @@ public class MvcConfig implements WebMvcConfigurer{
         return template;
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")                // 1. 모든 경로에 대해
-                .allowedOriginPatterns("*")       // 2. 모든 출처(Origin) 허용 (보안상 특정 도메인만 넣는 게 좋음)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 3. 허용할 HTTP 메서드
-                .allowedHeaders("*")              // 4. 모든 헤더 허용
-                .allowCredentials(true)           // 5. 쿠키/세션 인증 정보 포함 허용 (중요!)
-                .maxAge(3600);                    // 6. 설정 캐시 시간 (1시간)
-    }
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**")                // 1. 모든 경로에 대해
+//                .allowedOriginPatterns("*")       // 2. 모든 출처(Origin) 허용 (보안상 특정 도메인만 넣는 게 좋음)
+//                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 3. 허용할 HTTP 메서드
+//                .allowedHeaders("*")              // 4. 모든 헤더 허용
+//                .allowCredentials(true)           // 5. 쿠키/세션 인증 정보 포함 허용 (중요!)
+//                .maxAge(3600);                    // 6. 설정 캐시 시간 (1시간)
+//    }
 }
