@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<jsp:include page="../common/header.jsp" />
+<jsp:include page="common/header.jsp" />
 
 <div class="max-w-[400px] mx-auto mt-12">
     <div class="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
@@ -13,11 +13,11 @@
 
         <form action="/login" method="post" class="space-y-3">
             <div>
-                <input type="text" name="login_id" placeholder="아이디" required
+                <input type="text" name="username" placeholder="아이디" required
                        class="w-full px-4 py-3.5 border border-gray-300 rounded-md focus:border-primary-500 outline-none transition text-sm focus:ring-1 focus:ring-primary-500" />
             </div>
             <div>
-                <input type="password" name="member_pwd" placeholder="비밀번호" required
+                <input type="password" name="password" placeholder="비밀번호" required
                        class="w-full px-4 py-3.5 border border-gray-300 rounded-md focus:border-primary-500 outline-none transition text-sm focus:ring-1 focus:ring-primary-500" />
             </div>
 

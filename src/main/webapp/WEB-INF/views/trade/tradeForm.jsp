@@ -15,7 +15,7 @@
 
     <!-- Form -->
     <form action="/trade" method="post" enctype="multipart/form-data" class="space-y-8">
-        
+
         <!-- 책 정보 섹션 -->
         <div class="bg-white rounded-lg border border-gray-200 p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
