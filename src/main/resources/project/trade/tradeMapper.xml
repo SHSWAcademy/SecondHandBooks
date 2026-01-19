@@ -32,7 +32,8 @@
             sb.book_author,
             sb.book_publisher,
             sb.book_org_price,
-            sb.book_img
+            sb.book_img,
+            sb.isbn
         FROM sb_trade_info AS sb
         WHERE sb.trade_seq = #{trade_seq}
     </select>
@@ -98,7 +99,7 @@
                 sale_price        = #{sale_price},
                 delivery_cost     = #{delivery_cost},
                 sale_rg           = #{sale_rg},
-                upd_dtm           = now(),
+                upd_dtm           = now()
                 WHERE trade_seq   = #{trade_seq}
     </update>
 
