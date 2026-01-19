@@ -11,6 +11,8 @@ import project.member.MemberVO;
 import project.util.Const;
 import project.util.book.BookApiService;
 import project.util.book.BookVO;
+import project.util.exception.NoSessionException;
+import project.util.exception.TradeNotFoundException;
 import project.util.imgUpload.FileStore;
 import project.util.imgUpload.UploadFile;
 
@@ -94,6 +96,8 @@ public class TradeController {
         // 세션 검증
         try {
             checkSessionAndTrade(session, trade);
+        } catch (NoSessionException | TradeNotFoundException e) {
+            return "redirect:/";
         } catch (Exception e) {
             return "redirect:/";
         }
@@ -159,8 +163,11 @@ public class TradeController {
 
         // 세션 검증
         TradeVO trade = tradeService.search(tradeSeq);
+        // 세션 검증
         try {
             checkSessionAndTrade(session, trade);
+        } catch (NoSessionException | TradeNotFoundException e) {
+            return "redirect:/";
         } catch (Exception e) {
             return "redirect:/";
         }
@@ -193,13 +200,13 @@ public class TradeController {
         MemberVO loginMember = (MemberVO)session.getAttribute(Const.SESSION);
         if (loginMember == null) {
             log.info("no session");
-            throw new Exception("no session");
+            throw new NoSessionException("no session");
         }
 
         // tradeVO 검증
         if (tradeVO == null || !tradeVO.checkTradeVO()){
             log.info("Invalid trade data: {}", tradeVO);
-            throw new Exception("cannot upload trade");
+            throw new TradeNotFoundException("cannot upload trade");
         }
         // tradeVO에 seller seq 할당
         tradeVO.setMember_seller_seq(loginMember.getMember_seq());
