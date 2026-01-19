@@ -22,25 +22,18 @@ public class BookClubController {
     //주석 테스트
     private final BookClubService bookClubService;
     /**
-     * 독서모임 상세 페이지 (2단계: 버튼 분기/상태 계산)
-     * GET /bookclubs/{bookClubId}
-     * - 모임 1건 조회 + JSP 출력
-     * - 로그인 여부, 모임장/멤버 판단 로직 추가
-     * - JSP에서 버튼 분기 처리 가능하도록 model 데이터 제공
+     * 독서모임 상세 페이지 공통 model 세팅 (조회 로직 재사용)
+     * - fragment 엔드포인트에서도 동일한 model 데이터 필요
+     * - 비즈니스 로직 변경 없이 조회 로직만 재사용
      */
-    @GetMapping("/bookclubs/{bookClubId}")
-    public String getBookClubDetail(
-            @PathVariable("bookClubId") Long bookClubId,
-            HttpSession session,
-            Model model
-    ) {
+    private void loadBookClubDetailModel(Long bookClubId, HttpSession session, Model model) {
         // 1. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
 
         // 2. 조회 결과 없음 처리
         if (bookClub == null) {
             model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
-            return "bookclub/bookclub_detail";  // JSP에서 에러 메시지 표시
+            return;
         }
 
         // 3. 세션에서 로그인 멤버 정보 가져오기
@@ -53,15 +46,15 @@ public class BookClubController {
             Long loginMemberSeq = loginMember.getMember_seq();
             model.addAttribute("loginMemberSeq", loginMemberSeq);
 
-            // 4-1. 모임장 여부 판단 (book_club_leader_seq == loginMemberSeq)
+            // 4-1. 모임장 여부 판단
             boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
             model.addAttribute("isLeader", isLeader);
 
-            // 4-2. 멤버 여부 판단 (book_club_member 테이블에서 join_st='JOINED' 확인)
+            // 4-2. 멤버 여부 판단
             boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
             model.addAttribute("isMember", isMember);
 
-            // 4-3. 대기중인 가입 신청 여부 판단 (book_club_request 테이블에서 request_st='WAIT' 확인)
+            // 4-3. 대기중인 가입 신청 여부 판단
             boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
             model.addAttribute("hasPendingRequest", hasPendingRequest);
         } else {
@@ -81,7 +74,41 @@ public class BookClubController {
 
         // 7. Model에 데이터 담기
         model.addAttribute("bookClub", bookClub);
+    }
+
+    /**
+     * 독서모임 상세 페이지 (2단계: 버튼 분기/상태 계산)
+     * GET /bookclubs/{bookClubId}
+     * - 모임 1건 조회 + JSP 출력
+     * - 로그인 여부, 모임장/멤버 판단 로직 추가
+     * - JSP에서 버튼 분기 처리 가능하도록 model 데이터 제공
+     */
+    @GetMapping("/bookclubs/{bookClubId}")
+    public String getBookClubDetail(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session,
+            Model model
+    ) {
+        // 공통 model 세팅 메서드 호출
+        loadBookClubDetailModel(bookClubId, session, model);
         return "bookclub/bookclub_detail";
+    }
+
+    /**
+     * 독서모임 상세 페이지 - 게시판 탭 fragment
+     * GET /bookclubs/{bookClubId}/board-fragment
+     * - fetch로 호출되어 게시판 탭 본문만 반환
+     * - 동일한 model 세팅 재사용 (fragment에서도 bookClub 등 필요)
+     */
+    @GetMapping("/bookclubs/{bookClubId}/board-fragment")
+    public String getBoardFragment(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session,
+            Model model
+    ) {
+        // 공통 model 세팅 메서드 호출 (조회 로직 재사용)
+        loadBookClubDetailModel(bookClubId, session, model);
+        return "bookclub/bookclub_detail_board";
     }
 
     /**

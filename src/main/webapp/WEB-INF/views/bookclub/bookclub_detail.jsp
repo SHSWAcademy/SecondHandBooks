@@ -14,8 +14,8 @@
         </div>
     </c:when>
     <c:when test="${not empty bookClub}">
-        <!-- 페이지 래퍼 -->
-        <div class="bc-page-wrapper">
+        <!-- 페이지 래퍼 (data-bookclub-id 추가) -->
+        <div class="bc-page-wrapper" data-bookclub-id="${bookClub.book_club_seq}">
             <!-- 한 덩어리 카드 래퍼 -->
             <div class="bc-detail-shell">
             <!-- 배너(히어로) 섹션 -->
@@ -94,84 +94,26 @@
             <!-- 탭 네비게이션 -->
             <div class="bc-tabs-wrapper">
                 <nav class="bc-tabs-nav">
-                    <a href="/bookclubs/${bookClub.book_club_seq}"
-                       class="bc-tab-link ${requestScope['javax.servlet.forward.request_uri'].contains('/board') ? '' : 'active'}">
+                    <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}"
+                       class="bc-tab-link active"
+                       data-tab="home">
                         홈
                     </a>
-                    <a href="#"
-                       class="bc-tab-link ${requestScope['javax.servlet.forward.request_uri'].contains('/board') ? 'active' : ''}"
-                       onclick="alert('TODO: 게시판 기능 구현 예정'); return false;">
+                    <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/board"
+                       class="bc-tab-link"
+                       data-tab="board">
                         게시판
                     </a>
                 </nav>
             </div>
 
-            <!-- 본문 콘텐츠 -->
-            <div class="bc-content-wrapper">
-                <!-- 카드1: 모임 소개 -->
-                <div class="bc-card">
-                    <h2 class="bc-card-title">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        모임 소개
-                    </h2>
-                    <p class="bc-intro-text">
-                        <c:choose>
-                            <c:when test="${not empty bookClub.book_club_desc}">
-                                ${bookClub.book_club_desc}
-                            </c:when>
-                            <c:otherwise>소개글이 없습니다.</c:otherwise>
-                        </c:choose>
-                    </p>
-
-                    <c:if test="${not empty bookClub.book_club_schedule}">
-                        <div class="bc-schedule-box">
-                            <div class="bc-schedule-label">정기 모임 일정</div>
-                            <div class="bc-schedule-text">${bookClub.book_club_schedule}</div>
-                        </div>
-                    </c:if>
-                </div>
-
-                <!-- 카드2: 함께하는 멤버 -->
-                <div class="bc-card">
-                    <h2 class="bc-card-title">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        함께하는 멤버
-                    </h2>
-
-                    <!-- TODO: 실제 멤버 리스트로 교체 (현재는 Mock 데이터) -->
-                    <!-- 추후 members 리스트를 model로 받아 c:forEach로 교체 -->
-                    <div class="bc-members-grid">
-                        <!-- Mock 멤버 1 (모임장) -->
-                        <div class="bc-member-item">
-                            <div class="bc-member-avatar">
-                                👤
-                                <span class="bc-leader-badge">모임장</span>
-                            </div>
-                            <div class="bc-member-name">우주여행자</div>
-                        </div>
-
-                        <!-- Mock 멤버 2 -->
-                        <div class="bc-member-item">
-                            <div class="bc-member-avatar">👤</div>
-                            <div class="bc-member-name">모낭커피</div>
-                        </div>
-
-                        <!-- Mock 멤버 3 -->
-                        <div class="bc-member-item">
-                            <div class="bc-member-avatar">👤</div>
-                            <div class="bc-member-name">외계인</div>
-                        </div>
-
-                        <!-- 빈 슬롯 (최대 10개 중 나머지는 비워둠) -->
-                    </div>
-                </div>
+            <!-- 본문 컨테이너 (홈 탭: 서버 렌더 + 기본 표시) -->
+            <div id="bc-home-container">
+                <jsp:include page="/WEB-INF/views/bookclub/bookclub_detail_home.jsp" />
             </div>
+
+            <!-- 본문 컨테이너 (게시판 탭: fetch로 로드) -->
+            <div id="bc-board-container" style="display:none;"></div>
 
             <!-- 하단 고정 바 -->
             <div class="bc-bottom-bar">
@@ -188,14 +130,14 @@
                     <c:choose>
                         <%-- 1순위: 비로그인 상태 --%>
                         <c:when test="${not isLogin}">
-                            <a href="/login" class="bc-btn bc-btn-secondary">
+                            <a href="${pageContext.request.contextPath}/login" class="bc-btn bc-btn-secondary">
                                 로그인 후 이용
                             </a>
                         </c:when>
 
                         <%-- 2순위: 모임장 --%>
                         <c:when test="${isLeader}">
-                            <a href="/bookclubs/${bookClub.book_club_seq}/edit" class="bc-btn bc-btn-primary">
+                            <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/edit" class="bc-btn bc-btn-primary">
                                 모임 관리하기
                             </a>
                         </c:when>
@@ -217,7 +159,7 @@
 
                         <%-- 5순위: 비멤버 (로그인했지만 가입하지 않음, 신청하지도 않음) --%>
                         <c:otherwise>
-                            <form method="post" action="/bookclubs/${bookClub.book_club_seq}/join-requests"
+                            <form method="post" action="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/join-requests"
                                   style="display: inline;">
                                 <button type="submit" class="bc-btn bc-btn-primary">
                                     가입 신청하기
@@ -237,5 +179,13 @@
         </div>
     </c:otherwise>
 </c:choose>
+
+<!-- contextPath를 JS에 전달 -->
+<script>
+    window.__CTX = "${pageContext.request.contextPath}";
+</script>
+
+<!-- 독서모임 상세 페이지 전용 JS -->
+<script defer src="${pageContext.request.contextPath}/resources/js/bookclub_detail.js"></script>
 
 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
