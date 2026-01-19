@@ -1,16 +1,12 @@
 package project.config;
 
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -34,8 +30,10 @@ import java.util.Properties;
 @ComponentScan(basePackages = {"project"})
 @EnableWebMvc
 @EnableTransactionManagement
-public class MvcConfig implements WebMvcConfigurer{
+@PropertySource("classpath:application.properties")
+public class MvcConfig implements WebMvcConfigurer {
 
+    // ================= DB =================
     @Value("${db.driver}")
     private String driver;
     @Value("${db.url}")
@@ -45,73 +43,76 @@ public class MvcConfig implements WebMvcConfigurer{
     @Value("${db.password}")
     private String password;
 
+    // ================= Mail =================
     @Value("${mail.username}")
     private String mailUsername;
-
     @Value("${mail.password}")
     private String mailPassword;
 
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
-    }
+    // ================= Redis =================
+    @Value("${redis.host}")
+    private String redisHost;
+    @Value("${redis.port}")
+    private int redisPort;
 
-    // JSP ViewResolver
+    // ================= WebMvc 설정 =================
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         registry.jsp("/WEB-INF/views/", ".jsp");
     }
 
-    // hikaricp
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
+
+    // ================= Property =================
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        configurer.setLocation(new ClassPathResource("application.properties"));
+        return configurer;
+    }
+
+    // ================= HikariCP DataSource =================
     @Bean
     @Primary
     public HikariDataSource dataSource() {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setDriverClassName(driver);
-        dataSource.setJdbcUrl(url);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-        return dataSource;
+        HikariDataSource ds = new HikariDataSource();
+        ds.setDriverClassName(driver);
+        ds.setJdbcUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        return ds;
     }
 
-    // mybatis
+    // ================= MyBatis SqlSessionFactory =================
     @Bean
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
         ssf.setDataSource(dataSource());
 
-        // Java Config로 모든 MyBatis 설정
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
-
-        // 카멜케이스 자동 변환: member_id → memberId
         config.setMapUnderscoreToCamelCase(false);
-
-        // NULL 값 처리
         config.setJdbcTypeForNull(org.apache.ibatis.type.JdbcType.NULL);
-
-        // 로그 설정
         config.setLogImpl(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
 
-        // TypeAlias 등록 (필요한 패키지만)
-        // 아직 VO 클래스가 없으면 주석 처리하기
-        try {
-            //config.getTypeAliasRegistry().registerAliases("project.member.vo");
-        } catch (Exception e) {
-            // 패키지 없으면 무시
-        }
-
         ssf.setConfiguration(config);
-        //mybatis-config.xml 설정 추가
-        //ssf.setConfigLocation(new ClassPathResource("mybatis-config.xml"));
 
-        // Mapper XML 파일 위치 설정
-        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = 
-            new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
+        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver =
+                new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
         ssf.setMapperLocations(resolver.getResources("classpath:project.member/*Mapper.xml"));
-        
+
         return ssf.getObject();
     }
 
-    // MultipartResolver
+    // ================= TransactionManager =================
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource());
+    }
+
+    // ================= MultipartResolver =================
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
@@ -120,57 +121,32 @@ public class MvcConfig implements WebMvcConfigurer{
         return resolver;
     }
 
-    // TransactionManager
-    @Bean
-    public PlatformTransactionManager transactionManager() {
-        DataSourceTransactionManager dtm = new DataSourceTransactionManager(dataSource());
-        return dtm;
-    }
-
-    // property
-    @Bean
-    public static PropertyPlaceholderConfigurer properties() {
-        PropertyPlaceholderConfigurer config = new PropertyPlaceholderConfigurer();
-        config.setLocations(
-                new ClassPathResource("db.properties"),
-                new ClassPathResource("api.properties")
-        );
-        return config;
-    }
+    // ================= JavaMailSender =================
     @Bean
     public JavaMailSenderImpl mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-
-        // SMTP 서버 설정 (Gmail 기준)
         mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587); // TLS 포트번호
-
-        // 발신용 계정 정보
+        mailSender.setPort(587);
         mailSender.setUsername(mailUsername);
-        mailSender.setPassword(mailPassword); // 구글 앱 비밀번호 16자리
+        mailSender.setPassword(mailPassword);
 
-        // 상세 속성 설정
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true"); // TLS 보안 설정 필수
-        props.put("mail.debug", "true"); // 콘솔에 메일 발송 과정 로그 출력
-
-        // SSL 관련 추가 설정 (간혹 인증서 문제 발생 시 필요)
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.debug", "true");
         props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
         props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
         return mailSender;
     }
 
-    // Redis 임시 주입
-    // 1. Redis 연결 팩토리 생성 (localhost:6379 접속)
+    // ================= Redis =================
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        // 호스트: localhost, 포트: 6379
-        return new LettuceConnectionFactory("localhost", 6379);
+        return new LettuceConnectionFactory(redisHost, redisPort);
     }
 
-    // 2. StringRedisTemplate 빈 등록 (이게 없어서 에러가 난 것임)
     @Bean
     public StringRedisTemplate redisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
