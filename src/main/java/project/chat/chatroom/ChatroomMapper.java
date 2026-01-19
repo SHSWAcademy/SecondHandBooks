@@ -8,7 +8,9 @@ import java.util.List;
 
 @Mapper
 public interface ChatroomMapper {
-    public int createRoom(long member_seller_seq, long member_buyer_seq, long trade_seq);
+    public int createRoom(@Param("member_seller_seq") long member_seller_seq,
+                          @Param("member_buyer_seq") long member_buyer_seq,
+                          @Param("trade_seq") long trade_seq);
     public ChatroomVO findRoom(
             @Param("member_seller_seq") long member_seller_seq,
             @Param("member_buyer_seq") long member_buyer_seq,
