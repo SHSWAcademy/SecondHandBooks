@@ -131,4 +131,33 @@
           AND (bcb.board_deleted_yn IS NULL OR bcb.board_deleted_yn = false)
     </select>
 
+    <!-- 독서모임 게시글의 댓글 목록 조회 (오래된 순) -->
+    <select id="selectBoardComments" resultType="project.bookclub.vo.BookClubBoardVO">
+        SELECT
+            bcb.book_club_board_seq,
+            bcb.book_club_seq,
+            bcb.board_title,
+            bcb.board_cont,
+            bcb.board_img_url,
+            bcb.member_seq,
+            bcb.parent_book_club_board_seq,
+            bcb.book_info_seq,
+            bcb.board_deleted_yn,
+            bcb.board_deleted_dtm,
+
+            bcb.crt_dtm AS board_crt_dtm,
+            bcb.upd_dtm AS board_upd_dtm,
+
+            to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
+
+            m.member_nicknm
+
+        FROM book_club_board bcb
+        INNER JOIN member_info m ON bcb.member_seq = m.member_seq
+        WHERE bcb.book_club_seq = #{bookClubSeq}
+          AND bcb.parent_book_club_board_seq = #{postId}
+          AND (bcb.board_deleted_yn IS NULL OR bcb.board_deleted_yn = false)
+        ORDER BY bcb.book_club_board_seq ASC
+    </select>
+
 </mapper>

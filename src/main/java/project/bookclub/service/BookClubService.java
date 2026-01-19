@@ -165,4 +165,12 @@ public class BookClubService {
         }
         return bookClubMapper.selectBoardDetail(bookClubSeq, postId);
     }
+
+    // #3-3. 독서모임 게시글의 댓글 목록 조회
+    public List<BookClubBoardVO> getBoardComments(Long bookClubSeq, Long postId) {
+        if (bookClubSeq == null || postId == null) {
+            return List.of();
+        }
+        return bookClubMapper.selectBoardComments(bookClubSeq, postId);
+    }
 }

@@ -127,7 +127,7 @@ public class BookClubController {
      * 독서모임 게시글 상세 페이지
      * GET /bookclubs/{bookClubId}/posts/{postId}
      * - 게시글 단건 조회 (본문 렌더링)
-     * - 댓글 조회/작성은 TODO (추후 구현)
+     * - 댓글 목록 조회 추가 (SELECT만)
      */
     @GetMapping("/bookclubs/{bookClubId}/posts/{postId}")
     public String getPostDetail(
@@ -144,8 +144,12 @@ public class BookClubController {
             return "error/404"; // 또는 redirect:/bookclubs/{bookClubId}
         }
 
+        // 댓글 목록 조회
+        List<BookClubBoardVO> comments = bookClubService.getBoardComments(bookClubId, postId);
+
         // model에 데이터 담기
         model.addAttribute("post", post);
+        model.addAttribute("comments", comments);
         model.addAttribute("bookClubId", bookClubId);
 
         return "bookclub/bookclub_post_detail";
