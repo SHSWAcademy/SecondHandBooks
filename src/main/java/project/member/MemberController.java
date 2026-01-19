@@ -235,8 +235,30 @@ public class MemberController {
 
     // --- 네이버 로그인 콜백 ---
     @GetMapping("/auth/naver/callback")
-    public String naverCallBack(@RequestParam String code, @RequestParam String state, HttpSession sess, Model model) {
-        // 1. 액세스 토큰 받기
+    public String naverCallBack(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String error,
+            @RequestParam(required = false) String error_description,
+            HttpSession sess, Model model) {
+
+        // 1. 사용자가 로그인을 취소한 경우 처리
+        if ("access_denied".equals(error)) {
+            log.info("Naver login canceled by user: {}", error_description);
+            model.addAttribute("msg", "네이버 로그인을 취소하셨습니다.");
+            model.addAttribute("url", "/login");
+            model.addAttribute("cmd", "move");
+            return "common/return";
+        }
+
+        // 2. 코드가 없는 비정상 접근 처리
+        if (code == null) {
+            model.addAttribute("msg", "잘못된 접근입니다.");
+            model.addAttribute("cmd", "back");
+            return "common/return";
+        }
+
+        // 3. 액세스 토큰 받기 (기존 로직 유지)
         String accessToken = getNaverAccessToken(code, state);
         if (accessToken == null) {
             model.addAttribute("msg", "네이버 토큰 발급 실패");
@@ -244,12 +266,11 @@ public class MemberController {
             return "common/return";
         }
 
-        // 2. 사용자 정보 받기
+        // 4. 사용자 정보 받기 (기존 로직 유지)
         Map<String, Object> naverUserInfo = getNaverUserInfo(accessToken);
 
-        // 3. 서비스 호출 (기존 카카오에서 쓴 메서드를 재사용하거나 새로 만듭니다)
+        // 5. 서비스 호출 (기존 로직 유지)
         try {
-            // provider를 "NAVER"로 넘겨서 구분합니다.
             MemberVO loginUser = memberService.processSocialLogin(naverUserInfo);
             sess.setAttribute("loginSess", loginUser);
             return "redirect:/";
