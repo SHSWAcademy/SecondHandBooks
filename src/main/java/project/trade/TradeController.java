@@ -39,7 +39,11 @@ public class TradeController {
 
     // 판매글 등록
     @GetMapping("/trade")
-    public String getTrade(Model model) {
+    public String getTrade(Model model, HttpSession session) {
+        // 세션 검증
+        if(session == null) {
+            return "redirect:/";
+        }
         // 카테고리 데이터 add
         model.addAttribute("category", tradeService.selectCategory());
         return "trade/tradeForm";
@@ -49,9 +53,6 @@ public class TradeController {
     @PostMapping("/trade")
     public String uploadTrade(TradeVO tradeVO, HttpSession session,
                               RedirectAttributes redirectAttributes) throws Exception {
-
-        //checkSessionAndTrade(session, tradeVO);
-
 
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
         List<MultipartFile> uploadFiles = tradeVO.getUploadFiles(); // form 에서 받은 데이터 조회
@@ -84,9 +85,21 @@ public class TradeController {
 
     // 판매글 update 요청
     @GetMapping("/trade/modify/{tradeSeq}")
-    public String modifyRequest(@PathVariable Long tradeSeq, Model model) {
+    public String modifyRequest(@PathVariable Long tradeSeq, Model model, HttpSession session) {
+
         TradeVO trade = tradeService.search(tradeSeq);
-        log.info("findTrade: {}", trade);
+
+        // 세션 검증
+        try {
+            checkSessionAndTrade(session, trade);
+        } catch (Exception e) {
+            return "redirect:/";
+        }
+        // 수정하려는 사람의 pk가 게시글의 작성자 pk와 동일한지 검증
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+        if (trade.getMember_seller_seq() != sessionMember.getMember_seq()) {
+            return "redirect:/";
+        }
 
         // 카테고리 데이터 add
         model.addAttribute("category", tradeService.selectCategory());
@@ -97,10 +110,11 @@ public class TradeController {
     // 판매글 update 등록
     @PostMapping("/trade/modify/{tradeSeq}")
     public String modifyUpload(@PathVariable Long tradeSeq, TradeVO updateTrade,
-                               RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
+                               RedirectAttributes redirectAttributes) throws Exception {
 
         //checkSessionAndTrade(session, updateTrade);
         // if (updateTrade.getMember_seller_seq() != (MemberVO)session.getAttribute(Const.SESSION).getMember_seq())
+
 
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
         List<MultipartFile> uploadFiles = updateTrade.getUploadFiles(); // form 에서 받은 데이터 조회
@@ -140,6 +154,19 @@ public class TradeController {
     @PostMapping("/trade/delete/{tradeSeq}")
     public String remove(@PathVariable Long tradeSeq,
                          RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
+
+        // 세션 검증
+        TradeVO trade = tradeService.search(tradeSeq);
+        try {
+            checkSessionAndTrade(session, trade);
+        } catch (Exception e) {
+            return "redirect:/";
+        }
+        // 삭제하려는 사람의 pk가 게시글의 작성자 pk와 동일한지 검증
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+        if (trade.getMember_seller_seq() != sessionMember.getMember_seq()) {
+            return "redirect:/";
+        }
 
         if (tradeService.remove(tradeSeq)) {
             log.info("delete Success");
