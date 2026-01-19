@@ -108,6 +108,12 @@
                 <p class="whitespace-pre-wrap">${trade.sale_cont}</p>
             </div>
 
+            <form action="/chatrooms" method="post">
+                <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
+                <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
+                <button type="submit" class="w-full px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-red-600 transition font-bold">채팅하기</button>
+            </form>
+
             <!-- 수정/삭제 버튼 -->
             <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq}">
                 <div class="mt-6 flex gap-3">
@@ -115,7 +121,7 @@
                        class="flex-1 px-6 py-3 bg-primary-500 text-white text-center rounded-lg hover:bg-primary-600 transition font-bold">
                         수정
                     </a>
-                    <form action="${pageContext.request.contextPath}/trade/delete/${trade.trade_seq}" method="post" class="flex-1"
+                    <form action="${pageConQtext.request.contextPath}/trade/delete/${trade.trade_seq}" method="post" class="flex-1"
                           onsubmit="return confirm('정말 삭제하시겠습니까?');">
                         <button type="submit"
                                 class="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-bold">
