@@ -82,6 +82,25 @@ public class MemberController {
             return "redirect:/";
         }
     }
+//    @GetMapping("/logout")
+//    public String logout(HttpSession sess) {
+//        // 세션에 저장된 모든 데이터 삭제 (loginSess 포함)
+//        sess.invalidate();
+//
+//        log.info("로그아웃 성공 - 세션 만료됨");
+//
+//        // 메인 화면으로 리다이렉트
+//        return "redirect:/";
+//    }
+    @GetMapping("/logout")
+    public String logout(HttpSession sess, Model model) {
+        // 1. 세션 삭제
+        sess.invalidate();
+
+        // 2. 알림창 메시지와 이동할 주소 설정
+        model.addAttribute("msg", "로그아웃 되었습니다.");
+        model.addAttribute("url", "/");
+    }
 
     @GetMapping("/signup")
     public String signup() {
@@ -310,4 +329,5 @@ public class MemberController {
     public int nicknmCheck(@RequestParam String member_nicknm) {
         return memberService.nickNmCheck(member_nicknm);
     }
+
 }
