@@ -2,12 +2,46 @@ package project.chat.chatroom;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.chat.message.MessageVO;
+import java.util.List;
 
 @Slf4j
-@Controller
+@Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ChatroomService {
+
+    private final ChatroomMapper chatroomMapper;
+
+    public List<ChatroomVO> searchAll(long member_seq) {
+        return chatroomMapper.findAllByMemberSeq(member_seq);
+        //select * from chatroom where member_seq = #{member_seq}
+    }
+
+    @Transactional
+    public ChatroomVO findOrCreateRoom(long member_seller_seq, long member_buyer_seq, long trade_seq) {
+        ChatroomVO findChatroom = chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
+        // 이미 채팅 전적이 있다면
+        if (findChatroom != null) {
+            return findChatroom;
+        }
+
+        // 신규 채팅일 때
+        try {
+            chatroomMapper.createRoom(member_seller_seq, member_buyer_seq, trade_seq);
+            return chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
+        } catch (DuplicateKeyException e) {
+            // 동시에 생성된 경우 → 다시 조회
+            return chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
+        }
+    }
+
+    public List<MessageVO> getAllMessages(long chat_room_seq) {
+        return chatroomMapper.findAllByChatRoomSeq(chat_room_seq);
+        // select * from messageVO where chatRoomSeq = chat_room_seq
+    }
+
 }
