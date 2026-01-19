@@ -16,6 +16,8 @@ const BookClub = (() => {
             }, 300); // 입력 멈춘 후 300ms
         });
     }
+    // 초기 전체 조회
+    search("");
 
     /** 서버 검색 요청 */
     function search(keyword) {
@@ -79,9 +81,16 @@ const BookClub = (() => {
             `);
         });
     }
+    // 외부에서 호출 가능한 메서드
+    function reload() {
+        const keywordInput = document.getElementById("keyword");
+        const keyword = keywordInput ? keywordInput.value.trim() : "";
+        search(keyword);
+    }
 
     return {
-        initList
+        initList,
+        reload
     };
 })();
 
@@ -120,18 +129,53 @@ function initCreateModal() {
             method: "POST",
             body: formData
         })
-        .then(res => {
-            console.log("status:", res.status);
+//        .then(res => res.json())
+        .then(async res => {
+            // status 기준 판단
             if (!res.ok) {
-                throw new Error("create failed");
+                throw new Error("HTTP_ERROR_" + res.status);
             }
+            // body가 없을 수도 있으므로 안전 처리
+            const text = await res.text();
+            return text ? JSON.parse(text) : {};
         })
-//        .then(() => {
-//            modal.classList.add("hidden");
-//            location.reload();
-//        })
+        .then(data => {
+            if (data.status === "fail") {
+                if (data.message === "LOGIN_REQUIRED") {
+                    alert("로그인이 필요합니다.");
+                    return;
+                }
+
+                alert(data.message); // 중복 모임명 메시지
+                return;
+            }
+
+            // 성공
+            alert("모임이 생성되었습니다.");
+            modal.classList.add("hidden");
+
+            // 목록 새로고침 (비동기)
+            BookClub.reload();
+//            BookClub.initList();
+//            search(""); // 전체 목록 다시 로딩
+        })
         .catch(err => {
             console.error("create error", err);
+            alert("모임 생성 중 오류가 발생했습니다.");
         })
+//        .then(res => {
+//            console.log("status:", res.status);
+//            if (!res.ok) {
+//                throw new Error("create failed");
+//            }
+//        })
+////        .then(() => {
+////            modal.classList.add("hidden");
+////            location.reload();
+////        })
+//        .catch(err => {
+//            console.error("create error", err);
+//        })
+
     });
 }
