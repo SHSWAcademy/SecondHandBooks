@@ -157,4 +157,12 @@ public class BookClubService {
         }
         return bookClubMapper.selectRecentRootBoardsByClub(bookClubSeq);
     }
+
+    // #3-2. 독서모임 게시글 단건 조회 (상세 페이지)
+    public BookClubBoardVO getBoardDetail(Long bookClubSeq, Long postId) {
+        if (bookClubSeq == null || postId == null) {
+            return null;
+        }
+        return bookClubMapper.selectBoardDetail(bookClubSeq, postId);
+    }
 }

@@ -35,4 +35,8 @@ public interface BookClubMapper {
 
     // 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인)
     List<project.bookclub.vo.BookClubBoardVO> selectRecentRootBoardsByClub(@Param("bookClubSeq") Long bookClubSeq);
+
+    // 독서모임 게시글 단건 조회 (상세 페이지용)
+    project.bookclub.vo.BookClubBoardVO selectBoardDetail(@Param("bookClubSeq") Long bookClubSeq,
+                                                           @Param("postId") Long postId);
 } 
