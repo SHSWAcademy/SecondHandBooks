@@ -32,4 +32,7 @@ public interface BookClubMapper {
 
     // 독서모임의 찜 개수 조회
     int selectWishCount(@Param("bookClubSeq") Long bookClubSeq);
+
+    // 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인)
+    List<project.bookclub.vo.BookClubBoardVO> selectRecentRootBoardsByClub(@Param("bookClubSeq") Long bookClubSeq);
 } 

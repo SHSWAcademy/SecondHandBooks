@@ -20,4 +20,9 @@ public class BookClubBoardVO {
     private LocalDateTime board_deleted_dtm; // 게시글 삭제 시간
     private LocalDateTime board_crt_dtm; // 게시글 생성 시간
     private LocalDateTime board_upd_dtm; // 게시글 수정 시간
+    
+    private String board_crt_dtm_text; // 화면 출력용
+
+    // 조회용 필드 (member_info 조인 시)
+    private String member_nicknm; // 작성자 닉네임
 }

@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import project.bookclub.ENUM.JoinRequestResult;
 import project.bookclub.service.BookClubService;
+import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
+
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
@@ -99,6 +102,7 @@ public class BookClubController {
      * GET /bookclubs/{bookClubId}/board-fragment
      * - fetch로 호출되어 게시판 탭 본문만 반환
      * - 동일한 model 세팅 재사용 (fragment에서도 bookClub 등 필요)
+     * - 게시판 목록 조회 추가 (최근 원글 10개)
      */
     @GetMapping("/bookclubs/{bookClubId}/board-fragment")
     public String getBoardFragment(
@@ -108,6 +112,11 @@ public class BookClubController {
     ) {
         // 공통 model 세팅 메서드 호출 (조회 로직 재사용)
         loadBookClubDetailModel(bookClubId, session, model);
+
+        // 게시판 목록 조회 (최근 원글 10개)
+        List<BookClubBoardVO> boards = bookClubService.getRecentBoards(bookClubId);
+        model.addAttribute("boards", boards);
+
         return "bookclub/bookclub_detail_board";
     }
 
