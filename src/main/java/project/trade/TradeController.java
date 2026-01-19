@@ -40,8 +40,9 @@ public class TradeController {
     // 판매글 등록
     @GetMapping("/trade")
     public String getTrade(Model model, HttpSession session) {
+
         // 세션 검증
-        if(session == null) {
+        if(session.getAttribute(Const.SESSION) == null) {
             return "redirect:/";
         }
         // 카테고리 데이터 add
@@ -54,6 +55,7 @@ public class TradeController {
     public String uploadTrade(TradeVO tradeVO, HttpSession session,
                               RedirectAttributes redirectAttributes) throws Exception {
 
+        checkSessionAndTrade(session, tradeVO);
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
         List<MultipartFile> uploadFiles = tradeVO.getUploadFiles(); // form 에서 받은 데이터 조회
         log.info("uploadFiles: {}", uploadFiles);

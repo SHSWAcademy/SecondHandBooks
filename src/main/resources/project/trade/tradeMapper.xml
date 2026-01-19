@@ -6,6 +6,7 @@
 
     <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
         SELECT
+            sb.member_seller_seq,
             sb.trade_seq,
             sb.sale_title,
             sb.book_st,
@@ -45,6 +46,7 @@
 
     <insert id="save" parameterType="project.trade.TradeVO" useGeneratedKeys="true" keyProperty="trade_seq">
         INSERT INTO sb_trade_info (
+            member_seller_seq,
             sale_title,
             book_img,
             book_title,
@@ -61,6 +63,7 @@
             sale_rg,
             crt_dtm
         ) VALUES (
+            #{member_seller_seq},
             #{sale_title},
             #{book_img},
             #{book_title},
@@ -95,7 +98,7 @@
                 sale_price        = #{sale_price},
                 delivery_cost     = #{delivery_cost},
                 sale_rg           = #{sale_rg},
-                upd_dtm           = now()
+                upd_dtm           = now(),
                 WHERE trade_seq   = #{trade_seq}
     </update>
 
