@@ -24,10 +24,16 @@
                 <a href="${pageContext.request.contextPath}/bookclubs/create" class="btn btn-primary">
                     모임 만들기
                 </a>
-                --%>
                 <a href="javascript:void(0)" id="openCreateModal" class="btn btn-primary">
                 모임 만들기
                 </a>
+                --%>
+                <c:if test="${not empty sessionScope.loginSess}">
+                    <button id="openCreateModal">모임 만들기</button>
+                </c:if>
+                <c:if test="${empty sessionScope.loginSess}">
+                    <button id="needLoginBtn">모임 만들기</button>
+                </c:if>
             </div>
 
             <!-- 검색 및 필터 -->
@@ -203,6 +209,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             BookClub.initList();
             initCreateModal();
+        });
+        // 로그인 세션 없이 모임 만들기 버튼 클릭 -> 로그인 요청 alert
+        document.getElementById("needLoginBtn")?.addEventListener("click", () => {
+            alert("로그인이 필요합니다.");
+            location.href = "/login";
         });
     </script>
 </body>

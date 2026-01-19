@@ -55,20 +55,35 @@ public class BookClubService {
     }
 
     @Transactional
-    public void create(BookClubVO vo) {
+    public void createBookClubs(BookClubVO vo) {
         // 1. 값 들어왔는지 확인
         log.info("service create vo = {}", vo);
         log.info("leader_seq = {}", vo.getBook_club_leader_seq());
 
+        // 2. 중복 모임명 체크
+        int count = bookClubMapper.countByName(vo.getBook_club_name());
+        if (count > 0) {
+            throw new IllegalStateException("이미 존재하는 모임명입니다.");
+        }
+
+        // 3. 모임 이름 중복 체크
+        boolean duplicated = isDuplicateForLeader(vo.getBook_club_leader_seq(), vo.getBook_club_name());
+        if(duplicated) {
+            throw new IllegalArgumentException("이미 같은 이름의 독서 모임이 존재합니다.");
+        }
         // 2. 서버에서 관리하는 기본값만 세팅
 //        vo.setCrt_dtm(java.time.LocalDateTime.now());
 //        vo.setUpd_dtm(java.time.LocalDateTime.now()); // null이어도 됨. 수정했을 때 반영
         // TODO: 로그인 연동 후 세션에서 사용자 ID 가져오도록 수정
-        if (vo.getBook_club_leader_seq() == null) {
-            vo.setBook_club_leader_seq(1L); // 임시 기본값
-        }
+//        if (vo.getBook_club_leader_seq() == null) {
+//            vo.setBook_club_leader_seq(1L); // 임시 기본값
+//        }
 
         // 3. DB 저장은 다음 단계
         bookClubMapper.insertBookClub(vo);
+    }
+
+    public boolean isDuplicateForLeader(Long leaderSeq, String name) {
+        return bookClubMapper.countByLeaderAndName(leaderSeq, name) > 0;
     }
 }

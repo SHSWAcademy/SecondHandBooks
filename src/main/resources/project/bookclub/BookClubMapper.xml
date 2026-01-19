@@ -3,7 +3,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="project.bookclub.mapper.BookClubMapper">
-
+    <!--
+        searchAll() : 독서 모임을 전체 조회
+        searchByKeyword() : 검색어에 따른 독서 모임을 조회
+        insertBookClub() : 모임을 생성
+        countByName() : 모임명의 개수 파악 -> 모임명 중복 체크
+    -->
     <!-- 독서모임 전체 조회 -->
     <select id="searchAll" resultType="project.bookclub.vo.BookClubVO">
         SELECT
@@ -90,4 +95,18 @@
             ,now()
         )
     </insert>
+
+    <select id="countByName" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club
+        WHERE book_club_name = #{book_club_name}
+        AND book_club_deleted_dt IS NULL
+    </select>
+    <select id="countByLeaderAndName" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club
+        WHERE book_club_leader_seq = #{leaderSeq}
+        AND book_club_name = #{name}
+        AND book_club_deleted_dt IS NULL
+    </select>
 </mapper>

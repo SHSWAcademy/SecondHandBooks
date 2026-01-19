@@ -24,8 +24,8 @@ public class BookClubController {
 
     /*
     * 독서모임 메인
-    * keyword 없으면 모임 전체 조회
-    * keyword 있으면 검색
+    * getBookClubs : keyword 없이 모임 전체 조회
+    * searchBookClubs : keyword로 모임 검색
     */
 
     @GetMapping
@@ -43,22 +43,30 @@ public class BookClubController {
 
     @PostMapping
     @ResponseBody
-    public Map<String, Object> create(BookClubVO vo, HttpSession session) {
+    public Map<String, Object> createBookClubs(BookClubVO vo, HttpSession session) {
         MemberVO loginUser = (MemberVO) session.getAttribute("loginSess");
 
         if (loginUser == null) {
             return Map.of(
                     "status", "fail",
-                    "message", "로그인이 필요합니다."
+                    "message", "LOGIN_REQUIRED"
             );
         }
-        log.info("login member_seq = {}", loginUser.getMember_seq());
-
         vo.setBook_club_leader_seq(loginUser.getMember_seq());
-        bookClubService.create(vo);
-//        log.info("vo = {}", vo);
-        return Map.of("status", "ok");
-//        return "redirect:/bookclubs";
-
+//        log.info("login member_seq = {}", loginUser.getMember_seq());
+//
+//        vo.setBook_club_leader_seq(loginUser.getMember_seq());
+//        bookClubService.createBookClubs(vo);
+//        return Map.of("status", "ok");
+        try {
+//            vo.setBook_club_leader_seq(loginUser.getMember_seq());
+            bookClubService.createBookClubs(vo);
+            return Map.of("status", "ok");
+        } catch (IllegalStateException e) {
+            return Map.of(
+                    "status", "fail",
+                    "message", e.getMessage()
+            );
+        }
     }
 }
