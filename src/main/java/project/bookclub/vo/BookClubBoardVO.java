@@ -25,4 +25,7 @@ public class BookClubBoardVO {
 
     // 조회용 필드 (member_info 조인 시)
     private String member_nicknm; // 작성자 닉네임
+
+    // 댓글 수 (원글 목록 조회 시)
+    private Integer commentCount; // 댓글 개수
 }

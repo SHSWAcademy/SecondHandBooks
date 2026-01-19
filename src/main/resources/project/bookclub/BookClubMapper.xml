@@ -92,7 +92,14 @@
 
             to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
 
-            m.member_nicknm
+            m.member_nicknm,
+
+            (
+                SELECT COUNT(*)
+                FROM book_club_board c
+                WHERE c.parent_book_club_board_seq = bcb.book_club_board_seq
+                  AND (c.board_deleted_yn IS NULL OR c.board_deleted_yn = false)
+            ) AS comment_count
 
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq

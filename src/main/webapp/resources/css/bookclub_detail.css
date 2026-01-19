@@ -425,3 +425,9 @@
     padding: 40px 20px;
     color: #e53e3e;
 }
+
+/* 댓글 수 뱃지 */
+.bc-board-comment-count {
+    color: #4299e1;
+    font-weight: 500;
+}
