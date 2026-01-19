@@ -100,6 +100,9 @@ public class MemberController {
         // 2. 알림창 메시지와 이동할 주소 설정
         model.addAttribute("msg", "로그아웃 되었습니다.");
         model.addAttribute("url", "/");
+        model.addAttribute("cmd", "move");
+
+        return "common/return";
     }
 
     @GetMapping("/signup")
