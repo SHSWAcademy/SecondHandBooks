@@ -36,12 +36,7 @@
                     <div id="searchResults" class="absolute left-0 z-50 w-full mt-12 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
                     </div>
                 </div>
-                    <p class="text-xs text-gray-500 mt-1">책 제목으로 검색하여 도서를 선택하세요</p>
 
-                    <!-- 검색 결과 드롭다운 -->
-                    <div id="searchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
-                    </div>
-                </div>
 
                 <!-- 선택된 책 미리보기 -->
                 <div id="selectedBookPreview" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -398,4 +393,4 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
 
 </script>
-<jsp:include page="/WEB-INF/views/common/footer.jsp" />
+<jsp:include page="../common/footer.jsp" />
