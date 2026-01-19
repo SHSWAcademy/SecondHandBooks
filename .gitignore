@@ -22,7 +22,7 @@ buildNumber.properties
 .sts4-cache/
 .vscode/
 
-# Database Configuration
+# Configuration
 *.properties
 
 
