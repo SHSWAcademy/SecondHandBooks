@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import project.bookclub.ENUM.JoinRequestResult;
 import project.bookclub.mapper.BookClubMapper;
+import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 
 import java.util.Arrays;
@@ -144,5 +145,16 @@ public class BookClubService {
             return 0;
         }
         return bookClubMapper.selectWishCount(bookClubSeq);
+    }
+
+    /*
+     * #3. 독서모임 게시판
+     */
+    // #3-1. 독서모임 게시판 - 최근 원글 10개 조회
+    public List<BookClubBoardVO> getRecentBoards(Long bookClubSeq) {
+        if (bookClubSeq == null) {
+            return List.of();
+        }
+        return bookClubMapper.selectRecentRootBoardsByClub(bookClubSeq);
     }
 }
