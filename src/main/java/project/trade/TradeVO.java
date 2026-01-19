@@ -62,7 +62,10 @@ public class TradeVO {
                 book_img != null && !book_img.equals("") &&
                 book_title != null && !book_title.equals("") &&
                 book_author != null && !book_author.equals("") &&
-                book_publisher != null && !book_publisher.equals("") &&
+                book_publisher
+
+
+                        != null && !book_publisher.equals("") &&
                 isbn != null && !isbn.equals("") &&
                 category_nm != null && !category_nm.equals("") &&
                 sale_cont != null && !sale_cont.equals("");
