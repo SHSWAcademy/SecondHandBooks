@@ -22,7 +22,7 @@ public class ChatroomService {
     }
 
     @Transactional
-    public ChatroomVO findOrCreateRoom(long member_seller_seq, long member_buyer_seq, long trade_seq) {
+    public ChatroomVO findOrCreateRoom(long member_seller_seq, long member_buyer_seq, long trade_seq, String sale_title) {
         ChatroomVO findChatroom = chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
         // 이미 채팅 전적이 있다면
         if (findChatroom != null) {
@@ -31,7 +31,7 @@ public class ChatroomService {
 
         // 신규 채팅일 때
         try {
-            ChatroomVO chatroom = new ChatroomVO(trade_seq, member_buyer_seq, member_seller_seq);
+            ChatroomVO chatroom = new ChatroomVO(trade_seq, member_buyer_seq, member_seller_seq, sale_title);
             int result = chatroomMapper.save(chatroom);
 
             if (result > 0) {
