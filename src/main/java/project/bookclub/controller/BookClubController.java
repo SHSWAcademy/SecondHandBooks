@@ -193,17 +193,11 @@ public class BookClubController {
             HttpSession session,
             Model model) {
 
-        // 권한 검증 (공통 메서드 재사용) - fragment이므로 forbidden fragment 반환
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            model.addAttribute("bookClubId", bookClubId);
-            model.addAttribute("isLogin", false);
-            return "bookclub/bookclub_board_forbidden";
-        }
-
+        // 권한 검증 (공통 메서드 재사용)
         String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
-        if (permissionCheckResult != null && !permissionCheckResult.equals("redirect:/login")) {
-            return "bookclub/bookclub_board_forbidden"; // fragment이므로 redirect 대신 forbidden
+        if (permissionCheckResult != null) {
+            // fragment에서는 redirect 불가 → 로그인 실패도 forbidden 처리
+            return "bookclub/bookclub_board_forbidden";
         }
 
         // 권한 있음: 공통 model 세팅 + 게시판 목록 조회

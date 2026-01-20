@@ -102,14 +102,17 @@ public class BookClubService {
      * 4. book_club_request INSERT → SUCCESS
      *
      * 참고:
-     * - book_club_request 테이블에는 UNIQUE(book_club_seq, request_member_seq) 제약이 없음
-     * - 따라서 DB 레벨에서 중복 신청을 막을 수 없음 (hasPendingRequest로 비즈니스 로직 검증 필수)
+     * - book_club_request 테이블: UNIQUE(book_club_seq, request_member_seq) 제약 존재
+     * (uq_bcr_wait)
+     * - DB 레벨에서 중복 신청 방지 (동일 멤버가 동일 모임에 여러 request 불가)
+     * - 비즈니스 로직(hasPendingRequest)으로 1차 검증, DB UNIQUE 제약으로 2차 방어
      *
      * @param bookClubSeq 독서모임 ID
      * @param memberSeq   신청 멤버 ID
      * @param requestCont 신청 메시지 (nullable)
      * @return JoinRequestResult enum (성공/실패 사유)
      */
+    @Transactional
     public JoinRequestResult createJoinRequest(Long bookClubSeq, Long memberSeq, String requestCont) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || memberSeq == null) {
@@ -118,15 +121,16 @@ public class BookClubService {
         }
 
         // 2. 이미 JOINED 상태인지 확인 (book_club_member 테이블)
-        // - UNIQUE 제약: (book_club_seq, member_seq) 존재 (bookclubDDL.md line 99)
+        // - UNIQUE 제약: uq_bcm_bookclub_member (book_club_seq, member_seq)
         if (isMemberJoined(bookClubSeq, memberSeq)) {
             log.info("가입 신청 실패: 이미 가입된 멤버 (join_st=JOINED) - bookClubSeq={}, memberSeq={}",
                     bookClubSeq, memberSeq);
             return JoinRequestResult.ALREADY_JOINED;
         }
 
-        // 3. 이미 WAIT 상태로 신청했는지 확인 (book_club_request 테이블)
-        // - book_club_request에는 UNIQUE 제약이 없으므로 비즈니스 로직으로 검증
+        // 3. 이미 신청 이력이 있는지 확인 (book_club_request 테이블)
+        // - UNIQUE 제약: uq_bcr_wait (book_club_seq, request_member_seq)
+        // - WAIT, APPROVED, REJECTED 상관없이 동일 멤버는 1개의 request만 가질 수 있음
         if (hasPendingRequest(bookClubSeq, memberSeq)) {
             log.info("가입 신청 실패: 이미 신청 대기중 (request_st=WAIT) - bookClubSeq={}, memberSeq={}",
                     bookClubSeq, memberSeq);
@@ -140,10 +144,9 @@ public class BookClubService {
             return JoinRequestResult.SUCCESS;
 
         } catch (DataIntegrityViolationException e) {
-            // UNIQUE 제약이 추가되었을 경우를 대비한 방어 코드
-            // (현재 DDL에는 UNIQUE 제약 없음)
-            // DuplicateKeyException은 DataIntegrityViolationException의 서브클래스이므로 함께 처리됨
-            log.warn("가입 신청 실패: DB 제약 위반 - bookClubSeq={}, memberSeq={}, error={}",
+            // UNIQUE 제약 위반 시 (동시성 이슈로 SELECT 이후 INSERT 전에 다른 트랜잭션이 먼저 INSERT한 경우)
+            // uq_bcr_wait: UNIQUE(book_club_seq, request_member_seq)
+            log.warn("가입 신청 실패: DB UNIQUE 제약 위반 - bookClubSeq={}, memberSeq={}, error={}",
                     bookClubSeq, memberSeq, e.getMessage());
             return JoinRequestResult.ALREADY_REQUESTED;
         }
