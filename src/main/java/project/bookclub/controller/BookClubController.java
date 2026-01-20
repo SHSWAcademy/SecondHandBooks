@@ -255,7 +255,7 @@ public class BookClubController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        String redirectUrl = "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
+        String redirectUrl = "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "#comments";
 
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
