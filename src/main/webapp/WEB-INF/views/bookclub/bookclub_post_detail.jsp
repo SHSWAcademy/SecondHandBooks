@@ -178,7 +178,7 @@
     .bc-comment-form {
         display: flex;
         gap: 0.75rem;
-        align-items: flex-end;
+        align-items: stretch;
     }
 
     .bc-comment-textarea {
@@ -186,10 +186,12 @@
         resize: none;
         border: 1px solid #e2e8f0;
         border-radius: 0.5rem;
-        padding: 0.75rem;
+        padding: 0.625rem 0.75rem;
         font-size: 0.875rem;
-        min-height: 60px;
+        min-height: 44px;
+        max-height: 120px;
         font-family: inherit;
+        line-height: 1.5;
     }
 
     .bc-comment-textarea:focus {
@@ -202,15 +204,20 @@
         background: #4299e1;
         color: white;
         border: none;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1.25rem;
-        font-size: 0.875rem;
-        font-weight: 600;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 9999px;
         cursor: pointer;
         transition: background 0.2s;
         display: flex;
         align-items: center;
-        gap: 0.375rem;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .bc-comment-submit-btn svg {
+        margin: 0;
     }
 
     .bc-comment-submit-btn:hover {
@@ -220,6 +227,18 @@
     .bc-comment-submit-btn:disabled {
         background: #a0aec0;
         cursor: not-allowed;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
     }
 </style>
 
@@ -297,7 +316,7 @@
                 </div>
 
                 <!-- 댓글 영역 -->
-                <div class="bc-comments-section">
+                <div class="bc-comments-section" id="comments">
                     <h2 class="bc-comments-title">
                         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
@@ -347,17 +366,18 @@
                     <!-- 댓글 입력 폼 (권한 있는 사용자만 표시) -->
                     <c:if test="${canWriteComment}">
                         <div class="bc-comment-form-wrapper">
-                            <form class="bc-comment-form"
+                            <form id="bcCommentForm" class="bc-comment-form"
                                   action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments"
                                   method="post">
-                                <textarea name="commentCont" class="bc-comment-textarea"
+                                <textarea id="bcCommentTextarea" name="commentCont" class="bc-comment-textarea"
                                           placeholder="댓글을 입력하세요..." required></textarea>
-                                <button type="submit" class="bc-comment-submit-btn">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button id="bcCommentSubmit" type="submit" class="bc-comment-submit-btn"
+                                        aria-label="댓글 전송" disabled>
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                               d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                                     </svg>
-                                    전송
+                                    <span class="sr-only">전송</span>
                                 </button>
                             </form>
                         </div>
@@ -368,4 +388,5 @@
     </c:when>
 </c:choose>
 
+<script defer src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_post_detail.js"></script>
 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
