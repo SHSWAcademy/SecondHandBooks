@@ -12,7 +12,7 @@ import project.trade.TradeVO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
+// 주석
 /**
  * Handles requests for the application home page.
  */
