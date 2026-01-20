@@ -443,4 +443,9 @@ public class MemberController {
         return "common/return";
     }
 
+    // Address 보여주기
+    @GetMapping("/profile/tab/addresses")
+    public String tabAddresses() {
+        return "member/tabs/addresses";
+    }
 }
