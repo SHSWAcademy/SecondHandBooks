@@ -96,7 +96,8 @@
             <a href="/upload"
               class="px-3 py-2 text-sm font-bold hover:text-primary-600 transition-colors text-gray-600">판매하기</a>
 
-        
+
+
             <div class="h-4 w-px bg-gray-300 mx-2"></div>
 
             <c:choose>
@@ -120,9 +121,9 @@
                     class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 group ml-1">
                     <div
                       class="w-9 h-9 bg-primary-50 text-primary-600 rounded-full border border-primary-100 flex items-center justify-center font-bold text-sm overflow-hidden group-hover:bg-primary-100 transition">
-                      ${sessionScope.loginSess.nickname.substring(0, 1)}
+                      ${sessionScope.loginSess.member_nicknm.substring(0, 1)}
                     </div>
-                    <span class="font-bold hidden lg:block">${sessionScope.loginSess.nickname}님</span>
+                    <span class="font-bold hidden lg:block">${sessionScope.loginSess.member_nicknm}님</span>
                   </a>
                 </div>
               </c:when>
