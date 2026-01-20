@@ -17,5 +17,5 @@ public class BookClubVO {
     private String book_club_schedule; // 독서모임 정기 일정
     private LocalDateTime crt_dtm; // 독서모임 생성 일시
     private LocalDateTime upd_dtm; // 독서모임의 내용 수정 일시
-
+    private Integer joined_member_count; // 독서모임의 가입 회원 수
 }
