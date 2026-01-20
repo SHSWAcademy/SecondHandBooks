@@ -1,208 +1,246 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ page import="java.time.LocalDateTime, java.util.Date, project.chat.message.MessageVO" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>채팅</title>
+  <%@ page contentType="text/html; charset=UTF-8" %>
+  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+  <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-    <style>
-        #chatContainer {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-        #message {
-            width: 80%;
-        }
-        #emptyNotice {
-            color: #888;
-            margin: 10px 0;
-        }
-    </style>
-</head>
-<body>
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <title>채팅</title>
+      <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+      <style>
+          * { box-sizing: border-box; }
+          body { margin: 0; font-family: sans-serif; }
 
-<h2>${trade_info.sale_title}의 거래방입니다.</h2>
+          .chat-wrapper {
+              display: flex;
+              height: 100vh;
+          }
 
-<!-- 채팅 메시지 전체 영역 -->
-<div id="chatContainer">
-    <c:choose>
-        <c:when test="${not empty messages}">
-            <c:forEach var="msg" items="${messages}">
-                <c:choose>
-                    <c:when test="${msg.sender_seq == sessionScope.loginSess.member_seq}">
-                        <div style="text-align:right; margin:10px 0;">
-                            <div style="display:inline-block; background:#ffe066; padding:8px 12px; border-radius:10px;">
-                                ${msg.chat_cont}
-                            </div>
-                            <div style="font-size:11px; color:#888;">
-                                <%
-                                    Object obj = pageContext.findAttribute("msg");
-                                    if(obj != null) {
-                                        MessageVO message = (MessageVO) obj;
-                                        LocalDateTime ldt = message.getSent_dtm();
-                                        Date date = null;
-                                        if(ldt != null) {
-                                            date = Date.from(ldt.atZone(java.time.ZoneId.systemDefault()).toInstant());
-                                        }
-                                %>
-                                <fmt:formatDate value="<%=date%>" pattern="yyyy/MM/dd HH:mm"/>
-                                <c:if test="${msg.read_yn}">✔</c:if>
-                                <%
-                                    }
-                                %>
-                            </div>
-                        </div>
-                    </c:when>
+          /* 좌측: 채팅방 목록 */
+          .room-list {
+              width: 300px;
+              border-right: 1px solid #ccc;
+              overflow-y: auto;
+          }
+          .room-list h3 {
+              padding: 15px;
+              margin: 0;
+              background: #f5f5f5;
+              border-bottom: 1px solid #ccc;
+          }
+          .room-item {
+              padding: 15px;
+              border-bottom: 1px solid #eee;
+              cursor: pointer;
+          }
+          .room-item:hover {
+              background: #f9f9f9;
+          }
+          .room-item.active {
+              background: #e3f2fd;
+          }
+          .room-item .last-msg {
+              font-size: 13px;
+              color: #666;
+              margin-top: 5px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+          }
+          .room-item .time {
+              font-size: 11px;
+              color: #999;
+          }
 
-                    <c:otherwise>
-                        <div style="text-align:left; margin:10px 0;">
-                            <div style="font-size:12px; color:#555;">
-                                ${msg.sender_seq}
-                            </div>
-                            <div style="display:inline-block; background:#eee; padding:8px 12px; border-radius:10px;">
-                                ${msg.chat_cont}
-                            </div>
-                            <div style="font-size:11px; color:#888;">
-                                <%
-                                    Object obj = pageContext.findAttribute("msg");
-                                    if(obj != null) {
-                                        MessageVO message = (MessageVO) obj;
-                                        LocalDateTime ldt = message.getSent_dtm();
-                                        Date date = null;
-                                        if(ldt != null) {
-                                            date = Date.from(ldt.atZone(java.time.ZoneId.systemDefault()).toInstant());
-                                        }
-                                %>
-                                <fmt:formatDate value="<%=date%>" pattern="yyyy/MM/dd HH:mm"/>
-                                <%
-                                    }
-                                %>
-                            </div>
-                        </div>
-                    </c:otherwise>
-                </c:choose>
-            </c:forEach>
-        </c:when>
-        <c:otherwise>
-            <div id="emptyNotice">이전 메시지가 없습니다.</div>
-        </c:otherwise>
-    </c:choose>
-</div>
-<!-- 메시지 입력 -->
-<input type="text" id="message" placeholder="메시지 입력">
-<button id="sendBtn">전송</button>
+          /* 우측: 채팅 내용 */
+          .chat-area {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+          }
+          .chat-header {
+              padding: 15px;
+              background: #f5f5f5;
+              border-bottom: 1px solid #ccc;
+          }
+          .chat-messages {
+              flex: 1;
+              overflow-y: auto;
+              padding: 15px;
+          }
+          .chat-input {
+              display: flex;
+              padding: 15px;
+              border-top: 1px solid #ccc;
+          }
+          .chat-input input {
+              flex: 1;
+              padding: 10px;
+              border: 1px solid #ccc;
+              border-radius: 5px;
+          }
+          .chat-input button {
+              margin-left: 10px;
+              padding: 10px 20px;
+              background: #4CAF50;
+              color: white;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+          }
 
-<script>
-    // 로그인 멤버 seq / 채팅방 seq / trade_seq
-    const loginMemberSeq = Number("${sessionScope.loginSess.member_seq}"); // ⚠️ 숫자로 변환
-    const chat_room_seq = Number("${trade_chat_room.chat_room_seq}");
-    const trade_seq = Number("${trade_chat_room.trade_seq}");
-    let stompClient = null;
+          /* 메시지 스타일 */
+          .msg-wrapper {
+              margin: 10px 0;
+          }
+          .msg-wrapper.mine {
+              text-align: right;
+          }
+          .msg-wrapper.other {
+              text-align: left;
+          }
+          .msg-content {
+              display: inline-block;
+              padding: 8px 12px;
+              border-radius: 10px;
+              max-width: 70%;
+          }
+          .msg-wrapper.mine .msg-content {
+              background: #ffe066;
+          }
+          .msg-wrapper.other .msg-content {
+              background: #eee;
+          }
+          .msg-time {
+              font-size: 11px;
+              color: #888;
+              margin-top: 3px;
+          }
 
-    console.log('chat_room_seq:', chat_room_seq);
-    console.log('loginMemberSeq:', loginMemberSeq);
-    console.log('trade_seq:', trade_seq);
+          .empty-notice {
+              color: #888;
+              text-align: center;
+              margin-top: 50px;
+          }
+          .no-room-selected {
+              color: #888;
+              text-align: center;
+              margin-top: 100px;
+          }
+      </style>
+  </head>
+  <body>
 
-    // 페이지 로드 → 자동 연결
-    window.onload = function () {
-        connect();
-    };
+  <div class="chat-wrapper">
+      <!-- 좌측: 채팅방 목록 -->
+      <div class="room-list">
+          <h3>채팅 목록</h3>
+          <c:choose>
+              <c:when test="${not empty chatrooms}">
+                  <c:forEach var="room" items="${chatrooms}">
+                      <div class="room-item ${room.chat_room_seq == trade_chat_room.chat_room_seq ? 'active' : ''}"
+                           data-room-seq="${room.chat_room_seq}"
+                           data-trade-seq="${room.trade_seq}"
+                           onclick="switchRoom(${room.chat_room_seq}, ${room.trade_seq})">
+                          <div>
+                              <strong>채팅방 #${room.chat_room_seq}</strong>
+                              <span class="time">
+                                  <c:if test="${room.lastMsgDtmAsDate != null}">
+                                      <fmt:formatDate value="${room.lastMsgDtmAsDate}" pattern="MM/dd HH:mm"/>
+                                  </c:if>
+                              </span>
+                          </div>
+                          <div class="last-msg">
+                              ${not empty room.last_msg ? room.last_msg : '새로운 채팅방'}
+                          </div>
+                      </div>
+                  </c:forEach>
+              </c:when>
+              <c:otherwise>
+                  <div class="empty-notice">채팅방이 없습니다.</div>
+              </c:otherwise>
+          </c:choose>
+      </div>
 
-    function connect() {
-        const socket = new SockJS('/chatEndPoint');
-        stompClient = Stomp.over(socket);
+      <!-- 우측: 채팅 내용 -->
+      <div class="chat-area">
+          <div class="chat-header">
+              <c:choose>
+                  <c:when test="${not empty trade_chat_room}">
+                      <strong>채팅방 #${trade_chat_room.chat_room_seq}</strong>
+                  </c:when>
+                  <c:otherwise>
+                      <strong>채팅</strong>
+                  </c:otherwise>
+              </c:choose>
+          </div>
 
-        stompClient.connect({}, function (frame) {
-            console.log('STOMP Connected:', frame);
+          <div class="chat-messages" id="chatContainer">
+              <c:choose>
+                  <c:when test="${not empty trade_chat_room}">
+                      <c:choose>
+                          <c:when test="${not empty messages}">
+                              <c:forEach var="msg" items="${messages}">
+                                  <div class="msg-wrapper ${msg.sender_seq == sessionScope.loginSess.member_seq ? 'mine' : 'other'}">
+                                      <div class="msg-content">${msg.chat_cont}</div>
+                                      <div class="msg-time">
+                                          <c:if test="${msg.sentDtmAsDate != null}">
+                                              <fmt:formatDate value="${msg.sentDtmAsDate}" pattern="HH:mm"/>
+                                          </c:if>
+                                          <c:if test="${msg.read_yn}">✔</c:if>
+                                      </div>
+                                  </div>
+                              </c:forEach>
+                          </c:when>
+                          <c:otherwise>
+                              <div class="empty-notice" id="emptyNotice">이전 메시지가 없습니다.</div>
+                          </c:otherwise>
+                      </c:choose>
+                  </c:when>
+                  <c:otherwise>
+                      <div class="no-room-selected">채팅방을 선택해주세요.</div>
+                  </c:otherwise>
+              </c:choose>
+          </div>
 
-            // 채팅방 구독
-            stompClient.subscribe('/chatroom/' + chat_room_seq, function (message) {
-                const msg = JSON.parse(message.body);
-                console.log('서버에서 온 메시지:', msg);
-                showMessage(msg);
-            });
-        });
-    }
+          <div class="chat-input">
+              <input type="text" id="message" placeholder="메시지 입력"
+                     ${empty trade_chat_room ? 'disabled' : ''}>
+              <button id="sendBtn" ${empty trade_chat_room ? 'disabled' : ''}>전송</button>
+          </div>
+      </div>
+  </div>
 
-    function sendMessage() {
-        if (!stompClient || !stompClient.connected) return;
+  <script>
+      const loginMemberSeq = Number("${sessionScope.loginSess.member_seq}");
+      let currentRoomSeq = "${trade_chat_room.chat_room_seq}" || null;
+      let currentTradeSeq = "${trade_chat_room.trade_seq}" || null;
+      let stompClient = null;
+      let currentSubscription = null;
 
-        const msg = document.getElementById("message").value.trim();
-        if (!msg) return;
+      // 페이지 로드 시 웹소켓 연결
+      window.onload = function () {
+          connect();
+      };
 
-        console.log('내가 보낸 메시지:', msg);
+      function connect() {
+          const socket = new SockJS('/chatEndPoint');
+          stompClient = Stomp.over(socket);
 
-        stompClient.send(
-            "/sendMessage/chat/" + chat_room_seq,
-            {},
-            JSON.stringify({
-                chat_room_seq: chat_room_seq,
-                chat_cont: msg,
-                sender_seq: loginMemberSeq,
-                trade_seq: trade_seq
-            })
-        );
+          stompClient.connect({}, function (frame) {
+              console.log('STOMP Connected:', frame);
 
-        document.getElementById("message").value = '';
-    }
+              // 현재 선택된 채팅방이 있으면 구독
+              if (currentRoomSeq) {
+                  subscribeRoom(currentRoomSeq);
+              }
+          });
+      }
 
-    // 메시지 렌더링
-    function showMessage(msg) {
-            const emptyNotice = document.getElementById("emptyNotice");
-            if (emptyNotice) emptyNotice.remove();
-
-            const log = document.getElementById("chatContainer");
-            const content = msg.chat_cont || "";
-
-            // JS에서 현재 시간 표시 (HH:mm)
-            const now = new Date();
-            const timeStr = now.getFullYear() + "/" +
-                            String(now.getMonth()+1).padStart(2,'0') + "/" +
-                            String(now.getDate()).padStart(2,'0') + " " +
-                            String(now.getHours()).padStart(2,'0') + ":" +
-                            String(now.getMinutes()).padStart(2,'0');
-
-            const check = msg.read_yn ? "✔" : "";
-
-            const msgWrapper = document.createElement('div');
-            msgWrapper.style.margin = '10px 0';
-            msgWrapper.style.textAlign = (Number(msg.sender_seq) === loginMemberSeq) ? 'right' : 'left';
-
-            const msgContent = document.createElement('div');
-            msgContent.style.display = 'inline-block';
-            msgContent.style.padding = '8px 12px';
-            msgContent.style.borderRadius = '10px';
-            msgContent.style.background = (Number(msg.sender_seq) === loginMemberSeq) ? '#ffe066' : '#eee';
-            msgContent.textContent = content;
-
-            const msgTime = document.createElement('div');
-            msgTime.style.fontSize = '11px';
-            msgTime.style.color = '#888';
-            msgTime.textContent = timeStr + " " + check;
-
-            msgWrapper.appendChild(msgContent);
-            msgWrapper.appendChild(msgTime);
-            log.appendChild(msgWrapper);
-            log.scrollTop = log.scrollHeight;
-        }
-
-    // 버튼 클릭 이벤트 연결
-    document.getElementById("sendBtn").addEventListener("click", sendMessage);
-
-    // 페이지 이탈 → STOMP 해제
-    window.addEventListener("beforeunload", function () {
-        if (stompClient !== null) {
-            stompClient.disconnect();
-            console.log("STOMP Disconnected");
-        }
-    });
-</script>
-
-</body>
-</html>
+      // 채팅방 구독
+      function subscribeRoom(roomSeq) {
+          // 기존 구독 해제
+          if (currentSubscription) {
+              currentSubscription.unsubscribe();
+          }
