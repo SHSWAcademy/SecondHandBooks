@@ -78,7 +78,9 @@ const BookClub = (() => {
                                 ${club.book_club_desc ? `<p class="card-desc">${club.book_club_desc}</p>` : ''}
                                 <div class="card-footer">
                                     <span class="card-schedule">${club.book_club_schedule ?? ""}</span>
-                                    <span class="card-members">${club.book_club_max_member}</span>
+                                    <span class="card-members">
+                                        ${club.joined_member_count} / ${club.book_club_max_member}
+                                    </span>
                                 </div>
                             </div>
                         </div>

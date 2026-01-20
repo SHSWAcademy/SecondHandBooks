@@ -114,7 +114,7 @@
                                                                 <c:out value="${club.book_club_schedule}" />
                                                             </span>
                                                             <span class="card-members">
-                                                                <c:out value="${club.book_club_max_member}" />
+                                                                <c:out value="${club.joined_member_count}"/> / <c:out value="${club.book_club_max_member}"/>
                                                             </span>
                                                         </div>
                                                     </div>

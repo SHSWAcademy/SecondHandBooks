@@ -21,7 +21,13 @@
             banner_img_url,
             book_club_schedule,
             crt_dtm,
-            upd_dtm
+            upd_dtm,
+            (
+                SELECT COUNT(*)
+                FROM book_club_member
+                WHERE book_club_member.book_club_seq = book_club.book_club_seq
+                AND join_st = 'JOINED'
+            ) AS joined_member_count
         FROM book_club
         WHERE book_club_deleted_dt IS NULL
         ORDER BY book_club_seq
@@ -40,7 +46,13 @@
             banner_img_url,
             book_club_schedule,
             crt_dtm,
-            upd_dtm
+            upd_dtm,
+            (
+                SELECT COUNT(*)
+                FROM book_club_member
+                WHERE book_club_member.book_club_seq = book_club.book_club_seq
+                AND join_st = 'JOINED'
+            ) AS joined_member_count
         FROM book_club
         WHERE book_club_deleted_dt IS NULL
         AND
