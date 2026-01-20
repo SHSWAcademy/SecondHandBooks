@@ -76,6 +76,9 @@
     // 로그인 멤버 seq / 채팅방 seq
     const loginMemberSeq = "${sessionScope.loginSess.member_seq}";
     const chat_room_seq = "${trade_chat_room.chat_room_seq}";
+    const trade_seq = "${trade_chat_room.trade_seq}";
+
+    console.log('시퀀스 출력 확인', trade_seq);
     let stompClient = null;
    console.log('시퀀스 출력 !! ' ,chat_room_seq);
    console.log('멤버 출력 !! ' ,loginMemberSeq);
@@ -103,7 +106,7 @@
 
     function sendMessage() {
         if (!stompClient || !stompClient.connected) return;
-
+        console.log('보낸사람!!', loginMemberSeq);
         const msg = document.getElementById("message").value.trim();
         if (!msg) return;
 
@@ -113,7 +116,8 @@
             JSON.stringify({
                 chat_room_seq: chat_room_seq,
                 chat_cont: msg,
-                sender_seq:loginMemberSeq
+                sender_seq:loginMemberSeq,
+                trade_seq : trade_seq
             })
         );
 
