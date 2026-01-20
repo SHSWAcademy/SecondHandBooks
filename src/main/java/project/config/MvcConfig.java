@@ -20,11 +20,14 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -56,6 +59,8 @@ public class MvcConfig implements WebMvcConfigurer {
     private String redisHost;
     @Value("${redis.port}")
     private int redisPort;
+    @Value("${file.dir}")
+    private String uploadPath;
 
 
 
@@ -78,10 +83,12 @@ public class MvcConfig implements WebMvcConfigurer {
         return configurer;
     }
 
-    // 이미지 경로 매핑 (임시 S3사용시 필요없음)
+    // 외부 이미지 리소스 핸들러 (프로젝트 루트의 img 폴더)
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // /img/** 요청을 설정된 uploadPath로 매핑
         registry.addResourceHandler("/img/**")
-                .addResourceLocations("file:///D:/Project/SecondHandBooks/img/");
+                .addResourceLocations("file:" + uploadPath);
     }
 
     // hikaricp
@@ -111,9 +118,15 @@ public class MvcConfig implements WebMvcConfigurer {
 
         ssf.setConfiguration(config);
 
+        // Mapper XML 파일 위치 설정
         org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver =
-                new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        ssf.setMapperLocations(resolver.getResources("classpath:**/*Mapper.xml"));
+            new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
+        org.springframework.core.io.Resource[] projectMappers = resolver.getResources("classpath:project/**/*Mapper.xml");
+        org.springframework.core.io.Resource[] memberMappers = resolver.getResources("classpath:project.member/*Mapper.xml");
+        org.springframework.core.io.Resource[] allMappers = new org.springframework.core.io.Resource[projectMappers.length + memberMappers.length];
+        System.arraycopy(projectMappers, 0, allMappers, 0, projectMappers.length);
+        System.arraycopy(memberMappers, 0, allMappers, projectMappers.length, memberMappers.length);
+        ssf.setMapperLocations(allMappers);
 
         return ssf.getObject();
     }
