@@ -4,6 +4,56 @@
 
 <mapper namespace="project.bookclub.mapper.BookClubMapper">
 
+    <!-- ===================================== -->
+    <!-- 독서모임 검색 및 조회 -->
+    <!-- ===================================== -->
+
+    <!-- 독서모임 전체 조회 -->
+    <select id="searchAll" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            book_club_seq,
+            book_club_leader_seq,
+            book_club_name,
+            book_club_desc,
+            book_club_rg,
+            book_club_max_member,
+            book_club_deleted_dt,
+            banner_img_url,
+            book_club_schedule,
+            crt_dtm,
+            upd_dtm
+        FROM book_club
+        WHERE book_club_deleted_dt IS NULL
+        ORDER BY book_club_seq
+    </select>
+
+    <!-- 독서모임 키워드 조회 -->
+    <select id="searchByKeyword" parameterType="list" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            book_club_seq,
+            book_club_leader_seq,
+            book_club_name,
+            book_club_desc,
+            book_club_rg,
+            book_club_max_member,
+            book_club_deleted_dt,
+            banner_img_url,
+            book_club_schedule,
+            crt_dtm,
+            upd_dtm
+        FROM book_club
+        WHERE book_club_deleted_dt IS NULL
+        AND
+        <foreach collection="tokens" item="token" separator="AND">
+            (
+                book_club_name LIKE CONCAT('%', #{token}, '%')
+                OR
+                book_club_rg LIKE CONCAT('%', #{token}, '%')
+            )
+        </foreach>
+        ORDER BY book_club_seq DESC
+    </select>
+
     <!-- 독서모임 1건 조회 (상세 페이지용) -->
     <select id="selectById" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
         SELECT
@@ -22,6 +72,54 @@
         WHERE book_club_seq = #{bookClubSeq}
           AND book_club_deleted_dt IS NULL
     </select>
+
+    <!-- ===================================== -->
+    <!-- 독서모임 생성 및 중복 체크 -->
+    <!-- ===================================== -->
+
+    <!-- 독서모임 생성 -->
+    <insert id="insertBookClub" parameterType="project.bookclub.vo.BookClubVO" useGeneratedKeys="true" keyProperty="book_club_seq">
+        INSERT INTO book_club (
+            book_club_leader_seq,
+            book_club_name,
+            book_club_desc,
+            book_club_rg,
+            book_club_max_member,
+            banner_img_url,
+            book_club_schedule,
+            crt_dtm
+        ) VALUES (
+            #{book_club_leader_seq},
+            #{book_club_name},
+            #{book_club_desc},
+            #{book_club_rg},
+            #{book_club_max_member},
+            #{banner_img_url},
+            #{book_club_schedule},
+            now()
+        )
+    </insert>
+
+    <!-- 모임명 중복 체크 -->
+    <select id="countByName" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club
+        WHERE book_club_name = #{book_club_name}
+          AND book_club_deleted_dt IS NULL
+    </select>
+
+    <!-- 리더별 모임명 중복 체크 -->
+    <select id="countByLeaderAndName" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club
+        WHERE book_club_leader_seq = #{leaderSeq}
+          AND book_club_name = #{name}
+          AND book_club_deleted_dt IS NULL
+    </select>
+
+    <!-- ===================================== -->
+    <!-- 멤버십 관련 -->
+    <!-- ===================================== -->
 
     <!-- 특정 멤버가 JOINED 상태로 가입되어 있는지 확인 (count 반환) -->
     <select id="selectJoinedMemberCount" resultType="int">
@@ -66,12 +164,20 @@
         )
     </insert>
 
+    <!-- ===================================== -->
+    <!-- 찜 관련 -->
+    <!-- ===================================== -->
+
     <!-- 독서모임의 찜 개수 조회 -->
     <select id="selectWishCount" resultType="int">
         SELECT COUNT(*)
         FROM book_club_wish
         WHERE book_club_seq = #{bookClubSeq}
     </select>
+
+    <!-- ===================================== -->
+    <!-- 게시판 관련 -->
+    <!-- ===================================== -->
 
     <!-- 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인) -->
     <select id="selectRecentRootBoardsByClub" resultType="project.bookclub.vo.BookClubBoardVO">
@@ -86,21 +192,16 @@
             bcb.book_info_seq,
             bcb.board_deleted_yn,
             bcb.board_deleted_dtm,
-
             bcb.crt_dtm AS board_crt_dtm,
             bcb.upd_dtm AS board_upd_dtm,
-
             to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-
             m.member_nicknm,
-
             (
                 SELECT COUNT(*)
                 FROM book_club_board c
                 WHERE c.parent_book_club_board_seq = bcb.book_club_board_seq
                   AND (c.board_deleted_yn IS NULL OR c.board_deleted_yn = false)
             ) AS comment_count
-
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -123,14 +224,10 @@
             bcb.book_info_seq,
             bcb.board_deleted_yn,
             bcb.board_deleted_dtm,
-
             bcb.crt_dtm AS board_crt_dtm,
             bcb.upd_dtm AS board_upd_dtm,
-
             to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-
             m.member_nicknm
-
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -151,14 +248,10 @@
             bcb.book_info_seq,
             bcb.board_deleted_yn,
             bcb.board_deleted_dtm,
-
             bcb.crt_dtm AS board_crt_dtm,
             bcb.upd_dtm AS board_upd_dtm,
-
             to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-
             m.member_nicknm
-
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}

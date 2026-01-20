@@ -11,7 +11,7 @@ public class BookClubVO {
     private String book_club_name; // 독서모임명
     private String book_club_desc; // 독서모임 설명
     private String book_club_rg; // 독서모임 지역
-    private int book_club_max_member; // 독서모임의 최대 인원
+    private Integer book_club_max_member; // 독서모임의 최대 인원
     private LocalDate book_club_deleted_dt; // 독서모임 삭제 일시
     private String banner_img_url; // 독서모임 배너 이미지
     private String book_club_schedule; // 독서모임 정기 일정

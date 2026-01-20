@@ -3,17 +3,30 @@ package project.bookclub.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import project.bookclub.vo.BookClubVO;
+import project.bookclub.vo.BookClubBoardVO;
 
 import java.util.List;
 
 @Mapper
 public interface BookClubMapper {
+    // 독서모임 검색
     List<BookClubVO> searchAll();
     List<BookClubVO> searchByKeyword(@Param("tokens") List<String> tokens);
 
     // 독서모임 상세 조회 (1건)
     BookClubVO selectById(@Param("bookClubSeq") Long bookClubSeq);
 
+    // 독서모임 생성
+    void insertBookClub(BookClubVO vo);
+    
+    // 독서모임 이름 중복 체크
+    int countByName(String book_club_name);
+    int countByLeaderAndName(
+            @Param("leaderSeq") Long leaderSeq,
+            @Param("name") String name
+    );
+
+    // 멤버십 관련
     // 특정 멤버가 JOINED 상태로 가입되어 있는지 확인 (count 반환)
     int selectJoinedMemberCount(@Param("bookClubSeq") Long bookClubSeq,
                                 @Param("memberSeq") Long memberSeq);
@@ -30,9 +43,11 @@ public interface BookClubMapper {
                            @Param("memberSeq") Long memberSeq,
                            @Param("requestCont") String requestCont);
 
+    // 찜 관련
     // 독서모임의 찜 개수 조회
     int selectWishCount(@Param("bookClubSeq") Long bookClubSeq);
 
+    // 게시판 관련
     // 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인)
     List<project.bookclub.vo.BookClubBoardVO> selectRecentRootBoardsByClub(@Param("bookClubSeq") Long bookClubSeq);
 
@@ -44,3 +59,5 @@ public interface BookClubMapper {
     List<project.bookclub.vo.BookClubBoardVO> selectBoardComments(@Param("bookClubSeq") Long bookClubSeq,
                                                                    @Param("postId") Long postId);
 } 
+
+

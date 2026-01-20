@@ -4,38 +4,48 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 import project.bookclub.ENUM.JoinRequestResult;
 import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Slf4j
 public class BookClubService {
 
     private final BookClubMapper bookClubMapper;
+
     /*
-    * #1. 독서모임 메인 페이지
-    */
+     * #1. 독서모임 메인 페이지
+     */
     // #1-1. 전체 독서모임 리스트 조회
-    List<BookClubVO> getBookClubList() {
+    public List<BookClubVO> getBookClubList() {
         return bookClubMapper.searchAll();
     }
- 
+
     // #1-2. 독서모임 검색
     public List<BookClubVO> searchBookClubs(String keyword) {
         // 키워드 없으면 전체 검색
         if (keyword == null || keyword.isBlank()) {
             return bookClubMapper.searchAll();
         }
-        List<String> tokens = Arrays.stream(keyword.split("\\s+"))
-                                    .filter(StringUtils::hasText)
-                                    .toList();
+
+        List<String> tokens = new ArrayList<>();
+        StringTokenizer st = new StringTokenizer(keyword);
+        while (st.hasMoreTokens()) {
+            tokens.add(st.nextToken());
+        }
+
+        if (tokens.isEmpty()) {
+            return bookClubMapper.searchAll();
+        }
 
         // 키워드 검색 SQL
         return bookClubMapper.searchByKeyword(tokens);
@@ -96,7 +106,7 @@ public class BookClubService {
      * - 따라서 DB 레벨에서 중복 신청을 막을 수 없음 (hasPendingRequest로 비즈니스 로직 검증 필수)
      *
      * @param bookClubSeq 독서모임 ID
-     * @param memberSeq 신청 멤버 ID
+     * @param memberSeq   신청 멤버 ID
      * @param requestCont 신청 메시지 (nullable)
      * @return JoinRequestResult enum (성공/실패 사유)
      */
@@ -108,7 +118,7 @@ public class BookClubService {
         }
 
         // 2. 이미 JOINED 상태인지 확인 (book_club_member 테이블)
-        //    - UNIQUE 제약: (book_club_seq, member_seq) 존재 (bookclubDDL.md line 99)
+        // - UNIQUE 제약: (book_club_seq, member_seq) 존재 (bookclubDDL.md line 99)
         if (isMemberJoined(bookClubSeq, memberSeq)) {
             log.info("가입 신청 실패: 이미 가입된 멤버 (join_st=JOINED) - bookClubSeq={}, memberSeq={}",
                     bookClubSeq, memberSeq);
@@ -116,7 +126,7 @@ public class BookClubService {
         }
 
         // 3. 이미 WAIT 상태로 신청했는지 확인 (book_club_request 테이블)
-        //    - book_club_request에는 UNIQUE 제약이 없으므로 비즈니스 로직으로 검증
+        // - book_club_request에는 UNIQUE 제약이 없으므로 비즈니스 로직으로 검증
         if (hasPendingRequest(bookClubSeq, memberSeq)) {
             log.info("가입 신청 실패: 이미 신청 대기중 (request_st=WAIT) - bookClubSeq={}, memberSeq={}",
                     bookClubSeq, memberSeq);
@@ -172,5 +182,34 @@ public class BookClubService {
             return List.of();
         }
         return bookClubMapper.selectBoardComments(bookClubSeq, postId);
+    }
+
+    /*
+     * #4. 독서모임 생성
+     */
+    @Transactional
+    public void createBookClubs(BookClubVO vo) {
+        // 1. 값 들어왔는지 확인
+        log.info("service create vo = {}", vo);
+        log.info("leader_seq = {}", vo.getBook_club_leader_seq());
+
+        // 2. 중복 모임명 체크
+        int count = bookClubMapper.countByName(vo.getBook_club_name());
+        if (count > 0) {
+            throw new IllegalStateException("이미 존재하는 모임명입니다.");
+        }
+
+        // 3. 모임 이름 중복 체크
+        boolean duplicated = isDuplicateForLeader(vo.getBook_club_leader_seq(), vo.getBook_club_name());
+        if (duplicated) {
+            throw new IllegalArgumentException("이미 같은 이름의 독서 모임이 존재합니다.");
+        }
+
+        // 4. DB 저장
+        bookClubMapper.insertBookClub(vo);
+    }
+
+    public boolean isDuplicateForLeader(Long leaderSeq, String name) {
+        return bookClubMapper.countByLeaderAndName(leaderSeq, name) > 0;
     }
 }
