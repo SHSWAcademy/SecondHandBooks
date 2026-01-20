@@ -260,4 +260,31 @@
         ORDER BY bcb.book_club_board_seq ASC
     </select>
 
+    <!-- 부모글(원글) 존재 여부 확인 (우회 방지용) -->
+    <select id="existsRootPost" resultType="int">
+        SELECT COUNT(1)
+        FROM book_club_board
+        WHERE book_club_seq = #{bookClubSeq}
+          AND book_club_board_seq = #{postId}
+          AND parent_book_club_board_seq IS NULL
+          AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+    </select>
+
+    <!-- 댓글 INSERT -->
+    <insert id="insertBoardComment">
+        INSERT INTO book_club_board (
+            book_club_seq,
+            parent_book_club_board_seq,
+            member_seq,
+            board_cont,
+            board_deleted_yn
+        ) VALUES (
+            #{bookClubSeq},
+            #{postId},
+            #{memberSeq},
+            #{commentCont},
+            false
+        )
+    </insert>
+
 </mapper>

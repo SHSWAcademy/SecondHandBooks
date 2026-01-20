@@ -59,4 +59,13 @@ public interface BookClubMapper {
     // 독서모임 게시글의 댓글 목록 조회 (오래된 순)
     List<project.bookclub.vo.BookClubBoardVO> selectBoardComments(@Param("bookClubSeq") Long bookClubSeq,
             @Param("postId") Long postId);
+
+    // 부모글(원글) 존재 여부 확인 (우회 방지용)
+    int existsRootPost(@Param("bookClubSeq") Long bookClubSeq, @Param("postId") Long postId);
+
+    // 댓글 INSERT
+    int insertBoardComment(@Param("bookClubSeq") Long bookClubSeq,
+            @Param("postId") Long postId,
+            @Param("memberSeq") Long memberSeq,
+            @Param("commentCont") String commentCont);
 }

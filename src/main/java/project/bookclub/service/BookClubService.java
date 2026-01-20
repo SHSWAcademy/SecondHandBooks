@@ -184,6 +184,20 @@ public class BookClubService {
         return bookClubMapper.selectBoardComments(bookClubSeq, postId);
     }
 
+    // #3-4. 부모글(원글) 존재 여부 확인 (우회 방지용)
+    public boolean existsRootPost(Long bookClubSeq, Long postId) {
+        if (bookClubSeq == null || postId == null) {
+            return false;
+        }
+        return bookClubMapper.existsRootPost(bookClubSeq, postId) > 0;
+    }
+
+    // #3-5. 댓글 작성
+    @Transactional
+    public int createBoardComment(Long bookClubSeq, Long postId, Long memberSeq, String commentCont) {
+        return bookClubMapper.insertBoardComment(bookClubSeq, postId, memberSeq, commentCont);
+    }
+
     /*
      * #4. 독서모임 생성
      */
