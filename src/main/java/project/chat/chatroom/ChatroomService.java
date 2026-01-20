@@ -31,17 +31,28 @@ public class ChatroomService {
 
         // 신규 채팅일 때
         try {
-            chatroomMapper.createRoom(member_seller_seq, member_buyer_seq, trade_seq);
-            return chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
+            ChatroomVO chatroom = new ChatroomVO(trade_seq, member_buyer_seq, member_seller_seq);
+            int result = chatroomMapper.save(chatroom);
+
+            if (result > 0) {
+                log.info("new chatroom save success");
+            } else {
+                throw new RuntimeException("fail to save new chatroom");
+            }
+
+            return chatroom;
         } catch (DuplicateKeyException e) {
-            // 동시에 생성된 경우 → 다시 조회
+            // 동시에 생성된 경우 : 다시 조회
             return chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
         }
     }
 
+    /*
+    채팅방 메시지 전체 조회는 messageService 에서 처리
     public List<MessageVO> getAllMessages(long chat_room_seq) {
         return chatroomMapper.findAllByChatRoomSeq(chat_room_seq);
         // select * from messageVO where chatRoomSeq = chat_room_seq
     }
+     */
 
 }
