@@ -173,21 +173,59 @@ public class BookClubController {
      * - fetch로 호출되어 게시판 탭 본문만 반환
      * - 동일한 model 세팅 재사용 (fragment에서도 bookClub 등 필요)
      * - 게시판 목록 조회 추가 (최근 원글 10개)
+     *
+     * [권한 가드]
+     * - 비로그인: forbidden fragment 반환 (redirect 금지)
+     * - 로그인했지만 JOINED 아님 또는 WAIT 상태: forbidden fragment 반환
+     * - 모임장 또는 JOINED 멤버: 게시판 목록 정상 반환
      */
     @GetMapping("/{bookClubId}/board-fragment")
     public String getBoardFragment(
             @PathVariable("bookClubId") Long bookClubId,
             HttpSession session,
             Model model) {
-        // 공통 model 세팅 메서드 호출 (조회 로직 재사용)
+
+        // bookClubId는 항상 필요 (forbidden 페이지에서 돌아가기 링크용)
+        model.addAttribute("bookClubId", bookClubId);
+
+        // 1. 로그인 여부 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            // 비로그인: forbidden fragment (redirect 금지 - fetch가 깨짐)
+            model.addAttribute("isLogin", false);
+            return "bookclub/bookclub_board_forbidden";
+        }
+
+        // 2. 로그인 상태: 권한 판정
+        model.addAttribute("isLogin", true);
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2-1. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            // 모임 없음 처리
+            model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
+            return "bookclub/bookclub_board_forbidden";
+        }
+
+        // 2-2. 권한 판정 (isLeader || isMember) && !hasPendingRequest
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
+        boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
+
+        boolean allow = (isLeader || isMember) && !hasPendingRequest;
+
+        if (!allow) {
+            // 권한 없음: forbidden fragment (boards 조회 SQL 실행 안 함)
+            return "bookclub/bookclub_board_forbidden";
+        }
+
+        // 3. 권한 있음: 공통 model 세팅 + 게시판 목록 조회
         loadBookClubDetailModel(bookClubId, session, model);
 
         // 게시판 목록 조회 (최근 원글 10개)
         List<BookClubBoardVO> boards = bookClubService.getRecentBoards(bookClubId);
         model.addAttribute("boards", boards);
-
-        // bookClubId를 model에 추가 (fragment에서 링크 생성 시 필요)
-        model.addAttribute("bookClubId", bookClubId);
 
         return "bookclub/bookclub_detail_board";
     }
@@ -197,13 +235,53 @@ public class BookClubController {
      * GET /bookclubs/{bookClubId}/posts/{postId}
      * - 게시글 단건 조회 (본문 렌더링)
      * - 댓글 목록 조회 추가 (SELECT만)
+     *
+     * [권한 가드]
+     * - 비로그인: /login으로 redirect
+     * - 로그인했지만 JOINED 아님 또는 WAIT 상태: forbidden 풀 페이지
+     * - 모임장 또는 JOINED 멤버: 게시글 상세 정상 반환
      */
     @GetMapping("/{bookClubId}/posts/{postId}")
     public String getPostDetail(
             @PathVariable("bookClubId") Long bookClubId,
             @PathVariable("postId") Long postId,
+            HttpSession session,
             Model model) {
-        // 게시글 조회
+
+        // bookClubId는 항상 필요 (forbidden 페이지에서 돌아가기 링크용)
+        model.addAttribute("bookClubId", bookClubId);
+
+        // 1. 로그인 여부 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            // 비로그인: 로그인 페이지로 redirect (풀 페이지이므로 redirect OK)
+            return "redirect:/login";
+        }
+
+        // 2. 로그인 상태: 권한 판정
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2-1. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            // 모임 없음 처리
+            model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
+            return "bookclub/bookclub_post_forbidden";
+        }
+
+        // 2-2. 권한 판정 (isLeader || isMember) && !hasPendingRequest
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
+        boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
+
+        boolean allow = (isLeader || isMember) && !hasPendingRequest;
+
+        if (!allow) {
+            // 권한 없음: forbidden 풀 페이지 (post/comments 조회 SQL 실행 안 함)
+            return "bookclub/bookclub_post_forbidden";
+        }
+
+        // 3. 권한 있음: 게시글 + 댓글 조회
         BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
 
         // 게시글 없음 처리
@@ -218,7 +296,6 @@ public class BookClubController {
         // model에 데이터 담기
         model.addAttribute("post", post);
         model.addAttribute("comments", comments);
-        model.addAttribute("bookClubId", bookClubId);
 
         return "bookclub/bookclub_post_detail";
     }
