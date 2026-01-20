@@ -74,14 +74,14 @@ public class ChatroomController {
 
             ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq, sale_title);
             List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq());
-            // model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
+            model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
             model.addAttribute("messages", messages); // 현재 채팅방의 전체 메시지 전달 (이후 페이징 처리 필요)
         }
 
 
         // 2. 채팅방 모두 출력 (지금은 전부 조회하지만 나중에 페이징 처리 필요)
         List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
-
+        System.out.println("테스트 출력 " + chatrooms.toString());
         model.addAttribute("chatrooms", chatrooms);
         // model.addAttribute("member_seq", sessionMember.getMember_seq());
 
