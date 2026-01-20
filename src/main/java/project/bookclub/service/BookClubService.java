@@ -71,15 +71,8 @@ public class BookClubService {
         if(duplicated) {
             throw new IllegalArgumentException("이미 같은 이름의 독서 모임이 존재합니다.");
         }
-        // 2. 서버에서 관리하는 기본값만 세팅
-//        vo.setCrt_dtm(java.time.LocalDateTime.now());
-//        vo.setUpd_dtm(java.time.LocalDateTime.now()); // null이어도 됨. 수정했을 때 반영
-        // TODO: 로그인 연동 후 세션에서 사용자 ID 가져오도록 수정
-//        if (vo.getBook_club_leader_seq() == null) {
-//            vo.setBook_club_leader_seq(1L); // 임시 기본값
-//        }
 
-        // 3. DB 저장은 다음 단계
+        // 4. DB 저장
         bookClubMapper.insertBookClub(vo);
     }
 
