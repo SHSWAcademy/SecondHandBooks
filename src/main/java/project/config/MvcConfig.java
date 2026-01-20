@@ -1,34 +1,42 @@
 package project.config;
 
+import java.util.Properties;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@MapperScan(basePackages = {"project"}, annotationClass = Mapper.class)
-@ComponentScan(basePackages = {"project"})
+@MapperScan(basePackages = { "project" }, annotationClass = Mapper.class)
+@ComponentScan(basePackages = { "project" })
 @EnableWebMvc
 @EnableTransactionManagement
-public class MvcConfig implements WebMvcConfigurer{
+@PropertySource("classpath:application.properties")
+public class MvcConfig implements WebMvcConfigurer {
 
     @Value("${db.driver}")
     private String driver;
@@ -39,15 +47,45 @@ public class MvcConfig implements WebMvcConfigurer{
     @Value("${db.password}")
     private String password;
 
+    // ================= Mail =================
+    @Value("${mail.username}")
+    private String mailUsername;
+    @Value("${mail.password}")
+    private String mailPassword;
 
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
-    }
+    // ================= Redis =================
+    @Value("${redis.host}")
+    private String redisHost;
+    @Value("${redis.port}")
+    private int redisPort;
+    @Value("${file.dir}")
+    private String uploadPath;
 
     // JSP ViewResolver
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         registry.jsp("/WEB-INF/views/", ".jsp");
+    }
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
+
+    // ================= Property =================
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        configurer.setLocation(new ClassPathResource("application.properties"));
+        return configurer;
+    }
+
+    // 외부 이미지 리소스 핸들러 (프로젝트 루트의 img 폴더)
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // /img/** 요청을 설정된 uploadPath로 매핑
+        registry.addResourceHandler("/img/**")
+                .addResourceLocations("file:" + uploadPath);
     }
 
     // hikaricp
@@ -71,36 +109,34 @@ public class MvcConfig implements WebMvcConfigurer{
         // Java Config로 모든 MyBatis 설정
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
 
-        // 카멜케이스 자동 변환: member_id → memberId
         config.setMapUnderscoreToCamelCase(false);
-
-        // NULL 값 처리
         config.setJdbcTypeForNull(org.apache.ibatis.type.JdbcType.NULL);
-
-        // 로그 설정
         config.setLogImpl(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
 
-        // TypeAlias 등록 (필요한 패키지만)
-        // 아직 VO 클래스가 없으면 주석 처리하기
-        try {
-            //config.getTypeAliasRegistry().registerAliases("project.member.vo");
-        } catch (Exception e) {
-            // 패키지 없으면 무시
-        }
-
         ssf.setConfiguration(config);
-        //mybatis-config.xml 설정 추가
-        //ssf.setConfigLocation(new ClassPathResource("mybatis-config.xml"));
 
         // Mapper XML 파일 위치 설정
-        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = 
-            new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        ssf.setMapperLocations(resolver.getResources("classpath:project.member/*Mapper.xml"));
-        
+        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
+        org.springframework.core.io.Resource[] projectMappers = resolver
+                .getResources("classpath:project/**/*Mapper.xml");
+        org.springframework.core.io.Resource[] memberMappers = resolver
+                .getResources("classpath:project.member/*Mapper.xml");
+        org.springframework.core.io.Resource[] allMappers = new org.springframework.core.io.Resource[projectMappers.length
+                + memberMappers.length];
+        System.arraycopy(projectMappers, 0, allMappers, 0, projectMappers.length);
+        System.arraycopy(memberMappers, 0, allMappers, projectMappers.length, memberMappers.length);
+        ssf.setMapperLocations(allMappers);
+
         return ssf.getObject();
     }
 
-    // MultipartResolver
+    // ================= TransactionManager =================
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource());
+    }
+
+    // ================= MultipartResolver =================
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
@@ -109,18 +145,35 @@ public class MvcConfig implements WebMvcConfigurer{
         return resolver;
     }
 
-    // TransactionManager
     @Bean
-    public PlatformTransactionManager transactionManager() {
-        DataSourceTransactionManager dtm = new DataSourceTransactionManager(dataSource());
-        return dtm;
+    public JavaMailSenderImpl mailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("smtp.gmail.com");
+        mailSender.setPort(587);
+        mailSender.setUsername(mailUsername);
+        mailSender.setPassword(mailPassword);
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.debug", "true");
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+        return mailSender;
     }
 
-    // property
     @Bean
-    public static PropertyPlaceholderConfigurer properties() {
-        PropertyPlaceholderConfigurer config = new PropertyPlaceholderConfigurer();
-        config.setLocation(new ClassPathResource("db.properties"));
-        return config;
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory(redisHost, redisPort);
     }
+
+    @Bean
+    public StringRedisTemplate redisTemplate() {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory());
+        return template;
+    }
+
 }

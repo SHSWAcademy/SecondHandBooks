@@ -1,0 +1,547 @@
+ㅁ.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+/* 모달 헤더 */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+/* 이미지 업로드 영역 */
+.image-upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 16px;
+    background: #fafafa;
+    transition: border-color 0.2s;
+}
+
+.image-upload-area:hover {
+    border-color: #aaa;
+}
+
+.image-upload-area input[type="file"] {
+    display: none;
+}
+
+.image-upload-icon {
+    font-size: 32px;
+    color: #bbb;
+    margin-bottom: 8px;
+}
+
+.image-upload-text {
+    font-size: 14px;
+    color: #999;
+}
+
+.image-upload-area.has-image {
+    padding: 0;
+    border-style: solid;
+}
+
+.image-upload-area.has-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* 폼 입력 스타일 */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: #3a3a3a;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.form-input::placeholder {
+    color: #999;
+}
+
+.form-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: #3a3a3a;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #fff;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-textarea::placeholder {
+    color: #999;
+}
+
+.form-textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+/* 토글 버튼 그룹 */
+.toggle-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.toggle-btn.active {
+    background: #3a3a3a;
+    color: #fff;
+    border-color: #3a3a3a;
+}
+
+.toggle-btn:hover:not(.active) {
+    border-color: #aaa;
+}
+
+/* 상세 지역 입력 (숨김 가능) */
+.detail-region {
+    display: none;
+}
+
+.detail-region.show {
+    display: block;
+}
+
+/* 최대 인원 (읽기 전용) */
+.form-input-readonly {
+    width: 100%;
+    padding: 12px 14px;
+    background: #e5e5e5;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #666;
+    box-sizing: border-box;
+}
+
+/* 모임 개설 버튼 */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover {
+    background: #1d4ed8;
+}
+
+/* 정기 일정 선택 */
+.schedule-row {
+    margin-bottom: 10px;
+}
+
+.schedule-cycle {
+    margin-bottom: 0;
+}
+
+/* 요일 선택 버튼 그룹 */
+.day-group {
+    display: flex;
+    gap: 6px;
+}
+
+.day-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.day-btn.active {
+    background: #3a3a3a;
+    color: #fff;
+    border-color: #3a3a3a;
+}
+
+.day-btn:hover:not(.active) {
+    border-color: #aaa;
+}
+
+/* 시간 선택 */
+.time-input {
+    width: 100%;
+}
+
+/* 독서모임 제목 */
+.page-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+/* 독서모임 부연설명 */
+.page-subtitle {
+    font-size: 14px;
+    color: #888;
+}
+
+/* 수직의 구조를 flex를 사용해서 수평적으로 변경 -> [제목 + 설명]    [버튼]  */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* 모임 만들기 버튼 오른쪽으로 이동 */
+.page-action .btn-primary {
+    background: #2563eb ; /* 파란색 */
+    color: white;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.search-bar {
+    background: #565656;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 32px;
+}
+
+.search-bar form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-bar input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #333;
+    font-size: 15px;
+}
+
+.search-bar input::placeholder {
+    color: #888;
+}
+
+.search-bar button {
+    display: none;
+}
+
+/* 결과 정보 숨김 */
+.result-info {
+    display: none;
+}
+
+/* 카드 그리드 - 5개씩 배치 */
+.bookclub-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+}
+
+/* 카드 스타일 */
+.bookclub-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+    aspect-ratio: 1 / 1.4;
+}
+
+.bookclub-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.bookclub-card .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 카드 배너 (썸네일) - 카드의 절반 크기, 상단만 둥글게 */
+.card-banner {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+}
+
+.card-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-banner-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+}
+
+/* 지역 태그 - 왼쪽 상단 */
+.card-region-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+/* 찜 버튼 - 오른쪽 상단 */
+.btn-wish {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: transform 0.2s;
+}
+
+.btn-wish:hover {
+    transform: scale(1.1);
+}
+
+.btn-wish .wish-icon {
+    font-size: 16px;
+    color: #ff5a5f;
+}
+
+/* 카드 본문 */
+.card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body-inner {
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #222;
+    margin: 0 0 6px 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-desc {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #888;
+    margin: 0 0 4px 0;
+}
+
+.card-schedule {
+    font-size: 12px;
+    color: #888;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.card-footer .card-schedule {
+    flex: 1;
+}
+
+.card-footer .card-members {
+    margin-left: auto;
+}
+
+.card-tag {
+    font-size: 12px;
+    color: #2563eb;
+}
+
+.card-members {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.card-members::before {
+    content: "👥";
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/* 빈 상태 */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+}
+
+/* 반응형 - 화면 크기에 따라 카드 수 조정 */
+@media (max-width: 1200px) {
+    .bookclub-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .bookclub-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .bookclub-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .bookclub-grid {
+        grid-template-columns: 1fr;
+    }
+}
