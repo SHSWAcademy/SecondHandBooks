@@ -1,3 +1,5 @@
+package project.config;
+
 import java.util.Properties;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -20,7 +22,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -29,11 +30,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import com.zaxxer.hikari.HikariDataSource;
-
 @Configuration
-@MapperScan(basePackages = {"project"}, annotationClass = Mapper.class)
-@ComponentScan(basePackages = {"project"})
+@MapperScan(basePackages = { "project" }, annotationClass = Mapper.class)
+@ComponentScan(basePackages = { "project" })
 @EnableWebMvc
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
@@ -61,8 +60,6 @@ public class MvcConfig implements WebMvcConfigurer {
     private int redisPort;
     @Value("${file.dir}")
     private String uploadPath;
-
-
 
     // JSP ViewResolver
     @Override
@@ -119,19 +116,19 @@ public class MvcConfig implements WebMvcConfigurer {
         ssf.setConfiguration(config);
 
         // Mapper XML 파일 위치 설정
-        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver =
-            new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        org.springframework.core.io.Resource[] projectMappers = resolver.getResources("classpath:project/**/*Mapper.xml");
-        org.springframework.core.io.Resource[] memberMappers = resolver.getResources("classpath:project.member/*Mapper.xml");
-        org.springframework.core.io.Resource[] allMappers = new org.springframework.core.io.Resource[projectMappers.length + memberMappers.length];
+        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
+        org.springframework.core.io.Resource[] projectMappers = resolver
+                .getResources("classpath:project/**/*Mapper.xml");
+        org.springframework.core.io.Resource[] memberMappers = resolver
+                .getResources("classpath:project.member/*Mapper.xml");
+        org.springframework.core.io.Resource[] allMappers = new org.springframework.core.io.Resource[projectMappers.length
+                + memberMappers.length];
         System.arraycopy(projectMappers, 0, allMappers, 0, projectMappers.length);
         System.arraycopy(memberMappers, 0, allMappers, projectMappers.length, memberMappers.length);
         ssf.setMapperLocations(allMappers);
 
         return ssf.getObject();
     }
-
-
 
     // ================= TransactionManager =================
     @Bean
@@ -178,6 +175,5 @@ public class MvcConfig implements WebMvcConfigurer {
         template.setConnectionFactory(redisConnectionFactory());
         return template;
     }
-
 
 }
