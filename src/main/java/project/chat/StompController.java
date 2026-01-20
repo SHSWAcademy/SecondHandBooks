@@ -23,12 +23,8 @@ public class StompController {
         // 프론트에서 chat_room_seq, chat_cont, sender_seq, trade_seq 를 파싱해서 받아 message 객체에 넣는다
 
         log.info("메시지 수신: chat_room_seq={}, sender={}, content={}", chat_room_seq, message.getSender_seq(), message.getChat_cont());
-
-        // 채팅방 id 설정
-        message.setChat_room_seq(chat_room_seq);
-
-        // DB에 메시지 저장
-        messageService.saveMessage(message);
+        message.setChat_room_seq(chat_room_seq); // 채팅방 id 설정
+        messageService.saveMessage(message); // DB에 메시지 저장
 
         // 해당 채팅방 구독자들에게 실시간 전송, 클라이언트는 /chatroom/{roomId} 를 구독
         messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, message);

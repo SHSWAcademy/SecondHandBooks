@@ -27,7 +27,7 @@ public class ChatroomController {
 
     // 메인 화면 -> 채팅방 조회
     @GetMapping("/chatrooms")
-    public String showChatrooms(Model model, HttpSession session) {
+    public String chat(Model model, HttpSession session) {
 
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
 
@@ -36,11 +36,11 @@ public class ChatroomController {
             return "redirect:/";
         }
 
+        // 지금은 전부 조회하지만 나중에 페이징 처리 필요
         List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
 
-        // 지금은 전부 조회하지만 나중에 페이징 처리 필요
         model.addAttribute("chatrooms", chatrooms);
-        model.addAttribute("member_seq", sessionMember.getMember_seq());
+        // model.addAttribute("member_seq", sessionMember.getMember_seq());
 
         return "chat/chatrooms";
     }
@@ -49,7 +49,7 @@ public class ChatroomController {
 
     // 판매글 -> 채팅방
     @PostMapping("/chatrooms")
-    public String showChatrooms(Model model, HttpSession session, TradeVO tradeVO) {
+    public String chat(Model model, HttpSession session, TradeVO tradeVO) {
 
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
 
@@ -58,13 +58,13 @@ public class ChatroomController {
             return "redirect:/";
         }
 
+        // 지금은 전부 조회하지만 나중에 페이징 처리 필요
         List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
 
-        // 지금은 전부 조회하지만 나중에 페이징 처리 필요
         model.addAttribute("chatrooms", chatrooms);
-        model.addAttribute("member_seq", sessionMember.getMember_seq());
+        // model.addAttribute("member_seq", sessionMember.getMember_seq());
 
-        // 판매글에서 채팅하기로 채팅에 들어왔을 경우
+        // 판매글에서 채팅하기로 채팅에 들어왔을 경우 (프론트에서 tradeVO가 넘어올 경우)
         if (tradeVO.getTrade_seq() > 0) {
 
             long trade_seq = tradeVO.getTrade_seq();
@@ -78,18 +78,17 @@ public class ChatroomController {
 
             ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq);
             List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq());
-            model.addAttribute("trade_chat_room", tradeChatroom);
-            model.addAttribute("messages", messages);
+            model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
+            model.addAttribute("messages", messages); // 현재 채팅방의 전체 메시지 전달 (이후 페이징 처리 필요)
         }
 
         return "chat/chatrooms";
     }
 
-    // 채팅 메시지 조회 API
+    // 채팅 메시지 조회 api
     @GetMapping("/chat/messages")
     @ResponseBody
-    public List<MessageVO> getMessages(@RequestParam("chat_room_seq") long chat_room_seq)
-    {
+    public List<MessageVO> getMessages(@RequestParam("chat_room_seq") long chat_room_seq) {
         return messageService.getAllMessages(chat_room_seq);
     }
 
