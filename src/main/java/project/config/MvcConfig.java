@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -39,6 +40,8 @@ public class MvcConfig implements WebMvcConfigurer{
     @Value("${db.password}")
     private String password;
 
+    @Value("${upload.path}")
+    private String uploadPath;
 
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
@@ -48,6 +51,14 @@ public class MvcConfig implements WebMvcConfigurer{
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         registry.jsp("/WEB-INF/views/", ".jsp");
+    }
+
+    // 외부 이미지 리소스 핸들러 (프로젝트 루트의 img 폴더)
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // /img/** 요청을 설정된 uploadPath로 매핑
+        registry.addResourceHandler("/img/**")
+                .addResourceLocations("file:" + uploadPath);
     }
 
     // hikaricp
