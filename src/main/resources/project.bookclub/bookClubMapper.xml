@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.bookclub.BookClubMapper">
+
+    <select id="selectMyBookClubs" parameterType="long" resultType="project.bookclub.BookClubVO">
+        SELECT BC.*
+        FROM BOOK_CLUB BC
+                 JOIN BOOK_CLUB_MEMBER BCM ON BC.BOOK_CLUB_SEQ = BCM.BOOK_CLUB_SEQ
+        WHERE BCM.MEMBER_SEQ = #{member_seq}
+          AND BCM.JOIN_ST = 'JOINED'  ORDER BY BC.CRT_DTM DESC
+    </select>
+
+</mapper>
