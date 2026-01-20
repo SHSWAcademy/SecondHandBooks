@@ -23,14 +23,12 @@ SELECT
     t.UPD_DTM              AS updDtm,
     t.PAYMENT_TYPE         AS paymentType,
     t.CATEGORY_NM          AS categoryNm,
-    b.BOOK_TITLE           AS bookTitle,
-    b.BOOK_AUTHOR          AS bookAuthor,
-    b.BOOK_PUBLISHER       AS bookPublisher,
-    b.BOOK_IMG             AS bookImg,
-    b.BOOK_ORG_PRICE       AS bookOrgPrice
+    t.BOOK_TITLE           AS bookTitle,
+    t.BOOK_AUTHOR          AS bookAuthor,
+    t.BOOK_PUBLISHER       AS bookPublisher,
+    t.BOOK_IMG             AS bookImg,
+    t.BOOK_ORG_PRICE       AS bookOrgPrice
 FROM SB_TRADE_INFO t
-JOIN BOOK_INFO b
-  ON t.BOOK_INFO_SEQ = b.BOOK_INFO_SEQ
 WHERE t.TRADE_SEQ = #{?};
 
 -- 이미지 조회
@@ -39,3 +37,12 @@ SELECT
 FROM BOOK_IMAGE
 WHERE TRADE_SEQ = #{?}
 ORDER BY SORT_SEQ;
+
+-- 판매글 게시할 때 사용자의 사진 업로드 (총 3장)
+INSERT INTO book_image (
+    img_url,
+    trade_seq
+) VALUES (
+    ?,
+    ?
+);

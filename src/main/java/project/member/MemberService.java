@@ -26,7 +26,11 @@ public class MemberService{
     public MemberVO login(MemberVO vo) {
         return memberMapper.login(vo);
     }
-
+    // 로그인 로그 찍기
+    @Transactional
+    public boolean loginLogUpdate(long member_seq) {
+        return memberMapper.loginLogUpdate(member_seq) > 0;
+    }
     public int idCheck(String login_id) {
         System.out.println(memberMapper.idCheck(login_id) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.idCheck(login_id);
@@ -46,15 +50,18 @@ public class MemberService{
 
         if (existMember != null) {
             // 이미 가입됨 -> 로그인
+            if (existMember.getMember_deleted_dtm() != null) {
+                return null;
+            }
             return existMember;
         }
 
         // 2. 미가입 -> 회원가입 진행
         // (1) MEMBER_INFO 저장 (Map 사용)
         //params.put("member_st", "ACTIVE");
-        String generatedLoginId = "봉근" + "_" + params.get("provider_id");
+        String generatedLoginId = params.get("provider") + "_" + params.get("provider_id");
         params.put("login_id", generatedLoginId);
-        String generatedPwd = "봉근로그인";
+        String generatedPwd = params.get("provider") + "_로그인";
         params.put("member_pwd", generatedPwd);
         memberMapper.insertSocialMemberInfo(params);
 
@@ -64,5 +71,15 @@ public class MemberService{
 
         // 3. 가입된 정보 다시 조회해서 리턴
         return memberMapper.getMemberByOAuth(params);
+    }
+    // 프로필 - 회원 정보 수정
+    @Transactional
+    public boolean updateMember(MemberVO vo) {
+        return memberMapper.updateMember(vo) > 0;
+    }
+    // 프로필 - 회원 탈퇴
+    @Transactional
+    public boolean deleteMember(long member_seq) {
+        return memberMapper.deleteMember(member_seq) > 0;
     }
 }
