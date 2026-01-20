@@ -2,6 +2,7 @@ package project.chat.chatroom;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import project.member.MemberVO;
 import project.trade.TradeVO;
 import project.util.Const;
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -23,7 +25,7 @@ public class ChatroomController {
 
     private final ChatroomService chatroomService;
     private final MessageService messageService;
-
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 메인 화면 -> 채팅방 조회
     @GetMapping("/chatrooms")
@@ -73,8 +75,10 @@ public class ChatroomController {
             }
 
             ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq, sale_title);
-            List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq());
-            // model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
+            List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq(), sessionMember.getMember_seq());
+            // sessionMember.getMember_seq() : 메시지 읽음 처리하는 사람의 seq, member_buyer_seq 로 넣어도 되지만 직관성을 위해 session 에서 조회한 값을 넣음
+
+            model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
             model.addAttribute("messages", messages); // 현재 채팅방의 전체 메시지 전달 (이후 페이징 처리 필요)
         }
 
@@ -91,8 +95,20 @@ public class ChatroomController {
     // 채팅 메시지 조회 api
     @GetMapping("/chat/messages")
     @ResponseBody
-    public List<MessageVO> getMessages(@RequestParam("chat_room_seq") long chat_room_seq) {
-        return messageService.getAllMessages(chat_room_seq);
-    }
+    public List<MessageVO> getMessages(@RequestParam("chat_room_seq") long chat_room_seq,  HttpSession session) {
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION); // 메시지 읽음 처리할 회원
 
+        // 권한 체크 추가
+        if (!chatroomService.isMemberOfChatroom(chat_room_seq,
+                sessionMember.getMember_seq())) {
+            log.warn("권한 없는 채팅방 메시지 조회 시도: member_seq={}, chat_room_seq={}", sessionMember.getMember_seq(), chat_room_seq);
+            return Collections.emptyList();
+        }
+
+        List<MessageVO> messages = messageService.getAllMessages(chat_room_seq, sessionMember.getMember_seq());
+
+        // 상대방에게 읽음 이벤트 전송
+        messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq + "/read", sessionMember.getMember_seq());
+        return messages;
+    }
 }

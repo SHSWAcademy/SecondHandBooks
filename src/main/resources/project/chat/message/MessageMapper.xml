@@ -21,7 +21,16 @@
         false
         )
     </insert>
+    <!-- 메시지 읽음 처리 -->
+    <update id="updateReadStatus">
+        UPDATE chat_msg SET read_yn = true
+        WHERE chat_room_seq = #{chat_room_seq}
+        and sender_seq !=#{member_seq}
+        and read_yn = false
 
+    </update>
+
+    <!-- 메시지 전체 조회 -->
     <select id="findByRoomSeq" resultType="project.chat.message.MessageVO">
         SELECT chat_msg_seq, chat_room_seq, sender_seq, chat_cont, sent_dtm, read_yn
         FROM chat_msg
