@@ -157,7 +157,7 @@
                     <h2 class="text-xl font-bold text-gray-900 mb-4">내가 만든 모임</h2>
                     <div class="text-center py-8 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-sm mb-4">
                         만든 모임이 없습니다.
-                        <a href="/readingGroups" class="text-primary-600 font-bold ml-2 hover:underline">모임 만들기</a>
+                        <a href="/bookclubs" class="text-primary-600 font-bold ml-2 hover:underline">모임 만들기</a>
                     </div>
                 </div>
             </div>
