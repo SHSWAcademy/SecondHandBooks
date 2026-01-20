@@ -1,25 +1,33 @@
 package project.bookclub.controller;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import project.bookclub.ENUM.JoinRequestResult;
-import project.bookclub.service.BookClubService;
-import project.bookclub.vo.BookClubBoardVO;
-import project.bookclub.vo.BookClubVO;
-import project.member.MemberVO;
-
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import project.bookclub.ENUM.JoinRequestResult;
+import project.bookclub.service.BookClubService;
+import project.bookclub.vo.BookClubBoardVO;
+import project.bookclub.vo.BookClubVO;
+import project.member.MemberVO;
 
 @Controller
 @Slf4j
@@ -185,42 +193,20 @@ public class BookClubController {
             HttpSession session,
             Model model) {
 
-        // bookClubId는 항상 필요 (forbidden 페이지에서 돌아가기 링크용)
-        model.addAttribute("bookClubId", bookClubId);
-
-        // 1. 로그인 여부 확인
+        // 권한 검증 (공통 메서드 재사용) - fragment이므로 forbidden fragment 반환
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            // 비로그인: forbidden fragment (redirect 금지 - fetch가 깨짐)
+            model.addAttribute("bookClubId", bookClubId);
             model.addAttribute("isLogin", false);
             return "bookclub/bookclub_board_forbidden";
         }
 
-        // 2. 로그인 상태: 권한 판정
-        model.addAttribute("isLogin", true);
-        Long loginMemberSeq = loginMember.getMember_seq();
-
-        // 2-1. 모임 조회
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            // 모임 없음 처리
-            model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
-            return "bookclub/bookclub_board_forbidden";
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        if (permissionCheckResult != null && !permissionCheckResult.equals("redirect:/login")) {
+            return "bookclub/bookclub_board_forbidden"; // fragment이므로 redirect 대신 forbidden
         }
 
-        // 2-2. 권한 판정 (isLeader || isMember) && !hasPendingRequest
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
-        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
-        boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
-
-        boolean allow = (isLeader || isMember) && !hasPendingRequest;
-
-        if (!allow) {
-            // 권한 없음: forbidden fragment (boards 조회 SQL 실행 안 함)
-            return "bookclub/bookclub_board_forbidden";
-        }
-
-        // 3. 권한 있음: 공통 model 세팅 + 게시판 목록 조회
+        // 권한 있음: 공통 model 세팅 + 게시판 목록 조회
         loadBookClubDetailModel(bookClubId, session, model);
 
         // 게시판 목록 조회 (최근 원글 10개)
@@ -228,6 +214,45 @@ public class BookClubController {
         model.addAttribute("boards", boards);
 
         return "bookclub/bookclub_detail_board";
+    }
+
+    /**
+     * 권한 검증 공통 메서드
+     * 
+     * @return 권한 있으면 null, 없으면 forbidden view 이름
+     */
+    private String checkBoardAccessPermission(Long bookClubId, HttpSession session, Model model) {
+        model.addAttribute("bookClubId", bookClubId);
+
+        // 1. 로그인 여부 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return "redirect:/login";
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
+            return "bookclub/bookclub_post_forbidden";
+        }
+
+        // 3. 권한 판정
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
+        boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
+
+        boolean allow = (isLeader || isMember) && !hasPendingRequest;
+
+        // model에 권한 정보 담기
+        model.addAttribute("isLogin", true);
+        model.addAttribute("isLeader", isLeader);
+        model.addAttribute("isMember", isMember);
+        model.addAttribute("canWriteComment", allow);
+
+        return allow ? null : "bookclub/bookclub_post_forbidden";
     }
 
     /**
@@ -248,40 +273,13 @@ public class BookClubController {
             HttpSession session,
             Model model) {
 
-        // bookClubId는 항상 필요 (forbidden 페이지에서 돌아가기 링크용)
-        model.addAttribute("bookClubId", bookClubId);
-
-        // 1. 로그인 여부 확인
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            // 비로그인: 로그인 페이지로 redirect (풀 페이지이므로 redirect OK)
-            return "redirect:/login";
+        // 권한 검증 (공통 메서드 재사용)
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        if (permissionCheckResult != null) {
+            return permissionCheckResult;
         }
 
-        // 2. 로그인 상태: 권한 판정
-        Long loginMemberSeq = loginMember.getMember_seq();
-
-        // 2-1. 모임 조회
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            // 모임 없음 처리
-            model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
-            return "bookclub/bookclub_post_forbidden";
-        }
-
-        // 2-2. 권한 판정 (isLeader || isMember) && !hasPendingRequest
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
-        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
-        boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
-
-        boolean allow = (isLeader || isMember) && !hasPendingRequest;
-
-        if (!allow) {
-            // 권한 없음: forbidden 풀 페이지 (post/comments 조회 SQL 실행 안 함)
-            return "bookclub/bookclub_post_forbidden";
-        }
-
-        // 3. 권한 있음: 게시글 + 댓글 조회
+        // 권한 있음: 게시글 + 댓글 조회
         BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
 
         // 게시글 없음 처리
@@ -293,26 +291,9 @@ public class BookClubController {
         // 댓글 목록 조회
         List<BookClubBoardVO> comments = bookClubService.getBoardComments(bookClubId, postId);
 
-        // 로그인 여부 및 권한 정보 (댓글 작성 폼 표시 여부 판단용)
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        boolean isLogin = (loginMember != null);
-        boolean canWriteComment = false;
-        if (isLogin) {
-            Long memberSeq = loginMember.getMember_seq();
-            BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-            if (bookClub != null) {
-                boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
-                boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
-                canWriteComment = isLeader || isMember;
-            }
-        }
-
         // model에 데이터 담기
         model.addAttribute("post", post);
         model.addAttribute("comments", comments);
-        model.addAttribute("bookClubId", bookClubId);
-        model.addAttribute("isLogin", isLogin);
-        model.addAttribute("canWriteComment", canWriteComment);
 
         return "bookclub/bookclub_post_detail";
     }
