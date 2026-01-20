@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -20,5 +22,9 @@ public class ChatroomVO {
         this.trade_seq = trade_seq;
         this.member_buyer_seq = member_buyer_seq;
         this.member_seller_seq = member_seller_seq;
+    }
+
+    public Date getLastMsgDtmAsDate() {
+        return last_msg_dtm == null ? null : Date.from(last_msg_dtm.atZone(ZoneId.systemDefault()).toInstant());
     }
 }
