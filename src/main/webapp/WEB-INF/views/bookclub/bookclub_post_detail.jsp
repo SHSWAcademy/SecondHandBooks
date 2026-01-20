@@ -188,10 +188,11 @@
         border-radius: 0.5rem;
         padding: 0.625rem 0.75rem;
         font-size: 0.875rem;
-        min-height: 44px;
+        height: 44px;
         max-height: 120px;
         font-family: inherit;
         line-height: 1.5;
+        transition: height 0.2s ease;
     }
 
     .bc-comment-textarea:focus {
