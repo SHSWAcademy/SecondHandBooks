@@ -13,7 +13,6 @@ import project.chat.message.MessageVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
 import project.util.Const;
-
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class ChatroomController {
 
         List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
 
-        // 이후 페이징 처리 필요
+        // 지금은 전부 조회하지만 나중에 페이징 처리 필요
         model.addAttribute("chatrooms", chatrooms);
         model.addAttribute("member_seq", sessionMember.getMember_seq());
 
@@ -61,12 +60,12 @@ public class ChatroomController {
 
         List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
 
-        // 이후 페이징 처리 필요
+        // 지금은 전부 조회하지만 나중에 페이징 처리 필요
         model.addAttribute("chatrooms", chatrooms);
         model.addAttribute("member_seq", sessionMember.getMember_seq());
 
         // 판매글에서 채팅하기로 채팅에 들어왔을 경우
-        if (tradeVO != null && tradeVO.getTrade_seq() > 0) {
+        if (tradeVO.getTrade_seq() > 0) {
 
             long trade_seq = tradeVO.getTrade_seq();
             long member_seller_seq = tradeVO.getMember_seller_seq();
@@ -78,7 +77,7 @@ public class ChatroomController {
             }
 
             ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq);
-            List<MessageVO> messages = chatroomService.getAllMessages(tradeChatroom.getChat_room_seq());
+            List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq());
             model.addAttribute("trade_chat_room", tradeChatroom);
             model.addAttribute("messages", messages);
         }
@@ -89,9 +88,9 @@ public class ChatroomController {
     // 채팅 메시지 조회 API
     @GetMapping("/chat/messages")
     @ResponseBody
-    public List<MessageVO> getMessages(@RequestParam("roomSeq") long roomSeq)
+    public List<MessageVO> getMessages(@RequestParam("chat_room_seq") long chat_room_seq)
     {
-        return messageService.getMessages(roomSeq);
+        return messageService.getAllMessages(chat_room_seq);
     }
 
 }
