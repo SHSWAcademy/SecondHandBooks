@@ -4,7 +4,7 @@
             <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
             <!-- 독서모임 상세 페이지 전용 CSS -->
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub_detail.css">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub_detail.css">
 
             <c:choose>
                 <c:when test="${not empty errorMessage}">
