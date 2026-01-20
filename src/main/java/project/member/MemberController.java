@@ -414,7 +414,7 @@ public class MemberController {
             sess.setAttribute("loginSess", loginUser); // 세션 갱신
 
             model.addAttribute("msg", "회원 정보가 수정되었습니다.");
-            model.addAttribute("url", "/profile");
+            model.addAttribute("url", "mypage/profile");
             model.addAttribute("cmd", "move");
         } else {
             model.addAttribute("msg", "정보 수집에 실패했습니다.");
