@@ -9,9 +9,10 @@
         trade_seq,
         crt_dtm,
         member_buyer_seq,
-        member_seller_seq
+        member_seller_seq,
+        sale_title
         ) VALUES (
-        #{trade_seq}, now(), #{member_buyer_seq}, #{member_seller_seq}
+        #{trade_seq}, now(), #{member_buyer_seq}, #{member_seller_seq}, #{sale_title}
         )
     </insert>
 

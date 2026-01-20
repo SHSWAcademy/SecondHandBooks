@@ -40,7 +40,6 @@ public class ChatroomController {
         List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
 
         model.addAttribute("chatrooms", chatrooms);
-        // model.addAttribute("member_seq", sessionMember.getMember_seq());
 
         return "chat/chatrooms";
     }
@@ -50,6 +49,7 @@ public class ChatroomController {
     // 판매글 -> 채팅방
     @PostMapping("/chatrooms")
     public String chat(Model model, HttpSession session, TradeVO tradeVO) {
+        // 프론트에서 trade_seq, member_seller_seq, sale_title 이 tradeVO 로 넘어온다
 
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
 
@@ -58,29 +58,32 @@ public class ChatroomController {
             return "redirect:/";
         }
 
-        // 지금은 전부 조회하지만 나중에 페이징 처리 필요
-        List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
-
-        model.addAttribute("chatrooms", chatrooms);
-        // model.addAttribute("member_seq", sessionMember.getMember_seq());
-
-        // 판매글에서 채팅하기로 채팅에 들어왔을 경우 (프론트에서 tradeVO가 넘어올 경우)
+        // 1. 판매글에서 채팅하기로 채팅에 들어왔을 경우 (프론트에서 tradeVO가 넘어올 경우)
         if (tradeVO.getTrade_seq() > 0) {
 
             long trade_seq = tradeVO.getTrade_seq();
             long member_seller_seq = tradeVO.getMember_seller_seq();
             long member_buyer_seq = sessionMember.getMember_seq();
 
+            String sale_title = tradeVO.getSale_title();
+
             // 본인 채팅 방지
             if (member_seller_seq == member_buyer_seq) {
                 return "chat/chatrooms";  // 채팅방 목록만 보여줌
             }
 
-            ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq);
+            ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq, sale_title);
             List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq());
-            model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
+            // model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
             model.addAttribute("messages", messages); // 현재 채팅방의 전체 메시지 전달 (이후 페이징 처리 필요)
         }
+
+
+        // 2. 채팅방 모두 출력 (지금은 전부 조회하지만 나중에 페이징 처리 필요)
+        List<ChatroomVO> chatrooms = chatroomService.searchAll(sessionMember.getMember_seq());
+
+        model.addAttribute("chatrooms", chatrooms);
+        // model.addAttribute("member_seq", sessionMember.getMember_seq());
 
         return "chat/chatrooms";
     }
