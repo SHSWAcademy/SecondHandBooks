@@ -22,12 +22,26 @@
         WHERE member_seller_seq=#{member_seller_seq} and member_buyer_seq=#{member_buyer_seq} and trade_seq=#{trade_seq}
     </select>
     <select id="findAllByMemberSeq" resultType="project.chat.chatroom.ChatroomVO">
-        SELECT * FROM chatroom WHERE member_buyer_seq=#{member_seq} or
+        SELECT *
+        FROM chatroom
+        WHERE member_buyer_seq=#{member_seq} or
         member_seller_seq =#{member_seq}
+        ORDER BY crt_dtm DESC
     </select>
+
+    <!-- 허용되지 않은 접근자의 채팅방 접근 체크 -->
+    <select id="isMemberOfChatroom" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0
+        FROM chatroom
+        WHERE chat_room_seq = #{chat_room_seq}
+        AND (member_buyer_seq = #{member_seq}
+        OR member_seller_seq = #{member_seq})
+    </select>
+    <!--
     <select id="findAllByChatRoomSeq" resultType="project.chat.message.MessageVO">
         SELECT * FROM chat_msg WHERE chat_room_seq = #{chat_room_seq}
         ORDER BY sent_dtm ASC
     </select>
+    -->
 
 </mapper>
