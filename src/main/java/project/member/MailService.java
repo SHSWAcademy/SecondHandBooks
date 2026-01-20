@@ -48,7 +48,7 @@ public class MailService {
 
         // [헤더] 신한 블루 배경
         content.append("    <div style='background-color: #0046FF; padding: 24px 30px; text-align: left;'>");
-        content.append("      <h1 style='color: #ffffff; font-size: 20px; margin: 0; font-weight: 700; letter-spacing: -0.5px;'>Shinhan Books</h1>");
+        content.append("      <h1 style='color: #ffffff; font-size: 20px; margin: 0; font-weight: 700; letter-spacing: -0.5px;'>SecondHand Books</h1>");
         content.append("    </div>");
 
         // [본문]
