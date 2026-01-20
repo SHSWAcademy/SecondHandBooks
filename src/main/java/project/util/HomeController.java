@@ -47,7 +47,7 @@ public class HomeController {
 		// 여기에 실제로는 DB에서 구매내역(orders), 판매내역(sales) 등을 조회해서 model에 담아야 합니다.
 		// 현재는 UI 구현이 목적이므로 JSP에서 하드코딩된 예시 데이터를 보여줍니다.
 
-		return "member/profile";
+		return "member/mypage";
 	}
 	@GetMapping({"/", "/home"})
 	public String home(@RequestParam(defaultValue = "1") int page,
