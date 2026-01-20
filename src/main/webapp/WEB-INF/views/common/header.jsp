@@ -96,13 +96,7 @@
             <a href="/upload"
               class="px-3 py-2 text-sm font-bold hover:text-primary-600 transition-colors text-gray-600">판매하기</a>
 
-            <!-- <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.isAdmin}">
-                <a href="/admin" class="flex items-center gap-1.5 px-3 py-2 text-sm font-bold transition-colors text-gray-500 hover:text-gray-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                    관리자
-                </a>
-            </c:if> -->
-
+        
             <div class="h-4 w-px bg-gray-300 mx-2"></div>
 
             <c:choose>
