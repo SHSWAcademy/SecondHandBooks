@@ -20,7 +20,7 @@ public class StompController {
     @MessageMapping("/chat/{chat_room_seq}")
     public void sendMessage(@DestinationVariable Long chat_room_seq, @Payload MessageVO message) {
         // @Payload : JSON 메시지의 본문(body)을 객체로 변환해서 받는다
-        // 프론트에서 chat_room_seq, chat_cont, sender_seq 를 파싱해서 받아 message 객체에 넣는다
+        // 프론트에서 chat_room_seq, chat_cont, sender_seq, trade_seq 를 파싱해서 받아 message 객체에 넣는다
 
         log.info("메시지 수신: chat_room_seq={}, sender={}, content={}", chat_room_seq, message.getSender_seq(), message.getChat_cont());
 
