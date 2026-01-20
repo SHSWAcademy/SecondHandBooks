@@ -8,6 +8,6 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 @RequiredArgsConstructor
 public class BookClubController {
-    //주석 테스트
+
     private final BookClubService bookClubService;
 }
