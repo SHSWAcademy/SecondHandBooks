@@ -155,6 +155,72 @@
         color: #c53030;
         text-align: center;
     }
+
+    .bc-flash-error {
+        background: #fff5f5;
+        border: 1px solid #fc8181;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        color: #c53030;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .bc-comment-form-wrapper {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .bc-comment-form {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+    }
+
+    .bc-comment-textarea {
+        flex: 1;
+        resize: none;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        min-height: 60px;
+        font-family: inherit;
+    }
+
+    .bc-comment-textarea:focus {
+        outline: none;
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    }
+
+    .bc-comment-submit-btn {
+        background: #4299e1;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .bc-comment-submit-btn:hover {
+        background: #2b6cb0;
+    }
+
+    .bc-comment-submit-btn:disabled {
+        background: #a0aec0;
+        cursor: not-allowed;
+    }
 </style>
 
 <c:choose>
@@ -241,6 +307,11 @@
                         댓글
                     </h2>
 
+                    <!-- 에러 메시지 (flash) -->
+                    <c:if test="${not empty errorMessage}">
+                        <div class="bc-flash-error">${fn:escapeXml(errorMessage)}</div>
+                    </c:if>
+
                     <c:choose>
                         <c:when test="${empty comments}">
                             <!-- 댓글 없음 -->
@@ -272,6 +343,25 @@
                             </ul>
                         </c:otherwise>
                     </c:choose>
+
+                    <!-- 댓글 입력 폼 (권한 있는 사용자만 표시) -->
+                    <c:if test="${canWriteComment}">
+                        <div class="bc-comment-form-wrapper">
+                            <form class="bc-comment-form"
+                                  action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments"
+                                  method="post">
+                                <textarea name="commentCont" class="bc-comment-textarea"
+                                          placeholder="댓글을 입력하세요..." required></textarea>
+                                <button type="submit" class="bc-comment-submit-btn">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                    </svg>
+                                    전송
+                                </button>
+                            </form>
+                        </div>
+                    </c:if>
                 </div>
             </div>
         </div>

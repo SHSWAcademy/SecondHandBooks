@@ -202,6 +202,7 @@ public class BookClubController {
     public String getPostDetail(
             @PathVariable("bookClubId") Long bookClubId,
             @PathVariable("postId") Long postId,
+            HttpSession session,
             Model model) {
         // 게시글 조회
         BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
@@ -215,12 +216,89 @@ public class BookClubController {
         // 댓글 목록 조회
         List<BookClubBoardVO> comments = bookClubService.getBoardComments(bookClubId, postId);
 
+        // 로그인 여부 및 권한 정보 (댓글 작성 폼 표시 여부 판단용)
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        boolean isLogin = (loginMember != null);
+        boolean canWriteComment = false;
+        if (isLogin) {
+            Long memberSeq = loginMember.getMember_seq();
+            BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+            if (bookClub != null) {
+                boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+                boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
+                canWriteComment = isLeader || isMember;
+            }
+        }
+
         // model에 데이터 담기
         model.addAttribute("post", post);
         model.addAttribute("comments", comments);
         model.addAttribute("bookClubId", bookClubId);
+        model.addAttribute("isLogin", isLogin);
+        model.addAttribute("canWriteComment", canWriteComment);
 
         return "bookclub/bookclub_post_detail";
+    }
+
+    /**
+     * 댓글 작성 (PRG 패턴)
+     * POST /bookclubs/{bookClubId}/posts/{postId}/comments
+     * - 로그인 필수
+     * - 모임장 또는 JOINED 멤버만 작성 가능
+     * - 부모글 검증 (우회 방지)
+     */
+    @PostMapping("/{bookClubId}/posts/{postId}/comments")
+    public String createComment(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("postId") Long postId,
+            @RequestParam("commentCont") String commentCont,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String redirectUrl = "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return "redirect:/login";
+        }
+
+        Long memberSeq = loginMember.getMember_seq();
+
+        // 2. 권한 체크 (모임장 OR JOINED 멤버)
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
+
+        if (!isLeader && !isMember) {
+            // 권한 없음 - 모임 상세 페이지로 리다이렉트
+            redirectAttributes.addFlashAttribute("errorMessage", "댓글을 작성할 권한이 없습니다.");
+            return "redirect:/bookclubs/" + bookClubId;
+        }
+
+        // 3. 댓글 내용 검증
+        if (commentCont == null || commentCont.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "댓글 내용을 입력해주세요.");
+            return redirectUrl;
+        }
+
+        // 4. 부모글 검증 (우회 방지)
+        boolean isValidPost = bookClubService.existsRootPost(bookClubId, postId);
+        if (!isValidPost) {
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 게시글입니다.");
+            return redirectUrl;
+        }
+
+        // 5. 댓글 INSERT
+        bookClubService.createBoardComment(bookClubId, postId, memberSeq, commentCont);
+
+        // 6. 성공 시 게시글 상세 페이지로 리다이렉트
+        return redirectUrl;
     }
 
     /**
