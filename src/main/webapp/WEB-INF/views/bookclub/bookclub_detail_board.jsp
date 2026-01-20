@@ -61,6 +61,7 @@
                                                 <p
                                                     style="color: #718096; font-size: 0.875rem; line-height: 1.6; margin: 0 0 0.75rem 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                                                     ${fn:escapeXml(board.board_cont)}
+
                                                 </p>
                                             </c:if>
 
@@ -119,8 +120,7 @@
                                                             stroke-width="2"
                                                             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                     </svg>
-                                                    <!-- 댓글 ${empty board.commentCount ? 0 : board.commentCount} -->
-                                                    댓글 ${board.commentCount}
+                                                    댓글 ${empty board.comment_count ? 0 : board.comment_count}
                                                 </span>
                                             </div>
                                         </div>
