@@ -157,6 +157,13 @@ public class MemberController {
         // 3. 서비스 호출
         try {
             MemberVO memberVO = memberService.processSocialLogin(kakaoUserInfo);
+            if (memberVO == null) {
+                log.warn("Withdrawal Kakao User attempted login.");
+                model.addAttribute("msg", "탈퇴한 카카오 유저입니다. 재가입이 불가능합니다.");
+                model.addAttribute("url", "/login"); // 로그인 페이지로 이동
+                model.addAttribute("cmd", "move");
+                return "common/return";
+            }
             sess.setAttribute("loginSess", memberVO);
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
             if (logUpdate) {
@@ -284,6 +291,13 @@ public class MemberController {
         // 5. 서비스 호출 (기존 로직 유지)
         try {
             MemberVO memberVO = memberService.processSocialLogin(naverUserInfo);
+            if (memberVO == null) {
+                log.warn("Withdrawal Naver User attempted login.");
+                model.addAttribute("msg", "탈퇴한 네이버 유저입니다. 재가입이 불가능합니다.");
+                model.addAttribute("url", "/login");
+                model.addAttribute("cmd", "move");
+                return "common/return";
+            }
             sess.setAttribute("loginSess", memberVO);
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
             if (logUpdate) {
@@ -429,6 +443,4 @@ public class MemberController {
         return "common/return";
     }
 
-    @PostMapping
-    public
 }

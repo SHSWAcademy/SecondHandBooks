@@ -50,6 +50,9 @@ public class MemberService{
 
         if (existMember != null) {
             // 이미 가입됨 -> 로그인
+            if (existMember.getMember_deleted_dtm() != null) {
+                return null;
+            }
             return existMember;
         }
 
