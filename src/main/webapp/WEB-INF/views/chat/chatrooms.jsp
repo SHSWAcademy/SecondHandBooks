@@ -54,6 +54,7 @@
 <script>
     let stompClient = null;
     const chat_room_seq = ${trade_chat_room.chat_room_seq};
+    const member_seq = ${member_seq};
 
     /* ===============================
        페이지 로드 → 자동 연결
@@ -85,7 +86,8 @@
             {},
             JSON.stringify({
                 chat_room_seq: chat_room_seq,
-                chat_cont: msg
+                chat_cont: msg,
+                sender_seq: member_seq
             })
         );
 
@@ -94,9 +96,20 @@
 
     function showMessage(message) {
         const log = document.getElementById("chatLog");
-        const p = document.createElement("p");
-        p.innerText = message;
-        log.appendChild(p);
+        const msg = JSON.parse(message);
+        const div = document.createElement("div");
+
+        if (msg.sender_seq == member_seq) {
+            // 내 메시지 (오른쪽)
+            div.style.cssText = "text-align:right; margin:10px 0;";
+            div.innerHTML = '<div style="display:inline-block; background:#ffe066; padding:8px 12px; border-radius:10px;">' + msg.chat_cont + '</div>';
+        } else {
+            // 상대방 메시지 (왼쪽)
+            div.style.cssText = "text-align:left; margin:10px 0;";
+            div.innerHTML = '<div style="display:inline-block; background:#eee; padding:8px 12px; border-radius:10px;">' + msg.chat_cont + '</div>';
+        }
+
+        log.appendChild(div);
     }
 
     /* ===============================

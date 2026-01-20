@@ -8,5 +8,5 @@ import java.util.List;
 @Mapper
 public interface MessageMapper {
     List<MessageVO> findByRoomSeq(@Param("chat_room_seq") long chat_room_seq);
-    void save(MessageVO message);
+    int save(MessageVO message);
 }

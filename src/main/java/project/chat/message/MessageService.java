@@ -22,8 +22,8 @@ public class MessageService {
         log.info("메시지 저장 완료: roomSeq={}, sender={}", message.getChat_room_seq(), message.getSender_seq());
     }
 
-    // 채팅방 메시지 조회
-    public List<MessageVO> getMessages(long chat_room_seq) {
+    // 채팅방 전체 메시지 조회
+    public List<MessageVO> getAllMessages(long chat_room_seq) {
         return messageMapper.findByRoomSeq(chat_room_seq);
     }
 }
