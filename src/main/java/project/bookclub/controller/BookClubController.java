@@ -26,7 +26,7 @@ public class BookClubController {
 
     private final BookClubService bookClubService;
 
-    @Value("${upload.path}")
+    @Value("${file.dir}")
     private String uploadPath;
 
     /*
