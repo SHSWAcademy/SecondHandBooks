@@ -11,7 +11,7 @@ public class MessageVO {
 
     private long sender_seq;
     private String chat_cont;
-    private LocalDateTime send_dtm;
+    private LocalDateTime sent_dtm;
     private boolean read_yn; // 읽음 여부
 
 }

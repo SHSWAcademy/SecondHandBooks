@@ -74,7 +74,7 @@
 
 <script>
     // 로그인 멤버 seq / 채팅방 seq
-    const loginMemberSeq = "${sessionScope.loginSess.member_seq}";
+    const loginMemberSeq = Number("${sessionScope.loginSess.member_seq}");;
     const chat_room_seq = "${trade_chat_room.chat_room_seq}";
     const trade_seq = "${trade_chat_room.trade_seq}";
 
