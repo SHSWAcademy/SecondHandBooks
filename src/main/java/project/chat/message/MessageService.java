@@ -10,20 +10,23 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class MessageService {
 
     private final MessageMapper messageMapper;
 
     // 메시지 저장
-    @Transactional
     public void saveMessage(MessageVO message) {
         messageMapper.save(message);
         log.info("메시지 저장 완료: roomSeq={}, sender={}", message.getChat_room_seq(), message.getSender_seq());
     }
 
-    // 채팅방 전체 메시지 조회
-    public List<MessageVO> getAllMessages(long chat_room_seq) {
+    // 채팅방 전환 시 전환한 채팅방에 대해 전체 메시지 조회
+    public List<MessageVO> getAllMessages(long chat_room_seq, long member_seq) {
+
+        // 채팅방에 들어왔을 경우 해당 회원은 모든 메시지 읽음 처리
+        messageMapper.updateReadStatus(chat_room_seq, member_seq);
+
         return messageMapper.findByRoomSeq(chat_room_seq);
     }
 }

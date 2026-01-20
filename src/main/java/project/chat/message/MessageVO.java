@@ -16,7 +16,9 @@ public class MessageVO {
     private LocalDateTime sent_dtm;
     private boolean read_yn; // 읽음 여부
 
+    /*
     public Date getSentDtmAsDate() {
         return sent_dtm == null ? null : Date.from(sent_dtm.atZone(ZoneId.systemDefault()).toInstant());
     }
+     */
 }

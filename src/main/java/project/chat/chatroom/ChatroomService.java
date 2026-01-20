@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import project.chat.message.MessageVO;
 import java.util.List;
 
 @Slf4j
@@ -45,6 +44,11 @@ public class ChatroomService {
             // 동시에 생성된 경우 : 다시 조회
             return chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
         }
+    }
+
+    // 허용되지 않은 접근자의 채팅방 접근 체크
+    public boolean isMemberOfChatroom(long chat_room_seq, long member_seq) {
+        return chatroomMapper.isMemberOfChatroom(chat_room_seq, member_seq);
     }
 
     /*
