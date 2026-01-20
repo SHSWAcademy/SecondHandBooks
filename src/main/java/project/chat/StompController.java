@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import project.chat.message.MessageService;
 import project.chat.message.MessageVO;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequiredArgsConstructor
 @Controller
@@ -26,7 +28,7 @@ public class StompController {
 
         // 채팅방 id 설정
         message.setChat_room_seq(chat_room_seq);
-
+        message.setSent_dtm(LocalDateTime.now());
         // DB에 메시지 저장
         messageService.saveMessage(message);
 

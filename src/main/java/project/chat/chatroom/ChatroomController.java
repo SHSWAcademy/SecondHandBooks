@@ -63,6 +63,7 @@ public class ChatroomController {
         // 지금은 전부 조회하지만 나중에 페이징 처리 필요
         model.addAttribute("chatrooms", chatrooms);
         model.addAttribute("member_seq", sessionMember.getMember_seq());
+        model.addAttribute("trade_info", tradeVO);
 
         // 판매글에서 채팅하기로 채팅에 들어왔을 경우
         if (tradeVO.getTrade_seq() > 0) {
@@ -78,6 +79,7 @@ public class ChatroomController {
 
             ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq);
             List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq());
+
             model.addAttribute("trade_chat_room", tradeChatroom);
             model.addAttribute("messages", messages);
         }
