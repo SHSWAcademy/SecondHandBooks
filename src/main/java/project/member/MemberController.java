@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-import project.bookclub.BookClubVO;
+import project.bookclub.vo.BookClubVO;
+import project.bookclub.service.BookClubService;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
