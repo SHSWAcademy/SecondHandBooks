@@ -6,9 +6,6 @@
             <h2 class="text-xl font-bold text-gray-900">찜한 상품</h2>
             <p class="text-xs text-gray-500 mt-1">내가 관심 등록한 중고 서적 목록입니다.</p>
         </div>
-        <a href="/trade/list" class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-gray-800 transition">
-            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> 상품 더보기
-        </a>
     </div>
 
     <div id="wish-trade-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
