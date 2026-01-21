@@ -112,8 +112,8 @@
         UPDATE sb_trade_info
         SET
             sale_st = #{sold}::sale_st_enum,
-            sale_st_dtm = now(),
-            book_sale_dtm = now()
+            sale_st_dtm = now()::timestamp,
+            book_sale_dtm = now()::timestamp
         WHERE trade_seq = #{trade_seq}
     </update>
     <select id="findAll" resultType="project.trade.TradeVO">
@@ -126,6 +126,7 @@
         sale_title,
         sale_price,
         sale_rg,
+        sale_st,
         crt_dtm
         FROM sb_trade_info
         WHERE del_dtm is null
@@ -143,6 +144,7 @@
             sale_title,
             sale_price,
             sale_rg,
+            sale_st,
             crt_dtm
         FROM sb_trade_info
         WHERE del_dtm IS NULL
