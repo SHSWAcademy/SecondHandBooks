@@ -21,7 +21,7 @@
             <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <i data-lucide="heart" class="w-5 h-5 text-red-500 fill-current"></i> 찜한 모임
             </h2>
-            <p class="text-xs text-gray-500 mt-1">관심 있어서 찜해둔 모임 목록입니다.</p>
+            <p class="text-xs text-gray-500 mt-1">찜한 모임 목록입니다.</p>
         </div>
         <div id="wish-club-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
     </div>
@@ -94,11 +94,11 @@
                         <div class="relative h-36 bg-gray-100 overflow-hidden">
                             <img src="\${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="this.src='https://via.placeholder.com/400x200/f3f4f6/9ca3af?text=No+Image'">
                             <div class="absolute bottom-3 left-3 px-2 py-1 bg-white/90 rounded-md text-[10px] font-bold text-gray-600 backdrop-blur-sm">
-                                <i data-lucide="map-pin" class="w-3 h-3 inline mr-1"></i>\${club.region}
+                                <i data-lucide="map-pin" class="w-3 h-3 inline mr-1"></i>\${club.book_club_rg}
                             </div>
                         </div>
                         <div class="p-4">
-                            <h3 class="font-bold text-gray-900 mb-1 truncate">\${club.name}</h3>
+                            <h3 class="font-bold text-gray-900 mb-1 truncate">\${club.book_club_name}</h3>
                             <p class="text-xs text-gray-500 line-clamp-1">\${club.description || ''}</p>
                             <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs text-gray-400">
                                 <span><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>\${club.schedule || '미정'}</span>

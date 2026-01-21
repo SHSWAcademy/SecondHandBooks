@@ -93,7 +93,7 @@
           <nav class="flex items-center gap-4 ml-8">
             <a href="/bookclubs"
               class="px-3 py-2 text-sm font-bold hover:text-primary-600 transition-colors text-gray-600">독서모임</a>
-            <a href="/upload"
+            <a href="/trade"
               class="px-3 py-2 text-sm font-bold hover:text-primary-600 transition-colors text-gray-600">판매하기</a>
 
 
