@@ -108,7 +108,14 @@
         SET del_dtm = now()
         WHERE trade_seq = #{trade_seq}
     </update>
-
+    <update id="updateStatus">
+        UPDATE sb_trade_info
+        SET
+            sale_st = #{sold}::sale_st_enum,
+            sale_st_dtm = now(),
+            book_sale_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
     <select id="findAll" resultType="project.trade.TradeVO">
         SELECT
         trade_seq,
