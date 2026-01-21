@@ -129,9 +129,13 @@
         sale_rg,
         crt_dtm
         FROM sb_trade_info
-        WHERE del_dtm is null
+        WHERE
+            del_dtm IS NULL
+        AND
+            book_sale_dtm IS NULL
         ORDER BY crt_dtm DESC
     </select>
+    <!-- 쿼리 최적화 기억하기 -->
 
     <!-- 페이징 처리 -->
     <select id="findAllWithPaging" resultType="project.trade.TradeVO">
