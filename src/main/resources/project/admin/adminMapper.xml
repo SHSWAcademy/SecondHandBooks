@@ -33,14 +33,14 @@
             LIMIT 10
     </select>
 
-    <select id="selectRecentBookClubs" resultType="project.bookclub.BookClubVO">
+    <select id="selectRecentBookClubs" resultType="project.bookclub.vo.BookClubVO">
         SELECT
-            BOOK_CLUB_SEQ AS bookClubSeq,
-            BOOK_CLUB_NAME AS name,
-            BOOK_CLUB_RG AS region,
-            BOOK_CLUB_MAX_MEMBER AS maxMember,
-            BOOK_CLUB_SCHEDULE AS schedule,
-            CRT_DTM AS createdAt
+            BOOK_CLUB_SEQ,
+            BOOK_CLUB_NAME,
+            BOOK_CLUB_RG,
+            BOOK_CLUB_MAX_MEMBER,
+            BOOK_CLUB_SCHEDULE,
+            CRT_DTM
         FROM BOOK_CLUB
         WHERE BOOK_CLUB_DELETED_DT IS NULL
         ORDER BY CRT_DTM DESC

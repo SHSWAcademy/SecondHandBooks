@@ -100,7 +100,37 @@ public class MvcConfig implements WebMvcConfigurer {
         return dataSource;
     }
 
-    // mybatis
+//    // mybatis
+//    @Bean
+//    public SqlSessionFactory sqlSessionFactory() throws Exception {
+//        SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
+//        ssf.setDataSource(dataSource());
+//
+//        // Java Config로 모든 MyBatis 설정
+//        org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
+//
+//        config.setMapUnderscoreToCamelCase(false);
+//        config.setJdbcTypeForNull(org.apache.ibatis.type.JdbcType.NULL);
+//        config.setLogImpl(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
+//
+//        ssf.setConfiguration(config);
+//
+//        // Mapper XML 파일 위치 설정
+//        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
+//        org.springframework.core.io.Resource[] projectMappers = resolver
+//                .getResources("classpath:project/**/*Mapper.xml");
+////        org.springframework.core.io.Resource[] memberMappers = resolver
+////                .getResources("classpath:project.member/*Mapper.xml");
+//        org.springframework.core.io.Resource[] allMappers = new org.springframework.core.io.Resource[projectMappers.length
+////                + memberMappers.length
+//                ];
+//        System.arraycopy(projectMappers, 0, allMappers, 0, projectMappers.length);
+////        System.arraycopy(memberMappers, 0, allMappers, projectMappers.length, memberMappers.length);
+//        ssf.setMapperLocations(allMappers);
+//
+//        return ssf.getObject();
+//    }
+// mybatis
     @Bean
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
@@ -109,23 +139,16 @@ public class MvcConfig implements WebMvcConfigurer {
         // Java Config로 모든 MyBatis 설정
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
 
-        config.setMapUnderscoreToCamelCase(false);
+        config.setMapUnderscoreToCamelCase(false); // 필요에 따라 true/false 확인
         config.setJdbcTypeForNull(org.apache.ibatis.type.JdbcType.NULL);
         config.setLogImpl(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
 
         ssf.setConfiguration(config);
 
         // Mapper XML 파일 위치 설정
+        // [수정] classpath:project/**/*Mapper.xml 패턴이 하위 폴더(member 포함)를 모두 탐색합니다.
         org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
-        org.springframework.core.io.Resource[] projectMappers = resolver
-                .getResources("classpath:project/**/*Mapper.xml");
-        org.springframework.core.io.Resource[] memberMappers = resolver
-                .getResources("classpath:project.member/*Mapper.xml");
-        org.springframework.core.io.Resource[] allMappers = new org.springframework.core.io.Resource[projectMappers.length
-                + memberMappers.length];
-        System.arraycopy(projectMappers, 0, allMappers, 0, projectMappers.length);
-        System.arraycopy(memberMappers, 0, allMappers, projectMappers.length, memberMappers.length);
-        ssf.setMapperLocations(allMappers);
+        ssf.setMapperLocations(resolver.getResources("classpath:project/**/*.xml"));
 
         return ssf.getObject();
     }
