@@ -205,7 +205,7 @@ public class BookClubService {
      * #4. 독서모임 생성
      */
     @Transactional
-    public void createBookClubs(BookClubVO vo) {
+    public void createBookClub(BookClubVO vo) {
         // 1. 값 들어왔는지 확인
         log.info("service create vo = {}", vo);
         log.info("leader_seq = {}", vo.getBook_club_leader_seq());

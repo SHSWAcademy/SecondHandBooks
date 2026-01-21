@@ -149,7 +149,7 @@ public class BookClubController {
         }
 
         try {
-            bookClubService.createBookClubs(vo);
+            bookClubService.createBookClub(vo);
             return Map.of("status", "ok");
         } catch (IllegalStateException e) {
             return Map.of(
