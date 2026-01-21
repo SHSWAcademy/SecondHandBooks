@@ -42,23 +42,16 @@
                         </div>`;
                 } else {
                     data.forEach(item => {
-                        // 중요: VO 필드명(스네이크 케이스)에 맞춰 수정
-                        // TradeVO 구조상 trade_img는 List<TradeImageVO>로 반환될 수 있음.
-                        // Mapper에서 서브쿼리로 가져온 값은 VO에 매핑하기 어려우므로,
-                        // VO에 private String thumbImgUrl; 필드를 추가하는 것을 강력 추천함.
-                        // 현재 상태에선 trade_img 배열의 첫번째 요소나, 매퍼에서 매핑된 필드를 찾아야 함.
-
-                        // 임시 방편: 썸네일 URL을 가져오기 위해 console.log로 데이터 구조 확인 필요
-                        // 우선 기본 이미지 로직 적용
-                        let rawImg = item.thumbImgUrl;
-
+                        // [수정 1] VO의 book_img 값 가져오기 (스네이크 케이스)
+                        let rawImg = item.book_img;
                         let img = 'https://via.placeholder.com/300x400/f3f4f6/9ca3af?text=No+Image';
 
+                        // [수정 2] 이미지 경로 처리 (URL이면 그대로, 파일명이면 /upload/ 추가)
                         if (rawImg) {
                             if (rawImg.startsWith('http') || rawImg.startsWith('/')) {
                                 img = rawImg;
                             } else {
-                                img = '/upload' + rawImg;
+                                img = '/upload/' + rawImg;
                             }
                         }
 
@@ -74,14 +67,17 @@
 
                         html += `
                             <div class="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer relative"
-                                 onclick="location.href='/trade/\${item.trade_seq}'"> <div class="aspect-[3/4] bg-gray-100 relative overflow-hidden">
-                                    <img src="\${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                 onclick="location.href='/trade/\${item.trade_seq}'">
+
+                                <div class="aspect-[3/4] bg-gray-100 relative overflow-hidden">
+                                    <img src="\${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/300x400/f3f4f6/9ca3af?text=Image+Error'">
                                     \${statusBadge}
                                 </div>
 
                                 <div class="p-4">
                                     <h4 class="font-bold text-gray-900 text-sm mb-1 truncate group-hover:text-primary-600 transition-colors">
-                                        \${item.sale_title} </h4>
+                                        \${item.sale_title}
+                                    </h4>
                                     <div class="flex justify-between items-end">
                                         <p class="font-black text-gray-900 text-base">\${Number(item.sale_price).toLocaleString()}원</p>
                                         <span class="text-[10px] text-gray-400 mb-0.5">\${item.sale_rg || '지역미정'}</span>

@@ -192,16 +192,14 @@
     <!-- 마이페이지 조회용 -->
     <select id="selectWishTrades" parameterType="long" resultType="project.trade.TradeVO">
         SELECT
-            T.TRADE_SEQ,          T.SALE_TITLE,         T.SALE_PRICE,
+            T.TRADE_SEQ,
+            T.SALE_TITLE,
+            T.SALE_PRICE,
             T.SALE_ST,
             T.BOOK_ST,
-            T.SALE_RG,            (
-                SELECT IMG_URL
-                FROM BOOK_IMAGE   WHERE TRADE_SEQ = T.TRADE_SEQ
-                ORDER BY SORT_SEQ ASC
-                LIMIT 1
-            ) AS trade_img        FROM SB_TRADE_INFO T
-            JOIN TRADE_WISH W ON T.TRADE_SEQ = W.TRADE_SEQ
+            T.SALE_RG,
+            T.BOOK_IMG      FROM SB_TRADE_INFO T
+                                     JOIN TRADE_WISH W ON T.TRADE_SEQ = W.TRADE_SEQ
         WHERE W.MEMBER_SEQ = #{member_seq}
         ORDER BY W.CRT_DTM DESC
     </select>
