@@ -19,4 +19,5 @@ public class MemberVO {
     private MemberStatus member_st;
     private LocalDateTime crt_dtm;
     private LocalDateTime upd_dtm;
+
 }

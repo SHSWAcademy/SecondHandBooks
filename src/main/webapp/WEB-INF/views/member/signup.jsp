@@ -378,6 +378,26 @@ function checkNicknm() {
             }
         }
     })
+    // // Simulate async check
+    // btn.textContent = '확인 중...';
+    // btn.disabled = true;
+    //
+    // setTimeout(() => {
+    //     if (member_nicknm === '배꼽시계') {
+    //         msg.textContent = '이미 사용 중인 닉네임입니다.';
+    //         msg.className = 'text-xs mt-1 text-red-500';
+    //         nickNmChecked = false;
+    //         btn.textContent = '중복확인';
+    //         btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+    //     } else {
+    //         msg.textContent = '사용 가능한 닉네임입니다.';
+    //         msg.className = 'text-xs mt-1 text-green-600';
+    //         nickNmChecked = true;
+    //         btn.textContent = '✓';
+    //         btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
+    //     }
+    //     btn.disabled = false;
+    // }, 800);
 }
 
 function validateForm() {

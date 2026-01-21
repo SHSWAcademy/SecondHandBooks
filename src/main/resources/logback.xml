@@ -14,9 +14,13 @@
     <!-- MyBatis 로그 -->
     <logger name="project.trade" level="INFO"/>
 
+    <!-- BookClub 로그 (디버깅용) -->
+    <logger name="project.bookclub" level="DEBUG"/>
+
     <!-- Spring 로그 -->
-    <logger name="org.springframework" level="WARN"/>
-    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework" level="DEBUG"/>
+    <logger name="org.springframework.web" level="DEBUG"/>
+    <logger name="project" level="DEBUG"/>
 
     <!-- HikariCP 로그 끄기 -->
     <logger name="com.zaxxer.hikari" level="WARN"/>
