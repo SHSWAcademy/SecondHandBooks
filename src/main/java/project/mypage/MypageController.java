@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import project.address.AddressService;
-import project.bookclub.BookClubService; // [추가] 서비스 임포트
 import project.bookclub.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeService;
@@ -14,7 +13,6 @@ import project.trade.TradeVO;
 import project.util.Const;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
