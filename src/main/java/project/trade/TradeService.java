@@ -120,7 +120,7 @@ public class TradeService {
     }
 
     @Transactional
-    public void updateStatus(Long trade_seq, String sold) {
-        tradeMapper.updateStatus(trade_seq, sold);
+    public void updateStatus(Long trade_seq, String sold, Long member_buyer_seq) {
+        tradeMapper.updateStatus(trade_seq, sold, member_buyer_seq);
     }
 }
