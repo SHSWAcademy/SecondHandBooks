@@ -87,7 +87,20 @@
              const html = await response.text();
 
              // 탭 내용 업데이트
-             document.getElementById('tab-content').innerHTML = html;
+             const tabContent = document.getElementById('tab-content');
+             tabContent.innerHTML = html;
+
+             const scripts = tabContent.querySelectorAll('script');
+             scripts.forEach(script => {
+                 const newScript = document.createElement('script');
+                 if (script.src) {
+                     newScript.src = script.src;
+                 } else {
+                     newScript.textContent = script.textContent;
+                 }
+                 document.body.appendChild(newScript);
+                 document.body.removeChild(newScript);
+              });
 
              // 스타일 업데이트
              updateActiveTab(tabName);
