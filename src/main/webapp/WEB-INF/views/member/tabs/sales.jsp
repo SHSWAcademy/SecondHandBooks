@@ -13,18 +13,17 @@
             <option value="SHIPPING" ${selectedStatus == 'RESERVE' ? 'selected' : ''}>예약중</option>
             <option value="COMPLETED" ${selectedStatus == 'SOLD' ? 'selected' : ''}>판매완료</option>
         </select>
-    </div>
-
+</div>
     <!-- 데이터가 없을 때 -->
-    <c:if test="${empty saleList}">
+    <c:if test="${empty salesList}">
         <div class="text-center py-12 bg-white border border-gray-200 border-dashed rounded-lg">
-            <i data-lucide="store" class="w-16 h-16 text-gray-300 mx-auto mb-3"></i>
-            <p class="text-gray-500 text-sm">판매 내역이 없습니다.</p>
+            <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-300 mx-auto mb-3"></i>
+            <p class="text-gray-500 text-sm">구매 내역이 없습니다.</p>
         </div>
     </c:if>
 
     <!-- 데이터가 있을 때 -->
-    <c:forEach var="trade" items="${saleList}">
+    <c:forEach var="trade" items="${salesList}">
         <div class="bg-white p-5 rounded-lg border border-gray-200 flex gap-4 items-center">
             <div class="w-16 h-20 bg-gray-100 rounded border border-gray-100 flex items-center justify-center text-gray-400">
                 <c:choose>
@@ -46,27 +45,9 @@
             </div>
 
             <div class="flex-1">
-                <div class="flex justify-between mb-1">
-                    <span class="text-xs font-bold text-gray-500">
-                        <c:choose>
-                            <c:when test="${not empty trade.sale_st_dtm}">
-                                <fmt:formatDate value="${trade.sale_st_dtm}" pattern="yyyy.MM.dd" />
-                            </c:when>
-                            <c:otherwise>
-                                <fmt:formatDate value="${trade.crt_dtm}" pattern="yyyy.MM.dd"/>
-                            </c:otherwise>
-                        </c:choose>
-                    </span>
+              <span class="text-xs font-bold text-gray-500 mb-1 block" data-date="${trade.sale_st_dtm}">
+              </span>
 
-                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-primary-50 text-primary-600">
-                        <c:choose>
-                            <c:when test="${trade.sale_st == 'SALE'}">판매중</c:when>
-                            <c:when test="${trade.sale_st == 'RESERVE'}">예약중</c:when>
-                            <c:when test="${trade.sale_st == 'SOLD'}">판매완료</c:when>
-                            <c:otherwise>${trade.sale_st}</c:otherwise>
-                        </c:choose>
-                    </span>
-                </div>
                 <h3 class="font-bold text-gray-900 mb-1">${trade.sale_title}</h3>
 
                 <p class="text-sm text-gray-700">
@@ -81,9 +62,13 @@
 </div>
 
 <script>
-    document.getElementById('status-filter').addEventListener('change', function() {
-        const status = this.value;
-        window.loadTab('sales', {status: status});
-     });
+// LocalDateTime 포맷팅
+    document.querySelectorAll('[data-date]').forEach(el => {
+        const dateStr = el.getAttribute('data-date');
+        if (dateStr) {
+            const date = dateStr.split('T')[0].replace(/-/g, '.');
+            el.textContent = date;
+        }
+    });
     lucide.createIcons();
 </script>
