@@ -19,4 +19,5 @@ public interface TradeMapper {
     int delete(@Param("trade_seq") Long tradeSeq);
     List<TradeVO> selectCategory(); // 카테고리 조회
 
+    void updateStatus(@Param("trade_seq") Long trade_seq, @Param("sold") String sold);
 }

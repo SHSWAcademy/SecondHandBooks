@@ -119,4 +119,8 @@ public class TradeService {
         return tradeMapper.selectCategory();
     }
 
+    @Transactional
+    public void updateStatus(Long trade_seq, String sold) {
+        tradeMapper.updateStatus(trade_seq, sold);
+    }
 }

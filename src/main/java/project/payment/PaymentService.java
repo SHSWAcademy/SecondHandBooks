@@ -20,4 +20,5 @@ public class PaymentService {
     public List<AddressVO> findAddress(Long member_seller_seq) {
         return addressMapper.selectAddressList(member_seller_seq);
     }
+
 }
