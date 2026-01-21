@@ -2,7 +2,7 @@ package project.admin;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import project.bookclub.BookClubVO;
+import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
 

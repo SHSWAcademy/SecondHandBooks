@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import project.bookclub.BookClubVO;
+import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
 

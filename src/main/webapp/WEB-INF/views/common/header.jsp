@@ -117,7 +117,7 @@
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                   </a>
-                  <a href="/profile"
+                  <a href="/mypage"
                     class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 group ml-1">
                     <div
                       class="w-9 h-9 bg-primary-50 text-primary-600 rounded-full border border-primary-100 flex items-center justify-center font-bold text-sm overflow-hidden group-hover:bg-primary-100 transition">
