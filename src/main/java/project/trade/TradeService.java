@@ -122,4 +122,29 @@ public class TradeService {
     public List<TradeVO> getWishTrades(long member_seq) {
         return tradeMapper.selectWishTrades(member_seq);
     }
+
+    // 구매내역
+    public List<TradeVO> getPurchaseTrades(long member_seq) {
+        List<TradeVO> trades = tradeMapper.selectPurchaseTrades(member_seq);
+
+        for (TradeVO trade : trades) {
+            List<TradeImageVO> images = tradeMapper.findImgUrl(trade.getTrade_seq());
+            trade.setTrade_img(images);
+        }
+
+        return trades;
+    }
+
+    // 판매내역
+    public List<TradeVO> getSaleTrades(long member_seq, String status) {
+        List<TradeVO> trades =  tradeMapper.selectSaleTrades(member_seq, status);
+
+        // 각 거래에 이미지 리스트 채우기
+        for (TradeVO trade : trades) {
+            List<TradeImageVO> images = tradeMapper.findImgUrl(trade.getTrade_seq());
+            trade.setTrade_img(images);
+        }
+
+        return trades;
+    }
 }

@@ -5,18 +5,7 @@
 <div class="space-y-4">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-gray-900">구매 내역</h2>
-
-        <!-- ⭐ href만 수정 -->
-        <select id="status-filter"
-                class="text-sm border border-gray-300 rounded px-3 py-2 outline-none focus:border-primary-500">
-            <option value="all" ${selectedStatus == 'all' ? 'selected' : ''}>전체</option>
-            <option value="PENDING" ${selectedStatus == 'PENDING' ? 'selected' : ''}>결제대기</option>
-            <option value="SHIPPING" ${selectedStatus == 'SHIPPING' ? 'selected' : ''}>배송중</option>
-            <option value="COMPLETED" ${selectedStatus == 'COMPLETED' ? 'selected' : ''}>구매확정</option>
-            <option value="CANCELLED" ${selectedStatus == 'CANCELLED' ? 'selected' : ''}>취소/환불</option>
-        </select>
-    </div>
-
+</div>
     <!-- 데이터가 없을 때 -->
     <c:if test="${empty purchaseList}">
         <div class="text-center py-12 bg-white border border-gray-200 border-dashed rounded-lg">
@@ -30,10 +19,17 @@
         <div class="bg-white p-5 rounded-lg border border-gray-200 flex gap-4 items-center">
             <div class="w-16 h-20 bg-gray-100 rounded border border-gray-100 flex items-center justify-center text-gray-400">
                 <c:choose>
-                    <c:when test="${not empty trade.product_img_url}">
-                        <img src="${trade.product_img_url}" alt="${trade.product_title}"
+                    <%-- 업로드한 이미지 우선 --%>
+                    <c:when test="${not empty trade.trade_img and not empty trade.trade_img[0].img_url}">
+                        <img src="${trade.trade_img[0].img_url}" alt="${trade.sale_title}"
                              class="w-full h-full object-cover rounded" />
                     </c:when>
+                    <%-- 없으면 책 표지 이미지 --%>
+                    <c:when test="${not empty trade.book_img}">
+                        <img src="${trade.book_img}" alt="${trade.sale_title}"
+                             class="w-full h-full object-cover rounded" />
+                    </c:when>
+                    <%-- 둘 다 없으면 아이콘 --%>
                     <c:otherwise>
                         <i data-lucide="book" class="w-6 h-6"></i>
                     </c:otherwise>
@@ -41,17 +37,13 @@
             </div>
 
             <div class="flex-1">
-                <div class="flex justify-between mb-1">
-                    <span class="text-xs font-bold text-gray-500">
-                        <fmt:formatDate value="${trade.trade_dtm}" pattern="yyyy.MM.dd" />
-                    </span>
-                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-primary-50 text-primary-600">
-                        ${trade.trade_status}
-                    </span>
-                </div>
-                <h3 class="font-bold text-gray-900 mb-1">${trade.product_title}</h3>
+              <span class="text-xs font-bold text-gray-500 mb-1 block" data-date="${trade.sale_st_dtm}">
+              </span>
+
+                <h3 class="font-bold text-gray-900 mb-1">${trade.sale_title}</h3>
+
                 <p class="text-sm text-gray-700">
-                    <fmt:formatNumber value="${trade.trade_price}" pattern="#,###" />원
+                    <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" />원
                 </p>
             </div>
 
@@ -62,13 +54,13 @@
 </div>
 
 <script>
-    // status 필터 변경 시 AJAX로 탭 다시 로드
-    document.getElementById('status-filter').addEventListener('change', function() {
-        const status = this.value;
-
-        //mypage.jsp에 정의된 전역 함수 호출
-        window.loadTab('purchases', {status: status});
-     });
-    // Lucide 아이콘 다시 초기화
+// LocalDateTime 포맷팅
+    document.querySelectorAll('[data-date]').forEach(el => {
+        const dateStr = el.getAttribute('data-date');
+        if (dateStr) {
+            const date = dateStr.split('T')[0].replace(/-/g, '.');
+            el.textContent = date;
+        }
+    });
     lucide.createIcons();
 </script>

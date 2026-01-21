@@ -50,7 +50,7 @@ public class MypageController {
             return "error/401";
         }
 
-        Long memberSeq = loginSess.getMember_seq();
+        Long member_seq = loginSess.getMember_seq();
         // 탭별 초기 데이터 로드 (SSR이 필요한 경우 여기서 처리)
         // 현재 대부분 AJAX로 처리하므로 비워두거나 기본값만 설정
         switch (tab) {
@@ -59,17 +59,15 @@ public class MypageController {
                 break;
             case "purchases" :
                 log.info("purchases 탭 로드, status={}", status);
-                String purchaseStatus = status != null ? status : "all";
-                List<TradeVO> purchaseList = new ArrayList<>();
+                List<TradeVO> purchaseList = tradeService.getPurchaseTrades(member_seq);
                 model.addAttribute("purchaseList", purchaseList);
-                model.addAttribute("selectedStatus", status != null ? status : "all");
                 break;
             case "sales" :
                 log.info("sales 탭 로드, status={}", status);
                 String salesStatus = status != null ? status : "all";
-                List<TradeVO> salesList = new ArrayList<>();
+                List<TradeVO> salesList = tradeService.getSaleTrades(member_seq, salesStatus);
                 model.addAttribute("salesList", salesList);
-                model.addAttribute("selectedStatus", status != null ? status : "all");
+                model.addAttribute("selectedStatus", salesStatus);
                 break;
             case "wishlist" :
                 break;
