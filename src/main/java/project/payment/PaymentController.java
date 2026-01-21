@@ -65,11 +65,11 @@ public class PaymentController {
 
 
         // 모델에 전달
-        MemberVO member = (MemberVO) session.getAttribute(Const.SESSION);
+        MemberVO buyer = (MemberVO) session.getAttribute(Const.SESSION);
 
         PaymentVO payment = new PaymentVO();
         payment.setTrade_seq(trade_seq);
-        payment.setMember_buyer_seq(member.getMember_seq());
+        payment.setMember_buyer_seq(buyer.getMember_seq());
         payment.setPayment_key(paymentKey);
         //payment.setOrder_id(orderId);
         payment.setAmount(amount);
@@ -79,7 +79,7 @@ public class PaymentController {
         model.addAttribute("payment", payment);
 
         // 판매 완료 처리
-        tradeService.updateStatus(trade_seq, "SOLD");
+        tradeService.updateStatus(trade_seq, "SOLD", buyer.getMember_seq());
 
         model.addAttribute("payment", payment);
         return "payment/success";
