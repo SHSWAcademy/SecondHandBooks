@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import project.address.AddressService;
 import project.bookclub.BookClubService; // [추가] 서비스 임포트
 import project.bookclub.BookClubVO;
 import project.member.MemberVO;
@@ -23,6 +24,7 @@ public class MypageController {
 
     private final TradeService tradeService;
     private final BookClubService bookClubService; // [추가] 모임 서비스 주입
+    private final AddressService addressService;
 
     @GetMapping("/mypage")
     public String mypage(HttpSession sess, Model model) {
