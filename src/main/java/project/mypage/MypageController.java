@@ -85,7 +85,7 @@ public class MypageController {
     // ---------------------------------------------------------
     // AJAX 요청 처리 메서드 (JSP의 $.ajax URL과 매핑)
     // ---------------------------------------------------------
-    // 커밋확인
+    
     // [AJAX] 내 모임 데이터 조회
     @GetMapping("/profile/bookclub/list")
     @ResponseBody
