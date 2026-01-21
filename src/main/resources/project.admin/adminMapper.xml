@@ -5,10 +5,46 @@
 <mapper namespace="project.admin.AdminMapper">
 
     <select id="loginAdmin" resultType="project.admin.AdminVO">
-        SELECT *
-        FROM ADMIN
-        WHERE ADMIN_LOGIN_ID = #{id}
-          AND ADMIN_PASSWORD = #{pwd}
+        SELECT * FROM ADMIN WHERE ADMIN_LOGIN_ID = #{id} AND ADMIN_PASSWORD = #{pwd}
+    </select>
+
+    <select id="countAllMembers" resultType="int">
+        SELECT COUNT(*) FROM MEMBER_INFO WHERE MEMBER_DELETED_DTM IS NULL
+    </select>
+    <select id="countAllTrades" resultType="int">
+        SELECT COUNT(*) FROM SB_TRADE_INFO WHERE DEL_DTM IS NULL
+    </select>
+    <select id="countAllBookClubs" resultType="int">
+        SELECT COUNT(*) FROM BOOK_CLUB WHERE BOOK_CLUB_DELETED_DT IS NULL
+    </select>
+
+    <select id="selectRecentMembers" resultType="project.member.MemberVO">
+        SELECT * FROM MEMBER_INFO
+        WHERE MEMBER_DELETED_DTM IS NULL
+        ORDER BY CRT_DTM DESC
+            LIMIT 10
+    </select>
+
+    <select id="selectRecentTrades" resultType="project.trade.TradeVO">
+        SELECT trade_seq, sale_title, sale_price, sale_rg, sale_st, book_title, crt_dtm
+        FROM SB_TRADE_INFO
+        WHERE DEL_DTM IS NULL
+        ORDER BY CRT_DTM DESC
+            LIMIT 10
+    </select>
+
+    <select id="selectRecentBookClubs" resultType="project.bookclub.BookClubVO">
+        SELECT
+            BOOK_CLUB_SEQ AS bookClubSeq,
+            BOOK_CLUB_NAME AS name,
+            BOOK_CLUB_RG AS region,
+            BOOK_CLUB_MAX_MEMBER AS maxMember,
+            BOOK_CLUB_SCHEDULE AS schedule,
+            CRT_DTM AS createdAt
+        FROM BOOK_CLUB
+        WHERE BOOK_CLUB_DELETED_DT IS NULL
+        ORDER BY CRT_DTM DESC
+            LIMIT 10
     </select>
 
 </mapper>
