@@ -125,6 +125,7 @@
         book_img,
         sale_title,
         sale_price,
+        sale_st,
         sale_rg,
         crt_dtm
         FROM sb_trade_info
@@ -142,6 +143,7 @@
             book_img,
             sale_title,
             sale_price,
+            sale_st,
             sale_rg,
             crt_dtm
         FROM sb_trade_info
