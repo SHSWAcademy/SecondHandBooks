@@ -130,7 +130,7 @@
 
     <!-- 상품영역 jsp로 별도 분리 비동기 처리를 위함 -->
     <div id="tradeList" class="mt-10">
-        <jsp:include page="/WEB-INF/views/trade/tradeList.jsp" />
+        <jsp:include page="/WEB-INF/views/trade/tradelist.jsp" />
     </div>
 </div>
 
@@ -173,7 +173,7 @@ function loadTrade() {
             'X-Requested-With': 'XMLHttpRequest'
         },
         success: function (html) {
-            $('#tradeList').html(html);
+            $('#tradelist').html(html);
             openDropdown = null;
         },
         error: function (xhr, status, error) {
