@@ -5,11 +5,36 @@
 <mapper namespace="project.bookclub.BookClubMapper">
 
     <select id="selectMyBookClubs" parameterType="long" resultType="project.bookclub.BookClubVO">
-        SELECT BC.*
+        SELECT
+            BC.BOOK_CLUB_SEQ        AS bookClubSeq,
+            BC.BOOK_CLUB_NAME       AS name,
+            BC.BOOK_CLUB_DESC       AS description,
+            BC.BOOK_CLUB_RG         AS region,
+            BC.BOOK_CLUB_MAX_MEMBER AS maxMember,
+            BC.BANNER_IMG_URL       AS bannerImgUrl,
+            BC.BOOK_CLUB_SCHEDULE   AS schedule,
+            BC.CRT_DTM              AS createdAt
         FROM BOOK_CLUB BC
                  JOIN BOOK_CLUB_MEMBER BCM ON BC.BOOK_CLUB_SEQ = BCM.BOOK_CLUB_SEQ
         WHERE BCM.MEMBER_SEQ = #{member_seq}
-          AND BCM.JOIN_ST = 'JOINED'  ORDER BY BC.CRT_DTM DESC
+          AND BCM.JOIN_ST = 'JOINED'
+        ORDER BY BC.CRT_DTM DESC
+    </select>
+
+    <select id="selectWishBookClubs" parameterType="long" resultType="project.bookclub.BookClubVO">
+        SELECT
+            BC.BOOK_CLUB_SEQ        AS bookClubSeq,
+            BC.BOOK_CLUB_NAME       AS name,
+            BC.BOOK_CLUB_DESC       AS description,
+            BC.BOOK_CLUB_RG         AS region,
+            BC.BOOK_CLUB_MAX_MEMBER AS maxMember,
+            BC.BANNER_IMG_URL       AS bannerImgUrl,
+            BC.BOOK_CLUB_SCHEDULE   AS schedule,
+            W.CRT_DTM               AS createdAt
+        FROM BOOK_CLUB BC
+                 JOIN BOOK_CLUB_WISH W ON BC.BOOK_CLUB_SEQ = W.BOOK_CLUB_SEQ
+        WHERE W.MEMBER_SEQ = #{member_seq}
+        ORDER BY W.CRT_DTM DESC
     </select>
 
 </mapper>

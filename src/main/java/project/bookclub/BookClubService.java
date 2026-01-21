@@ -17,4 +17,7 @@ public class BookClubService {
     public List<BookClubVO> getMyBookClubs(long member_seq) {
         return bookClubMapper.selectMyBookClubs(member_seq);
     }
+    public List<BookClubVO> getWishBookClubs(long member_seq) {
+        return bookClubMapper.selectWishBookClubs(member_seq);
+    }
 }
