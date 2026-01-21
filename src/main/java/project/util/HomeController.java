@@ -51,7 +51,7 @@ public class HomeController {
 
 		// AJAX 요청이면 fragment만 반환
 		if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-			return "trade/tradeList";
+			return "trade/tradelist";
 		}
 		return "common/home";
 	}

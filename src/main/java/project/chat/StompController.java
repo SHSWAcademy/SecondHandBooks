@@ -25,36 +25,26 @@ public class StompController {
     private final ChatroomService chatroomService;
 
     @MessageMapping("/chat/{chat_room_seq}")
-    public void sendMessage(@DestinationVariable Long chat_room_seq, @Payload MessageVO message
-                            , SimpMessageHeaderAccessor headerAccessor) {
-        // @Payload : JSON 메시지의 본문(body)을 객체로 변환해서 받는다
-        // 프론트에서 chat_room_seq, chat_cont, sender_seq, trade_seq 를 파싱해서 받아 message 객체에 넣는다
+    public void sendMessage(@DestinationVariable Long chat_room_seq, @Payload MessageVO message,
+                            SimpMessageHeaderAccessor headerAccessor) {
 
-        // 세션에서 로그인 회원 정보 가져오기
-        Map<String, Object> sessionAttrs = headerAccessor.getSessionAttributes();
-        MemberVO sessionMember = (MemberVO) sessionAttrs.get(Const.SESSION);
-
+        // 로그인 및 채팅방 참여자 검증
+        MemberVO sessionMember = validateSessionAndMembership(chat_room_seq, headerAccessor);
         if (sessionMember == null) {
-            log.warn("비로그인 사용자 메시지 전송 시도");
-            return;
+            return; // 검증 실패 시 바로 종료
         }
 
-        // 해당 채팅방의 참여자인지 검증
-        if (!chatroomService.isMemberOfChatroom(chat_room_seq, sessionMember.getMember_seq())) {
-            log.warn("권한 없는 채팅방 접근 시도: member_seq={}, chat_room_seq={}", sessionMember.getMember_seq(), chat_room_seq);
-            return;
-        }
-
-        // sender_seq를 세션에서 가져온 값으로 설정 (프론트 값 신뢰하지 않는다)
+        // sender_seq를 세션에서 가져온 값으로 설정
         message.setSender_seq(sessionMember.getMember_seq());
+        message.setChat_room_seq(chat_room_seq);
 
+        log.info("메시지 수신: chat_room_seq={}, sender={}, content={}",
+                chat_room_seq, message.getSender_seq(), message.getChat_cont());
 
-        log.info("메시지 수신: chat_room_seq={}, sender={}, content={}", chat_room_seq, message.getSender_seq(), message.getChat_cont());
+        // DB에 메시지 저장
+        messageService.saveMessage(message);
 
-        message.setChat_room_seq(chat_room_seq); // 채팅방 id 설정
-        messageService.saveMessage(message); // DB에 메시지 저장
-
-        // 해당 채팅방 구독자들에게 실시간 전송, 클라이언트는 /chatroom/{roomId} 를 구독
+        // 해당 채팅방 구독자에게 메시지 전송
         messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, message);
     }
     /*
@@ -67,4 +57,22 @@ public class StompController {
 
       4. 클라이언트 구독: /chatroom/{chat_room_seq}
      */
+
+    private MemberVO validateSessionAndMembership(Long chatRoomSeq, SimpMessageHeaderAccessor headerAccessor) {
+        Map<String, Object> sessionAttrs = headerAccessor.getSessionAttributes();
+        MemberVO sessionMember = (MemberVO) sessionAttrs.get(Const.SESSION);
+
+        if (sessionMember == null) {
+            log.warn("비로그인 사용자 메시지 전송 시도");
+            return null;
+        }
+
+        if (!chatroomService.isMemberOfChatroom(chatRoomSeq, sessionMember.getMember_seq())) {
+            log.warn("권한 없는 채팅방 접근 시도: member_seq={}, chat_room_seq={}",
+                    sessionMember.getMember_seq(), chatRoomSeq);
+            return null;
+        }
+
+        return sessionMember;
+    }
 }

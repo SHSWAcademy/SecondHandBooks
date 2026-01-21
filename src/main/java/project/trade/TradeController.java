@@ -36,7 +36,7 @@ public class TradeController {
         log.info("findTrade: {}", trade);
 
         model.addAttribute("trade", trade);
-        return "trade/tradeDetail";
+        return "trade/tradedetail";
     }
 
     // 판매글 등록
@@ -49,7 +49,7 @@ public class TradeController {
         }
         // 카테고리 데이터 add
         model.addAttribute("category", tradeService.selectCategory());
-        return "trade/tradeForm";
+        return "trade/tradeform";
     }
 
     // 판매글 create
@@ -110,7 +110,7 @@ public class TradeController {
         // 카테고리 데이터 add
         model.addAttribute("category", tradeService.selectCategory());
         model.addAttribute("trade", trade);
-        return "trade/tradeUpdate";
+        return "trade/tradeupdate";
     }
 
     // 판매글 update 등록
