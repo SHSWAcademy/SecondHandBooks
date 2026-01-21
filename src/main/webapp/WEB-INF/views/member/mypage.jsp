@@ -19,39 +19,33 @@
             </div>
 
             <nav class="p-2 space-y-1">
-                <a href="/mypage/profile"
+                <a href="/mypage/profile" data-tab="profile"
                    class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
-                          ${currentTab == 'profile' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}">
                     <i data-lucide="user" class="w-4 h-4"></i> 내 프로필
                 </a>
 
-                <a href="/mypage/purchases"
+                <a href="/mypage/purchases" data-tab="purchases"
                    class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
-                          ${currentTab == 'purchases' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i> 구매 내역
                 </a>
 
-                <a href="/mypage/sales"
+                <a href="/mypage/sales" data-tab="sales"
                    class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
-                          ${currentTab == 'sales' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}">
                     <i data-lucide="package" class="w-4 h-4"></i> 판매 내역
                 </a>
 
-                <a href="/mypage/wishlist"
+                <a href="/mypage/wishlist" data-tab="wishlist"
                    class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
-                          ${currentTab == 'wishlist' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}">
                     <i data-lucide="heart" class="w-4 h-4"></i> 찜한 상품
                 </a>
 
-                <a href="/mypage/groups"
+                <a href="/mypage/groups" data-tab="groups"
                    class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
-                          ${currentTab == 'groups' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}">
                     <i data-lucide="users" class="w-4 h-4"></i> 내 모임
                 </a>
 
-                <a href="/mypage/addresses"
+                <a href="/mypage/addresses" data-tab="addresses"
                    class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
-                          ${currentTab == 'addresses' ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}">
                     <i data-lucide="map-pin" class="w-4 h-4"></i> 배송지 관리
                 </a>
             </nav>
@@ -66,42 +60,91 @@
     </div>
 
     <div class="lg:flex-1 min-h-[500px]">
-        <c:choose>
-            <c:when test="${currentTab == 'profile'}">
-                <jsp:include page="tabs/profile.jsp" />
-            </c:when>
-
-            <c:when test="${currentTab == 'purchases'}">
-                <jsp:include page="tabs/purchases.jsp" />
-            </c:when>
-
-            <c:when test="${currentTab == 'sales'}">
-                <jsp:include page="tabs/sales.jsp" />
-            </c:when>
-
-            <c:when test="${currentTab == 'wishlist'}">
-                <jsp:include page="tabs/wishlist.jsp" />
-            </c:when>
-
-            <c:when test="${currentTab == 'groups'}">
-                <jsp:include page="tabs/groups.jsp" />
-            </c:when>
-
-            <c:when test="${currentTab == 'addresses'}">
-                <jsp:include page="tabs/addresses.jsp" />
-            </c:when>
-
-            <c:otherwise>
-                <!-- 기본값 -->
-                <jsp:include page="tabs/profile.jsp" />
-            </c:otherwise>
-        </c:choose>
+        <div id="tab-content">
+            <jsp:include page="tabs/profile.jsp"/>
+        </div>
     </div>
 
 </div>
 
 <script>
-    lucide.createIcons();
+    window.loadTab = async function(tabName, params = {}) {
+        try {
+             // URL 파라미터 생성
+             const queryString = new URLSearchParams(params).toString();
+             const url = '/mypage/tab/' + tabName + (queryString ? '?' + queryString : '');
+
+             // 로딩 표시
+             document.getElementById('tab-content').innerHTML =
+                '<div class="flex items-center justify-center py-20"><div class="text-gray-400">로딩 중..</div></div>';
+             // Fetch 요청
+             const response = await fetch(url);
+
+             if (!response.ok) {
+                throw new Error('Network response was not ok');
+             }
+
+             const html = await response.text();
+
+             // 탭 내용 업데이트
+             document.getElementById('tab-content').innerHTML = html;
+
+             // 스타일 업데이트
+             updateActiveTab(tabName);
+
+             // Lucide 아이콘 재랜더링
+                lucide.createIcons();
+
+             // URL 업데이트
+             const displayUrl = '/mypage/' + tabName + (queryString ? '?' + queryString : '');
+             history.pushState({tab: tabName, params: params}, '', displayUrl);
+
+           } catch (error) {
+                console.error('Tab loading error:', error);
+                document.getElementById('tab-content').innerHTML =
+                    '<div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">' +
+                    '<p class="text-red-600 font-bold mb-2">탭을 불러오는데 실패했습니다</p>' +
+                    '<p class="text-sm text-red-500">새로고침 후 다시 시도해주세요</p>' +
+                    '</div>';
+           }
+        };
+
+        // 활성 탭 스타일 업데이트
+        function updateActiveTab(tabName) {
+            document.querySelectorAll('[data-tab]').forEach(link => {
+                    link.classList.remove('bg-primary-50', 'text-primary-600');
+                    link.classList.add('text-gray-600');
+            });
+
+            const activeLink = document.querySelector('[data-tab="' + tabName + '"]');
+            if (activeLink) {
+                activeLink.classList.remove('text-gray-600');
+                activeLink.classList.add('bg-primary-50', 'text-primary-600');
+            }
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            // 탭 링크 클릭 이벤트
+            document.querySelectorAll('[data-tab]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tabName = link.dataset.tab;
+                    loadTab(tabName);
+                });
+            });
+
+            // 첫 로드시 profile 활성화
+            updateActiveTab('profile');
+            lucide.createIcons();
+        });
+
+        // 브라우저 뒤로가기
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.tab) {
+                loadTab(event.state.tab, event.state.params || {});
+            }
+        });
 </script>
 
 <jsp:include page="../common/footer.jsp" />
