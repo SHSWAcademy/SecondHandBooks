@@ -6,7 +6,7 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-gray-900">판매 내역</h2>
 
-        <select onchange="location.href='/mypage/sales?status=' + this.value"
+        <select id="status-filter"
                 class="text-sm border border-gray-300 rounded px-3 py-2 outline-none focus:border-primary-500">
             <option value="all" ${selectedStatus == 'all' ? 'selected' : ''}>전체</option>
             <option value="SELLING" ${selectedStatus == 'SELLING' ? 'selected' : ''}>판매중</option>
@@ -58,5 +58,10 @@
 </div>
 
 <script>
+    document.getElementById('status-filter').addEventListener('change', function() {
+        const status = this.value;
+
+        window.loadTab('sales', {status: status};
+    });
     lucide.createIcons();
 </script>
