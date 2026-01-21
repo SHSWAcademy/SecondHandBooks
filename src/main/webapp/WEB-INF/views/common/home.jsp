@@ -194,6 +194,11 @@ function selectCategory(seq, name) {
 
     loadTrade();
 }
+// 페이징 처리
+function goPage(page) {
+    tradeFilter.page = page;
+    loadTrade();
+}
 
 // 상품 상태 선택
 function selectBookStatus(book_st, name) {
