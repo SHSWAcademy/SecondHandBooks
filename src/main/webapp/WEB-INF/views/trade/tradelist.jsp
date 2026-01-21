@@ -15,15 +15,23 @@
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         <div class="absolute top-2 left-2 flex gap-1">
                             <c:choose>
-                                <c:when test="${trade.sale_st == 'SOLD'}">
-                                    <div class="bg-gray-800/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">판매완료</div>
+                                <c:when test="${trade.sale_st.name() == 'SOLD'}">
+                                    <div class="bg-gray-800/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">
+                                        판매완료
+                                    </div>
                                 </c:when>
-                                <c:when test="${trade.sale_st == 'RESERVED'}">
-                                    <div class="bg-orange-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">예약중</div>
+
+                                <c:when test="${trade.sale_st.name() == 'RESERVED'}">
+                                    <div class="bg-orange-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">
+                                        예약중
+                                    </div>
                                 </c:when>
-                                <c:otherwise>
-                                    <div class="bg-green-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">판매중</div>
-                                </c:otherwise>
+
+                                <c:when test="${trade.sale_st.name() == 'SALE'}">
+                                    <div class="bg-green-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">
+                                        판매중
+                                    </div>
+                                </c:when>
                             </c:choose>
                             <c:if test="${trade.book_st == 'NEW'}">
                                 <div class="bg-gray-900/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">새책</div>
