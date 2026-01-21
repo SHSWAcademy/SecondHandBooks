@@ -7,7 +7,7 @@
         <h2 class="text-xl font-bold text-gray-900">구매 내역</h2>
 
         <!-- ⭐ href만 수정 -->
-        <select onchange="location.href='/mypage/purchases?status=' + this.value"
+        <select id="status-filter"
                 class="text-sm border border-gray-300 rounded px-3 py-2 outline-none focus:border-primary-500">
             <option value="all" ${selectedStatus == 'all' ? 'selected' : ''}>전체</option>
             <option value="PENDING" ${selectedStatus == 'PENDING' ? 'selected' : ''}>결제대기</option>
@@ -17,7 +17,7 @@
         </select>
     </div>
 
-    <!-- ⭐ 데이터가 없을 때 -->
+    <!-- 데이터가 없을 때 -->
     <c:if test="${empty purchaseList}">
         <div class="text-center py-12 bg-white border border-gray-200 border-dashed rounded-lg">
             <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-300 mx-auto mb-3"></i>
@@ -25,7 +25,7 @@
         </div>
     </c:if>
 
-    <!-- ⭐ 데이터가 있을 때 (기존 디자인) -->
+    <!-- 데이터가 있을 때 -->
     <c:forEach var="trade" items="${purchaseList}">
         <div class="bg-white p-5 rounded-lg border border-gray-200 flex gap-4 items-center">
             <div class="w-16 h-20 bg-gray-100 rounded border border-gray-100 flex items-center justify-center text-gray-400">
@@ -62,6 +62,13 @@
 </div>
 
 <script>
+    // status 필터 변경 시 AJAX로 탭 다시 로드
+    document.getElementById('status-filter').addEventListener('change', function() {
+        const status = this.value;
+
+        //mypage.jsp에 정의된 전역 함수 호출
+        window.loadTab('purchases', {status: status});
+     });
     // Lucide 아이콘 다시 초기화
     lucide.createIcons();
 </script>
