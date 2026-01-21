@@ -150,7 +150,16 @@
           <td class="px-8 py-5 text-sm font-bold text-gray-700 searchable-text">dev_master</td>
           <td class="px-8 py-5 text-sm font-black text-primary-600">22,000원</td>
           <td class="px-8 py-5">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black border bg-green-50 text-green-600 border-green-100">판매중</span>
+            <div class="relative group">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black border bg-green-50 text-green-600 border-green-100 cursor-pointer">
+                                    판매중
+                                </span>
+              <div class="hidden group-hover:block absolute top-full left-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-lg py-1 z-20 w-32 animate-[fadeIn_0.1s_ease-out]">
+                <button class="w-full text-left px-4 py-2 text-xs hover:bg-green-50 text-green-600 font-bold whitespace-nowrap">판매중</button>
+                <button class="w-full text-left px-4 py-2 text-xs hover:bg-orange-50 text-orange-600 font-bold whitespace-nowrap">예약중</button>
+                <button class="w-full text-left px-4 py-2 text-xs hover:bg-gray-50 text-gray-600 font-bold whitespace-nowrap">판매완료</button>
+              </div>
+            </div>
           </td>
           <td class="px-8 py-5 text-right">
             <button onclick="confirm('이 게시글을 삭제하시겠습니까?')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition">

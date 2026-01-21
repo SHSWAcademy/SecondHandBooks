@@ -19,4 +19,5 @@ public interface TradeMapper {
     int delete(@Param("trade_seq") Long tradeSeq);
     List<TradeVO> selectCategory(); // 카테고리 조회
 
+    List<TradeVO> selectWishTrades(long member_seq); // 프로필 찜 목록 조회
 }

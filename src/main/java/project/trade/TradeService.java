@@ -119,4 +119,7 @@ public class TradeService {
         return tradeMapper.selectCategory();
     }
 
+    public List<TradeVO> getWishTrades(long member_seq) {
+        return tradeMapper.selectWishTrades(member_seq);
+    }
 }

@@ -87,4 +87,22 @@ public class MypageController {
         // BookClubService를 통해 데이터 조회
         return bookClubService.getMyBookClubs(user.getMember_seq());
     }
+    // [AJAX] 찜한 상품 목록
+    @GetMapping("/profile/wishlist/trade")
+    @ResponseBody
+    public List<TradeVO> getWishTrades(HttpSession sess) {
+        MemberVO user = (MemberVO) sess.getAttribute(Const.SESSION);
+        if (user == null) return null;
+        return tradeService.getWishTrades(user.getMember_seq());
+    }
+
+    // [AJAX] 찜한 모임 목록
+    @GetMapping("/profile/wishlist/bookclub")
+    @ResponseBody
+    public List<BookClubVO> getWishBookClubs(HttpSession sess) {
+        MemberVO user = (MemberVO) sess.getAttribute(Const.SESSION);
+        if (user == null) return null;
+        return bookClubService.getWishBookClubs(user.getMember_seq());
+    }
+
 }

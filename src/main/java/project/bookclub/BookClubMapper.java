@@ -7,4 +7,5 @@ import java.util.List;
 @Mapper
 public interface BookClubMapper {
     List<BookClubVO> selectMyBookClubs(long member_seq); // 내 모임 조회 추가
+    List<BookClubVO> selectWishBookClubs(long member_seq);
 }
