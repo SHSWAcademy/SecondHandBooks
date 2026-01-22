@@ -96,4 +96,10 @@ public interface BookClubMapper {
 
     // book_club_request 상태 업데이트 (APPROVED 또는 REJECTED)
     void updateRequestStatus(@Param("requestSeq") Long requestSeq, @Param("status") String status);
+
+    // 멤버 강퇴 - 타겟 멤버 상태 조회
+    project.bookclub.dto.BookClubManageMemberDTO selectMemberBySeq(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
+    // 멤버 강퇴 - join_st='KICKED' 업데이트
+    int updateMemberToKicked(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
 }
