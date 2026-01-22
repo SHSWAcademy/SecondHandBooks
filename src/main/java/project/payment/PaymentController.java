@@ -2,11 +2,15 @@ package project.payment;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import project.address.AddressVO;
+import project.chat.chatroom.ChatroomService;
+import project.chat.message.MessageService;
+import project.chat.message.MessageVO;
 import project.member.MemberVO;
 import project.trade.TradeService;
 import project.trade.TradeVO;
@@ -24,6 +28,9 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final TradeService tradeService;
     private final TossApiService tossApiService;
+    private final MessageService messageService;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatroomService chatroomService;
 
     @GetMapping("/payments")
     public String showPayment(HttpSession session, Long trade_seq, Model model) {
@@ -80,6 +87,19 @@ public class PaymentController {
 
         // 판매 완료 처리
         tradeService.updateStatus(trade_seq, "SOLD", buyer.getMember_seq());
+
+        // 채팅방 조회 후 결제 완료 메시지 전송
+        Long chatRoomSeq = chatroomService.findChatRoomSeqByTradeSeq(trade_seq);
+        if (chatRoomSeq != null) {
+            MessageVO completeMsg = new MessageVO();
+            completeMsg.setChat_room_seq(chatRoomSeq);
+            completeMsg.setSender_seq(buyer.getMember_seq());
+            completeMsg.setChat_cont("[SAFE_PAYMENT_COMPLETE]");
+
+            messageService.saveMessage(completeMsg);
+            messagingTemplate.convertAndSend("/chatroom/" + chatRoomSeq,
+                    completeMsg);
+        }
 
         model.addAttribute("payment", payment);
         return "payment/success";

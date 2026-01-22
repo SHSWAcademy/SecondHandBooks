@@ -17,5 +17,7 @@ public interface ChatroomMapper {
     public boolean isMemberOfChatroom(@Param("chat_room_seq") long chat_room_seq,
                                       @Param("member_seq") long member_seq);
 
+    Long findChatRoomSeqByTradeSeq(@Param("trade_seq") Long trade_seq);
+
     // public List<MessageVO> findAllByChatRoomSeq(long chat_room_seq); -> message mapper 에서 처리
 }
