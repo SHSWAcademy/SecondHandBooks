@@ -18,7 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import project.admin.AdminService;
+import project.bookclub.vo.BookClubVO;
+import project.bookclub.service.BookClubService;
+import project.util.Const;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +35,8 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MailService mailService;
+    private final AdminService adminService;
+    private final BookClubService bookClubService;
     // ----------------------------------
     // 카카오 로그인
     // ----------------------------------
@@ -70,7 +77,8 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public String login(MemberVO vo, Model model, HttpSession sess) {
+    public String login(MemberVO vo, Model model,
+                        HttpSession sess, HttpServletRequest request) {
         MemberVO memberVO = memberService.login(vo);
         if (memberVO == null) {
             model.addAttribute("msg", "아이디 또는 비밀번호가 올바르지 않습니다.");
@@ -80,6 +88,10 @@ public class MemberController {
             System.out.println("로그인 성공");
             sess.setAttribute("loginSess", memberVO);
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+
+            // admin 로그 기록
+            String loginIp = getClientIP(request);
+            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
             if (logUpdate) {
                 System.out.println("로그 찍기 성공");
             } else {
@@ -99,7 +111,14 @@ public class MemberController {
 //        return "redirect:/";
 //    }
     @GetMapping("/logout")
-    public String logout(HttpSession sess, Model model) {
+    public String logout(HttpSession sess, Model model, HttpServletRequest request) {
+
+        MemberVO memberVO = (MemberVO) sess.getAttribute(Const.SESSION);
+
+        if (memberVO != null) {
+            String logoutIp = getClientIP(request);
+            adminService.recordMemberLogout(memberVO.getMember_seq(), logoutIp);
+        }
         // 1. 세션 삭제
         sess.invalidate();
 
@@ -132,7 +151,8 @@ public class MemberController {
 
     // --- 카카오 로그인 콜백 ---
     @GetMapping("/auth/kakao/callback")
-    public String kakaoCallBack(@RequestParam String code, HttpSession sess, Model model) {
+    public String kakaoCallBack(@RequestParam String code, HttpSession sess,
+                                Model model, HttpServletRequest request) {
         log.info("Kakao Login Code: {}", code); // 1. 코드 수신 확인
 
         // 1. 엑세스 토큰 받기
@@ -166,6 +186,10 @@ public class MemberController {
             }
             sess.setAttribute("loginSess", memberVO);
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+
+            // admin 로그 기록
+            String loginIp = getClientIP(request);
+            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
             if (logUpdate) {
                 System.out.println("로그 찍기 성공");
             } else {
@@ -259,7 +283,7 @@ public class MemberController {
             @RequestParam(required = false) String state,
             @RequestParam(required = false) String error,
             @RequestParam(required = false) String error_description,
-            HttpSession sess, Model model) {
+            HttpSession sess, Model model, HttpServletRequest request) {
 
         // 1. 사용자가 로그인을 취소한 경우 처리
         if ("access_denied".equals(error)) {
@@ -300,6 +324,10 @@ public class MemberController {
             }
             sess.setAttribute("loginSess", memberVO);
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+
+            // admin 로그 기록
+            String loginIp = getClientIP(request);
+            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
             if (logUpdate) {
                 System.out.println("로그 찍기 성공");
             } else {
@@ -410,7 +438,7 @@ public class MemberController {
             sess.setAttribute("loginSess", loginUser); // 세션 갱신
 
             model.addAttribute("msg", "회원 정보가 수정되었습니다.");
-            model.addAttribute("url", "/profile");
+            model.addAttribute("url", "/mypage");
             model.addAttribute("cmd", "move");
         } else {
             model.addAttribute("msg", "정보 수집에 실패했습니다.");
@@ -443,4 +471,32 @@ public class MemberController {
         return "common/return";
     }
 
+    // Address 보여주기
+    @GetMapping("/profile/tab/addresses")
+    public String tabAddresses() {
+        return "member/tabs/addresses";
+    }
+
+    // IP 추출 메서드
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        if (ip != null && ip.indexOf(",") > 0) {
+            ip = ip.substring(0, ip.indexOf(","));
+        }
+        return ip;
+    }
 }

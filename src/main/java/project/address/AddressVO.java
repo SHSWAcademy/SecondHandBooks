@@ -1,9 +1,9 @@
-package project.member;
+package project.address;
 
 import lombok.Data;
 
 @Data
-public class AddressInfoVO {
+public class AddressVO {
     private long addr_seq;
     private long member_seq;
     private String post_no;
