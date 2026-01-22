@@ -142,6 +142,27 @@
                        class="block px-4 py-2.5 text-sm hover:bg-gray-50">사용됨</a>
                 </div>
             </div>
+
+            <div class="relative">
+                <button onclick="toggleDropdown('saleStatus')" id="saleStatusBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-200 bg-white text-gray-600 hover:bg-gray-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="saleStatusText">판매중</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+
+                <div id="saleStatusDropdown"
+                     class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-30 py-1">
+
+                    <a href="javascript:selectSaleStatus('SALE', '판매중')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">판매중</a>
+
+                    <a href="javascript:selectSaleStatus('SOLD', '판매완료')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">판매완료</a>
+
+                    <a href="javascript:selectSaleStatus(null, '판매중 & 완료')"
+                       class="block px-4 py-2.5 text-sm hover:bg-gray-50">판매중 & 완료</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -149,6 +170,12 @@
     <div id="tradelist" class="mt-10">
         <jsp:include page="/WEB-INF/views/trade/tradelist.jsp" />
     </div>
+    <script>
+        // 페이지 로딩 시 AJAX 호출
+        $(document).ready(function() {
+            loadTrade();  // tradeFilter.sale_st = 'SALE' 기본값 적용됨
+        });
+    </script>
 </div>
 
 <script>
@@ -161,6 +188,7 @@ const tradeFilter = {
     categorySeq: null,   // 카테고리
     book_st: null,        // 상품상태
     search_word: null,       // 검색어
+    sale_st: 'SALE', // 판매상태 (기본값: 판매중)
     page: 1              // 페이지
 };
 
@@ -183,6 +211,10 @@ function loadTrade() {
     if (tradeFilter.search_word !== null && tradeFilter.search_word.trim() !== '') {
         data.search_word = tradeFilter.search_word;
     }
+
+
+    data.sale_st = tradeFilter.sale_st;
+
 
     if (tradeFilter.sort) {
         data.sort = tradeFilter.sort; // 정렬 정보 포함
@@ -273,6 +305,18 @@ function selectBookStatus(book_st, name) {
 
     document.getElementById('conditionText').innerText = name;
     document.getElementById('conditionDropdown').classList.add('hidden');
+    openDropdown = null;
+
+    loadTrade();
+}
+
+// 판매 상태 선택
+function selectSaleStatus(sale_st, name) {
+    tradeFilter.sale_st = sale_st;
+    tradeFilter.page = 1;
+
+    document.getElementById('saleStatusText').innerText = name;
+    document.getElementById('saleStatusDropdown').classList.add('hidden');
     openDropdown = null;
 
     loadTrade();
