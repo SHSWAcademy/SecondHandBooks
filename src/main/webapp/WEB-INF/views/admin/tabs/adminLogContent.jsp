@@ -23,9 +23,7 @@
             <td class="px-6 py-4">
               <p class="text-sm font-bold text-gray-900">${log.admin_login_id}</p>
             </td>
-            <td class="px-6 py-4 text-xs text-gray-600">${log.activity}</td>
             <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.login_ip}</td>
-            <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.activity_dtm}</td>
           </tr>
         </c:forEach>
       </c:when>
