@@ -332,9 +332,7 @@
                     <c:when test="${not empty messages}">
                         <c:forEach var="msg" items="${messages}">
                             <div class="${msg.sender_seq == sessionScope.loginSess.member_seq ? 'msg-right' : 'msg-left'}">
-                                <div class="content">
-                                    <c:out value="${msg.chat_cont}" />
-                                </div>
+                                <div class="content">${msg.chat_cont}</div>
                                 <div class="msg-time">
                                     <%
                                         Object obj = pageContext.findAttribute("msg");
@@ -504,6 +502,12 @@ showMessage = function(msg) {
     // 구매 요청 수락 메시지인 경우
     if (chatCont === '[SAFE_PAYMENT_ACCEPT]') {
         showSafePaymentAccept(msg);
+        return;
+    }
+
+    // 결제 완료 메시지인 경우
+    if (chatCont === '[SAFE_PAYMENT_COMPLETE]') {
+        showSafePaymentComplete(msg);
         return;
     }
 
@@ -702,6 +706,76 @@ function goToPayment(msgId) {
     } else {
         alert('거래 정보를 찾을 수 없습니다.');
     }
+}
+
+// 결제 완료 UI 표시
+function showSafePaymentComplete(msg) {
+    const log = document.getElementById("chatContainer");
+    const emptyNotice = document.getElementById("emptyNotice");
+    if (emptyNotice) emptyNotice.remove();
+
+    const msgWrapper = document.createElement('div');
+    const isMyMessage = Number(msg.sender_seq) === loginMemberSeq;
+    msgWrapper.className = isMyMessage ? 'msg-right' : 'msg-left';
+
+    const card = document.createElement('div');
+    card.className = 'safe-payment-card';
+
+    // 상품 정보 가져오기
+    const trade = currentTradeInfo;
+    const bookStatusText = getBookStatusText(trade.book_st);
+    const totalPrice = trade.sale_price + trade.delivery_cost;
+    const bookImg = trade.book_img || '/resources/img/no-image.png';
+
+    if (isMyMessage) {
+        // 구매자 본인이 보낸 경우 - 결제 완료 표시
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>' +
+                    '<polyline points="22 4 12 14.01 9 11.01"></polyline>' +
+                '</svg>' +
+                '<span class="card-title" style="color: #22c55e;">결제 완료</span>' +
+            '</div>' +
+            '<div class="product-info">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<div class="product-detail">' +
+                    '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
+                    '<div class="product-status">' + bookStatusText + '</div>' +
+                    '<div class="product-price">' + numberFormat(trade.sale_price) + '원</div>' +
+                    '<div class="product-delivery">배송비 ' + numberFormat(trade.delivery_cost) + '원</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 12px 0; color: #22c55e; font-size: 13px; font-weight: 600;">' +
+                '결제가 완료되었습니다!' +
+            '</div>';
+    } else {
+        // 판매자가 받은 경우 - 구매자가 결제 완료했다는 알림
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>' +
+                    '<polyline points="22 4 12 14.01 9 11.01"></polyline>' +
+                '</svg>' +
+                '<span class="card-title" style="color: #22c55e;">결제 완료</span>' +
+            '</div>' +
+            '<div class="product-info">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<div class="product-detail">' +
+                    '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
+                    '<div class="product-status">' + bookStatusText + '</div>' +
+                    '<div class="product-price">' + numberFormat(trade.sale_price) + '원</div>' +
+                    '<div class="product-delivery">배송비 ' + numberFormat(trade.delivery_cost) + '원</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 12px 0; color: #22c55e; font-size: 13px; font-weight: 600;">' +
+                '구매자가 결제를 완료했습니다!' +
+            '</div>';
+    }
+
+    msgWrapper.appendChild(card);
+    log.appendChild(msgWrapper);
+    log.scrollTop = log.scrollHeight;
 }
 
 // 안전 결제 요청 만료
