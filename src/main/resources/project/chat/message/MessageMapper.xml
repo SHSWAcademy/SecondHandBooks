@@ -37,5 +37,12 @@
         WHERE chat_room_seq = #{chat_room_seq}
         ORDER BY sent_dtm ASC
     </select>
+    <select id="isUnreadMessage" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM chat_msg
+        WHERE read_yn = 'N'
+        )
+    </select>
 
 </mapper>

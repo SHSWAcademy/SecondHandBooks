@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import project.chat.message.MessageService;
 import project.trade.ENUM.SaleStatus;
 import project.trade.TradeService;
 import project.trade.TradeVO;
@@ -26,6 +27,7 @@ public class HomeController {
 	 * Simply selects the home view to render by returning its name.
 	 */
 	private final TradeService tradeService;
+	private final MessageService messageService;
 
 	/*
 	@GetMapping({"/", "/home"})
@@ -44,16 +46,6 @@ public class HomeController {
 					   HttpServletResponse response) {
 		int size = 14;  // 한 페이지에 14개
 
-		/* sale_status 기본값 설정 => DB 에서 판매글 생성 시 기본값으로 SALE 로 들어간다
-		if (searchVO.getSale_st() == null) { searchVO.setSale_st(SaleStatus.SALE);
-		}
-
-
-		if (searchVO.getSale_st() == null) {
-			searchVO.setSale_st(SaleStatus.SALE);
-		}
-		*/
-
 
 		log.info("tradeVO 판매중, 완료, 전체 :" + searchVO.getSale_st());
 		List<TradeVO> trades = tradeService.searchAllWithPaging(page, size, searchVO);
@@ -67,7 +59,8 @@ public class HomeController {
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("category", category);
-		// model.addAttribute("bookState", bookState);
+
+
 
 		// AJAX 요청이면 fragment만 반환
 		if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
