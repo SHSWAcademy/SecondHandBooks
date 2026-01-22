@@ -360,4 +360,133 @@ public class BookClubService {
         }
         return bookClubMapper.selectPendingRequestsForManage(bookClubSeq);
     }
+
+    // #5-3. 관리 페이지 - 가입 신청 승인
+    /**
+     * 독서모임 가입 신청 승인
+     *
+     * 검증 및 처리 순서:
+     * 1. 파라미터 null 체크
+     * 2. request 조회 및 WAIT 상태 검증
+     * 3. 정원 초과 방지 (JOINED 멤버 수 < max_member)
+     * 4. 중복 승인 방지 (book_club_member에 이미 존재하는지 확인)
+     * 5. book_club_member INSERT (join_st='JOINED', leader_yn=false)
+     * 6. book_club_request UPDATE (request_st='APPROVED', request_processed_dt=오늘)
+     *
+     * @param bookClubSeq 독서모임 ID
+     * @param requestSeq  가입 신청 ID
+     * @param leaderSeq   모임장 ID (권한 체크는 Controller에서 이미 완료)
+     * @throws IllegalArgumentException 파라미터가 null인 경우
+     * @throws IllegalStateException    비즈니스 규칙 위반 시
+     */
+    @Transactional
+    public void approveJoinRequest(Long bookClubSeq, Long requestSeq, Long leaderSeq) {
+        // 1. 파라미터 검증
+        if (bookClubSeq == null || requestSeq == null || leaderSeq == null) {
+            log.warn("승인 처리 실패: 잘못된 파라미터 - bookClubSeq={}, requestSeq={}, leaderSeq={}",
+                    bookClubSeq, requestSeq, leaderSeq);
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        // 2. request 조회 및 WAIT 상태 검증
+        project.bookclub.dto.BookClubJoinRequestDTO request = bookClubMapper.selectRequestById(requestSeq);
+        if (request == null) {
+            log.warn("승인 처리 실패: 존재하지 않는 신청 - requestSeq={}", requestSeq);
+            throw new IllegalStateException("존재하지 않는 가입 신청입니다.");
+        }
+
+        if (!"WAIT".equals(request.getRequestSt())) {
+            log.warn("승인 처리 실패: WAIT 상태가 아님 - requestSeq={}, requestSt={}",
+                    requestSeq, request.getRequestSt());
+            throw new IllegalStateException("이미 처리된 신청입니다.");
+        }
+
+        // bookClubSeq 일치 확인 (URL 파라미터 vs DB)
+        if (!bookClubSeq.equals(request.getBookClubSeq())) {
+            log.warn("승인 처리 실패: bookClubSeq 불일치 - URL={}, DB={}",
+                    bookClubSeq, request.getBookClubSeq());
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        // 3. 정원 초과 방지
+        BookClubVO bookClub = bookClubMapper.selectById(bookClubSeq);
+        if (bookClub == null) {
+            log.warn("승인 처리 실패: 존재하지 않는 모임 - bookClubSeq={}", bookClubSeq);
+            throw new IllegalStateException("존재하지 않는 모임입니다.");
+        }
+
+        int currentMemberCount = bookClubMapper.getTotalJoinedMemberCount(bookClubSeq);
+        int maxMember = bookClub.getBook_club_max_member();
+
+        if (currentMemberCount >= maxMember) {
+            log.warn("승인 처리 실패: 정원 초과 - bookClubSeq={}, currentCount={}, maxMember={}",
+                    bookClubSeq, currentMemberCount, maxMember);
+            throw new IllegalStateException("모임 정원이 초과되었습니다.");
+        }
+
+        // 4. 중복 승인 방지 (book_club_member에 이미 존재하는지 확인)
+        int existingMemberCount = bookClubMapper.selectMemberCount(bookClubSeq, request.getRequestMemberSeq());
+        if (existingMemberCount > 0) {
+            log.warn("승인 처리 실패: 이미 멤버로 등록됨 - bookClubSeq={}, memberSeq={}",
+                    bookClubSeq, request.getRequestMemberSeq());
+            throw new IllegalStateException("이미 가입된 멤버입니다.");
+        }
+
+        // 5. book_club_member INSERT
+        bookClubMapper.insertMember(bookClubSeq, request.getRequestMemberSeq());
+        log.info("멤버 등록 완료: bookClubSeq={}, memberSeq={}", bookClubSeq, request.getRequestMemberSeq());
+
+        // 6. book_club_request UPDATE
+        bookClubMapper.updateRequestStatus(requestSeq, "APPROVED");
+        log.info("가입 신청 승인 완료: requestSeq={}", requestSeq);
+    }
+
+    // #5-4. 관리 페이지 - 가입 신청 거절
+    /**
+     * 독서모임 가입 신청 거절
+     *
+     * 검증 및 처리 순서:
+     * 1. 파라미터 null 체크
+     * 2. request 조회 및 WAIT 상태 검증
+     * 3. book_club_request UPDATE (request_st='REJECTED', request_processed_dt=오늘)
+     *
+     * @param bookClubSeq 독서모임 ID
+     * @param requestSeq  가입 신청 ID
+     * @param leaderSeq   모임장 ID (권한 체크는 Controller에서 이미 완료)
+     * @throws IllegalArgumentException 파라미터가 null인 경우
+     * @throws IllegalStateException    비즈니스 규칙 위반 시
+     */
+    @Transactional
+    public void rejectJoinRequest(Long bookClubSeq, Long requestSeq, Long leaderSeq) {
+        // 1. 파라미터 검증
+        if (bookClubSeq == null || requestSeq == null || leaderSeq == null) {
+            log.warn("거절 처리 실패: 잘못된 파라미터 - bookClubSeq={}, requestSeq={}, leaderSeq={}",
+                    bookClubSeq, requestSeq, leaderSeq);
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        // 2. request 조회 및 WAIT 상태 검증
+        project.bookclub.dto.BookClubJoinRequestDTO request = bookClubMapper.selectRequestById(requestSeq);
+        if (request == null) {
+            log.warn("거절 처리 실패: 존재하지 않는 신청 - requestSeq={}", requestSeq);
+            throw new IllegalStateException("존재하지 않는 가입 신청입니다.");
+        }
+
+        if (!"WAIT".equals(request.getRequestSt())) {
+            log.warn("거절 처리 실패: WAIT 상태가 아님 - requestSeq={}, requestSt={}",
+                    requestSeq, request.getRequestSt());
+            throw new IllegalStateException("이미 처리된 신청입니다.");
+        }
+
+        // bookClubSeq 일치 확인 (URL 파라미터 vs DB)
+        if (!bookClubSeq.equals(request.getBookClubSeq())) {
+            log.warn("거절 처리 실패: bookClubSeq 불일치 - URL={}, DB={}",
+                    bookClubSeq, request.getBookClubSeq());
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        // 3. book_club_request UPDATE
+        bookClubMapper.updateRequestStatus(requestSeq, "REJECTED");
+        log.info("가입 신청 거절 완료: requestSeq={}", requestSeq);
+    }
 }

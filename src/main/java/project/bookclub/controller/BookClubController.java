@@ -11,7 +11,13 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -207,7 +213,7 @@ public class BookClubController {
 
     /**
      * 권한 검증 공통 메서드
-     * 
+     *
      * @return 권한 있으면 null, 없으면 forbidden view 이름
      */
     private String checkBoardAccessPermission(Long bookClubId, HttpSession session, Model model) {
@@ -393,7 +399,7 @@ public class BookClubController {
 
     /**
      * 독서모임 관리 페이지 (모임장 전용)
-     * GET /bookclubs/{bookClubId}/edit
+     * GET /bookclubs/{bookClubId}/manage
      * - 모임 정보 조회
      * - JOINED 멤버 목록 조회
      * - WAIT 상태 가입 신청 목록 조회
@@ -403,7 +409,7 @@ public class BookClubController {
      * - 로그인했지만 모임장 아님: /bookclubs/{bookClubId}로 redirect + flash errorMessage
      * - 모임 없음: /bookclubs로 redirect + flash errorMessage
      */
-    @GetMapping("/{bookClubId}/edit")
+    @GetMapping("/{bookClubId}/manage")
     public String getBookClubManagePage(
             @PathVariable("bookClubId") Long bookClubId,
             HttpSession session,
@@ -459,6 +465,156 @@ public class BookClubController {
     }
 
     /**
+     * 독서모임 관리 페이지 (레거시 URL 호환)
+     * GET /bookclubs/{bookClubId}/edit -> redirect to /manage
+     * - 기존 /edit URL 호환성 유지
+     * - /manage로 redirect만 수행 (중복 로직 방지)
+     */
+    @GetMapping("/{bookClubId}/edit")
+    public String redirectToManage(@PathVariable("bookClubId") Long bookClubId) {
+        return "redirect:/bookclubs/" + bookClubId + "/manage";
+    }
+
+    /**
+     * 독서모임 가입 신청 승인 (모임장 전용)
+     * POST /bookclubs/{bookClubId}/manage/requests/{requestSeq}/approve
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. 모임장 권한 확인
+     * 4. Service 레이어에서 비즈니스 로직 처리:
+     *    - request WAIT 상태 검증
+     *    - 정원 초과 방지
+     *    - 중복 승인 방지
+     *    - book_club_member INSERT
+     *    - book_club_request UPDATE
+     *
+     * @return JSON {success, message, memberCount, pendingCount}
+     */
+    @PostMapping("/{bookClubId}/manage/requests/{requestSeq}/approve")
+    @ResponseBody
+    public Map<String, Object> approveJoinRequest(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("requestSeq") Long requestSeq,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 승인 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 승인 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+        }
+
+        // 3. 모임장 권한 확인
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        if (!isLeader) {
+            log.warn("모임장 아닌 사용자가 승인 시도: bookClubId={}, requestSeq={}, memberSeq={}, leaderSeq={}",
+                    bookClubId, requestSeq, loginMemberSeq, bookClub.getBook_club_leader_seq());
+            return Map.of("success", false, "message", "모임장만 승인할 수 있습니다.");
+        }
+
+        // 4. Service 호출 (비즈니스 로직 위임)
+        try {
+            bookClubService.approveJoinRequest(bookClubId, requestSeq, loginMemberSeq);
+
+            // 5. 성공 시 현재 인원수와 대기 중인 신청 수 조회
+            int memberCount = bookClubService.getTotalJoinedMemberCount(bookClubId);
+            int pendingCount = bookClubService.getPendingRequestsForManage(bookClubId).size();
+
+            log.info("가입 신청 승인 완료: bookClubId={}, requestSeq={}, memberCount={}, pendingCount={}",
+                    bookClubId, requestSeq, memberCount, pendingCount);
+
+            return Map.of(
+                    "success", true,
+                    "message", "가입 신청을 승인했습니다.",
+                    "memberCount", memberCount,
+                    "pendingCount", pendingCount);
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("가입 신청 승인 실패: bookClubId={}, requestSeq={}, error={}",
+                    bookClubId, requestSeq, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
+     * 독서모임 가입 신청 거절 (모임장 전용)
+     * POST /bookclubs/{bookClubId}/manage/requests/{requestSeq}/reject
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. 모임장 권한 확인
+     * 4. Service 레이어에서 비즈니스 로직 처리:
+     *    - request WAIT 상태 검증
+     *    - book_club_request UPDATE (request_st='REJECTED')
+     *
+     * @return JSON {success, message, pendingCount}
+     */
+    @PostMapping("/{bookClubId}/manage/requests/{requestSeq}/reject")
+    @ResponseBody
+    public Map<String, Object> rejectJoinRequest(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("requestSeq") Long requestSeq,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 거절 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 거절 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+        }
+
+        // 3. 모임장 권한 확인
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        if (!isLeader) {
+            log.warn("모임장 아닌 사용자가 거절 시도: bookClubId={}, requestSeq={}, memberSeq={}, leaderSeq={}",
+                    bookClubId, requestSeq, loginMemberSeq, bookClub.getBook_club_leader_seq());
+            return Map.of("success", false, "message", "모임장만 거절할 수 있습니다.");
+        }
+
+        // 4. Service 호출 (비즈니스 로직 위임)
+        try {
+            bookClubService.rejectJoinRequest(bookClubId, requestSeq, loginMemberSeq);
+
+            // 5. 성공 시 대기 중인 신청 수 조회
+            int pendingCount = bookClubService.getPendingRequestsForManage(bookClubId).size();
+
+            log.info("가입 신청 거절 완료: bookClubId={}, requestSeq={}, pendingCount={}",
+                    bookClubId, requestSeq, pendingCount);
+
+            return Map.of(
+                    "success", true,
+                    "message", "가입 신청을 거절했습니다.",
+                    "pendingCount", pendingCount);
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("가입 신청 거절 실패: bookClubId={}, requestSeq={}, error={}",
+                    bookClubId, requestSeq, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
      * 파일 저장 (설정된 uploadPath에 저장)
      */
     private String saveFile(MultipartFile file) throws IOException {
@@ -483,5 +639,119 @@ public class BookClubController {
 
         log.info("File saved to: {}", destFile.getAbsolutePath());
         return savedFileName;
+    }
+
+    /**
+     * 게시글 작성 폼 페이지
+     * GET /bookclubs/{bookClubId}/posts
+     * - 로그인 필수
+     * - 모임장 또는 JOINED 멤버만 접근 가능
+     */
+    @GetMapping("/{bookClubId}/posts")
+    public String createPostForm(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session,
+            Model model) {
+
+        // 권한 검증
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        if (permissionCheckResult != null) {
+            return permissionCheckResult;
+        }
+
+        // 모임 정보 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        model.addAttribute("bookClub", bookClub);
+        model.addAttribute("bookClubId", bookClubId);
+
+        return "bookclub/bookclub_posts";
+    }
+
+    /**
+     * 게시글 작성 처리 (PRG 패턴)
+     * POST /bookclubs/{bookClubId}/posts
+     * - 로그인 필수
+     * - 모임장 또는 JOINED 멤버만 작성 가능
+     * - 제목, 내용 필수 / 이미지, 책 선택은 선택사항
+     */
+    @PostMapping("/{bookClubId}/posts")
+    public String createPost(
+            @PathVariable("bookClubId") Long bookClubId,
+            @RequestParam("boardTitle") String boardTitle,
+            @RequestParam("boardCont") String boardCont,
+            @RequestParam(value = "boardImage", required = false) MultipartFile boardImage,
+            @RequestParam(value = "isbn", required = false) String isbn,
+            @RequestParam(value = "bookTitle", required = false) String bookTitle,
+            @RequestParam(value = "bookAuthor", required = false) String bookAuthor,
+            @RequestParam(value = "bookImgUrl", required = false) String bookImgUrl,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return "redirect:/login";
+        }
+
+        Long memberSeq = loginMember.getMember_seq();
+
+        // 2. 권한 체크 (모임장 OR JOINED 멤버)
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
+
+        if (!isLeader && !isMember) {
+            redirectAttributes.addFlashAttribute("errorMessage", "게시글을 작성할 권한이 없습니다.");
+            return "redirect:/bookclubs/" + bookClubId;
+        }
+
+        // 3. 필수 입력값 검증
+        if (boardTitle == null || boardTitle.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "제목을 입력해주세요.");
+            return "redirect:/bookclubs/" + bookClubId + "/posts";
+        }
+
+        if (boardCont == null || boardCont.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "내용을 입력해주세요.");
+            return "redirect:/bookclubs/" + bookClubId + "/posts";
+        }
+
+        // 4. 이미지 파일 처리
+        String savedImageUrl = null;
+        if (boardImage != null && !boardImage.isEmpty()) {
+            try {
+                String savedFileName = saveFile(boardImage);
+                savedImageUrl = "/img/" + savedFileName;
+                log.info("Board image saved: {}", savedFileName);
+            } catch (IOException e) {
+                log.error("Failed to save board image", e);
+                redirectAttributes.addFlashAttribute("errorMessage", "이미지 업로드에 실패했습니다.");
+                return "redirect:/bookclubs/" + bookClubId + "/posts";
+            }
+        }
+
+        // 5. VO 생성 및 INSERT
+        BookClubBoardVO boardVO = new BookClubBoardVO();
+        boardVO.setBook_club_seq(bookClubId);
+        boardVO.setMember_seq(memberSeq);
+        boardVO.setBoard_title(boardTitle);
+        boardVO.setBoard_cont(boardCont);
+        boardVO.setBoard_img_url(savedImageUrl);
+        // 책 정보 (선택사항)
+        boardVO.setIsbn(isbn);
+        boardVO.setBook_title(bookTitle);
+        boardVO.setBook_author(bookAuthor);
+        boardVO.setBook_img_url(bookImgUrl);
+
+        Long newPostId = bookClubService.createBoardPost(boardVO);
+
+        // 6. 성공 시 게시글 상세 페이지로 리다이렉트
+        redirectAttributes.addFlashAttribute("successMessage", "게시글이 등록되었습니다.");
+        return "redirect:/bookclubs/" + bookClubId + "/posts/" + newPostId;
     }
 }

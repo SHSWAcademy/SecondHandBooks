@@ -46,7 +46,7 @@ public interface BookClubMapper {
 
     // 모임장을 book_club_member에 자동 등록 (모임 생성 시 사용)
     void insertLeaderMember(@Param("bookClubSeq") Long bookClubSeq,
-            @Param("memberSeq") Long memberSeq);
+                            @Param("memberSeq") Long memberSeq);
 
     // 찜 관련
     // 독서모임의 찜 개수 조회
@@ -73,26 +73,6 @@ public interface BookClubMapper {
                            @Param("memberSeq") Long memberSeq,
                            @Param("commentCont") String commentCont);
 
-    // 댓글 UPDATE
-    int updateBoardComment(@Param("commentId") Long commentId,
-                           @Param("commentCont") String commentCont);
-
-    // 댓글 DELETE (soft delete)
-    int deleteBoardComment(@Param("commentId") Long commentId);
-
-    // 댓글 단건 조회 (권한 확인용)
-    project.bookclub.vo.BookClubBoardVO selectBoardCommentById(@Param("commentId") Long commentId);
-
-    // 게시글(원글) INSERT
-    void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
-
-    // 게시글 수정
-    int updateBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
-
-    // 게시글 삭제 (soft delete)
-    int deleteBoardPost(@Param("bookClubSeq") Long bookClubSeq,
-                        @Param("postId") Long postId);
-
     List<BookClubVO> selectMyBookClubs(long member_seq); // 내 모임 조회 추가
     List<BookClubVO> selectWishBookClubs(long member_seq);
 
@@ -101,4 +81,19 @@ public interface BookClubMapper {
 
     // 관리 페이지 - WAIT 상태 가입 신청 목록 조회 (member_info 조인)
     List<project.bookclub.dto.BookClubJoinRequestDTO> selectPendingRequestsForManage(@Param("bookClubSeq") Long bookClubSeq);
+    // 게시글(원글) INSERT
+    void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
+
+    // 관리 페이지 - 가입 신청 승인/거절
+    // request 단건 조회 (ID로 조회)
+    project.bookclub.dto.BookClubJoinRequestDTO selectRequestById(@Param("requestSeq") Long requestSeq);
+
+    // book_club_member 중복 체크 (book_club_seq, member_seq 조합)
+    int selectMemberCount(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
+    // book_club_member INSERT (승인 시 사용, leader_yn=false)
+    void insertMember(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
+    // book_club_request 상태 업데이트 (APPROVED 또는 REJECTED)
+    void updateRequestStatus(@Param("requestSeq") Long requestSeq, @Param("status") String status);
 }
