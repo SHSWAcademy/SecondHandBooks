@@ -137,21 +137,132 @@ const BookClubManage = (() => {
     }
 
     /**
-     * 버튼 이벤트 초기화 (UI만 구현, fetch 로직은 추후)
+     * CSRF 토큰 가져오기 (meta 태그에서 추출)
+     */
+    function getCsrfToken() {
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+        return { token, header };
+    }
+
+    /**
+     * 알림 배너 표시
+     */
+    function showAlert(message, type = 'error') {
+        const alertBanner = document.getElementById('alertBanner');
+        if (!alertBanner) return;
+
+        alertBanner.textContent = message;
+        alertBanner.className = `alert-banner alert-${type}`;
+        alertBanner.style.display = 'block';
+
+        // 3초 후 자동 숨김
+        setTimeout(() => {
+            alertBanner.style.display = 'none';
+        }, 3000);
+    }
+
+    /**
+     * 승인/거절 후 request-card DOM 제거
+     */
+    function removeRequestCard(requestSeq) {
+        const card = document.querySelector(`.request-card[data-request-seq="${requestSeq}"]`);
+        if (card) {
+            card.remove();
+        }
+
+        // 목록이 비었으면 empty-state 표시
+        const requestList = document.getElementById('requestList');
+        const remainingCards = requestList?.querySelectorAll('.request-card');
+        if (remainingCards && remainingCards.length === 0) {
+            requestList.innerHTML = `
+                <div class="empty-state">
+                    <p>대기 중인 가입 신청이 없습니다.</p>
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * 카운트 업데이트 (상단 요약 + 탭 배지)
+     */
+    function updateCounts(memberCount, pendingCount) {
+        // 현재 인원 업데이트
+        if (memberCount !== undefined) {
+            const memberCountEl = document.getElementById('currentMemberCount');
+            if (memberCountEl) {
+                memberCountEl.textContent = memberCount;
+            }
+        }
+
+        // 대기 중인 신청 수 업데이트
+        if (pendingCount !== undefined) {
+            const pendingCountEl = document.getElementById('pendingRequestCount');
+            if (pendingCountEl) {
+                pendingCountEl.textContent = pendingCount;
+            }
+
+            // 탭 배지 업데이트
+            const tabBadge = document.querySelector('#tabBtnRequests .badge-count');
+            if (tabBadge) {
+                if (pendingCount > 0) {
+                    tabBadge.textContent = pendingCount;
+                    tabBadge.style.display = 'inline-block';
+                } else {
+                    tabBadge.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    /**
+     * 버튼 이벤트 초기화 (실제 fetch 로직 구현)
      */
     function initButtons() {
         // 승인 버튼
         const approveBtns = document.querySelectorAll('.btn-approve');
         approveBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const requestSeq = btn.dataset.requestSeq;
                 const clubSeq = btn.dataset.clubSeq;
 
-                // TODO: 추후 fetch로 서버 승인 요청 구현
-                console.log('승인 요청:', { requestSeq, clubSeq });
+                if (!confirm('이 신청을 승인하시겠습니까?')) {
+                    return;
+                }
 
-                // 임시 알림 (추후 실제 로직으로 교체)
-                alert('승인 기능은 추후 구현 예정입니다.');
+                // 버튼 비활성화 (중복 클릭 방지)
+                btn.disabled = true;
+                btn.textContent = '처리 중...';
+
+                try {
+                    const csrf = getCsrfToken();
+                    const response = await fetch(`/bookclubs/${clubSeq}/manage/requests/${requestSeq}/approve`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [csrf.header]: csrf.token
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert(result.message, 'success');
+                        removeRequestCard(requestSeq);
+                        updateCounts(result.memberCount, result.pendingCount);
+                    } else {
+                        showAlert(result.message, 'error');
+                        // 실패 시 버튼 원래대로
+                        btn.disabled = false;
+                        btn.textContent = '승인';
+                    }
+                } catch (error) {
+                    console.error('승인 요청 실패:', error);
+                    showAlert('승인 처리 중 오류가 발생했습니다.', 'error');
+                    // 에러 시 버튼 원래대로
+                    btn.disabled = false;
+                    btn.textContent = '승인';
+                }
             });
         });
 
@@ -175,19 +286,50 @@ const BookClubManage = (() => {
 
         // 거절 폼 제출
         const rejectForm = document.getElementById('rejectForm');
-        rejectForm?.addEventListener('submit', (e) => {
+        rejectForm?.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const requestSeq = document.getElementById('rejectRequestSeq').value;
             const clubSeq = document.getElementById('rejectClubSeq').value;
             const reason = document.getElementById('rejectReason').value;
 
-            // TODO: 추후 fetch로 서버 거절 요청 구현
-            console.log('거절 요청:', { requestSeq, clubSeq, reason });
+            // 제출 버튼 비활성화 (중복 제출 방지)
+            const submitBtn = rejectForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '처리 중...';
+            }
 
-            // 임시 알림 (추후 실제 로직으로 교체)
-            alert('거절 기능은 추후 구현 예정입니다.');
-            closeModal();
+            try {
+                const csrf = getCsrfToken();
+                const response = await fetch(`/bookclubs/${clubSeq}/manage/requests/${requestSeq}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrf.header]: csrf.token
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    removeRequestCard(requestSeq);
+                    updateCounts(undefined, result.pendingCount);
+                    closeModal();
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('거절 요청 실패:', error);
+                showAlert('거절 처리 중 오류가 발생했습니다.', 'error');
+            } finally {
+                // 버튼 원래대로
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '거절하기';
+                }
+            }
         });
 
         // 멤버 퇴장 버튼

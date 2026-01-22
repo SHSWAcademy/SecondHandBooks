@@ -2,6 +2,7 @@ package project.bookclub.dto;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -16,8 +17,9 @@ public class BookClubJoinRequestDTO {
     private Long bookClubSeq;            // book_club_seq
     private Long requestMemberSeq;       // request_member_seq
     private String requestCont;          // request_cont
-    private String requestSt;            // request_st (WAIT만 조회)
+    private String requestSt;            // request_st (WAIT/APPROVED/REJECTED)
     private LocalDateTime requestDtm;    // request_dtm
+    private LocalDate requestProcessedDt; // request_processed_dt (승인/거절 처리 날짜)
 
     // member_info 테이블 조인
     private String nickname;             // member_nicknm
