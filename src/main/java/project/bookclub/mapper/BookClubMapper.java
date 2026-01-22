@@ -68,4 +68,7 @@ public interface BookClubMapper {
             @Param("postId") Long postId,
             @Param("memberSeq") Long memberSeq,
             @Param("commentCont") String commentCont);
+
+    // 게시글(원글) INSERT
+    void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
 }
