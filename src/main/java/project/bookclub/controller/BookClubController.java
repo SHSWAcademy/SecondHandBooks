@@ -399,7 +399,7 @@ public class BookClubController {
 
     /**
      * 독서모임 관리 페이지 (모임장 전용)
-     * GET /bookclubs/{bookClubId}/edit
+     * GET /bookclubs/{bookClubId}/manage
      * - 모임 정보 조회
      * - JOINED 멤버 목록 조회
      * - WAIT 상태 가입 신청 목록 조회
@@ -409,7 +409,7 @@ public class BookClubController {
      * - 로그인했지만 모임장 아님: /bookclubs/{bookClubId}로 redirect + flash errorMessage
      * - 모임 없음: /bookclubs로 redirect + flash errorMessage
      */
-    @GetMapping("/{bookClubId}/edit")
+    @GetMapping("/{bookClubId}/manage")
     public String getBookClubManagePage(
             @PathVariable("bookClubId") Long bookClubId,
             HttpSession session,
@@ -462,6 +462,17 @@ public class BookClubController {
                 bookClubId, members.size(), pendingRequests.size());
 
         return "bookclub/bookclub_manage";
+    }
+
+    /**
+     * 독서모임 관리 페이지 (레거시 URL 호환)
+     * GET /bookclubs/{bookClubId}/edit -> redirect to /manage
+     * - 기존 /edit URL 호환성 유지
+     * - /manage로 redirect만 수행 (중복 로직 방지)
+     */
+    @GetMapping("/{bookClubId}/edit")
+    public String redirectToManage(@PathVariable("bookClubId") Long bookClubId) {
+        return "redirect:/bookclubs/" + bookClubId + "/manage";
     }
 
     /**
