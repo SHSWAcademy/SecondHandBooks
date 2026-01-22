@@ -18,33 +18,86 @@
         SELECT COUNT(*) FROM BOOK_CLUB WHERE BOOK_CLUB_DELETED_DT IS NULL
     </select>
 
-    <select id="selectRecentMembers" resultType="project.member.MemberVO">
+    <select id="searchMembers" resultType="project.member.MemberVO">
         SELECT * FROM MEMBER_INFO
         WHERE MEMBER_DELETED_DTM IS NULL
+        <if test="status != null and status != '' and status != 'ALL'">
+            AND MEMBER_ST = #{status}::member_st_enum
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%') OR MEMBER_EMAIL LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
         ORDER BY CRT_DTM DESC
-        LIMIT 10
+        LIMIT 50
     </select>
 
-    <select id="selectRecentTrades" resultType="project.trade.TradeVO">
+    <select id="searchTrades" resultType="project.trade.TradeVO">
         SELECT trade_seq, sale_title, sale_price, sale_rg, sale_st, book_title, crt_dtm
         FROM SB_TRADE_INFO
         WHERE DEL_DTM IS NULL
+        <if test="status != null and status != '' and status != 'ALL'">
+            AND SALE_ST = #{status}::sale_st_enum
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
         ORDER BY CRT_DTM DESC
-        LIMIT 10
+        LIMIT 50
     </select>
 
-    <select id="selectRecentBookClubs" resultType="project.bookclub.vo.BookClubVO">
-        SELECT
-        BOOK_CLUB_SEQ,
-        BOOK_CLUB_NAME,
-        BOOK_CLUB_RG,
-        BOOK_CLUB_MAX_MEMBER,
-        BOOK_CLUB_SCHEDULE,
-        CRT_DTM
+    <select id="searchBookClubs" resultType="project.bookclub.vo.BookClubVO">
+        SELECT BOOK_CLUB_SEQ, BOOK_CLUB_NAME, BOOK_CLUB_RG, BOOK_CLUB_MAX_MEMBER, BOOK_CLUB_SCHEDULE, CRT_DTM
         FROM BOOK_CLUB
         WHERE BOOK_CLUB_DELETED_DT IS NULL
+        <if test="keyword != null and keyword != ''">
+            AND BOOK_CLUB_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
         ORDER BY CRT_DTM DESC
-        LIMIT 10
+        LIMIT 50
+    </select>
+
+    <update id="updateMemberStatus">
+        UPDATE MEMBER_INFO SET MEMBER_ST = #{status}::member_st_enum WHERE MEMBER_SEQ = #{seq}
+    </update>
+    <update id="deleteMember">
+        UPDATE MEMBER_INFO SET MEMBER_DELETED_DTM = NOW() WHERE MEMBER_SEQ = #{seq}
+    </update>
+
+    <update id="updateTradeStatus">
+        UPDATE SB_TRADE_INFO SET SALE_ST = #{status}::sale_st_enum WHERE TRADE_SEQ = #{seq}
+    </update>
+    <update id="deleteTrade">
+        UPDATE SB_TRADE_INFO SET DEL_DTM = NOW() WHERE TRADE_SEQ = #{seq}
+    </update>
+
+    <update id="deleteBookClub">
+        UPDATE BOOK_CLUB SET BOOK_CLUB_DELETED_DT = CURRENT_DATE WHERE BOOK_CLUB_SEQ = #{seq}
+    </update>
+
+    <select id="selectDailySignupStats" resultType="map">
+        SELECT to_char(crt_dtm, 'YYYY-MM-DD') as date, COUNT(*) as count
+        FROM MEMBER_INFO
+        WHERE crt_dtm >= current_date - interval '6 days'
+        GROUP BY to_char(crt_dtm, 'YYYY-MM-DD')
+        ORDER BY date
+    </select>
+
+    <select id="selectDailyTradeStats" resultType="map">
+        SELECT to_char(crt_dtm, 'YYYY-MM-DD') as date, COUNT(*) as count
+        FROM SB_TRADE_INFO
+        WHERE crt_dtm >= current_date - interval '6 days'
+        GROUP BY to_char(crt_dtm, 'YYYY-MM-DD')
+        ORDER BY date
+    </select>
+
+    <select id="selectCategoryStats" resultType="map">
+        SELECT c.category_nm as name, COUNT(t.trade_seq) as count
+        FROM category c
+        JOIN sb_trade_info t ON c.category_seq = t.category_seq
+        WHERE t.del_dtm IS NULL
+        GROUP BY c.category_nm
+        ORDER BY count DESC
+        LIMIT 5
     </select>
 
     <!--회원 로그인 기록 조회 -->
