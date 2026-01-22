@@ -109,12 +109,28 @@
             </div>
 
             <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
-            <form action="/chatrooms" method="post">
-                <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
-                <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
-                 <input type="hidden" name="sale_title" value="${trade.sale_title}">
-                <button type="submit" class="w-full px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-red-600 transition font-bold">채팅하기</button>
-            </form>
+                <form action="/chatrooms" method="post">
+                    <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
+                    <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
+                     <input type="hidden" name="sale_title" value="${trade.sale_title}">
+                    <button type="submit" class="w-full px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-red-600 transition font-bold">채팅하기</button>
+                </form>
+            </c:if>
+
+            <!-- 찜하기 버튼 -->
+            <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
+                <form id="wishForm-${trade.trade_seq}" class="inline-block ml-4">
+                    <input type="hidden" name="trade_seq" value="${trade.trade_seq}" />
+                    <button type="button"
+                            onclick="toggleWish(${trade.trade_seq})"
+                            class="text-2xl transition ${wished ? 'text-red-500 active' : 'text-gray-400'}"
+                            title="찜하기">
+                        ♥
+                    </button>
+                    <span id="wishCount-${trade.trade_seq}" class="ml-1 text-sm text-gray-600">
+                        ${wishCount}
+                    </span>
+                </form>
             </c:if>
 
             <!-- 수정/삭제 버튼 -->
@@ -180,6 +196,58 @@ function update() {
         }
     });
 }
+
+function toggleWish(tradeSeq) {
+    const form = document.getElementById(`wishForm-${tradeSeq}`);
+    if (!form) return;
+
+    const btn = form.querySelector("button");
+    const countSpan = document.getElementById(`wishCount-${tradeSeq}`);
+    if (!btn || !countSpan) return;
+
+    const formData = new FormData(form);
+
+    fetch("/trade/like", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(async res => {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error("서버 응답이 JSON이 아닙니다:\n" + text);
+        }
+    })
+    .then(data => {
+        if (!data.success) {
+            alert(data.message || "찜 처리 실패");
+            return;
+        }
+
+        // 버튼 상태 반영
+        if (data.wished) {
+            btn.classList.add("active", "text-red-500");
+            btn.classList.remove("text-gray-400");
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        } else {
+            btn.classList.remove("active", "text-red-500");
+            btn.classList.add("text-gray-400");
+            countSpan.textContent = parseInt(countSpan.textContent) - 1;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("네트워크 오류 또는 서버 오류 발생");
+    });
+}
+
+
+
+
 </script>
 
 <jsp:include page="../common/footer.jsp" />
