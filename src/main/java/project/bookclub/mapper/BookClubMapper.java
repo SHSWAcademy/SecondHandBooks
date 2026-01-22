@@ -102,4 +102,17 @@ public interface BookClubMapper {
 
     // 멤버 강퇴 - join_st='KICKED' 업데이트
     int updateMemberToKicked(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
+    // 관리 페이지 - 모임 설정 업데이트 (정보 수정)
+    int updateBookClubSettings(@Param("bookClubSeq") Long bookClubSeq,
+                                @Param("name") String name,
+                                @Param("desc") String desc,
+                                @Param("region") String region,
+                                @Param("schedule") String schedule,
+                                @Param("bannerImgUrl") String bannerImgUrl);
+
+    // 모임명 중복 체크 (현재 모임 제외, 동일 리더의 다른 모임 중복 확인)
+    int countByLeaderAndNameExcludingSelf(@Param("leaderSeq") Long leaderSeq,
+                                           @Param("name") String name,
+                                           @Param("bookClubSeq") Long bookClubSeq);
 }

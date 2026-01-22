@@ -651,6 +651,17 @@
     background: #f9fafb;
 }
 
+/* 배너 프리뷰 래퍼 */
+.banner-preview-wrapper {
+    margin-bottom: 16px;
+}
+
+/* 필수 입력 표시 */
+.required {
+    color: #ef4444;
+    margin-left: 4px;
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
     .container {

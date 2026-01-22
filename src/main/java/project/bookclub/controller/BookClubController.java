@@ -683,6 +683,77 @@ public class BookClubController {
     }
 
     /**
+     * 독서모임 설정 업데이트 (모임장 전용)
+     * POST /bookclubs/{bookClubId}/manage/settings
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. 모임장 권한 확인
+     * 4. Service 레이어에서 비즈니스 로직 처리:
+     *    - 필수 입력값 검증 (name, description)
+     *    - 모임명 변경 시 중복 체크
+     *    - book_club UPDATE (정원 제외)
+     *
+     * @param bookClubId 독서모임 ID
+     * @param dto        업데이트할 정보 (name, desc, region, schedule, bannerImgUrl)
+     * @param session    세션 (로그인 확인용)
+     * @return JSON {success, message, updated}
+     *
+     * TODO: 2차 개선 - bannerImgUrl 파일 업로드 구현
+     *       현재는 URL 입력 방식만 지원
+     *       MultipartFile로 받아서 saveFile() 호출 후 banner_img_url 업데이트
+     */
+    @PostMapping("/{bookClubId}/manage/settings")
+    @ResponseBody
+    public Map<String, Object> updateBookClubSettings(
+            @PathVariable("bookClubId") Long bookClubId,
+            @org.springframework.web.bind.annotation.RequestBody project.bookclub.dto.BookClubUpdateSettingsDTO dto,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 설정 업데이트 시도: bookClubId={}", bookClubId);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 설정 업데이트 시도: bookClubId={}", bookClubId);
+            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+        }
+
+        // 3. 모임장 권한 확인
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        if (!isLeader) {
+            log.warn("모임장 아닌 사용자가 설정 업데이트 시도: bookClubId={}, memberSeq={}, leaderSeq={}",
+                    bookClubId, loginMemberSeq, bookClub.getBook_club_leader_seq());
+            return Map.of("success", false, "message", "모임장만 수정할 수 있습니다.");
+        }
+
+        // 4. Service 호출 (비즈니스 로직 위임)
+        try {
+            Map<String, Object> updated = bookClubService.updateBookClubSettings(bookClubId, loginMemberSeq, dto);
+
+            log.info("모임 설정 업데이트 완료: bookClubId={}, newName={}", bookClubId, updated.get("name"));
+
+            return Map.of(
+                    "success", true,
+                    "message", "저장되었습니다.",
+                    "updated", updated
+            );
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("모임 설정 업데이트 실패: bookClubId={}, error={}", bookClubId, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
      * 파일 저장 (설정된 uploadPath에 저장)
      */
     private String saveFile(MultipartFile file) throws IOException {

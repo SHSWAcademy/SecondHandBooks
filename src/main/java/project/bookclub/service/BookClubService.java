@@ -549,4 +549,104 @@ public class BookClubService {
 
         log.info("멤버 강퇴 완료: bookClubSeq={}, targetMemberSeq={}", bookClubSeq, targetMemberSeq);
     }
+
+    // #5-6. 관리 페이지 - 모임 설정 업데이트 (정보 수정)
+    /**
+     * 독서모임 정보 수정
+     *
+     * 검증 및 처리 순서:
+     * 1. 파라미터 null 체크
+     * 2. 모임 존재 확인
+     * 3. 모임장 권한 확인 (leaderSeq == book_club_leader_seq)
+     * 4. 모임명 변경 시 중복 체크 (동일 리더의 다른 모임 중복 확인)
+     * 5. book_club UPDATE (정원 제외)
+     * 6. 업데이트 성공 확인 (rowCount=1)
+     * 7. 최신 book_club 조회 후 필요한 필드 반환
+     *
+     * @param bookClubSeq 독서모임 ID
+     * @param leaderSeq   모임장 ID (권한 체크용)
+     * @param dto         업데이트할 정보 (name, desc, region, schedule, bannerImgUrl)
+     * @return 업데이트된 모임 정보 (Map)
+     * @throws IllegalArgumentException 파라미터가 null이거나 잘못된 경우
+     * @throws IllegalStateException    비즈니스 규칙 위반 시
+     */
+    @Transactional
+    public java.util.Map<String, Object> updateBookClubSettings(
+            Long bookClubSeq,
+            Long leaderSeq,
+            project.bookclub.dto.BookClubUpdateSettingsDTO dto) {
+
+        // 1. 파라미터 검증
+        if (bookClubSeq == null || leaderSeq == null || dto == null) {
+            log.warn("모임 설정 업데이트 실패: 잘못된 파라미터 - bookClubSeq={}, leaderSeq={}, dto={}",
+                    bookClubSeq, leaderSeq, dto);
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        // 필수 입력값 검증
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new IllegalArgumentException("모임 이름을 입력해주세요.");
+        }
+        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
+            throw new IllegalArgumentException("모임 소개를 입력해주세요.");
+        }
+
+        // 2. 모임 존재 확인
+        BookClubVO bookClub = bookClubMapper.selectById(bookClubSeq);
+        if (bookClub == null) {
+            log.warn("모임 설정 업데이트 실패: 존재하지 않는 모임 - bookClubSeq={}", bookClubSeq);
+            throw new IllegalStateException("존재하지 않는 모임입니다.");
+        }
+
+        // 3. 모임장 권한 확인
+        if (!bookClub.getBook_club_leader_seq().equals(leaderSeq)) {
+            log.warn("모임 설정 업데이트 실패: 모임장 아님 - bookClubSeq={}, leaderSeq={}, actualLeaderSeq={}",
+                    bookClubSeq, leaderSeq, bookClub.getBook_club_leader_seq());
+            throw new IllegalStateException("모임장만 수정할 수 있습니다.");
+        }
+
+        // 4. 모임명 변경 시 중복 체크 (현재 모임 제외)
+        String newName = dto.getName().trim();
+        String currentName = bookClub.getBook_club_name();
+
+        if (!newName.equals(currentName)) {
+            // 모임명이 변경된 경우 중복 확인
+            int duplicateCount = bookClubMapper.countByLeaderAndNameExcludingSelf(leaderSeq, newName, bookClubSeq);
+            if (duplicateCount > 0) {
+                log.warn("모임 설정 업데이트 실패: 모임명 중복 - bookClubSeq={}, leaderSeq={}, newName={}",
+                        bookClubSeq, leaderSeq, newName);
+                throw new IllegalStateException("이미 같은 이름의 모임이 존재합니다.");
+            }
+        }
+
+        // 5. book_club UPDATE (정원은 제외)
+        int updatedRows = bookClubMapper.updateBookClubSettings(
+                bookClubSeq,
+                newName,
+                dto.getDescription().trim(),
+                dto.getRegion() != null ? dto.getRegion().trim() : null,
+                dto.getSchedule() != null ? dto.getSchedule().trim() : null,
+                dto.getBannerImgUrl() // URL 입력 방식 (null 가능)
+        );
+
+        // 6. 업데이트 성공 확인
+        if (updatedRows == 0) {
+            log.warn("모임 설정 업데이트 실패: 업데이트 대상 없음 - bookClubSeq={}", bookClubSeq);
+            throw new IllegalStateException("설정 업데이트에 실패했습니다.");
+        }
+
+        // 7. 최신 book_club 조회 후 반환
+        BookClubVO updatedBookClub = bookClubMapper.selectById(bookClubSeq);
+
+        log.info("모임 설정 업데이트 완료: bookClubSeq={}, newName={}", bookClubSeq, newName);
+
+        // 프론트에서 사용할 업데이트된 정보 반환
+        return java.util.Map.of(
+                "name", updatedBookClub.getBook_club_name(),
+                "description", updatedBookClub.getBook_club_desc(),
+                "region", updatedBookClub.getBook_club_rg() != null ? updatedBookClub.getBook_club_rg() : "",
+                "schedule", updatedBookClub.getBook_club_schedule() != null ? updatedBookClub.getBook_club_schedule() : "",
+                "bannerImgUrl", updatedBookClub.getBanner_img_url() != null ? updatedBookClub.getBanner_img_url() : ""
+        );
+    }
 }
