@@ -57,26 +57,43 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 gap-4">
             <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                 전체 상품
-                <c:if test="${not empty trades}">
-                    <span class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">${trades.size()}개</span>
-                </c:if>
+                    <c:if test="${not empty totalCount}">
+                        <span id="tradeTotalCount" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                            ${totalCount}개
+                        </span>
+                    </c:if>
             </h2>
-            <div class="ml-4 flex items-center gap-2">
-                    <input type="text"
-                         id="searchInput"
-                         placeholder="책 제목, 저자, 출판, 게시글 제목등"
-                         class="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"/>
-                   <button onclick="searchTrade()"
-                        class="px-3 py-1.5 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-700 transition">
-                        검색
-                  </button>
-             </div>
+            <div class="hidden md:flex flex-1 max-w-3xl relative">
+                <input type="text"
+                       id="searchInput"
+                       placeholder="찾고 싶은 도서나 저자를 검색해보세요"
+                       class="w-full pl-5 pr-14 py-3 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all text-sm placeholder-gray-400 shadow-sm"
+                />
+                <button type="button"
+                        onclick="searchTrade()"
+                        class="absolute right-2 top-1.5 h-10 w-10 bg-primary-500 rounded-full flex items-center justify-center text-white hover:bg-primary-600 transition-shadow shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </button>
+            </div>
+
             <div class="flex gap-4 text-sm text-gray-500 font-medium">
-                <a href="/?sort=newest" class="transition-colors ${param.sort == 'newest' || empty param.sort ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">최신순</a>
+                <a href="javascript:void(0)"
+                   id="sortNewest"
+                   class="transition-colors hover:text-gray-700"
+                   onclick="setSort('newest')">최신순</a>
                 <span class="text-gray-300">|</span>
-                <a href="/?sort=priceAsc" class="transition-colors ${param.sort == 'priceAsc' ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">낮은가격순</a>
+                <a href="javascript:void(0)"
+                   id="sortPrice"
+                   class="transition-colors hover:text-gray-700"
+                   onclick="setSort('priceAsc')">낮은가격순</a>
                 <span class="text-gray-300">|</span>
-                <a href="/?sort=likes" class="transition-colors ${param.sort == 'likes' ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">인기순</a>
+                <a href="javascript:void(0)"
+                   id="sortLikes"
+                   class="transition-colors hover:text-gray-700"
+                   onclick="setSort('likeDesc')">인기순</a>
             </div>
         </div>
 
@@ -147,6 +164,8 @@ const tradeFilter = {
     page: 1              // 페이지
 };
 
+
+
 // AJAX 호출 함수
 function loadTrade() {
     const data = {
@@ -165,6 +184,10 @@ function loadTrade() {
         data.search_word = tradeFilter.search_word;
     }
 
+    if (tradeFilter.sort) {
+        data.sort = tradeFilter.sort; // 정렬 정보 포함
+    }
+
     $.ajax({
         url: '/home',
         type: 'GET',
@@ -172,15 +195,58 @@ function loadTrade() {
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         },
-        success: function (html) {
-            $('#tradelist').html(html);
-            openDropdown = null;
-        },
+        success: function (html, status, xhr) {
+                    // 게시물 리스트 교체
+                    $('#tradelist').html(html);
+
+                    // 헤더의 totalCount 업데이트 (서버가 header에 보내주는 방식)
+                    const totalCount = xhr.getResponseHeader('X-Total-Count');
+                    if(totalCount !== null) {
+                        $('#tradeTotalCount').text(totalCount + '개');
+                    }
+                },
         error: function (xhr, status, error) {
             console.error('AJAX 오류:', error);
         }
     });
 }
+
+// 초기 정렬값 세팅
+tradeFilter.sort = null; // 최신순 기본값
+
+function setSort(sortKey) {
+    tradeFilter.sort = sortKey === 'newest' ? null : sortKey;
+    tradeFilter.page = 1; // 정렬 변경 시 1페이지로
+    updateSortCss();
+    loadTrade();
+}
+
+// CSS 클래스 갱신
+function updateSortCss() {
+    const sortLinks = [
+        {id: 'sortNewest', key: null},
+        {id: 'sortPrice', key: 'priceAsc'},
+        {id: 'sortLikes', key: 'likes'}
+    ];
+
+    sortLinks.forEach(link => {
+        const el = document.getElementById(link.id);
+        if (tradeFilter.sort === link.key) {
+            el.classList.add('text-gray-900', 'font-bold');
+            el.classList.remove('hover:text-gray-700');
+        } else if (tradeFilter.sort === null && link.key === null) { // 최신순 처리
+            el.classList.add('text-gray-900', 'font-bold');
+            el.classList.remove('hover:text-gray-700');
+        } else {
+            el.classList.remove('text-gray-900', 'font-bold');
+            el.classList.add('hover:text-gray-700');
+        }
+    });
+}
+
+// 페이지 로드 시 초기 CSS 적용
+updateSortCss();
+
 
 // 카테고리 선택
 function selectCategory(seq, name) {

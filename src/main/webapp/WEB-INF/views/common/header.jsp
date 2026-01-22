@@ -70,15 +70,6 @@
           </div>
 
           <!-- Search Bar -->
-          <div class="hidden md:flex flex-1 max-w-2xl relative">
-            <form action="/home" method="get" class="w-full">
-                <input type="text" name="search" placeholder="찾고 싶은 도서나 저자를 검색해보세요"
-                       class="w-full pl-5 pr-14 py-3 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all text-sm placeholder-gray-400 shadow-sm" />
-                <button type="submit" class="absolute right-2 top-1.5 h-9 w-9 bg-primary-500 rounded-full flex items-center justify-center text-white hover:bg-primary-600 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                </button>
-            </form>
-          </div>
 
           <!-- Navigation Actions -->
           <nav class="flex items-center gap-4 ml-8">

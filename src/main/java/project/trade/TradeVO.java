@@ -55,6 +55,7 @@ public class TradeVO {
 
     // 검색용
     private String search_word;
+    private String sort;
 
     public boolean checkTradeVO() {
         return sale_title != null && !sale_title.equals("") &&

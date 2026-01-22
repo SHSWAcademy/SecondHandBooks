@@ -184,7 +184,18 @@
                 OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
             )
         </if>
-        ORDER BY crt_dtm DESC
+        <!-- order 조건  -->
+        <choose>
+            <when test="searchVO.sort == 'priceAsc'">
+                ORDER BY sale_price ASC
+            </when>
+            <when test="searchVO.sort == 'likeDesc'">
+                ORDER BY (SELECT COUNT(*) FROM trade_wish tl WHERE tl.trade_seq = sb_trade_info.trade_seq) DESC
+            </when>
+            <otherwise>
+                ORDER BY crt_dtm DESC
+            </otherwise>
+        </choose>
         LIMIT #{limit}
         OFFSET #{offset}
     </select>
