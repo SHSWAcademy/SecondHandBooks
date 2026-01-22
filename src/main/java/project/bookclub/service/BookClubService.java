@@ -314,8 +314,21 @@ public class BookClubService {
             throw new IllegalArgumentException("이미 같은 이름의 독서 모임이 존재합니다.");
         }
 
-        // 4. DB 저장
+        // 4. DB 저장 (book_club 테이블)
         bookClubMapper.insertBookClub(vo);
+
+        // 5. 생성된 book_club_seq를 이용해 모임장을 book_club_member에 자동 등록
+        // - join_st='JOINED', leader_yn=true
+        // - 관리 페이지의 멤버 목록에 모임장이 나타나게 함
+        Long bookClubSeq = vo.getBook_club_seq();
+        Long leaderSeq = vo.getBook_club_leader_seq();
+
+        if (bookClubSeq != null && leaderSeq != null) {
+            bookClubMapper.insertLeaderMember(bookClubSeq, leaderSeq);
+            log.info("모임장을 book_club_member에 등록 완료: bookClubSeq={}, leaderSeq={}", bookClubSeq, leaderSeq);
+        } else {
+            log.warn("모임장 자동 등록 실패: bookClubSeq 또는 leaderSeq가 null - bookClubSeq={}, leaderSeq={}", bookClubSeq, leaderSeq);
+        }
     }
 
     public boolean isDuplicateForLeader(Long leaderSeq, String name) {

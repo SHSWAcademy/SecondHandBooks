@@ -194,6 +194,23 @@
         )
     </insert>
 
+    <!-- 모임장을 book_club_member에 자동 등록 (모임 생성 시 사용) -->
+    <insert id="insertLeaderMember">
+        INSERT INTO book_club_member (
+            book_club_seq,
+            member_seq,
+            leader_yn,
+            join_st,
+            join_st_update_dtm
+        ) VALUES (
+            #{bookClubSeq},
+            #{memberSeq},
+            true,
+            'JOINED',
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
     <!-- ===================================== -->
     <!-- 찜 관련 -->
     <!-- ===================================== -->
