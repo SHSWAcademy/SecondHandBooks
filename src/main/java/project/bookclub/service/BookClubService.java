@@ -201,6 +201,13 @@ public class BookClubService {
         return bookClubMapper.insertBoardComment(bookClubSeq, postId, memberSeq, commentCont);
     }
 
+    // #3-6. 게시글(원글) 작성
+    @Transactional
+    public Long createBoardPost(BookClubBoardVO boardVO) {
+        bookClubMapper.insertBoardPost(boardVO);
+        return boardVO.getBook_club_board_seq();
+    }
+
     /*
      * #4. 독서모임 생성
      */

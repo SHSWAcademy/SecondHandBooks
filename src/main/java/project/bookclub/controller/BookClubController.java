@@ -501,4 +501,118 @@ public class BookClubController {
         log.info("File saved to: {}", destFile.getAbsolutePath());
         return savedFileName;
     }
+
+    /**
+     * 게시글 작성 폼 페이지
+     * GET /bookclubs/{bookClubId}/posts
+     * - 로그인 필수
+     * - 모임장 또는 JOINED 멤버만 접근 가능
+     */
+    @GetMapping("/{bookClubId}/posts")
+    public String createPostForm(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session,
+            Model model) {
+
+        // 권한 검증
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        if (permissionCheckResult != null) {
+            return permissionCheckResult;
+        }
+
+        // 모임 정보 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        model.addAttribute("bookClub", bookClub);
+        model.addAttribute("bookClubId", bookClubId);
+
+        return "bookclub/bookclub_posts";
+    }
+
+    /**
+     * 게시글 작성 처리 (PRG 패턴)
+     * POST /bookclubs/{bookClubId}/posts
+     * - 로그인 필수
+     * - 모임장 또는 JOINED 멤버만 작성 가능
+     * - 제목, 내용 필수 / 이미지, 책 선택은 선택사항
+     */
+    @PostMapping("/{bookClubId}/posts")
+    public String createPost(
+            @PathVariable("bookClubId") Long bookClubId,
+            @RequestParam("boardTitle") String boardTitle,
+            @RequestParam("boardCont") String boardCont,
+            @RequestParam(value = "boardImage", required = false) MultipartFile boardImage,
+            @RequestParam(value = "isbn", required = false) String isbn,
+            @RequestParam(value = "bookTitle", required = false) String bookTitle,
+            @RequestParam(value = "bookAuthor", required = false) String bookAuthor,
+            @RequestParam(value = "bookImgUrl", required = false) String bookImgUrl,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return "redirect:/login";
+        }
+
+        Long memberSeq = loginMember.getMember_seq();
+
+        // 2. 권한 체크 (모임장 OR JOINED 멤버)
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
+
+        if (!isLeader && !isMember) {
+            redirectAttributes.addFlashAttribute("errorMessage", "게시글을 작성할 권한이 없습니다.");
+            return "redirect:/bookclubs/" + bookClubId;
+        }
+
+        // 3. 필수 입력값 검증
+        if (boardTitle == null || boardTitle.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "제목을 입력해주세요.");
+            return "redirect:/bookclubs/" + bookClubId + "/posts";
+        }
+
+        if (boardCont == null || boardCont.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "내용을 입력해주세요.");
+            return "redirect:/bookclubs/" + bookClubId + "/posts";
+        }
+
+        // 4. 이미지 파일 처리
+        String savedImageUrl = null;
+        if (boardImage != null && !boardImage.isEmpty()) {
+            try {
+                String savedFileName = saveFile(boardImage);
+                savedImageUrl = "/img/" + savedFileName;
+                log.info("Board image saved: {}", savedFileName);
+            } catch (IOException e) {
+                log.error("Failed to save board image", e);
+                redirectAttributes.addFlashAttribute("errorMessage", "이미지 업로드에 실패했습니다.");
+                return "redirect:/bookclubs/" + bookClubId + "/posts";
+            }
+        }
+
+        // 5. VO 생성 및 INSERT
+        BookClubBoardVO boardVO = new BookClubBoardVO();
+        boardVO.setBook_club_seq(bookClubId);
+        boardVO.setMember_seq(memberSeq);
+        boardVO.setBoard_title(boardTitle);
+        boardVO.setBoard_cont(boardCont);
+        boardVO.setBoard_img_url(savedImageUrl);
+        // 책 정보 (선택사항)
+        boardVO.setIsbn(isbn);
+        boardVO.setBook_title(bookTitle);
+        boardVO.setBook_author(bookAuthor);
+        boardVO.setBook_img_url(bookImgUrl);
+
+        Long newPostId = bookClubService.createBoardPost(boardVO);
+
+        // 6. 성공 시 게시글 상세 페이지로 리다이렉트
+        redirectAttributes.addFlashAttribute("successMessage", "게시글이 등록되었습니다.");
+        return "redirect:/bookclubs/" + bookClubId + "/posts/" + newPostId;
+    }
 }
