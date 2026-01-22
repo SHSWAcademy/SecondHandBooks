@@ -494,4 +494,35 @@
         )
     </insert>
 
+    <!-- ===================================== -->
+    <!-- 관리 페이지 - 멤버 강퇴 -->
+    <!-- ===================================== -->
+
+    <!-- 타겟 멤버 상태 조회 (강퇴 검증용) -->
+    <select id="selectMemberBySeq" resultType="project.bookclub.dto.BookClubManageMemberDTO">
+        SELECT
+            bcm.book_club_member_seq AS bookClubMemberSeq,
+            bcm.book_club_seq AS bookClubSeq,
+            bcm.member_seq AS memberSeq,
+            CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
+            bcm.join_st AS joinSt,
+            bcm.join_st_update_dtm AS joinStUpdateDtm,
+            m.member_nicknm AS nickname,
+            NULL::text AS profileImgUrl
+        FROM book_club_member bcm
+        INNER JOIN member_info m ON bcm.member_seq = m.member_seq
+        WHERE bcm.book_club_seq = #{bookClubSeq}
+          AND bcm.member_seq = #{memberSeq}
+    </select>
+
+    <!-- 멤버 강퇴 - join_st='KICKED' 업데이트 -->
+    <update id="updateMemberToKicked">
+        UPDATE book_club_member
+        SET join_st = 'KICKED'::join_st_enum,
+            join_st_update_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+          AND join_st = 'JOINED'
+    </update>
+
 </mapper>
