@@ -145,7 +145,7 @@
         FROM sb_trade_info
         WHERE
             del_dtm IS NULL
-        AND
+            OR
             book_sale_dtm IS NULL
         ORDER BY crt_dtm DESC
     </select>
@@ -165,7 +165,10 @@
             sale_rg,
             crt_dtm
         FROM sb_trade_info
-        WHERE del_dtm IS NULL
+        WHERE
+            del_dtm IS NULL
+            AND
+            book_sale_dtm IS NULL
         <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
             AND category_seq = #{searchVO.category_seq}
@@ -190,7 +193,10 @@
     <select id="countAll" resultType="int">
         SELECT COUNT(*)
         FROM sb_trade_info
-        WHERE del_dtm IS NULL
+        WHERE
+            del_dtm IS NULL
+            AND
+            book_sale_dtm IS NULL
         <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
             AND category_seq = #{searchVO.category_seq}
