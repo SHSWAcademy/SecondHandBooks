@@ -242,7 +242,8 @@
             book_title,
             sale_price,
             delivery_cost,
-            book_st
+            book_st,
+            member_seller_seq
         FROM sb_trade_info
         WHERE trade_seq = (
             SELECT trade_seq
