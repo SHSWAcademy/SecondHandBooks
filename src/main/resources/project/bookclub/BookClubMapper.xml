@@ -66,6 +66,24 @@
         ORDER BY book_club_seq DESC
     </select>
 
+    <!-- 키워드 조회 개선판 : 매칭되는 토큰이 많은 게시물부터 게시 -->
+    <select id="searchByKeywordRanked" resultType="project.bookclub.vo.BookClubVO">
+        SELECT *,
+        (
+        <foreach collection="tokens" item="token" separator="+">
+            CASE WHEN book_club_name LIKE '%' || #{token} || '%' THEN 1 ELSE 0 END
+        </foreach>
+        ) AS match_count
+        FROM book_club
+        WHERE book_club_deleted_dt IS NULL
+        AND (
+        <foreach collection="tokens" item="token" separator="OR">
+            book_club_name LIKE '%' || #{token} || '%'
+        </foreach>
+        )
+        ORDER BY match_count DESC
+    </select>
+
     <!-- 독서모임 1건 조회 (상세 페이지용) -->
     <select id="selectById" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
         SELECT
