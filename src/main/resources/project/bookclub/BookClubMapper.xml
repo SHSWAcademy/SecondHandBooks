@@ -331,4 +331,44 @@
         WHERE W.MEMBER_SEQ = #{member_seq}
         ORDER BY W.CRT_DTM DESC
     </select>
+
+    <!-- ===================================== -->
+    <!-- 관리 페이지 전용 -->
+    <!-- ===================================== -->
+
+    <!-- 관리 페이지 - JOINED 멤버 목록 조회 (member_info 조인) -->
+    <select id="selectJoinedMembersForManage" resultType="project.bookclub.dto.BookClubManageMemberDTO">
+        SELECT
+            bcm.book_club_member_seq AS bookClubMemberSeq,
+            bcm.book_club_seq AS bookClubSeq,
+            bcm.member_seq AS memberSeq,
+            CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
+            bcm.join_st AS joinSt,
+            bcm.join_st_update_dtm AS joinStUpdateDtm,
+            m.member_nicknm AS nickname,
+            NULL::text AS profileImgUrl
+        FROM book_club_member bcm
+        INNER JOIN member_info m ON bcm.member_seq = m.member_seq
+        WHERE bcm.book_club_seq = #{bookClubSeq}
+          AND bcm.join_st = 'JOINED'
+        ORDER BY bcm.leader_yn DESC, bcm.join_st_update_dtm ASC
+    </select>
+
+    <!-- 관리 페이지 - WAIT 상태 가입 신청 목록 조회 (member_info 조인) -->
+    <select id="selectPendingRequestsForManage" resultType="project.bookclub.dto.BookClubJoinRequestDTO">
+        SELECT
+            bcr.book_club_request_seq AS requestSeq,
+            bcr.book_club_seq AS bookClubSeq,
+            bcr.request_member_seq AS requestMemberSeq,
+            bcr.request_cont AS requestCont,
+            bcr.request_st AS requestSt,
+            bcr.request_dtm AS requestDtm,
+            m.member_nicknm AS nickname,
+            NULL::text AS profileImgUrl
+        FROM book_club_request bcr
+        INNER JOIN member_info m ON bcr.request_member_seq = m.member_seq
+        WHERE bcr.book_club_seq = #{bookClubSeq}
+          AND bcr.request_st = 'WAIT'
+        ORDER BY bcr.request_dtm ASC
+    </select>
 </mapper>

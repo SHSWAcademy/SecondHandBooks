@@ -71,4 +71,10 @@ public interface BookClubMapper {
 
     List<BookClubVO> selectMyBookClubs(long member_seq); // 내 모임 조회 추가
     List<BookClubVO> selectWishBookClubs(long member_seq);
+
+    // 관리 페이지 - JOINED 멤버 목록 조회 (member_info 조인)
+    List<project.bookclub.dto.BookClubManageMemberDTO> selectJoinedMembersForManage(@Param("bookClubSeq") Long bookClubSeq);
+
+    // 관리 페이지 - WAIT 상태 가입 신청 목록 조회 (member_info 조인)
+    List<project.bookclub.dto.BookClubJoinRequestDTO> selectPendingRequestsForManage(@Param("bookClubSeq") Long bookClubSeq);
 }
