@@ -215,8 +215,6 @@
         FROM sb_trade_info
         WHERE
             del_dtm IS NULL
-            AND
-            book_sale_dtm IS NULL
         <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
             AND category_seq = #{searchVO.category_seq}
@@ -231,6 +229,10 @@
                 OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
                 OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
             )
+        </if>
+        <!-- 판매 상태 -->
+        <if test="searchVO.sale_st != null">
+            AND sale_st = #{searchVO.sale_st}::sale_st_enum
         </if>
     </select>
 
