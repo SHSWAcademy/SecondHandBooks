@@ -192,7 +192,6 @@
             AND sale_st = #{searchVO.sale_st}::sale_st_enum
         </if>
 
-        ORDER BY crt_dtm DESC
         <!-- order 조건  -->
         <choose>
             <when test="searchVO.sort == 'priceAsc'">
