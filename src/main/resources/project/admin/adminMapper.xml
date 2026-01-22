@@ -174,11 +174,15 @@
     <update id="updateAdminLogout">
         UPDATE LOGIN_INFO
            SET LOGOUT_DTM = CURRENT_TIMESTAMP
-             , LOG_IP = #{logout_ip}
-         WHERE ADMIN_SEQ = #{admin_seq}
-           AND LOGOUT_DTM IS NULL
-         ORDER BY LOGIN_DTM DESC
-         LIMIT 1
+             , LOGOUT_IP = #{logout_ip}
+         WHERE LOGIN_INFO_SEQ = (
+                                 SELECT LOGIN_INFO_SEQ
+                                   FROM LOGIN_INFO
+                                  WHERE ADMIN_SEQ = #{admin_seq}
+                                    AND LOGOUT_DTM IS NULL
+                                  ORDER BY LOGIN_DTM DESC
+                                  LIMIT 1
+                                 )
     </update>
 
     <insert id="insertMemberLogin">
@@ -187,12 +191,16 @@
     </insert>
 
     <update id="updateMemberLogout">
-        UPDATE LOGIN_INF
+        UPDATE LOGIN_INFO
            SET LOGOUT_DTM = CURRENT_TIMESTAMP
              , LOGOUT_IP = #{logout_ip}
-         WHERE MEMBER_SEQ = #{member_seq}
-           AND LOGOUT_DTM IS NULL
-         ORDER BY LOGIN_DTM DESC
-         LIMIT 1
+         WHERE LOGIN_INFO_SEQ = (
+                                 SELECT LOGIN_INFO_SEQ
+                                   FROM LOGIN_INFO
+                                  WHERE MEMBER_SEQ = #{member_seq}
+                                    AND LOGOUT_DTM IS NULL
+                                  ORDER BY LOGIN_DTM DESC
+                                  LIMIT 1
+                                 )
     </update>
 </mapper>
