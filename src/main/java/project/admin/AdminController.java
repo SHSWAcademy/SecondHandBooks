@@ -9,6 +9,7 @@ import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,15 @@ public class AdminController {
             model.addAttribute("memberCount", adminService.countAllMembers());
             model.addAttribute("tradeCount", adminService.countAllTrades());
             model.addAttribute("clubCount", adminService.countAllBookClubs());
+
+            // 2. 목록 (테이블 데이터)
+            model.addAttribute("members", adminService.getRecentMembers());
+            model.addAttribute("trades", adminService.getRecentTrades());
+            model.addAttribute("clubs", adminService.getRecentBookClubs());
+
+            // 3. 로그 데이터
+            model.addAttribute("userLogs", adminService.getMemberLoginLogs());
+            model.addAttribute("adminLogs", adminService.getAdminLoginLogs());
 
             return "admin/dashboard";
         } catch (Exception e) {
@@ -99,24 +109,67 @@ public class AdminController {
         return "ok";
     }
 
-    // 로그인/로그아웃 로직 (기존 유지)
+    // 2. 로그인 페이지 이동
     @GetMapping("/login")
-    public String loginPage() { return "admin/adminLogin"; }
-
-    @PostMapping("/loginProcess")
-    public String loginProcess(@RequestParam String id, @RequestParam String pwd, HttpSession sess) {
-        AdminVO admin = adminService.login(id, pwd);
-        if (admin != null) {
-            sess.setAttribute("adminSess", admin);
-            sess.setMaxInactiveInterval(3600);
-            return "redirect:/admin";
-        }
-        return "redirect:/admin/login?error=true";
+    public String loginPage() {
+        return "admin/adminLogin";
     }
 
+    // 3. 로그인 처리
+    @PostMapping("/loginProcess")
+    public String loginProcess(@RequestParam String id,
+                               @RequestParam String pwd,
+                               HttpSession sess,
+                               HttpServletRequest request) {
+        AdminVO admin = adminService.login(id, pwd);
+
+        if (admin != null) {
+            sess.setAttribute("adminSess", admin);
+            sess.setMaxInactiveInterval(60 * 60); // 1시간
+
+            // 로그인 기록 추가
+            String loginIp = getClientIP(request);
+            adminService.recordAdminLogin(admin.getAdmin_seq(), loginIp);
+            return "redirect:/admin";
+        } else {
+            return "redirect:/admin/login?error=true";
+        }
+    }
+
+    // 4. 로그아웃
     @GetMapping("/logout")
-    public String logout(HttpSession sess) {
+    public String logout(HttpSession sess, HttpServletRequest request) {
+        AdminVO admin = (AdminVO) sess.getAttribute("adminSess");
+
+        // 로그아웃 기록 추가
+        if (admin != null) {
+            String logoutIp = getClientIP(request);
+            adminService.recordAdminLogout(admin.getAdmin_seq(), logoutIp);
+        }
         sess.invalidate();
         return "redirect:/admin/login";
+    }
+
+    // IP 추출 메서드
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        if (ip != null && ip.indexOf(",") > 0) {
+            ip = ip.substring(0, ip.indexOf(","));
+        }
+        return ip;
     }
 }
