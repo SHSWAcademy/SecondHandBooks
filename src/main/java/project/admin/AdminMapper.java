@@ -21,4 +21,14 @@ public interface AdminMapper {
     List<MemberVO> selectRecentMembers();
     List<TradeVO> selectRecentTrades();
     List<BookClubVO> selectRecentBookClubs();
+
+    // 조회
+    List<LoginInfoVO> selectMemberLoginLogs();
+    List<LoginInfoVO> selectAdminLoginLogs();
+
+    // 저장/업데이트
+    void insertAdminLogin(@Param("admin_seq") Long admin_seq, @Param("login_ip") String login_ip);
+    void updateAdminLogout(@Param("admin_seq") Long admin_seq, @Param("logout_ip") String logout_ip);
+    void insertMemberLogin(@Param("member_seq") Long admin_seq, @Param("login_ip") String login_ip);
+    void updateMemberLogout(@Param("member_seq") Long admin_seq, @Param("login_ip") String login_ip);
 }
