@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import project.bookclub.ENUM.JoinRequestResult;
+import project.bookclub.dto.BookClubManageViewDTO;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
@@ -394,6 +395,73 @@ public class BookClubController {
         }
 
         return "redirect:/bookclubs/" + bookClubId;
+    }
+
+    /**
+     * 독서모임 관리 페이지 (모임장 전용)
+     * GET /bookclubs/{bookClubId}/edit
+     * - 모임 정보 조회
+     * - JOINED 멤버 목록 조회
+     * - WAIT 상태 가입 신청 목록 조회
+     *
+     * [권한 가드]
+     * - 비로그인: /login으로 redirect
+     * - 로그인했지만 모임장 아님: /bookclubs/{bookClubId}로 redirect + flash errorMessage
+     * - 모임 없음: /bookclubs로 redirect + flash errorMessage
+     */
+    @GetMapping("/{bookClubId}/edit")
+    public String getBookClubManagePage(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 관리 페이지 접근 시도: bookClubId={}", bookClubId);
+            return "redirect:/login";
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 관리 페이지 접근: bookClubId={}, memberSeq={}", bookClubId, loginMemberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
+        // 3. 모임장 권한 확인
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        if (!isLeader) {
+            log.warn("모임장 아닌 사용자가 관리 페이지 접근: bookClubId={}, memberSeq={}, leaderSeq={}",
+                    bookClubId, loginMemberSeq, bookClub.getBook_club_leader_seq());
+            redirectAttributes.addFlashAttribute("errorMessage", "모임장만 접근할 수 있는 페이지입니다.");
+            return "redirect:/bookclubs/" + bookClubId;
+        }
+
+        // 4. 관리 페이지 데이터 조회
+        // 4-1. JOINED 멤버 목록 (N+1 방지: member_info 조인)
+        var members = bookClubService.getJoinedMembersForManage(bookClubId);
+
+        // 4-2. WAIT 상태 가입 신청 목록 (N+1 방지: member_info 조인)
+        var pendingRequests = bookClubService.getPendingRequestsForManage(bookClubId);
+
+        // 4-3. 현재 인원 집계
+        int currentMemberCount = bookClubService.getTotalJoinedMemberCount(bookClubId);
+
+        // 5. Model에 데이터 담기 (JSP에서 사용하는 키 이름과 정확히 일치)
+        // bookclub_manage.jsp 참조 키: bookclub, members, pendingRequests
+        model.addAttribute("bookclub", new BookClubManageViewDTO(bookClub, currentMemberCount));
+        model.addAttribute("members", members);
+        model.addAttribute("pendingRequests", pendingRequests);
+
+        log.info("관리 페이지 로드: bookClubId={}, memberCount={}, pendingCount={}",
+                bookClubId, members.size(), pendingRequests.size());
+
+        return "bookclub/bookclub_manage";
     }
 
     /**
