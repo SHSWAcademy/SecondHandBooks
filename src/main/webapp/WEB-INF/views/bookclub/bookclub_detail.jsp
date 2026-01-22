@@ -154,7 +154,7 @@
 
                                             <%-- 2순위: 모임장 --%>
                                                 <c:when test="${isLeader}">
-                                                    <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/edit"
+                                                    <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/manage"
                                                         class="bc-btn bc-btn-primary">
                                                         모임 관리하기
                                                     </a>
