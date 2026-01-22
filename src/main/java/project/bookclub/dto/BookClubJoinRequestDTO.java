@@ -1,0 +1,24 @@
+package project.bookclub.dto;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+/**
+ * 독서모임 관리 페이지 - 가입 신청 목록용 DTO
+ * book_club_request + member_info 조인 결과 매핑
+ */
+@Data
+public class BookClubJoinRequestDTO {
+    // book_club_request 테이블
+    private Long requestSeq;             // book_club_request_seq
+    private Long bookClubSeq;            // book_club_seq
+    private Long requestMemberSeq;       // request_member_seq
+    private String requestCont;          // request_cont
+    private String requestSt;            // request_st (WAIT만 조회)
+    private LocalDateTime requestDtm;    // request_dtm
+
+    // member_info 테이블 조인
+    private String nickname;             // member_nicknm
+    private String profileImgUrl;        // profile_img_url (nullable)
+}

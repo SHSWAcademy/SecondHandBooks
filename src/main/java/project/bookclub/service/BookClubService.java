@@ -328,4 +328,23 @@ public class BookClubService {
     public List<BookClubVO> getWishBookClubs(long member_seq) {
         return bookClubMapper.selectWishBookClubs(member_seq);
     }
+
+    /*
+     * #5. 독서모임 관리 페이지
+     */
+    // #5-1. 관리 페이지 - JOINED 멤버 목록 조회
+    public List<project.bookclub.dto.BookClubManageMemberDTO> getJoinedMembersForManage(Long bookClubSeq) {
+        if (bookClubSeq == null) {
+            return List.of();
+        }
+        return bookClubMapper.selectJoinedMembersForManage(bookClubSeq);
+    }
+
+    // #5-2. 관리 페이지 - WAIT 상태 가입 신청 목록 조회
+    public List<project.bookclub.dto.BookClubJoinRequestDTO> getPendingRequestsForManage(Long bookClubSeq) {
+        if (bookClubSeq == null) {
+            return List.of();
+        }
+        return bookClubMapper.selectPendingRequestsForManage(bookClubSeq);
+    }
 }
