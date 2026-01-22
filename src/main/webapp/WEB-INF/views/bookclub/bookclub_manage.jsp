@@ -117,9 +117,7 @@
                                                                             <c:out value="${request.nickname}" />
                                                                         </strong>
                                                                         <span class="request-date">
-                                                                            <fmt:formatDate
-                                                                                value="${request.requestDtm}"
-                                                                                pattern="yyyy.MM.dd HH:mm" />
+                                                                            ${request.requestDtmText}
                                                                         </span>
                                                                     </div>
                                                                 </div>
@@ -221,9 +219,7 @@
                                                                                 중</span>
                                                                         </td>
                                                                         <td>
-                                                                            <fmt:formatDate
-                                                                                value="${member.joinStUpdateDtm}"
-                                                                                pattern="yyyy.MM.dd" />
+                                                                            ${member.joinStUpdateDtmText}
                                                                         </td>
                                                                         <td>
                                                                             <c:if test="${member.leaderYn ne 'Y'}">
