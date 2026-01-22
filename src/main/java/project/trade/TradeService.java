@@ -147,4 +147,8 @@ public class TradeService {
     public int countLikeAll(long trade_seq) {
         return tradeMapper.countLikeAll(trade_seq);
     }
+
+    public TradeVO findByChatRoomSeq(long chat_room_seq) {
+        return tradeMapper.findByChatRoomSeq(chat_room_seq);
+    }
 }

@@ -23,4 +23,6 @@ public interface TradeMapper {
     int saveLike(@Param("trade_seq") long trade_seq, @Param("member_seq") long member_seq); // 좋아요 추가
     int deleteLike(@Param("trade_seq") long trade_seq, @Param("member_seq") long member_seq); // 좋아요 삭제
     int countLikeAll(@Param("trade_seq") long trade_seq); // 좋아요 조회
+
+    TradeVO findByChatRoomSeq(@Param("chat_room_seq") long chat_room_seq);
 }

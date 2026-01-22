@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import project.chat.message.MessageService;
 import project.chat.message.MessageVO;
 import project.member.MemberVO;
+import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.Const;
 import javax.servlet.http.HttpSession;
@@ -24,6 +25,7 @@ import java.util.List;
 public class ChatroomController {
 
     private final ChatroomService chatroomService;
+    private final TradeService tradeService;
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -66,7 +68,6 @@ public class ChatroomController {
             long trade_seq = tradeVO.getTrade_seq();
             long member_seller_seq = tradeVO.getMember_seller_seq();
             long member_buyer_seq = sessionMember.getMember_seq();
-
             String sale_title = tradeVO.getSale_title();
 
             // 본인 채팅 방지
@@ -74,11 +75,14 @@ public class ChatroomController {
                 return "chat/chatrooms";  // 채팅방 목록만 보여줌
             }
 
+            // 모델에 넣을 데이터 조회
             ChatroomVO tradeChatroom = chatroomService.findOrCreateRoom(member_seller_seq, member_buyer_seq, trade_seq, sale_title);
+            TradeVO findTrade = tradeService.search(trade_seq);
             List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq(), sessionMember.getMember_seq());
             // sessionMember.getMember_seq() : 메시지 읽음 처리하는 사람의 seq, member_buyer_seq 로 넣어도 되지만 직관성을 위해 session 에서 조회한 값을 넣음
 
             model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
+            model.addAttribute("trade_info", findTrade);
             model.addAttribute("messages", messages); // 현재 채팅방의 전체 메시지 전달 (이후 페이징 처리 필요)
         }
 
@@ -95,20 +99,29 @@ public class ChatroomController {
     // 채팅 메시지 조회 api
     @GetMapping("/chat/messages")
     @ResponseBody
-    public List<MessageVO> getMessages(@RequestParam("chat_room_seq") long chat_room_seq,  HttpSession session) {
+    public Object[] getMessages(@RequestParam("chat_room_seq") long chat_room_seq,  HttpSession session) {
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION); // 메시지 읽음 처리할 회원
 
         // 권한 체크 추가
         if (!chatroomService.isMemberOfChatroom(chat_room_seq,
                 sessionMember.getMember_seq())) {
             log.warn("권한 없는 채팅방 메시지 조회 시도: member_seq={}, chat_room_seq={}", sessionMember.getMember_seq(), chat_room_seq);
-            return Collections.emptyList();
+            return new List[]{Collections.emptyList()};
         }
 
+        Object[] returns = new Object[2]; // 0번째 인덱스는 List<MessageVO>, 1번째 인덱스는 TradeVO
+
+        // 화면에 보여질 메시지 목록들을 먼저 조회한다.
         List<MessageVO> messages = messageService.getAllMessages(chat_room_seq, sessionMember.getMember_seq());
+        TradeVO findTrade = tradeService.findByChatRoomSeq(chat_room_seq);
+
+        returns[0] = messages;
+        returns[1] = findTrade;
+
 
         // 상대방에게 읽음 이벤트 전송
         messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq + "/read", sessionMember.getMember_seq());
-        return messages;
+        return returns;
     }
+
 }
