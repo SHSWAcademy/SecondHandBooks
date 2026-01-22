@@ -415,6 +415,58 @@
           AND bcr.request_st = 'WAIT'
         ORDER BY bcr.request_dtm ASC
     </select>
+
+    <!-- ===================================== -->
+    <!-- 관리 페이지 - 가입 신청 승인/거절 -->
+    <!-- ===================================== -->
+
+    <!-- request 단건 조회 (ID로 조회) -->
+    <select id="selectRequestById" resultType="project.bookclub.dto.BookClubJoinRequestDTO">
+        SELECT
+            bcr.book_club_request_seq AS requestSeq,
+            bcr.book_club_seq AS bookClubSeq,
+            bcr.request_member_seq AS requestMemberSeq,
+            bcr.request_cont AS requestCont,
+            bcr.request_st AS requestSt,
+            bcr.request_dtm AS requestDtm,
+            bcr.request_processed_dt AS requestProcessedDt
+        FROM book_club_request bcr
+        WHERE bcr.book_club_request_seq = #{requestSeq}
+    </select>
+
+    <!-- book_club_member 중복 체크 (book_club_seq, member_seq 조합) -->
+    <select id="selectMemberCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_member
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+    </select>
+
+    <!-- book_club_member INSERT (승인 시 사용, leader_yn=false, join_st='JOINED') -->
+    <insert id="insertMember">
+        INSERT INTO book_club_member (
+            book_club_seq,
+            member_seq,
+            leader_yn,
+            join_st,
+            join_st_update_dtm
+        ) VALUES (
+            #{bookClubSeq},
+            #{memberSeq},
+            false,
+            'JOINED',
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- book_club_request 상태 업데이트 (APPROVED 또는 REJECTED) -->
+    <update id="updateRequestStatus">
+        UPDATE book_club_request
+        SET request_st = #{status}::request_st_enum,
+            request_processed_dt = CURRENT_DATE
+        WHERE book_club_request_seq = #{requestSeq}
+    </update>
+
     <!-- 게시글(원글) INSERT -->
     <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
         INSERT INTO book_club_board (
