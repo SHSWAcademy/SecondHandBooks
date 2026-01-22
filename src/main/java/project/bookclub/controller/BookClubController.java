@@ -70,16 +70,11 @@ public class BookClubController {
             // 4-3. 대기중인 가입 신청 여부 판단
             boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
             model.addAttribute("hasPendingRequest", hasPendingRequest);
-
-            // 4-4. 찜 여부 판단
-            boolean isWished = bookClubService.isWished(bookClubId, loginMemberSeq);
-            model.addAttribute("isWished", isWished);
         } else {
             // 비로그인 시 기본값 설정
             model.addAttribute("isLeader", false);
             model.addAttribute("isMember", false);
             model.addAttribute("hasPendingRequest", false);
-            model.addAttribute("isWished", false);
         }
 
         // 5. 현재 참여 인원 수 조회
@@ -101,45 +96,16 @@ public class BookClubController {
      */
 
     @GetMapping
-    public String getBookClubs(Model model, HttpSession session) {
+    public String getBookClubs(Model model) {
         List<BookClubVO> bookClubs = bookClubService.getBookClubList();
-
-        // 로그인 사용자의 찜 여부 설정
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
-
-        for (BookClubVO club : bookClubs) {
-            // 찜 개수 설정
-            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
-            // 로그인 시 찜 여부 설정
-            if (memberSeq != null) {
-                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
-            }
-        }
-
         model.addAttribute("bookclubList", bookClubs);
         return "bookclub/bookclub_list";
     }
 
     @GetMapping("/search")
     @ResponseBody
-    public List<BookClubVO> searchBookClubs(
-            @RequestParam(required = false) String keyword,
-            HttpSession session) {
-        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword);
-
-        // 로그인 사용자의 찜 여부 설정
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
-
-        for (BookClubVO club : bookClubs) {
-            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
-            if (memberSeq != null) {
-                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
-            }
-        }
-
-        return bookClubs;
+    public List<BookClubVO> searchBookClubs(@RequestParam(required = false) String keyword) {
+        return bookClubService.searchBookClubs(keyword);
     }
 
     @PostMapping
@@ -270,7 +236,6 @@ public class BookClubController {
 
         // model에 권한 정보 담기
         model.addAttribute("isLogin", true);
-        model.addAttribute("loginMemberSeq", loginMemberSeq);
         model.addAttribute("isLeader", isLeader);
         model.addAttribute("isMember", isMember);
         model.addAttribute("canWriteComment", allow);
@@ -383,100 +348,6 @@ public class BookClubController {
     }
 
     /**
-     * 댓글 수정
-     * POST /bookclubs/{bookClubId}/posts/{postId}/comments/{commentId}/edit
-     * - 로그인 필수
-     * - 댓글 작성자만 수정 가능
-     */
-    @PostMapping("/{bookClubId}/posts/{postId}/comments/{commentId}/edit")
-    public String updateComment(
-            @PathVariable("bookClubId") Long bookClubId,
-            @PathVariable("postId") Long postId,
-            @PathVariable("commentId") Long commentId,
-            @RequestParam("commentCont") String commentCont,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
-        String redirectUrl = "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "#comments";
-
-        // 1. 로그인 확인
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return "redirect:/login";
-        }
-        Long memberSeq = loginMember.getMember_seq();
-
-        // 2. 댓글 조회 및 권한 확인
-        var comment = bookClubService.getBoardCommentById(commentId);
-        if (comment == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 댓글입니다.");
-            return redirectUrl;
-        }
-
-        // 작성자만 수정 가능
-        if (!comment.getMember_seq().equals(memberSeq)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "본인이 작성한 댓글만 수정할 수 있습니다.");
-            return redirectUrl;
-        }
-
-        // 3. 댓글 내용 검증
-        if (commentCont == null || commentCont.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "댓글 내용을 입력해주세요.");
-            return redirectUrl;
-        }
-
-        // 4. 댓글 UPDATE
-        bookClubService.updateBoardComment(commentId, commentCont);
-
-        return redirectUrl;
-    }
-
-    /**
-     * 댓글 삭제
-     * POST /bookclubs/{bookClubId}/posts/{postId}/comments/{commentId}/delete
-     * - 로그인 필수
-     * - 댓글 작성자 또는 모임장만 삭제 가능
-     */
-    @PostMapping("/{bookClubId}/posts/{postId}/comments/{commentId}/delete")
-    public String deleteComment(
-            @PathVariable("bookClubId") Long bookClubId,
-            @PathVariable("postId") Long postId,
-            @PathVariable("commentId") Long commentId,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
-        String redirectUrl = "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "#comments";
-
-        // 1. 로그인 확인
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return "redirect:/login";
-        }
-        Long memberSeq = loginMember.getMember_seq();
-
-        // 2. 댓글 조회
-        var comment = bookClubService.getBoardCommentById(commentId);
-        if (comment == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 댓글입니다.");
-            return redirectUrl;
-        }
-
-        // 3. 권한 확인 (작성자 또는 모임장)
-        boolean isAuthor = comment.getMember_seq().equals(memberSeq);
-        boolean isLeader = bookClubService.isLeader(bookClubId, memberSeq);
-
-        if (!isAuthor && !isLeader) {
-            redirectAttributes.addFlashAttribute("errorMessage", "댓글을 삭제할 권한이 없습니다.");
-            return redirectUrl;
-        }
-
-        // 4. 댓글 DELETE (soft delete)
-        bookClubService.deleteBoardComment(commentId);
-
-        return redirectUrl;
-    }
-
-    /**
      * 독서모임 가입 신청 (승인형) - 개선판
      * POST /bookclubs/{bookClubId}/join-requests
      *
@@ -520,67 +391,6 @@ public class BookClubController {
     }
 
     /**
-     * 독서모임 가입 신청 (AJAX용)
-     * POST /bookclubs/{bookClubId}/join
-     */
-    @PostMapping("/{bookClubId}/join")
-    @ResponseBody
-    public Map<String, Object> createJoinRequestAjax(
-            @PathVariable("bookClubId") Long bookClubId,
-            @RequestBody(required = false) Map<String, String> body,
-            HttpSession session) {
-
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return Map.of("status", "fail", "message", "로그인이 필요합니다.");
-        }
-
-        String reason = (body != null) ? body.get("reason") : null;
-
-        JoinRequestResult result = bookClubService.createJoinRequest(
-                bookClubId,
-                loginMember.getMember_seq(),
-                reason);
-
-        if (result == JoinRequestResult.SUCCESS) {
-            return Map.of("status", "ok", "message", result.getMessage());
-        } else {
-            return Map.of("status", "fail", "message", result.getMessage());
-        }
-    }
-
-    /**
-     * 독서모임 찜 토글 (AJAX용)
-     * POST /bookclubs/{bookClubId}/wish
-     * - 로그인 필수
-     * - 찜 상태 토글 (찜 ↔ 찜 해제)
-     */
-    @PostMapping("/{bookClubId}/wish")
-    @ResponseBody
-    public Map<String, Object> toggleWish(
-            @PathVariable("bookClubId") Long bookClubId,
-            HttpSession session) {
-
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return Map.of("status", "fail", "message", "로그인이 필요합니다.", "needLogin", true);
-        }
-
-        // 찜 토글 실행
-        boolean isWished = bookClubService.toggleWish(bookClubId, loginMember.getMember_seq());
-
-        // 새로운 찜 개수 조회
-        int wishCount = bookClubService.getWishCount(bookClubId);
-
-        return Map.of(
-                "status", "ok",
-                "wished", isWished,
-                "wishCount", wishCount,
-                "message", isWished ? "찜 목록에 추가되었습니다." : "찜 목록에서 제거되었습니다."
-        );
-    }
-
-    /**
      * 파일 저장 (설정된 uploadPath에 저장)
      */
     private String saveFile(MultipartFile file) throws IOException {
@@ -605,316 +415,5 @@ public class BookClubController {
 
         log.info("File saved to: {}", destFile.getAbsolutePath());
         return savedFileName;
-    }
-
-    /**
-     * 게시글 작성 폼 페이지
-     * GET /bookclubs/{bookClubId}/posts
-     * - 로그인 필수
-     * - 모임장 또는 JOINED 멤버만 접근 가능
-     */
-    @GetMapping("/{bookClubId}/posts")
-    public String createPostForm(
-            @PathVariable("bookClubId") Long bookClubId,
-            HttpSession session,
-            Model model) {
-
-        // 권한 검증
-        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
-        if (permissionCheckResult != null) {
-            return permissionCheckResult;
-        }
-
-        // 모임 정보 조회
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        model.addAttribute("bookClub", bookClub);
-        model.addAttribute("bookClubId", bookClubId);
-
-        return "bookclub/bookclub_posts";
-    }
-
-    /**
-     * 게시글 작성 처리 (PRG 패턴)
-     * POST /bookclubs/{bookClubId}/posts
-     * - 로그인 필수
-     * - 모임장 또는 JOINED 멤버만 작성 가능
-     * - 제목, 내용 필수 / 이미지, 책 선택은 선택사항
-     */
-    @PostMapping("/{bookClubId}/posts")
-    public String createPost(
-            @PathVariable("bookClubId") Long bookClubId,
-            @RequestParam("boardTitle") String boardTitle,
-            @RequestParam("boardCont") String boardCont,
-            @RequestParam(value = "boardImage", required = false) MultipartFile boardImage,
-            @RequestParam(value = "isbn", required = false) String isbn,
-            @RequestParam(value = "bookTitle", required = false) String bookTitle,
-            @RequestParam(value = "bookAuthor", required = false) String bookAuthor,
-            @RequestParam(value = "bookImgUrl", required = false) String bookImgUrl,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
-        // 1. 로그인 확인
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return "redirect:/login";
-        }
-
-        Long memberSeq = loginMember.getMember_seq();
-
-        // 2. 권한 체크 (모임장 OR JOINED 멤버)
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
-            return "redirect:/bookclubs";
-        }
-
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
-        boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
-
-        if (!isLeader && !isMember) {
-            redirectAttributes.addFlashAttribute("errorMessage", "게시글을 작성할 권한이 없습니다.");
-            return "redirect:/bookclubs/" + bookClubId;
-        }
-
-        // 3. 필수 입력값 검증
-        if (boardTitle == null || boardTitle.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "제목을 입력해주세요.");
-            return "redirect:/bookclubs/" + bookClubId + "/posts";
-        }
-
-        if (boardCont == null || boardCont.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "내용을 입력해주세요.");
-            return "redirect:/bookclubs/" + bookClubId + "/posts";
-        }
-
-        // 4. 이미지 파일 처리
-        String savedImageUrl = null;
-        if (boardImage != null && !boardImage.isEmpty()) {
-            try {
-                String savedFileName = saveFile(boardImage);
-                savedImageUrl = "/img/" + savedFileName;
-                log.info("Board image saved: {}", savedFileName);
-            } catch (IOException e) {
-                log.error("Failed to save board image", e);
-                redirectAttributes.addFlashAttribute("errorMessage", "이미지 업로드에 실패했습니다.");
-                return "redirect:/bookclubs/" + bookClubId + "/posts";
-            }
-        }
-
-        // 5. VO 생성 및 INSERT
-        BookClubBoardVO boardVO = new BookClubBoardVO();
-        boardVO.setBook_club_seq(bookClubId);
-        boardVO.setMember_seq(memberSeq);
-        boardVO.setBoard_title(boardTitle);
-        boardVO.setBoard_cont(boardCont);
-        boardVO.setBoard_img_url(savedImageUrl);
-        // 책 정보 (선택사항)
-        boardVO.setIsbn(isbn);
-        boardVO.setBook_title(bookTitle);
-        boardVO.setBook_author(bookAuthor);
-        boardVO.setBook_img_url(bookImgUrl);
-
-        Long newPostId = bookClubService.createBoardPost(boardVO);
-
-        // 6. 성공 시 게시글 상세 페이지로 리다이렉트
-        redirectAttributes.addFlashAttribute("successMessage", "게시글이 등록되었습니다.");
-        return "redirect:/bookclubs/" + bookClubId + "/posts/" + newPostId;
-    }
-
-    /**
-     * 게시글 수정 폼 페이지
-     * GET /bookclubs/{bookClubId}/posts/{postId}/edit
-     * - 로그인 필수
-     * - 작성자만 접근 가능
-     */
-    @GetMapping("/{bookClubId}/posts/{postId}/edit")
-    public String editPostForm(
-            @PathVariable("bookClubId") Long bookClubId,
-            @PathVariable("postId") Long postId,
-            HttpSession session,
-            Model model) {
-
-        // 1. 로그인 확인
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return "redirect:/login";
-        }
-
-        Long memberSeq = loginMember.getMember_seq();
-
-        // 2. 게시글 조회
-        BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
-        if (post == null) {
-            model.addAttribute("errorMessage", "게시글을 찾을 수 없거나 삭제되었습니다.");
-            return "error/404";
-        }
-
-        // 3. 작성자 확인 (수정은 작성자만 가능)
-        if (!post.getMember_seq().equals(memberSeq)) {
-            model.addAttribute("errorMessage", "수정 권한이 없습니다.");
-            return "bookclub/bookclub_post_forbidden";
-        }
-
-        // 4. 모임 정보 조회
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        model.addAttribute("bookClub", bookClub);
-        model.addAttribute("bookClubId", bookClubId);
-        model.addAttribute("post", post);
-        model.addAttribute("isEdit", true);
-
-        return "bookclub/bookclub_posts_edit";
-    }
-
-    /**
-     * 게시글 수정 처리 (PRG 패턴)
-     * POST /bookclubs/{bookClubId}/posts/{postId}/edit
-     * - 로그인 필수
-     * - 작성자만 수정 가능
-     */
-    @PostMapping("/{bookClubId}/posts/{postId}/edit")
-    public String editPost(
-            @PathVariable("bookClubId") Long bookClubId,
-            @PathVariable("postId") Long postId,
-            @RequestParam("boardTitle") String boardTitle,
-            @RequestParam("boardCont") String boardCont,
-            @RequestParam(value = "boardImage", required = false) MultipartFile boardImage,
-            @RequestParam(value = "keepExistingImage", required = false) String keepExistingImage,
-            @RequestParam(value = "isbn", required = false) String isbn,
-            @RequestParam(value = "bookTitle", required = false) String bookTitle,
-            @RequestParam(value = "bookAuthor", required = false) String bookAuthor,
-            @RequestParam(value = "bookImgUrl", required = false) String bookImgUrl,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
-        // 1. 로그인 확인
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return "redirect:/login";
-        }
-
-        Long memberSeq = loginMember.getMember_seq();
-
-        // 2. 게시글 조회
-        BookClubBoardVO existingPost = bookClubService.getBoardDetail(bookClubId, postId);
-        if (existingPost == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "게시글을 찾을 수 없거나 삭제되었습니다.");
-            return "redirect:/bookclubs/" + bookClubId;
-        }
-
-        // 3. 작성자 확인 (수정은 작성자만 가능)
-        if (!existingPost.getMember_seq().equals(memberSeq)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
-            return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
-        }
-
-        // 4. 필수 입력값 검증
-        if (boardTitle == null || boardTitle.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "제목을 입력해주세요.");
-            return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "/edit";
-        }
-
-        if (boardCont == null || boardCont.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "내용을 입력해주세요.");
-            return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "/edit";
-        }
-
-        // 5. 이미지 파일 처리
-        String savedImageUrl = existingPost.getBoard_img_url(); // 기존 이미지 유지 기본값
-
-        if (boardImage != null && !boardImage.isEmpty()) {
-            // 새 이미지 업로드
-            try {
-                String savedFileName = saveFile(boardImage);
-                savedImageUrl = "/img/" + savedFileName;
-                log.info("Board image updated: {}", savedFileName);
-            } catch (IOException e) {
-                log.error("Failed to save board image", e);
-                redirectAttributes.addFlashAttribute("errorMessage", "이미지 업로드에 실패했습니다.");
-                return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "/edit";
-            }
-        } else if (!"true".equals(keepExistingImage)) {
-            // 기존 이미지 삭제 요청 (새 이미지 없고, 기존 유지 체크도 안 한 경우)
-            savedImageUrl = null;
-        }
-
-        // 6. VO 생성 및 UPDATE
-        BookClubBoardVO boardVO = new BookClubBoardVO();
-        boardVO.setBook_club_seq(bookClubId);
-        boardVO.setBook_club_board_seq(postId);
-        boardVO.setBoard_title(boardTitle);
-        boardVO.setBoard_cont(boardCont);
-        boardVO.setBoard_img_url(savedImageUrl);
-        // 책 정보 (선택사항)
-        boardVO.setIsbn(isbn);
-        boardVO.setBook_title(bookTitle);
-        boardVO.setBook_author(bookAuthor);
-        boardVO.setBook_img_url(bookImgUrl);
-
-        boolean updated = bookClubService.updateBoardPost(boardVO);
-
-        if (updated) {
-            redirectAttributes.addFlashAttribute("successMessage", "게시글이 수정되었습니다.");
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "게시글 수정에 실패했습니다.");
-        }
-
-        return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
-    }
-
-    /**
-     * 게시글 삭제 처리 (PRG 패턴)
-     * POST /bookclubs/{bookClubId}/posts/{postId}/delete
-     * - 로그인 필수
-     * - 작성자 또는 모임장만 삭제 가능
-     */
-    @PostMapping("/{bookClubId}/posts/{postId}/delete")
-    public String deletePost(
-            @PathVariable("bookClubId") Long bookClubId,
-            @PathVariable("postId") Long postId,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
-        // 1. 로그인 확인
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
-            return "redirect:/login";
-        }
-
-        Long memberSeq = loginMember.getMember_seq();
-
-        // 2. 모임 조회
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
-            return "redirect:/bookclubs";
-        }
-
-        // 3. 게시글 조회
-        BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
-        if (post == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "게시글을 찾을 수 없거나 이미 삭제되었습니다.");
-            return "redirect:/bookclubs/" + bookClubId;
-        }
-
-        // 4. 삭제 권한 확인 (작성자 OR 모임장)
-        boolean isAuthor = post.getMember_seq().equals(memberSeq);
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
-
-        if (!isAuthor && !isLeader) {
-            redirectAttributes.addFlashAttribute("errorMessage", "삭제 권한이 없습니다.");
-            return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
-        }
-
-        // 5. 삭제 처리 (soft delete)
-        boolean deleted = bookClubService.deleteBoardPost(bookClubId, postId);
-
-        if (deleted) {
-            redirectAttributes.addFlashAttribute("successMessage", "게시글이 삭제되었습니다.");
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "게시글 삭제에 실패했습니다.");
-        }
-
-        // 6. 게시판 목록으로 리다이렉트
-        return "redirect:/bookclubs/" + bookClubId;
     }
 }
