@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -488,5 +490,63 @@ public class BookClubService {
         // 3. book_club_request UPDATE
         bookClubMapper.updateRequestStatus(requestSeq, "REJECTED");
         log.info("가입 신청 거절 완료: requestSeq={}", requestSeq);
+    }
+
+    // #5-5. 관리 페이지 - 멤버 강퇴
+    /**
+     * 독서모임 멤버 강퇴
+     *
+     * 검증 및 처리 순서:
+     * 1. 파라미터 null 체크
+     * 2. 타겟 멤버 조회 및 JOINED 상태 검증
+     * 3. 모임장 강퇴 방지 (leader_yn=true 체크)
+     * 4. book_club_member UPDATE (join_st='KICKED', join_st_update_dtm=CURRENT_TIMESTAMP)
+     *
+     * @param bookClubSeq    독서모임 ID
+     * @param leaderSeq      모임장 ID (권한 체크는 Controller에서 이미 완료)
+     * @param targetMemberSeq 강퇴 대상 멤버 ID
+     * @throws IllegalArgumentException 파라미터가 null인 경우
+     * @throws IllegalStateException    비즈니스 규칙 위반 시
+     */
+    @Transactional
+    public void kickMember(Long bookClubSeq, Long leaderSeq, Long targetMemberSeq) {
+        // 1. 파라미터 검증
+        if (bookClubSeq == null || leaderSeq == null || targetMemberSeq == null) {
+            log.warn("멤버 강퇴 실패: 잘못된 파라미터 - bookClubSeq={}, leaderSeq={}, targetMemberSeq={}",
+                    bookClubSeq, leaderSeq, targetMemberSeq);
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        // 2. 타겟 멤버 조회 및 상태 검증
+        project.bookclub.dto.BookClubManageMemberDTO member = bookClubMapper.selectMemberBySeq(bookClubSeq, targetMemberSeq);
+        if (member == null) {
+            log.warn("멤버 강퇴 실패: 존재하지 않는 멤버 - bookClubSeq={}, targetMemberSeq={}",
+                    bookClubSeq, targetMemberSeq);
+            throw new IllegalStateException("존재하지 않는 멤버입니다.");
+        }
+
+        // 3. JOINED 상태 검증
+        if (!"JOINED".equals(member.getJoinSt())) {
+            log.warn("멤버 강퇴 실패: JOINED 상태가 아님 - bookClubSeq={}, targetMemberSeq={}, joinSt={}",
+                    bookClubSeq, targetMemberSeq, member.getJoinSt());
+            throw new IllegalStateException("가입된 멤버가 아닙니다.");
+        }
+
+        // 4. 모임장 강퇴 방지 (leader_yn='Y')
+        if ("Y".equals(member.getLeaderYn())) {
+            log.warn("멤버 강퇴 실패: 모임장 강퇴 시도 - bookClubSeq={}, targetMemberSeq={}",
+                    bookClubSeq, targetMemberSeq);
+            throw new IllegalStateException("모임장은 강퇴할 수 없습니다.");
+        }
+
+        // 5. book_club_member UPDATE (join_st='KICKED')
+        int updatedRows = bookClubMapper.updateMemberToKicked(bookClubSeq, targetMemberSeq);
+        if (updatedRows == 0) {
+            log.warn("멤버 강퇴 실패: 업데이트 대상 없음 - bookClubSeq={}, targetMemberSeq={}",
+                    bookClubSeq, targetMemberSeq);
+            throw new IllegalStateException("강퇴 처리에 실패했습니다.");
+        }
+
+        log.info("멤버 강퇴 완료: bookClubSeq={}, targetMemberSeq={}", bookClubSeq, targetMemberSeq);
     }
 }
