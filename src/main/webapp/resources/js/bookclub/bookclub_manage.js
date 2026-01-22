@@ -96,44 +96,58 @@ const BookClubManage = (() => {
     }
 
     /**
-     * 이미지 업로드 프리뷰
+     * 배너 이미지 URL 미리보기
      */
-    function initImageUpload() {
-        const bannerUpload = document.getElementById('bannerUpload');
+    function initImagePreview() {
+        const bannerImgUrlInput = document.getElementById('bannerImgUrl');
         const bannerPreview = document.getElementById('bannerPreview');
 
-        if (!bannerUpload || !bannerPreview) return;
+        if (!bannerImgUrlInput || !bannerPreview) return;
 
-        bannerUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            // 파일 타입 검증
-            if (!file.type.startsWith('image/')) {
-                alert('이미지 파일만 업로드 가능합니다.');
-                return;
-            }
-
-            // 파일 크기 검증 (5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('이미지 크기는 5MB 이하로 업로드해주세요.');
-                return;
-            }
-
-            // 프리뷰 표시
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                // 기존 플레이스홀더를 이미지로 교체
-                const newImg = document.createElement('img');
-                newImg.src = event.target.result;
-                newImg.alt = '모임 대표 이미지';
-                newImg.className = 'banner-image';
-                newImg.id = 'bannerPreview';
-
-                bannerPreview.parentElement.replaceChild(newImg, bannerPreview);
-            };
-            reader.readAsDataURL(file);
+        // URL 입력 시 미리보기 업데이트
+        bannerImgUrlInput.addEventListener('blur', () => {
+            const url = bannerImgUrlInput.value.trim();
+            updateBannerPreview(url);
         });
+    }
+
+    /**
+     * 배너 이미지 미리보기 업데이트
+     */
+    function updateBannerPreview(url) {
+        const bannerPreview = document.getElementById('bannerPreview');
+        if (!bannerPreview) return;
+
+        const parentEl = bannerPreview.parentElement;
+
+        if (url && url.length > 0) {
+            // URL이 있으면 이미지로 교체
+            const newImg = document.createElement('img');
+            newImg.src = url;
+            newImg.alt = '모임 대표 이미지';
+            newImg.className = 'banner-image';
+            newImg.id = 'bannerPreview';
+            newImg.onerror = () => {
+                // 이미지 로드 실패 시 플레이스홀더로 복원
+                const placeholder = document.createElement('div');
+                placeholder.className = 'banner-placeholder';
+                placeholder.id = 'bannerPreview';
+                placeholder.textContent = '📚';
+                if (newImg.parentElement) {
+                    newImg.parentElement.replaceChild(placeholder, newImg);
+                }
+            };
+            parentEl.replaceChild(newImg, bannerPreview);
+        } else {
+            // URL이 없으면 플레이스홀더로 교체
+            if (bannerPreview.tagName === 'IMG') {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'banner-placeholder';
+                placeholder.id = 'bannerPreview';
+                placeholder.textContent = '📚';
+                parentEl.replaceChild(placeholder, bannerPreview);
+            }
+        }
     }
 
     /**
@@ -213,6 +227,96 @@ const BookClubManage = (() => {
                 }
             }
         }
+    }
+
+    /**
+     * 모임 설정 저장 버튼 초기화
+     */
+    function initSettingsSaveButton() {
+        const saveBtn = document.getElementById('btnSaveSettings');
+        if (!saveBtn) return;
+
+        saveBtn.addEventListener('click', async () => {
+            // 입력값 수집
+            const name = document.getElementById('clubName')?.value.trim();
+            const description = document.getElementById('clubDescription')?.value.trim();
+            const region = document.getElementById('clubRegion')?.value.trim();
+            const schedule = document.getElementById('clubSchedule')?.value.trim();
+            const bannerImgUrl = document.getElementById('bannerImgUrl')?.value.trim();
+
+            // 필수 입력값 검증
+            if (!name) {
+                showAlert('모임 이름을 입력해주세요.', 'error');
+                return;
+            }
+            if (!description) {
+                showAlert('모임 소개를 입력해주세요.', 'error');
+                return;
+            }
+
+            // 확인 팝업
+            if (!confirm('변경사항을 저장하시겠습니까?')) {
+                return;
+            }
+
+            // 버튼 비활성화 (중복 클릭 방지)
+            saveBtn.disabled = true;
+            saveBtn.textContent = '저장 중...';
+
+            try {
+                const csrf = getCsrfToken();
+                const bookClubId = window.location.pathname.split('/')[2]; // /bookclubs/{id}/manage
+
+                const response = await fetch(`/bookclubs/${bookClubId}/manage/settings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrf.header]: csrf.token
+                    },
+                    body: JSON.stringify({
+                        name,
+                        description,
+                        region,
+                        schedule,
+                        bannerImgUrl: bannerImgUrl || null
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+
+                    // 업데이트된 데이터로 화면 즉시 갱신
+                    if (result.updated) {
+                        // 상단 제목/서브타이틀의 모임명 갱신
+                        const pageSubtitle = document.querySelector('.page-subtitle');
+                        if (pageSubtitle) {
+                            pageSubtitle.textContent = result.updated.name;
+                        }
+
+                        // 입력 필드 갱신 (서버에서 받은 최신 값으로 동기화)
+                        document.getElementById('clubName').value = result.updated.name;
+                        document.getElementById('clubDescription').value = result.updated.description;
+                        document.getElementById('clubRegion').value = result.updated.region || '';
+                        document.getElementById('clubSchedule').value = result.updated.schedule || '';
+                        document.getElementById('bannerImgUrl').value = result.updated.bannerImgUrl || '';
+
+                        // 배너 이미지 미리보기 갱신
+                        updateBannerPreview(result.updated.bannerImgUrl);
+                    }
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('설정 저장 요청 실패:', error);
+                showAlert('설정 저장 중 오류가 발생했습니다.', 'error');
+            } finally {
+                // 버튼 원래대로
+                saveBtn.disabled = false;
+                saveBtn.textContent = '변경사항 저장';
+            }
+        });
     }
 
     /**
@@ -403,8 +507,11 @@ const BookClubManage = (() => {
         // 버튼 이벤트 초기화
         initButtons();
 
-        // 이미지 업로드 초기화
-        initImageUpload();
+        // 이미지 미리보기 초기화
+        initImagePreview();
+
+        // 설정 저장 버튼 초기화
+        initSettingsSaveButton();
     }
 
     // 외부 공개 API

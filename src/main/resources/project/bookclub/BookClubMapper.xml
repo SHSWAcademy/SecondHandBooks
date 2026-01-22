@@ -525,4 +525,31 @@
           AND join_st = 'JOINED'
     </update>
 
+    <!-- ===================================== -->
+    <!-- 관리 페이지 - 모임 설정 업데이트 -->
+    <!-- ===================================== -->
+
+    <!-- 모임 설정 업데이트 (정보 수정) -->
+    <update id="updateBookClubSettings">
+        UPDATE book_club
+        SET book_club_name = #{name},
+            book_club_desc = #{desc},
+            book_club_rg = #{region},
+            book_club_schedule = #{schedule},
+            banner_img_url = #{bannerImgUrl},
+            upd_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{bookClubSeq}
+          AND book_club_deleted_dt IS NULL
+    </update>
+
+    <!-- 모임명 중복 체크 (현재 모임 제외) -->
+    <select id="countByLeaderAndNameExcludingSelf" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club
+        WHERE book_club_leader_seq = #{leaderSeq}
+          AND book_club_name = #{name}
+          AND book_club_seq != #{bookClubSeq}
+          AND book_club_deleted_dt IS NULL
+    </select>
+
 </mapper>

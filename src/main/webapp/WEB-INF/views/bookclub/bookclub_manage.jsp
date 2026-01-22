@@ -249,17 +249,11 @@
                                             <h2>정보 수정</h2>
                                         </div>
 
-                                        <form id="settingsForm" class="settings-section" method="POST"
-                                            action="${pageContext.request.contextPath}/bookclubs/${bookclub.bookClubSeq}/edit"
-                                            enctype="multipart/form-data">
-
-                                            <!-- CSRF 토큰 -->
-                                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-
-                                            <!-- 대표 이미지 -->
+                                        <div class="settings-section">
+                                            <!-- 대표 이미지 (1차: URL 입력, 2차: 파일 업로드) -->
                                             <div class="form-section banner-upload-section">
                                                 <h3 class="form-section-title">대표 이미지</h3>
-                                                <div class="banner-preview">
+                                                <div class="banner-preview-wrapper">
                                                     <c:choose>
                                                         <c:when test="${not empty bookclub.bannerImgUrl}">
                                                             <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
@@ -269,45 +263,53 @@
                                                             <div class="banner-placeholder" id="bannerPreview">📚</div>
                                                         </c:otherwise>
                                                     </c:choose>
-                                                    <div>
-                                                        <label for="bannerUpload" class="btn btn-secondary">이미지 변경</label>
-                                                        <input type="file" id="bannerUpload" name="bannerImage"
-                                                            accept="image/*" style="display: none;">
-                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="bannerImgUrl" class="form-label">이미지 URL</label>
+                                                    <input type="text" id="bannerImgUrl" class="form-input"
+                                                        value="<c:out value='${bookclub.bannerImgUrl}'/>"
+                                                        placeholder="예: https://example.com/image.jpg"
+                                                        maxlength="500">
+                                                    <p class="form-help-text">이미지 URL을 입력하세요 (파일 업로드는 2차 개선 예정)</p>
                                                 </div>
                                             </div>
 
                                             <!-- 모임 이름 -->
                                             <div class="form-group">
-                                                <label for="clubName" class="form-label">모임 이름</label>
-                                                <input type="text" id="clubName" name="name" class="form-input"
+                                                <label for="clubName" class="form-label">모임 이름 <span class="required">*</span></label>
+                                                <input type="text" id="clubName" class="form-input"
                                                     value="<c:out value='${bookclub.name}'/>" required maxlength="50">
                                             </div>
 
                                             <!-- 모임 소개 -->
                                             <div class="form-group">
-                                                <label for="clubDescription" class="form-label">모임 소개</label>
-                                                <textarea id="clubDescription" name="description" class="form-textarea"
+                                                <label for="clubDescription" class="form-label">모임 소개 <span class="required">*</span></label>
+                                                <textarea id="clubDescription" class="form-textarea"
                                                     required maxlength="500"><c:out value="${bookclub.description}" /></textarea>
                                                 <p class="form-help-text">모임의 특징과 목적을 자유롭게 소개해주세요 (최대 500자)</p>
                                             </div>
 
-                                            <!-- 정기 일정 (모임장만 수정 가능) -->
+                                            <!-- 지역 -->
                                             <div class="form-group">
-                                                <label for="clubSchedule" class="form-label">
-                                                    정기 일정
-                                                    <span class="form-help-text">(모임장만 수정 가능)</span>
-                                                </label>
-                                                <input type="text" id="clubSchedule" name="schedule" class="form-input"
+                                                <label for="clubRegion" class="form-label">지역</label>
+                                                <input type="text" id="clubRegion" class="form-input"
+                                                    value="<c:out value='${bookclub.region}'/>"
+                                                    placeholder="예: 서울 강남구" maxlength="100">
+                                            </div>
+
+                                            <!-- 정기 일정 -->
+                                            <div class="form-group">
+                                                <label for="clubSchedule" class="form-label">정기 일정</label>
+                                                <input type="text" id="clubSchedule" class="form-input"
                                                     value="<c:out value='${bookclub.schedule}'/>"
                                                     placeholder="예: 매주 토요일 오후 2시" maxlength="100">
                                             </div>
 
                                             <!-- 저장 버튼 -->
                                             <div class="form-actions">
-                                                <button type="submit" class="btn-submit">변경사항 저장</button>
+                                                <button type="button" id="btnSaveSettings" class="btn-submit">변경사항 저장</button>
                                             </div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
