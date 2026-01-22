@@ -16,6 +16,8 @@ import project.bookclub.vo.BookClubVO;
  * - ${bookclub.maxMember}
  * - ${bookclub.region}
  * - ${bookclub.schedule}
+ * - ${bookclub.description}
+ * - ${bookclub.bannerImgUrl}
  */
 @Data
 @NoArgsConstructor
@@ -23,9 +25,11 @@ import project.bookclub.vo.BookClubVO;
 public class BookClubManageViewDTO {
     private Long bookClubSeq;      // book_club_seq
     private String name;            // book_club_name
+    private String description;     // book_club_desc
     private String region;          // book_club_rg
     private Integer maxMember;      // book_club_max_member
     private String schedule;        // book_club_schedule
+    private String bannerImgUrl;    // banner_img_url
     private Integer memberCount;    // 현재 참여 인원 (동적 계산)
 
     /**
@@ -36,9 +40,11 @@ public class BookClubManageViewDTO {
     public BookClubManageViewDTO(BookClubVO vo, int currentMemberCount) {
         this.bookClubSeq = vo.getBook_club_seq();
         this.name = vo.getBook_club_name();
+        this.description = vo.getBook_club_desc();
         this.region = vo.getBook_club_rg();
         this.maxMember = vo.getBook_club_max_member();
         this.schedule = vo.getBook_club_schedule();
+        this.bannerImgUrl = vo.getBanner_img_url();
         this.memberCount = currentMemberCount;
     }
 }
