@@ -2,6 +2,7 @@ package project.trade;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import project.member.MemberVO;
 
 import java.util.List;
 
@@ -28,4 +29,6 @@ public interface TradeMapper {
 
     List<TradeVO> selectCategory(); // 카테고리 조회
     List<TradeVO> findBookState();
+
+    MemberVO findSellerInfo(@Param("trade_seq") long trade_seq);    // 판매자 정보조회
 }

@@ -77,8 +77,39 @@
             </div>
 
             <!-- 가격 -->
-            <div class="text-3xl font-bold mb-4">
-                <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
+            <div class="mb-4 space-y-1">
+
+                <c:if test="${trade.book_org_price > 0}">
+                    <!-- 할인율 계산 -->
+                    <fmt:parseNumber var="discountRate"
+                        value="${((trade.book_org_price - trade.sale_price) * 100) / trade.book_org_price}"
+                        integerOnly="true" />
+
+                    <div class="flex items-end gap-3">
+                        <!-- 판매가 -->
+                        <div class="text-3xl font-bold text-gray-900">
+                            <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
+                        </div>
+
+                        <!-- 할인율 -->
+                        <div class="text-sm font-bold text-red-500">
+                            ${discountRate}%
+                        </div>
+
+                        <!-- 정가 (취소선) -->
+                        <div class="text-lg text-gray-400 line-through">
+                            <fmt:formatNumber value="${trade.book_org_price}" pattern="#,###" /> 원
+                        </div>
+                    </div>
+                </c:if>
+
+                <!-- 정가 없을 때 -->
+                <c:if test="${trade.book_org_price <= 0}">
+                    <div class="text-3xl font-bold text-gray-900">
+                        <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
+                    </div>
+                </c:if>
+
             </div>
 
             <!-- 배송 / 상태 -->
@@ -94,12 +125,22 @@
                 </div>
 
                 <div>
-                    상태 : <b>${trade.book_st}</b>
+                    상태 :
+                    <b>
+                        <c:choose>
+                            <c:when test="${trade.book_st eq 'LIKE_NEW'}">거의 새책</c:when>
+                            <c:when test="${trade.book_st eq 'GOOD'}">좋음</c:when>
+                            <c:when test="${trade.book_st eq 'USED'}">사용됨</c:when>
+                            <c:when test="${trade.book_st eq 'NEW'}">새책</c:when>
+                            <c:otherwise>상태정보 없음</c:otherwise>
+                        </c:choose>
+                    </b>
                 </div>
 
                 <div>
                     거래지역 : ${trade.sale_rg}
                 </div>
+
             </div>
 
             <!-- 설명 -->
@@ -108,44 +149,71 @@
                 <p class="whitespace-pre-wrap">${trade.sale_cont}</p>
             </div>
 
-            <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
-                <form action="/chatrooms" method="post">
-                    <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
-                    <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
-                     <input type="hidden" name="sale_title" value="${trade.sale_title}">
-                    <button type="submit" class="w-full px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-red-600 transition font-bold">채팅하기</button>
-                </form>
-            </c:if>
+            <!-- 판매자 정보 -->
+            <div class="mt-8 border-t pt-6">
+                <h3 class="font-bold mb-3 text-lg">판매자 정보</h3>
 
-            <!-- 찜하기 버튼 -->
-            <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
-                <form id="wishForm-${trade.trade_seq}" class="inline-block ml-4">
-                    <input type="hidden" name="trade_seq" value="${trade.trade_seq}" />
-                    <button type="button"
-                            onclick="toggleWish(${trade.trade_seq})"
-                            class="text-2xl transition ${wished ? 'text-red-500 active' : 'text-gray-400'}"
-                            title="찜하기">
-                        ♥
-                    </button>
-                    <span id="wishCount-${trade.trade_seq}" class="ml-1 text-sm text-gray-600">
-                        ${wishCount}
-                    </span>
-                </form>
-            </c:if>
+                <c:choose>
+                    <c:when test="${not empty seller_info}">
+                        <div class="flex items-center gap-4">
+                           <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600">
 
-            <!-- 수정/삭제 버튼 -->
-            <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq}">
-                <div class="mt-6 flex gap-3">
-                    <a href="/trade/modify/${trade.trade_seq}"
-                       class="flex-1 px-6 py-3 bg-primary-500 text-white text-center rounded-lg hover:bg-primary-600 transition font-bold">
-                        수정
-                    </a>
-                    <form action="${pageConQtext.request.contextPath}/trade/delete/${trade.trade_seq}" method="post" class="flex-1"
-                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                           </div>
+                            <div class="text-sm space-y-1">
+                                <div>
+                                    닉네임 :
+                                    <b>${seller_info.member_nicknm}</b>
+                                </div>
+                            </div>
+
+                        </div>
+                    </c:when>
+
+                    <c:otherwise>
+                        <div class="text-sm text-gray-400">
+                            판매자 정보를 불러올 수 없습니다.
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+
+            <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
+                <div class="mt-6 flex items-center gap-4">
+
+                    <!-- 채팅하기 버튼 -->
+                    <form action="/chatrooms" method="post" class="flex-1">
+                        <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
+                        <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
+                        <input type="hidden" name="sale_title" value="${trade.sale_title}">
+
                         <button type="submit"
-                                class="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-bold">
-                            삭제
+                                class="w-full px-6 py-3 rounded-lg font-bold text-white transition flex items-center justify-center gap-2"
+                                style="background-color:#0036cc;">
+                            <!-- 채팅 아이콘 -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            채팅하기
                         </button>
+                    </form>
+
+                    <!-- 찜하기 -->
+                    <form id="wishForm-${trade.trade_seq}" class="flex items-center gap-1">
+                        <input type="hidden" name="trade_seq" value="${trade.trade_seq}" />
+
+                        <button type="button"
+                                onclick="toggleWish(${trade.trade_seq})"
+                                class="text-2xl transition ${wished ? 'text-red-500 active' : 'text-gray-400'}"
+                                title="찜하기">
+                            ♥
+                        </button>
+
+                        <span id="wishCount-${trade.trade_seq}" class="text-sm text-gray-600">
+                            ${wishCount}
+                        </span>
                     </form>
                 </div>
             </c:if>

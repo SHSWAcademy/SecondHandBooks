@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.member.MemberVO;
 import project.util.exception.TradeNotFoundException;
 
 import java.io.File;
@@ -153,4 +154,8 @@ public class TradeService {
         return tradeMapper.findByChatRoomSeq(chat_room_seq);
     }
 
+    // 판매자 정보조회
+    public MemberVO findSellerInfo(long tradeSeq) {
+        return tradeMapper.findSellerInfo(tradeSeq);
+    }
 }

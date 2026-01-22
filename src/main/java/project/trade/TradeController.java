@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import project.member.MemberService;
 import project.member.MemberVO;
 import project.util.Const;
 import project.util.book.BookApiService;
@@ -30,7 +31,6 @@ public class TradeController {
     private final BookApiService bookApiService;
     private final FileStore fileStore; // 이미지 저장 기능을 수행하는 객체
 
-
     // 판매글 단일 조회
     @GetMapping("/trade/{tradeSeq}")
     public String getSaleDetail(@PathVariable long tradeSeq, Model model, HttpSession session) {
@@ -40,10 +40,11 @@ public class TradeController {
         boolean wished = false;
 
         MemberVO login = (MemberVO) session.getAttribute(Const.SESSION);
+        MemberVO seller_info = tradeService.findSellerInfo(tradeSeq);   // 판매자 정보조회
         if (login != null) {
             wished = tradeService.isWished(tradeSeq, login.getMember_seq());    // 찜하기 눌렀는지 검증
         }
-
+        model.addAttribute("seller_info", seller_info);
         model.addAttribute("trade", trade);
         model.addAttribute("wishCount", wishCount);
         model.addAttribute("wished", wished);
