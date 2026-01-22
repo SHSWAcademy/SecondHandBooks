@@ -3,7 +3,7 @@ package project.member;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Map;
-///
+
 @Mapper
 public interface MemberMapper {
     MemberVO login(MemberVO vo);
