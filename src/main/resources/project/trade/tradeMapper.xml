@@ -154,36 +154,45 @@
     <!-- 페이징 처리 -->
     <select id="findAllWithPaging" resultType="project.trade.TradeVO">
         SELECT
-            trade_seq,
-            book_title,
-            book_author,
-            book_publisher,
-            book_img,
-            sale_title,
-            sale_price,
-            sale_st,
-            sale_rg,
-            crt_dtm
+        trade_seq,
+        book_title,
+        book_author,
+        book_publisher,
+        book_img,
+        sale_title,
+        sale_price,
+        sale_st,
+        sale_rg,
+        crt_dtm
         FROM sb_trade_info
-        WHERE
-            del_dtm IS NULL
-            AND
-            book_sale_dtm IS NULL
-        <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
+        WHERE del_dtm IS NULL
+
+        <!-- 카테고리 -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
             AND category_seq = #{searchVO.category_seq}
         </if>
+
+        <!-- 상태 -->
         <if test="searchVO.book_st != null">
             AND book_st = #{searchVO.book_st}::book_st_enum
         </if>
+
+        <!-- 검색어 -->
         <if test="searchVO.search_word != null and searchVO.search_word != ''">
             AND (
-                book_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR sale_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
+            book_title LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
+            OR sale_title LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
+            OR book_author LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
+            OR book_publisher LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
             )
         </if>
+
+        <!-- 판매 상태 -->
+        <if test="searchVO.sale_st != null">
+            AND sale_st = #{searchVO.sale_st}::sale_st_enum
+        </if>
+
+        ORDER BY crt_dtm DESC
         <!-- order 조건  -->
         <choose>
             <when test="searchVO.sort == 'priceAsc'">
@@ -199,6 +208,7 @@
         LIMIT #{limit}
         OFFSET #{offset}
     </select>
+
 
     <!-- 전체 개수 조회 (페이지 수 계산용) -->
     <select id="countAll" resultType="int">
@@ -225,11 +235,10 @@
         </if>
     </select>
 
-    <!-- 카테고리 조회 -->
     <select id="selectCategory" resultType="project.trade.TradeVO">
         SELECT
-            category_nm,
-            category_seq
+        category_nm,
+        category_seq
         FROM category
     </select>
 

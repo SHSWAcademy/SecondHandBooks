@@ -118,6 +118,7 @@ public class TradeService {
     public List<TradeVO> selectCategory() {
         return tradeMapper.selectCategory();
     }
+    public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
 
     @Transactional
     public void updateStatus(Long trade_seq, String sold, Long member_buyer_seq) {
@@ -151,4 +152,5 @@ public class TradeService {
     public TradeVO findByChatRoomSeq(long chat_room_seq) {
         return tradeMapper.findByChatRoomSeq(chat_room_seq);
     }
+
 }
