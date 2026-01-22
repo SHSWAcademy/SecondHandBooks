@@ -18,7 +18,9 @@ import project.util.imgUpload.UploadFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Slf4j
@@ -31,11 +33,21 @@ public class TradeController {
 
     // 판매글 단일 조회
     @GetMapping("/trade/{tradeSeq}")
-    public String getSaleDetail(@PathVariable long tradeSeq, Model model) {
+    public String getSaleDetail(@PathVariable long tradeSeq, Model model, HttpSession session) {
         TradeVO trade = tradeService.search(tradeSeq);
-        log.info("findTrade: {}", trade);
+
+        int wishCount = tradeService.countLikeAll(tradeSeq); // 총 찜 개수
+        boolean wished = false;
+
+        MemberVO login = (MemberVO) session.getAttribute(Const.SESSION);
+        if (login != null) {
+            wished = tradeService.isWished(tradeSeq, login.getMember_seq());    // 찜하기 눌렀는지 검증
+        }
 
         model.addAttribute("trade", trade);
+        model.addAttribute("wishCount", wishCount);
+        model.addAttribute("wished", wished);
+
         return "trade/tradedetail";
     }
 
@@ -210,6 +222,27 @@ public class TradeController {
         }
         // tradeVO에 seller seq 할당
         tradeVO.setMember_seller_seq(loginMember.getMember_seq());
+    }
+
+    // 찜하기 처리
+    @PostMapping("/trade/like")
+    @ResponseBody
+    public Map<String, Object> tradeLike(@RequestParam long trade_seq, HttpSession session) {
+        MemberVO memberVO = (MemberVO) session.getAttribute(Const.SESSION);
+        // 비동기처리를 위해 map을 json으로 변환하여 전달
+        Map<String, Object> result = new HashMap<>();
+
+        if (memberVO.getMember_seq() == 0) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        boolean wished = tradeService.saveLike(trade_seq, memberVO.getMember_seq());
+        result.put("success", true);
+        result.put("wished", wished);
+
+        return result;
     }
 
 }

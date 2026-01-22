@@ -82,6 +82,20 @@
             now()
         )
     </insert>
+
+    <!-- 찜하기 추가 -->
+    <insert id="saveLike">
+        INSERT INTO trade_wish (
+            trade_seq,
+            member_seq,
+            crt_dtm
+            ) VALUES (
+            #{trade_seq},
+            #{member_seq},
+            now()
+        )
+    </insert>
+
     <update id="update" parameterType="project.trade.TradeVO">
         UPDATE sb_trade_info
             SET
@@ -201,5 +215,25 @@
             category_seq
         FROM category
     </select>
+
+    <!-- 찜하기 조회 -->
+    <select id="countLike" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM trade_wish
+        WHERE trade_seq = #{trade_seq} AND member_seq = #{member_seq}
+    </select>
+
+    <!-- 찜하기 조회 전체갯수 -->
+    <select id="countLikeAll" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM trade_wish
+        WHERE trade_seq = #{trade_seq}
+    </select>
+
+    <!--좋아요 삭제-->
+    <delete id="deleteLike" >
+        DELETE FROM trade_wish
+        WHERE trade_seq = #{trade_seq} AND member_seq = #{member_seq}
+    </delete>
 
 </mapper>

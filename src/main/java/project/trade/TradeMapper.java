@@ -18,6 +18,9 @@ public interface TradeMapper {
     int update(TradeVO tradeVO); // 판매글 수정
     int delete(@Param("trade_seq") Long tradeSeq);
     List<TradeVO> selectCategory(); // 카테고리 조회
-
     void updateStatus(@Param("trade_seq") Long trade_seq, @Param("sold") String sold, @Param("member_buyer_seq") Long member_buyer_seq);
+    int countLike(@Param("trade_seq") long trade_seq, @Param("member_seq")long member_seq); // 좋아요 카운팅
+    int saveLike(@Param("trade_seq") long trade_seq, @Param("member_seq") long member_seq); // 좋아요 추가
+    int deleteLike(@Param("trade_seq") long trade_seq, @Param("member_seq") long member_seq); // 좋아요 삭제
+    int countLikeAll(@Param("trade_seq") long trade_seq); // 좋아요 조회
 }
