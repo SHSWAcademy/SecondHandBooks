@@ -58,6 +58,7 @@
             category_nm,
             category_seq,
             book_st,
+            payment_type,
             sale_cont,
             sale_price,
             delivery_cost,
@@ -75,6 +76,7 @@
             #{category_nm},
             #{category_seq},
             #{book_st}::book_st_enum,
+            #{payment_type}::payment_type_enum,
             #{sale_cont},
             #{sale_price},
             #{delivery_cost},
@@ -272,6 +274,16 @@
             FROM chatroom
             WHERE chat_room_seq = #{chat_room_seq}
         )
+    </select>
+    <!-- 판매자 조회 -->
+    <select id="findSellerInfo" resultType="project.member.MemberVO">
+        SELECT
+            m.member_nicknm,
+            m.member_email,
+            m.member_tel_no
+        FROM sb_trade_info s
+        JOIN member_info m on s.member_seller_seq = m.member_seq
+        WHERE s.trade_seq = #{trade_seq}
     </select>
 
 

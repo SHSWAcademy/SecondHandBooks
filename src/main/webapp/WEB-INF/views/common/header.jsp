@@ -99,7 +99,7 @@
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                             </svg>
-                            <c:if test="${messageSign == 1}">
+                            <c:if test="${messageSign}">
                                 <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                             </c:if>
                         </a>

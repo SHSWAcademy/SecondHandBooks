@@ -18,7 +18,7 @@ public class UnreadInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         if (modelAndView != null && messageService.isUnreadMessage()) {
-            modelAndView.addObject("1", true);
+            modelAndView.addObject("messageSign", true);
         }
     }
 
