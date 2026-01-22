@@ -12,4 +12,6 @@ public interface MessageMapper {
             @Param("chat_room_seq") long chat_room_seq,
             @Param("member_seq") long member_seq
     );
+
+    boolean isUnreadMessage();
 }

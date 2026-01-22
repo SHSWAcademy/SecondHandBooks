@@ -29,4 +29,8 @@ public class MessageService {
 
         return messageMapper.findByRoomSeq(chat_room_seq);
     }
+
+    public boolean isUnreadMessage() {
+        return messageMapper.isUnreadMessage();
+    }
 }
