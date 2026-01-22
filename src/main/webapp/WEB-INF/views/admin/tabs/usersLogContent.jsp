@@ -25,7 +25,6 @@
             </td>
             <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.login_ip}</td>
             <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.login_dtm}</td>
-            <td class="px-6 py-4 text-xs text-gray-500">${log.activity}</td>
           </tr>
         </c:forEach>
       </c:when>

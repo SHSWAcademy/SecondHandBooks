@@ -12,6 +12,7 @@ import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -44,6 +45,10 @@ public class AdminController {
             model.addAttribute("trades", adminService.getRecentTrades());
             model.addAttribute("clubs", adminService.getRecentBookClubs());
 
+            // 3. 로그 데이터
+            model.addAttribute("userLogs", adminService.getMemberLoginLogs());
+            model.addAttribute("adminLogs", adminService.getAdminLoginLogs());
+
             return "admin/dashboard";
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,12 +67,17 @@ public class AdminController {
     @PostMapping("/loginProcess")
     public String loginProcess(@RequestParam String id,
                                @RequestParam String pwd,
-                               HttpSession sess) {
+                               HttpSession sess,
+                               HttpServletRequest request) {
         AdminVO admin = adminService.login(id, pwd);
 
         if (admin != null) {
             sess.setAttribute("adminSess", admin);
             sess.setMaxInactiveInterval(60 * 60); // 1시간
+
+            // 로그인 기록 추가
+            String loginIp = getClientIP(request);
+            adminService.recordAdminLogin(admin.getAdmin_seq(), loginIp);
             return "redirect:/admin";
         } else {
             return "redirect:/admin/login?error=true";
@@ -76,8 +86,38 @@ public class AdminController {
 
     // 4. 로그아웃
     @GetMapping("/logout")
-    public String logout(HttpSession sess) {
+    public String logout(HttpSession sess, HttpServletRequest request) {
+        AdminVO admin = (AdminVO) sess.getAttribute("adminSess") ;
+
+        // 로그아웃 기록 추가
+        if ( admin != null) {
+            String logoutIp = getClientIP(request);
+            adminService.recordAdminLogout(admin.getAdmin_seq(), logoutIp);
+        }
         sess.invalidate();
         return "redirect:/admin/login";
+    }
+
+    // IP 추출 메서드
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        if (ip != null && ip.indexOf(",") > 0) {
+            ip = ip.substring(0, ip.indexOf(","));
+        }
+        return ip;
     }
 }
