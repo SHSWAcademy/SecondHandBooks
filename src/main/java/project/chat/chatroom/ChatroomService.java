@@ -51,6 +51,10 @@ public class ChatroomService {
         return chatroomMapper.isMemberOfChatroom(chat_room_seq, member_seq);
     }
 
+    public Long findChatRoomSeqByTradeSeq(Long trade_seq) {
+        return chatroomMapper.findChatRoomSeqByTradeSeq(trade_seq);
+    }
+
     /*
     채팅방 메시지 전체 조회는 messageService 에서 처리
     public List<MessageVO> getAllMessages(long chat_room_seq) {

@@ -238,6 +238,7 @@
     <select id="findByChatRoomSeq" resultType="project.trade.TradeVO">
         SELECT
             trade_seq,
+            member_seller_seq,
             book_img,
             book_title,
             sale_price,
@@ -250,6 +251,7 @@
             WHERE chat_room_seq = #{chat_room_seq}
         )
     </select>
+
 
     <!--좋아요 삭제-->
     <delete id="deleteLike" >
