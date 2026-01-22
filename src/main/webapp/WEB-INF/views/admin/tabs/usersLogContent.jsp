@@ -12,6 +12,7 @@
       <th class="px-6 py-4 text-left">회원</th>
       <th class="px-6 py-4 text-left">접속 IP</th>
       <th class="px-6 py-4 text-left">접속 시간</th>
+      <th class="px-6 py-4 text-left">활동</th>
     </tr>
     </thead>
     <tbody class="divide-y divide-gray-50">
@@ -23,6 +24,7 @@
               <p class="text-sm font-bold text-gray-900">${log.member_nicknm}</p>
             </td>
             <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.login_ip}</td>
+            <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.login_dtm}</td>
           </tr>
         </c:forEach>
       </c:when>
