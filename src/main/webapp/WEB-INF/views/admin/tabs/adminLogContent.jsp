@@ -10,9 +10,9 @@
     <thead class="bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
     <tr>
       <th class="px-6 py-4 text-left">관리자</th>
+      <th class="px-6 py-4 text-left">활동</th>
       <th class="px-6 py-4 text-left">접속 IP</th>
-      <th class="px-6 py-4 text-left">접속 시간</th>
-      <th class="px-6 py-4 text-left">접속 종료시간</th>
+      <th class="px-6 py-4 text-left">일시</th>
     </tr>
     </thead>
     <tbody class="divide-y divide-gray-50">
@@ -23,9 +23,9 @@
             <td class="px-6 py-4">
               <p class="text-sm font-bold text-gray-900">${log.admin_login_id}</p>
             </td>
+            <td class="px-6 py-4 text-xs text-gray-600">${log.activity}</td>
             <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.login_ip}</td>
-            <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.formattedLoginDtm}</td>
-            <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.formattedLogoutDtm}</td>
+            <td class="px-6 py-4 text-xs text-gray-500 font-mono">${log.activity_dtm}</td>
           </tr>
         </c:forEach>
       </c:when>
