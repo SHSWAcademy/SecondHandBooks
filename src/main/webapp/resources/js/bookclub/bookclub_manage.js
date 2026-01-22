@@ -335,19 +335,54 @@ const BookClubManage = (() => {
         // 멤버 퇴장 버튼
         const kickBtns = document.querySelectorAll('.btn-kick');
         kickBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const memberSeq = btn.dataset.memberSeq;
                 const clubSeq = btn.dataset.clubSeq;
                 const memberName = btn.dataset.memberName;
 
-                const confirmed = confirm(`정말로 ${memberName}님을 퇴장시키겠습니까?`);
+                if (!confirm(`정말로 ${memberName}님을 퇴장시키겠습니까?`)) {
+                    return;
+                }
 
-                if (confirmed) {
-                    // TODO: 추후 fetch로 서버 퇴장 요청 구현
-                    console.log('퇴장 요청:', { memberSeq, clubSeq });
+                // 버튼 비활성화 (중복 클릭 방지)
+                btn.disabled = true;
+                btn.textContent = '처리 중...';
 
-                    // 임시 알림 (추후 실제 로직으로 교체)
-                    alert('퇴장 기능은 추후 구현 예정입니다.');
+                try {
+                    const csrf = getCsrfToken();
+                    const response = await fetch(`/bookclubs/${clubSeq}/manage/members/${memberSeq}/kick`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [csrf.header]: csrf.token
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showAlert(result.message, 'success');
+
+                        // DOM 제거 - 해당 멤버의 tr.member-row 제거
+                        const memberRow = btn.closest('tr.member-row');
+                        if (memberRow) {
+                            memberRow.remove();
+                        }
+
+                        // 현재 인원 업데이트
+                        updateCounts(result.memberCount, undefined);
+                    } else {
+                        showAlert(result.message, 'error');
+                        // 실패 시 버튼 원래대로
+                        btn.disabled = false;
+                        btn.textContent = '퇴장';
+                    }
+                } catch (error) {
+                    console.error('강퇴 요청 실패:', error);
+                    showAlert('강퇴 처리 중 오류가 발생했습니다.', 'error');
+                    // 에러 시 버튼 원래대로
+                    btn.disabled = false;
+                    btn.textContent = '퇴장';
                 }
             });
         });

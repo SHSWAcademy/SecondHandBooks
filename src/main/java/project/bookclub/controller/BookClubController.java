@@ -615,6 +615,74 @@ public class BookClubController {
     }
 
     /**
+     * 독서모임 멤버 강퇴 (모임장 전용)
+     * POST /bookclubs/{bookClubId}/manage/members/{memberSeq}/kick
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. 모임장 권한 확인
+     * 4. Service 레이어에서 비즈니스 로직 처리:
+     *    - 타겟 멤버 JOINED 상태 검증
+     *    - 모임장 강퇴 방지
+     *    - book_club_member UPDATE (join_st='KICKED')
+     *
+     * @return JSON {success, message, memberCount}
+     */
+    @PostMapping("/{bookClubId}/manage/members/{memberSeq}/kick")
+    @ResponseBody
+    public Map<String, Object> kickMember(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("memberSeq") Long memberSeq,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 강퇴 시도: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 강퇴 시도: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
+            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+        }
+
+        // 3. 모임장 권한 확인
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        if (!isLeader) {
+            log.warn("모임장 아닌 사용자가 강퇴 시도: bookClubId={}, memberSeq={}, loginSeq={}, leaderSeq={}",
+                    bookClubId, memberSeq, loginMemberSeq, bookClub.getBook_club_leader_seq());
+            return Map.of("success", false, "message", "모임장만 강퇴할 수 있습니다.");
+        }
+
+        // 4. Service 호출 (비즈니스 로직 위임)
+        try {
+            bookClubService.kickMember(bookClubId, loginMemberSeq, memberSeq);
+
+            // 5. 성공 시 현재 인원수 조회
+            int memberCount = bookClubService.getTotalJoinedMemberCount(bookClubId);
+
+            log.info("멤버 강퇴 완료: bookClubId={}, memberSeq={}, memberCount={}",
+                    bookClubId, memberSeq, memberCount);
+
+            return Map.of(
+                    "success", true,
+                    "message", "멤버를 퇴장시켰습니다.",
+                    "memberCount", memberCount);
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("멤버 강퇴 실패: bookClubId={}, memberSeq={}, error={}",
+                    bookClubId, memberSeq, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
      * 파일 저장 (설정된 uploadPath에 저장)
      */
     private String saveFile(MultipartFile file) throws IOException {
