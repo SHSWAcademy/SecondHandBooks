@@ -476,6 +476,145 @@ public class BookClubController {
     }
 
     /**
+     * 독서모임 가입 신청 승인 (모임장 전용)
+     * POST /bookclubs/{bookClubId}/manage/requests/{requestSeq}/approve
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. 모임장 권한 확인
+     * 4. Service 레이어에서 비즈니스 로직 처리:
+     *    - request WAIT 상태 검증
+     *    - 정원 초과 방지
+     *    - 중복 승인 방지
+     *    - book_club_member INSERT
+     *    - book_club_request UPDATE
+     *
+     * @return JSON {success, message, memberCount, pendingCount}
+     */
+    @PostMapping("/{bookClubId}/manage/requests/{requestSeq}/approve")
+    @ResponseBody
+    public Map<String, Object> approveJoinRequest(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("requestSeq") Long requestSeq,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 승인 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 승인 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+        }
+
+        // 3. 모임장 권한 확인
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        if (!isLeader) {
+            log.warn("모임장 아닌 사용자가 승인 시도: bookClubId={}, requestSeq={}, memberSeq={}, leaderSeq={}",
+                    bookClubId, requestSeq, loginMemberSeq, bookClub.getBook_club_leader_seq());
+            return Map.of("success", false, "message", "모임장만 승인할 수 있습니다.");
+        }
+
+        // 4. Service 호출 (비즈니스 로직 위임)
+        try {
+            bookClubService.approveJoinRequest(bookClubId, requestSeq, loginMemberSeq);
+
+            // 5. 성공 시 현재 인원수와 대기 중인 신청 수 조회
+            int memberCount = bookClubService.getTotalJoinedMemberCount(bookClubId);
+            int pendingCount = bookClubService.getPendingRequestsForManage(bookClubId).size();
+
+            log.info("가입 신청 승인 완료: bookClubId={}, requestSeq={}, memberCount={}, pendingCount={}",
+                    bookClubId, requestSeq, memberCount, pendingCount);
+
+            return Map.of(
+                    "success", true,
+                    "message", "가입 신청을 승인했습니다.",
+                    "memberCount", memberCount,
+                    "pendingCount", pendingCount);
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("가입 신청 승인 실패: bookClubId={}, requestSeq={}, error={}",
+                    bookClubId, requestSeq, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
+     * 독서모임 가입 신청 거절 (모임장 전용)
+     * POST /bookclubs/{bookClubId}/manage/requests/{requestSeq}/reject
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. 모임장 권한 확인
+     * 4. Service 레이어에서 비즈니스 로직 처리:
+     *    - request WAIT 상태 검증
+     *    - book_club_request UPDATE (request_st='REJECTED')
+     *
+     * @return JSON {success, message, pendingCount}
+     */
+    @PostMapping("/{bookClubId}/manage/requests/{requestSeq}/reject")
+    @ResponseBody
+    public Map<String, Object> rejectJoinRequest(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("requestSeq") Long requestSeq,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 거절 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 거절 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+        }
+
+        // 3. 모임장 권한 확인
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        if (!isLeader) {
+            log.warn("모임장 아닌 사용자가 거절 시도: bookClubId={}, requestSeq={}, memberSeq={}, leaderSeq={}",
+                    bookClubId, requestSeq, loginMemberSeq, bookClub.getBook_club_leader_seq());
+            return Map.of("success", false, "message", "모임장만 거절할 수 있습니다.");
+        }
+
+        // 4. Service 호출 (비즈니스 로직 위임)
+        try {
+            bookClubService.rejectJoinRequest(bookClubId, requestSeq, loginMemberSeq);
+
+            // 5. 성공 시 대기 중인 신청 수 조회
+            int pendingCount = bookClubService.getPendingRequestsForManage(bookClubId).size();
+
+            log.info("가입 신청 거절 완료: bookClubId={}, requestSeq={}, pendingCount={}",
+                    bookClubId, requestSeq, pendingCount);
+
+            return Map.of(
+                    "success", true,
+                    "message", "가입 신청을 거절했습니다.",
+                    "pendingCount", pendingCount);
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("가입 신청 거절 실패: bookClubId={}, requestSeq={}, error={}",
+                    bookClubId, requestSeq, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
      * 파일 저장 (설정된 uploadPath에 저장)
      */
     private String saveFile(MultipartFile file) throws IOException {

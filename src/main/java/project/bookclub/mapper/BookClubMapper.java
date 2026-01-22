@@ -83,4 +83,17 @@ public interface BookClubMapper {
     List<project.bookclub.dto.BookClubJoinRequestDTO> selectPendingRequestsForManage(@Param("bookClubSeq") Long bookClubSeq);
     // 게시글(원글) INSERT
     void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
+
+    // 관리 페이지 - 가입 신청 승인/거절
+    // request 단건 조회 (ID로 조회)
+    project.bookclub.dto.BookClubJoinRequestDTO selectRequestById(@Param("requestSeq") Long requestSeq);
+
+    // book_club_member 중복 체크 (book_club_seq, member_seq 조합)
+    int selectMemberCount(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
+    // book_club_member INSERT (승인 시 사용, leader_yn=false)
+    void insertMember(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
+    // book_club_request 상태 업데이트 (APPROVED 또는 REJECTED)
+    void updateRequestStatus(@Param("requestSeq") Long requestSeq, @Param("status") String status);
 }
