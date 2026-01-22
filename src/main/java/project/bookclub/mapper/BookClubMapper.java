@@ -44,6 +44,10 @@ public interface BookClubMapper {
             @Param("memberSeq") Long memberSeq,
             @Param("requestCont") String requestCont);
 
+    // 모임장을 book_club_member에 자동 등록 (모임 생성 시 사용)
+    void insertLeaderMember(@Param("bookClubSeq") Long bookClubSeq,
+            @Param("memberSeq") Long memberSeq);
+
     // 찜 관련
     // 독서모임의 찜 개수 조회
     int selectWishCount(@Param("bookClubSeq") Long bookClubSeq);
