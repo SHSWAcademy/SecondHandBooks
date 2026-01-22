@@ -3,6 +3,7 @@ package project.bookclub.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 독서모임 관리 페이지 - 멤버 목록용 DTO
@@ -21,4 +22,15 @@ public class BookClubManageMemberDTO {
     // member_info 테이블 조인
     private String nickname;             // member_nicknm
     private String profileImgUrl;        // profile_img_url (nullable)
+
+    /**
+     * JSP용: LocalDateTime → 포맷팅된 String 반환
+     * JSTL fmt:formatDate는 LocalDateTime을 지원하지 않으므로 String으로 변환
+     */
+    public String getJoinStUpdateDtmText() {
+        if (joinStUpdateDtm == null) {
+            return "";
+        }
+        return joinStUpdateDtm.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+    }
 }
