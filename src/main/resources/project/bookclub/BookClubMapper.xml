@@ -201,7 +201,10 @@
             bcb.board_img_url,
             bcb.member_seq,
             bcb.parent_book_club_board_seq,
-            bcb.book_info_seq,
+            bcb.isbn,
+            bcb.book_title,
+            bcb.book_author,
+            bcb.book_img_url,
             bcb.board_deleted_yn,
             bcb.board_deleted_dtm,
             bcb.crt_dtm AS board_crt_dtm,
@@ -233,7 +236,10 @@
             bcb.board_img_url,
             bcb.member_seq,
             bcb.parent_book_club_board_seq,
-            bcb.book_info_seq,
+            bcb.isbn,
+            bcb.book_title,
+            bcb.book_author,
+            bcb.book_img_url,
             bcb.board_deleted_yn,
             bcb.board_deleted_dtm,
             bcb.crt_dtm AS board_crt_dtm,
@@ -257,7 +263,10 @@
             bcb.board_img_url,
             bcb.member_seq,
             bcb.parent_book_club_board_seq,
-            bcb.book_info_seq,
+            bcb.isbn,
+            bcb.book_title,
+            bcb.book_author,
+            bcb.book_img_url,
             bcb.board_deleted_yn,
             bcb.board_deleted_dtm,
             bcb.crt_dtm AS board_crt_dtm,
@@ -295,6 +304,33 @@
             #{postId},
             #{memberSeq},
             #{commentCont},
+            false
+        )
+    </insert>
+
+    <!-- 게시글(원글) INSERT -->
+    <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
+        INSERT INTO book_club_board (
+            book_club_seq,
+            member_seq,
+            board_title,
+            board_cont,
+            board_img_url,
+            isbn,
+            book_title,
+            book_author,
+            book_img_url,
+            board_deleted_yn
+        ) VALUES (
+            #{book_club_seq},
+            #{member_seq},
+            #{board_title},
+            #{board_cont},
+            #{board_img_url},
+            #{isbn},
+            #{book_title},
+            #{book_author},
+            #{book_img_url},
             false
         )
     </insert>
