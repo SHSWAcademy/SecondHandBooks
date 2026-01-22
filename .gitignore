@@ -23,7 +23,7 @@ buildNumber.properties
 .vscode/
 
 # Configuration
-*.properties
+src/main/resources/*.properties
 
 *.properties
 

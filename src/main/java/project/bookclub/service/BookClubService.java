@@ -236,4 +236,11 @@ public class BookClubService {
     public boolean isDuplicateForLeader(Long leaderSeq, String name) {
         return bookClubMapper.countByLeaderAndName(leaderSeq, name) > 0;
     }
+
+    public List<BookClubVO> getMyBookClubs(long member_seq) {
+        return bookClubMapper.selectMyBookClubs(member_seq);
+    }
+    public List<BookClubVO> getWishBookClubs(long member_seq) {
+        return bookClubMapper.selectWishBookClubs(member_seq);
+    }
 }
