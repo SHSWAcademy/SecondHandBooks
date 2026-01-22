@@ -41,35 +41,67 @@
 </div>
 
 <script>
-    // [변경] $.ajax -> fetch API 사용 (jQuery 의존성 제거)
+    // [1] 최근 7일 날짜 배열 생성 함수 ('YYYY-MM-DD')
+    function getLast7Days() {
+        const dates = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            dates.push(`\${year}-\${month}-\${day}`);
+        }
+        return dates;
+    }
+
+    // [2] 빈 날짜 0으로 채우는 함수
+    function fillDataGap(dateLabels, rawData) {
+        // DB 데이터를 날짜별로 매핑하기 편하게 변환 (예: {'2026-01-20': 5, ...})
+        const dataMap = {};
+        if (rawData) {
+            rawData.forEach(item => {
+                dataMap[item.date] = item.count;
+            });
+        }
+
+        // 기준 날짜 배열(dateLabels)을 순회하며 데이터가 없으면 0 넣기
+        return dateLabels.map(date => dataMap[date] || 0);
+    }
+
     async function loadCharts() {
         try {
             const response = await fetch('/admin/api/stats');
             if (!response.ok) throw new Error('Network response was not ok');
             const res = await response.json();
 
-            renderMainChart(res.dailySignups, res.dailyTrades);
+            // 1. X축 라벨 생성 (오늘 기준 최근 7일)
+            const labels = getLast7Days();
+
+            // 2. DB 데이터와 날짜 매핑 (빈 날짜는 0으로)
+            const signupData = fillDataGap(labels, res.dailySignups);
+            const tradeData = fillDataGap(labels, res.dailyTrades);
+
+            // 3. 차트 그리기
+            renderMainChart(labels, signupData, tradeData);
             renderDoughnutChart(res.categories);
+
         } catch (err) {
             console.error("Chart load failed", err);
         }
     }
 
-    function renderMainChart(signups, trades) {
+    function renderMainChart(labels, signupData, tradeData) {
         const ctx = document.getElementById('mainChart').getContext('2d');
-        // 날짜 라벨 처리 (데이터가 없을 경우 대비)
-        const labels = signups && signups.length > 0 ? signups.map(d => d.date) : [];
-        const signupData = signups ? signups.map(d => d.count) : [];
-        const tradeData = trades ? trades.map(d => d.count) : [];
 
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: labels, // 생성한 7일 날짜 배열
                 datasets: [
                     {
                         label: '신규 가입',
-                        data: signupData,
+                        data: signupData, // 0이 채워진 데이터
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         fill: true,
@@ -77,7 +109,7 @@
                     },
                     {
                         label: '상품 등록',
-                        data: tradeData,
+                        data: tradeData, // 0이 채워진 데이터
                         borderColor: '#10b981',
                         borderDash: [5, 5],
                         fill: false,
@@ -85,7 +117,20 @@
                     }
                 ]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 } // 정수 단위로 표시
+                    }
+                }
+            }
         });
     }
 
@@ -114,7 +159,6 @@
         });
     }
 
-    // [변경] $(document).ready -> DOMContentLoaded 이벤트 사용
     document.addEventListener("DOMContentLoaded", function() {
         loadCharts();
     });
