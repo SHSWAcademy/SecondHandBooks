@@ -14,7 +14,7 @@
                     <title>
                         <c:out value="${bookclub.name}" /> 관리 - 신한북스
                     </title>
-                    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub.css">
+                    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub_manage.css">
                 </head>
 
                 <body>
@@ -50,6 +50,7 @@
                                     <span class="summary-label">대기 중인 신청</span>
                                     <span class="summary-value" id="pendingRequestCount">
                                         <c:out value="${fn:length(pendingRequests)}" default="0" />
+                            
                                     </span>
                                 </div>
                             </div>
@@ -249,36 +250,68 @@
                                     <div class="tab-panel" role="tabpanel" id="tabSettings"
                                         aria-labelledby="tabBtnSettings">
                                         <div class="panel-header">
-                                            <h2>모임 설정</h2>
+                                            <h2>정보 수정</h2>
                                         </div>
 
-                                        <div class="settings-section">
-                                            <div class="alert alert-info">
-                                                <p>모임 설정 기능은 추후 구현 예정입니다.</p>
+                                        <form id="settingsForm" class="settings-section" method="POST"
+                                            action="${pageContext.request.contextPath}/bookclubs/${bookclub.bookClubSeq}/edit"
+                                            enctype="multipart/form-data">
+
+                                            <!-- CSRF 토큰 -->
+                                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
+                                            <!-- 대표 이미지 -->
+                                            <div class="form-section banner-upload-section">
+                                                <h3 class="form-section-title">대표 이미지</h3>
+                                                <div class="banner-preview">
+                                                    <c:choose>
+                                                        <c:when test="${not empty bookclub.bannerImgUrl}">
+                                                            <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
+                                                                alt="모임 대표 이미지" class="banner-image" id="bannerPreview">
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div class="banner-placeholder" id="bannerPreview">📚</div>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                    <div>
+                                                        <label for="bannerUpload" class="btn btn-secondary">이미지 변경</label>
+                                                        <input type="file" id="bannerUpload" name="bannerImage"
+                                                            accept="image/*" style="display: none;">
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            <div class="settings-preview">
-                                                <dl class="info-list">
-                                                    <dt>모임 이름</dt>
-                                                    <dd>
-                                                        <c:out value="${bookclub.name}" />
-                                                    </dd>
-
-                                                    <dt>지역</dt>
-                                                    <dd>
-                                                        <c:out value="${bookclub.region}" />
-                                                    </dd>
-
-                                                    <dt>정원</dt>
-                                                    <dd>${bookclub.maxMember}명</dd>
-
-                                                    <dt>일정</dt>
-                                                    <dd>
-                                                        <c:out value="${bookclub.schedule}" />
-                                                    </dd>
-                                                </dl>
+                                            <!-- 모임 이름 -->
+                                            <div class="form-group">
+                                                <label for="clubName" class="form-label">모임 이름</label>
+                                                <input type="text" id="clubName" name="name" class="form-input"
+                                                    value="<c:out value='${bookclub.name}'/>" required maxlength="50">
                                             </div>
-                                        </div>
+
+                                            <!-- 모임 소개 -->
+                                            <div class="form-group">
+                                                <label for="clubDescription" class="form-label">모임 소개</label>
+                                                <textarea id="clubDescription" name="description" class="form-textarea"
+                                                    required maxlength="500"><c:out value="${bookclub.description}" /></textarea>
+                                                <p class="form-help-text">모임의 특징과 목적을 자유롭게 소개해주세요 (최대 500자)</p>
+                                            </div>
+
+                                            <!-- 정기 일정 (모임장만 수정 가능) -->
+                                            <div class="form-group">
+                                                <label for="clubSchedule" class="form-label">
+                                                    정기 일정
+                                                    <span class="form-help-text">(모임장만 수정 가능)</span>
+                                                </label>
+                                                <input type="text" id="clubSchedule" name="schedule" class="form-input"
+                                                    value="<c:out value='${bookclub.schedule}'/>"
+                                                    placeholder="예: 매주 토요일 오후 2시" maxlength="100">
+                                            </div>
+
+                                            <!-- 저장 버튼 -->
+                                            <div class="form-actions">
+                                                <button type="submit" class="btn-submit">변경사항 저장</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -314,11 +347,11 @@
 
                     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
-                    <script src="${pageContext.request.contextPath}/resources/js/bookclub.js"></script>
+                    <script src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_manage.js"></script>
                     <script>
                         // 페이지별 초기화
                         document.addEventListener('DOMContentLoaded', function () {
-                            BookClub.initManage(${ bookclub.bookClubSeq });
+                            BookClubManage.init(${bookclub.bookClubSeq});
                         });
                     </script>
                 </body>
