@@ -353,6 +353,34 @@
         )
     </insert>
 
+    <!-- 게시글(원글) UPDATE -->
+    <update id="updateBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO">
+        UPDATE book_club_board
+        SET board_title = #{board_title},
+            board_cont = #{board_cont},
+            board_img_url = #{board_img_url},
+            isbn = #{isbn},
+            book_title = #{book_title},
+            book_author = #{book_author},
+            book_img_url = #{book_img_url},
+            upd_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{book_club_seq}
+          AND book_club_board_seq = #{book_club_board_seq}
+          AND parent_book_club_board_seq IS NULL
+          AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+    </update>
+
+    <!-- 게시글(원글) 삭제 (soft delete) -->
+    <update id="deleteBoardPost">
+        UPDATE book_club_board
+        SET board_deleted_yn = true,
+            board_deleted_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{bookClubSeq}
+          AND book_club_board_seq = #{postId}
+          AND parent_book_club_board_seq IS NULL
+          AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+    </update>
+
     <select id="selectMyBookClubs" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
         SELECT
             BC.BOOK_CLUB_SEQ,
