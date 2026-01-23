@@ -481,6 +481,13 @@ function setupPlusButtonEvents() {
 
 // 안전 결제 요청 보내기
 function sendSafePaymentRequest() {
+    console.log('안전 결제 요청 시도:', {
+        stompConnected: stompClient && stompClient.connected,
+        isSeller: isSeller,
+        trade_seq: trade_seq,
+        chat_room_seq: chat_room_seq
+    });
+
     if (!stompClient || !stompClient.connected) {
         alert('채팅 연결이 필요합니다.');
         return;
@@ -488,6 +495,12 @@ function sendSafePaymentRequest() {
 
     if (!isSeller) {
         alert('판매자만 안전 결제 요청을 보낼 수 있습니다.');
+        return;
+    }
+
+    if (!trade_seq || trade_seq <= 0) {
+        alert('거래 정보를 찾을 수 없습니다. 페이지를 새로고침 해주세요.');
+        console.error('trade_seq가 유효하지 않음:', trade_seq);
         return;
     }
 
@@ -502,12 +515,20 @@ function sendSafePaymentRequest() {
             trade_seq: trade_seq
         })
     );
+
+    console.log('안전 결제 요청 전송 완료');
 }
 
 // 기존 showMessage 함수 오버라이드
 const originalShowMessage = showMessage;
 showMessage = function(msg) {
     const chatCont = msg.chat_cont || '';
+
+    // 안전 결제 진행 중 메시지인 경우 (추가)
+    if (chatCont === '[SAFE_PAYMENT_IN_PROGRESS]') {
+        showSafePaymentInProgress(msg);
+        return;
+    }
 
     // 안전 결제 요청 메시지인 경우
     if (chatCont === '[SAFE_PAYMENT_REQUEST]') {
@@ -527,9 +548,181 @@ showMessage = function(msg) {
         return;
     }
 
+    // 결제 실패 메시지인 경우
+    if (chatCont === '[SAFE_PAYMENT_FAILED]') {
+        showSafePaymentFailed(msg);
+        return;
+    }
+
     // 일반 메시지는 기존 함수 사용
     originalShowMessage(msg);
 };
+
+// 서버 동기화 결제 타이머
+function startServerSyncTimer(timerId) {
+    const timerElement = document.getElementById(timerId);
+    if (!timerElement) return;
+
+    let localRemainingSeconds = 0; // 로컬에서 카운트다운할 초
+
+    // 타이머 표시 업데이트
+    function updateDisplay(seconds) {
+        if (seconds <= 0) {
+            timerElement.textContent = '만료됨';
+            timerElement.style.color = '#fa5252';
+            return;
+        }
+
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        timerElement.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+        // 1분 이하면 빨간색 강조
+        if (seconds <= 60) {
+            timerElement.style.color = '#fa5252';
+        }
+    }
+
+    // 서버에서 남은 시간 조회
+    function fetchAndUpdateTimer() {
+        fetch('/payments/remaining-time?trade_seq=' + trade_seq)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                console.log('서버 타이머 응답:', data);
+
+                if (data.status === 'COMPLETED') {
+                    timerElement.textContent = '완료됨';
+                    timerElement.style.color = '#40c057';
+                    stopAllPaymentTimers();
+                    return;
+                }
+
+                if (data.status === 'NONE') {
+                    timerElement.textContent = '대기 중';
+                    timerElement.style.color = '#868e96';
+                    return;
+                }
+
+                if (data.remainingSeconds <= 0) {
+                    timerElement.textContent = '만료됨';
+                    timerElement.style.color = '#fa5252';
+                    stopAllPaymentTimers();
+                    return;
+                }
+
+                // 서버에서 받은 시간으로 로컬 동기화
+                localRemainingSeconds = data.remainingSeconds;
+                updateDisplay(localRemainingSeconds);
+            })
+            .catch(function(error) {
+                console.error('타이머 동기화 실패:', error);
+                timerElement.textContent = '연결 오류';
+                timerElement.style.color = '#868e96';
+            });
+    }
+
+    // 즉시 서버에서 시간 가져오기
+    fetchAndUpdateTimer();
+
+    // 1초마다 로컬 카운트다운
+    window.safePaymentTimerInterval = setInterval(function() {
+        if (localRemainingSeconds > 0) {
+            localRemainingSeconds--;
+            updateDisplay(localRemainingSeconds);
+        }
+    }, 1000);
+
+    // 30초마다 서버와 동기화 (정확도 유지)
+    window.safePaymentSyncInterval = setInterval(fetchAndUpdateTimer, 30000);
+}
+
+// 안전 결제 실패 UI 표시
+function showSafePaymentFailed(msg) {
+    const log = document.getElementById("chatContainer");
+    const emptyNotice = document.getElementById("emptyNotice");
+    if (emptyNotice) emptyNotice.remove();
+
+    const msgWrapper = document.createElement('div');
+    msgWrapper.className = 'msg-center'; // 중앙에 표시 (시스템 메시지)
+
+    const card = document.createElement('div');
+    card.className = 'safe-payment-card';
+    card.style.background = 'linear-gradient(135deg, #fff5f5 0%, #fff 100%)';
+    card.style.borderColor = '#ffc9c9';
+    card.style.maxWidth = '300px';
+    card.style.margin = '0 auto';
+
+    card.innerHTML =
+        '<div class="card-header" style="justify-content: center;">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fa5252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<circle cx="12" cy="12" r="10"></circle>' +
+                '<line x1="15" y1="9" x2="9" y2="15"></line>' +
+                '<line x1="9" y1="9" x2="15" y2="15"></line>' +
+            '</svg>' +
+            '<span class="card-title" style="color: #fa5252;">결제 실패</span>' +
+        '</div>' +
+        '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px;">' +
+            '안전 결제가 실패하였습니다.<br>' +
+            '<span style="color: #868e96; font-size: 12px;">다시 안전 결제 요청이 가능합니다.</span>' +
+        '</div>';
+
+    msgWrapper.appendChild(card);
+    log.appendChild(msgWrapper);
+    log.scrollTop = log.scrollHeight;
+
+    // 기존 안전결제 요청 카드의 타이머 정지 및 만료 표시
+    stopAllPaymentTimers();
+}
+
+// 모든 결제 타이머 정지
+function stopAllPaymentTimers() {
+    if (window.safePaymentTimerInterval) {
+        clearInterval(window.safePaymentTimerInterval);
+        window.safePaymentTimerInterval = null;
+    }
+    if (window.safePaymentSyncInterval) {
+        clearInterval(window.safePaymentSyncInterval);
+        window.safePaymentSyncInterval = null;
+    }
+}
+
+// 안전 결제 진행 중 알림 UI 표시
+function showSafePaymentInProgress(msg) {
+    const log = document.getElementById("chatContainer");
+    const emptyNotice = document.getElementById("emptyNotice");
+    if (emptyNotice) emptyNotice.remove();
+
+    const msgWrapper = document.createElement('div');
+    msgWrapper.className = 'msg-right'; // 판매자(요청자) 쪽에 표시
+
+    const card = document.createElement('div');
+    card.className = 'safe-payment-card';
+    card.style.background = 'linear-gradient(135deg, #fff5f5 0%, #fff 100%)';
+    card.style.borderColor = '#ffc9c9';
+
+    card.innerHTML =
+        '<div class="card-header">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fa5252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<circle cx="12" cy="12" r="10"></circle>' +
+                '<line x1="12" y1="8" x2="12" y2="12"></line>' +
+                '<line x1="12" y1="16" x2="12.01" y2="16"></line>' +
+            '</svg>' +
+            '<span class="card-title" style="color: #fa5252;">안전 결제 중</span>' +
+        '</div>' +
+        '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px;">' +
+            '현재 이 상품에 대해 안전 결제가 진행 중입니다.<br>' +
+            '<span style="color: #868e96; font-size: 12px;">결제가 완료되거나 취소된 후 다시 요청해주세요.</span>' +
+        '</div>';
+
+    msgWrapper.appendChild(card);
+    log.appendChild(msgWrapper);
+    log.scrollTop = log.scrollHeight;
+
+    // 5초 후 자동으로 흐리게 처리
+    setTimeout(function() {
+        msgWrapper.style.opacity = '0.5';
+    }, 5000);
+}
 
 // 안전 결제 요청 UI 표시
 function showSafePaymentRequest(msg) {
@@ -548,7 +741,7 @@ function showSafePaymentRequest(msg) {
     card.id = msgId;
 
     if (isMyMessage) {
-        // 판매자 본인이 보낸 경우 - 요청 완료 표시
+        // 판매자 본인이 보낸 경우 - 요청 완료 표시 + 남은 결제 시간
         card.innerHTML =
             '<div class="card-header">' +
                 '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
@@ -559,7 +752,14 @@ function showSafePaymentRequest(msg) {
             '</div>' +
             '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px;">' +
                 '구매자에게 안전 결제 요청을 보냈습니다.' +
+            '</div>' +
+            '<div style="text-align:center; padding: 8px 0; border-top: 1px solid #e9ecef; margin-top: 8px;">' +
+                '<span style="color: #868e96; font-size: 12px;">남은 결제 시간: </span>' +
+                '<span class="safe-payment-timer" id="timer-' + msgId + '" style="color: #fa5252; font-weight: bold; font-size: 14px;">--:--</span>' +
             '</div>';
+
+        // 서버에서 남은 시간 조회 후 타이머 시작
+        startServerSyncTimer('timer-' + msgId);
     } else {
         // 구매자가 받은 경우 - 구매 요청하기 버튼 표시
         card.innerHTML =
@@ -576,12 +776,19 @@ function showSafePaymentRequest(msg) {
             '</div>' +
             '<button class="action-btn primary" id="btn-' + msgId + '" onclick="acceptSafePaymentRequest(\'' + msgId + '\')">' +
                 '구매 요청하기' +
-            '</button>';
+            '</button>' +
+            '<div style="text-align:center; padding: 8px 0; border-top: 1px solid #e9ecef; margin-top: 12px;">' +
+                '<span style="color: #868e96; font-size: 12px;">남은 결제 시간: </span>' +
+                '<span class="safe-payment-timer" id="payment-timer-' + msgId + '" style="color: #fa5252; font-weight: bold; font-size: 14px;">--:--</span>' +
+            '</div>';
 
-        // 1분 타이머 시작
+        // 1분 타이머 시작 (구매 요청 수락 제한 시간)
         startTimer(msgId, 60, function() {
             expireSafePaymentRequest(msgId);
         });
+
+        // 서버 동기화 타이머 시작 (남은 결제 시간)
+        startServerSyncTimer('payment-timer-' + msgId);
     }
 
     msgWrapper.appendChild(card);

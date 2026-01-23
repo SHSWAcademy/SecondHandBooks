@@ -119,7 +119,7 @@ public class TradeService {
     public List<TradeVO> selectCategory() {
         return tradeMapper.selectCategory();
     }
-    public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
+    //public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
 
     @Transactional
     public void updateStatus(Long trade_seq, String sold, Long member_buyer_seq) {
@@ -185,5 +185,62 @@ public class TradeService {
         }
 
         return trades;
+    }
+
+    // 안전 결제 상태 조회
+    public String getSafePaymentStatus(long trade_seq) {
+        String status = tradeMapper.findSafePaymentStatus(trade_seq);
+        return status != null ? status : "NONE";
+    }
+
+    // 안전 결제 상태 업데이트
+    @Transactional
+    public void updateSafePaymentStatus(long trade_seq, String status) {
+        tradeMapper.updateSafePaymentStatus(trade_seq, status);
+    }
+
+
+    // 안전 결제 요청 처리 (트랜잭션으로 상태 체크, 업데이트 원자적 처리), 5분 만료 시간 설정
+    // return true : 안전 결제 요청 성공, false : 이미 안전 결제 요청 처리
+    @Transactional
+    public boolean requestSafePayment(long trade_seq) {
+        // 1. 현재 판매 게시글의 안전 결제 상태 조회
+        String currentStatus = tradeMapper.findSafePaymentStatus(trade_seq);
+
+        // 2-1. DB에서 조회한 안전 결제 상태가 PENDING일 경우 false
+        if ("PENDING".equals(currentStatus)) {
+            return false; // 이미 안전결제 진행 중
+        }
+
+        // 2-2. DB에서 조회한 안전 결제 상태가 COMPLETED일 경우 false
+        if ("COMPLETED".equals(currentStatus)) {
+            // sale_st = sold 처리 필요 ?
+            return false; // 이미 완료된 거래
+        }
+
+        // PENDING, COMPLETED도 아니면 NONE 상태이다. (DB에 default로 NONE이 들어간다)
+        // 3. PENDING, COMPLETED가 아닌 NONE 상태라면 : 안전 결제 진행 중이 아닌 상태라면 PENDING(안전 결제 시작) 으로 변경 + 5분 만료 시간 설정
+        tradeMapper.updateSafePaymentWithExpire(trade_seq, "PENDING", 5);
+        return true; // 안전 결제 시작
+    }
+
+
+    // 안전 결제 상태를 COMPLETED 로 변경
+    @Transactional
+    public void completeSafePayment(long trade_seq) {
+        tradeMapper.updateSafePaymentStatus(trade_seq, "COMPLETED");
+    }
+
+
+    // 안전 결제 실패, NONE 으로 update,  채팅방으로 다시 돌아가도록 하기
+    @Transactional
+    public void cancelSafePayment(long trade_seq) {
+        tradeMapper.updateSafePaymentStatus(trade_seq, "NONE");
+    }
+
+
+    public long getSafePaymentExpireSeconds(long trade_seq) {
+        Long seconds = tradeMapper.findSafePaymentExpireSeconds(trade_seq); // trade의 안전 결제 만료 시간이 몇 초 남았는지 조회
+        return seconds != null ? seconds : 0; // seconds가 null이라면 0 리턴
     }
 }

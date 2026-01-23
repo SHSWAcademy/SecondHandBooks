@@ -7,6 +7,22 @@
 <script src="https://js.tosspayments.com/v1/payment"></script>
 
 <div class="min-h-[calc(100vh-200px)]">
+    <!-- 결제 타이머 (상단 고정) -->
+    <div id="paymentTimer" class="fixed top-16 left-0 right-0 z-40 bg-gradient-to-r from-red-500 to-orange-500 text-white py-3 px-4 shadow-lg">
+        <div class="max-w-6xl mx-auto flex items-center justify-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span class="font-semibold">남은 결제 시간:</span>
+            <span id="timerDisplay" class="text-2xl font-bold tracking-wider">05:00</span>
+            <span class="text-sm opacity-80 ml-2">시간 내에 결제를 완료해주세요</span>
+        </div>
+    </div>
+
+    <!-- 타이머 높이만큼 여백 -->
+    <div class="h-14"></div>
+
     <!-- 페이지 헤더 -->
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-900">결제하기</h1>
@@ -233,6 +249,87 @@
     const bookTitle = "${trade.book_title}";
     const tradeSeq = "${trade.trade_seq}";
 
+    // ========== 결제 타이머 ==========
+    let remainingSeconds = Number("${remainingSeconds}") || 300; // 서버에서 받은 남은 시간 (기본 5분)
+    let timerInterval = null;
+    let isPaymentProcessing = false; // 결제 진행 중 플래그
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    }
+
+    function updateTimerDisplay() {
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerBar = document.getElementById('paymentTimer');
+
+        timerDisplay.textContent = formatTime(remainingSeconds);
+
+        // 1분 미만이면 빨간색 강조
+        if (remainingSeconds <= 60) {
+            timerBar.classList.add('animate-pulse');
+            timerDisplay.classList.add('text-yellow-300');
+        }
+    }
+
+    function startTimer() {
+        updateTimerDisplay();
+
+        timerInterval = setInterval(function() {
+            remainingSeconds--;
+            updateTimerDisplay();
+
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function handleTimeout() {
+        // 타임아웃 API 호출
+        fetch('/payments/timeout?trade_seq=' + tradeSeq, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }).then(function() {
+            alert('결제 시간이 만료되었습니다. 다시 시도해주세요.');
+            window.location.href = '/payments/fail?trade_seq=' + tradeSeq + '&message=' + encodeURIComponent('결제 시간 만료');
+        }).catch(function() {
+            window.location.href = '/payments/fail?trade_seq=' + tradeSeq + '&message=' + encodeURIComponent('결제 시간 만료');
+        });
+    }
+
+    // 페이지 이탈 감지 (다른 사이트로 이동, 탭 닫기 등)
+    function handlePageLeave() {
+        if (isPaymentProcessing) return; // 결제 진행 중이면 무시
+
+        // sendBeacon으로 비동기 요청 (페이지 닫혀도 전송됨)
+        navigator.sendBeacon('/payments/timeout?trade_seq=' + tradeSeq);
+    }
+
+    // beforeunload 이벤트 (페이지 이탈 시)
+    window.addEventListener('beforeunload', function(e) {
+        if (isPaymentProcessing) return; // 결제 진행 중이면 무시
+
+        handlePageLeave();
+
+        // 경고 메시지 표시 (일부 브라우저에서만 동작)
+        e.preventDefault();
+        e.returnValue = '결제가 진행 중입니다. 페이지를 떠나시겠습니까?';
+        return e.returnValue;
+    });
+
+    // 페이지 로드 시 타이머 시작
+    document.addEventListener('DOMContentLoaded', function() {
+        if (remainingSeconds > 0) {
+            startTimer();
+        } else {
+            handleTimeout();
+        }
+    });
+    // ========== 결제 타이머 끝 ==========
+
     // 현재 도메인 기준 URL 생성
     const baseUrl = window.location.origin;
 
@@ -260,6 +357,9 @@
             return;
         }
 
+        // 결제 진행 중 플래그 설정 (이탈 감지 무시)
+        isPaymentProcessing = true;
+
         tossPayments.requestPayment("토스페이", {
             amount: totalAmount,
             orderId: "ORDER_" + tradeSeq + "_" + new Date().getTime(),
@@ -268,8 +368,10 @@
             successUrl: baseUrl + "/payments/success?trade_seq=" + tradeSeq,
             failUrl: baseUrl + "/payments/fail?trade_seq=" + tradeSeq
         }).catch(function(error) {
+            isPaymentProcessing = false; // 결제 취소/실패 시 플래그 해제
+
             if (error.code === "USER_CANCEL") {
-                // 사용자가 결제창을 닫음
+                // 사용자가 결제창을 닫음 - 타이머는 계속 진행
             } else {
                 alert(error.message);
             }

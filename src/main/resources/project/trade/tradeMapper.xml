@@ -346,4 +346,44 @@
         ORDER BY T.SALE_ST_DTM DESC
     </select>
 
+    <!-- 안전결제 상태 조회 (비관적 락) -->
+    <select id="findSafePaymentStatus" resultType="String">
+        SELECT COALESCE(safe_payment_st, 'NONE')
+        FROM sb_trade_info
+        WHERE trade_seq = #{trade_seq}
+        FOR UPDATE
+    </select>
+
+    <!-- 안전결제 상태 업데이트 -->
+    <update id="updateSafePaymentStatus">
+        UPDATE sb_trade_info
+        SET safe_payment_st = #{status},
+            safe_payment_expire_dtm = NULL,
+            upd_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 안전결제 상태 + 만료시간 업데이트 -->
+    <update id="updateSafePaymentWithExpire">
+        UPDATE sb_trade_info
+        SET safe_payment_st = #{status},
+            safe_payment_expire_dtm = now() + (#{expire_minutes} || ' minutes')::interval,
+            upd_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 안전결제 만료까지 남은 초 조회 -->
+    <select id="findSafePaymentExpireSeconds" resultType="Long">
+        SELECT
+        CASE
+        WHEN safe_payment_st = 'PENDING' AND safe_payment_expire_dtm IS
+        NOT NULL
+        THEN GREATEST(0, EXTRACT(EPOCH FROM (safe_payment_expire_dtm -
+        now()))::bigint)
+        ELSE 0
+        END
+        FROM sb_trade_info
+        WHERE trade_seq = #{trade_seq}
+    </select>
+
 </mapper>
