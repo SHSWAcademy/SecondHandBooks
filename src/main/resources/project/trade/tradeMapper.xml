@@ -265,6 +265,8 @@
             book_img,
             book_title,
             sale_price,
+            sale_title,
+            sale_st,
             delivery_cost,
             book_st,
             member_seller_seq
