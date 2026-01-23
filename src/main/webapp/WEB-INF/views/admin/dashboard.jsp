@@ -30,7 +30,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-50 h-screen flex overflow-hidden text-gray-800 font-sans">
+<body class="bg-gray-50 h-screen flex overflow-hidden text-gray-800 font-sans" onclick="closeAllMenus()">
 
 <aside class="w-64 bg-white border-r border-gray-200 flex flex-col z-20 flex-shrink-0">
   <div class="h-16 flex items-center px-6 border-b border-gray-100">
@@ -65,6 +65,9 @@
     <button onclick="switchView('notice', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
       <i data-lucide="megaphone" class="w-5 h-5"></i> 공지사항 관리
     </button>
+    <button onclick="switchView('banner', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
+      <i data-lucide="image" class="w-5 h-5"></i> 배너 관리
+    </button>
   </nav>
 
   <div class="p-4 border-t border-gray-100">
@@ -89,44 +92,40 @@
   </header>
 
   <div class="p-8 max-w-7xl mx-auto space-y-8">
-    <!-- 대시보드 -->
     <div id="view-dashboard" class="view-section animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/dashboardContent.jsp" %>
     </div>
 
-    <!-- 회원 관리 -->
     <div id="view-users" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/usersContent.jsp" %>
     </div>
 
-    <!-- 회원 접속 기록 -->
     <div id="view-usersLog" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/usersLogContent.jsp" %>
     </div>
 
-    <!-- 관리자 활동 로그 -->
     <div id="view-adminLog" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/adminLogContent.jsp" %>
     </div>
 
-    <!-- 상품 관리 -->
     <div id="view-books" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/booksContent.jsp" %>
     </div>
 
-    <!-- 모임 관리 -->
     <div id="view-groups" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/groupsContent.jsp" %>
     </div>
 
-    <!-- 공지사항 관리 -->
     <div id="view-notice" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/noticeContent.jsp" %>
     </div>
 
-    <!-- 공지사항 관리 -->
     <div id="view-notice-write" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
-          <%@ include file="tabs/noticeWriteForm.jsp" %>
+      <%@ include file="tabs/noticeWriteForm.jsp" %>
+    </div>
+
+    <div id="view-banner" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
+      <%@ include file="tabs/bannerContent.jsp" %>
     </div>
   </div>
 </main>
@@ -138,14 +137,15 @@
 
   // 2. View Switching Logic
   function switchView(viewName, btn) {
-  if (btn) {
-    document.querySelectorAll('.nav-item').forEach(el => {
-      el.classList.remove('bg-primary-50', 'text-primary-700', 'font-bold');
-      el.classList.add('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
-    });
-    btn.classList.remove('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
-    btn.classList.add('bg-primary-50', 'text-primary-700', 'font-bold');
-}
+    if (btn) {
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-primary-50', 'text-primary-700', 'font-bold');
+        el.classList.add('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
+      });
+      btn.classList.remove('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
+      btn.classList.add('bg-primary-50', 'text-primary-700', 'font-bold');
+    }
+
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     const target = document.getElementById('view-' + viewName);
     if(target) target.classList.remove('hidden');
@@ -158,10 +158,31 @@
       'books': 'Product Management',
       'groups': 'Group Management',
       'notice': 'Notice Management',
-      'notice-write': 'Create Notice'
+      'notice-write': 'Create Notice',
+      'banner': 'Banner Management' // [추가]
     };
     document.getElementById('page-title').innerText = titleMap[viewName] || 'Dashboard';
+
+    // 탭별 데이터 로드
+    if(viewName === 'users' && window.fetchUsers) fetchUsers();
+    if(viewName === 'books' && window.fetchTrades) fetchTrades();
+    if(viewName === 'groups' && window.fetchGroups) fetchGroups();
+    if(viewName === 'banner' && window.loadBannerList) {
+      window.loadBannerList(); // 배너 리스트 로드
+      if(window.updatePreview) window.updatePreview(); // 미리보기 초기화
+    }
   }
+
+  function closeAllMenus() {
+    document.querySelectorAll('.action-menu').forEach(menu => {
+      menu.classList.add('hidden');
+    });
+  }
+
+  // 페이지 로드 시 초기화
+  document.addEventListener("DOMContentLoaded", function() {
+    // 필요한 경우 초기 데이터 로드 (dashboardContent 내 스크립트 등)
+  });
 </script>
 
 </body>

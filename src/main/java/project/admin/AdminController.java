@@ -187,4 +187,36 @@ public class AdminController {
         }
         return ip;
     }
+
+    // [API] 배너 목록 조회
+    @GetMapping("/api/banners")
+    @ResponseBody
+    public List<BannerVO> getBanners() {
+        return adminService.getBanners();
+    }
+
+    // [API] 배너 저장 (추가/수정)
+    @PostMapping("/api/banners")
+    @ResponseBody
+    public String saveBanner(@RequestBody BannerVO banner) {
+        adminService.saveBanner(banner);
+        return "ok";
+    }
+
+    // [API] 배너 삭제
+    @DeleteMapping("/api/banners/{seq}")
+    @ResponseBody
+    public String deleteBanner(@PathVariable Long seq) {
+        adminService.deleteBanner(seq);
+        return "ok";
+    }
+
+    // [API] 임시 페이지 저장
+    @PostMapping("/api/pages")
+    @ResponseBody
+    public Long saveTempPage(@RequestBody Map<String, String> body) {
+        String title = body.get("title");
+        String content = body.get("content");
+        return adminService.saveTempPage(title, content);
+    }
 }
