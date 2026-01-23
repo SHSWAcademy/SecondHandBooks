@@ -93,6 +93,15 @@ public class BookClubService {
         return count > 0;
     }
 
+    // #2-4-2. 특정 멤버가 거절된 가입 신청이 있는지 확인
+    public boolean hasRejectedRequest(Long bookClubSeq, Long memberSeq) {
+        if (bookClubSeq == null || memberSeq == null) {
+            return false;
+        }
+        int count = bookClubMapper.selectRejectedRequestCount(bookClubSeq, memberSeq);
+        return count > 0;
+    }
+
     // #2-5. 가입 신청 생성 (개선판: 예외를 enum 결과로 변환)
     /**
      * 독서모임 가입 신청 생성
