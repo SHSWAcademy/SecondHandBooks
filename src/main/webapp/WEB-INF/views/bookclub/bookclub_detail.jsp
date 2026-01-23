@@ -52,25 +52,15 @@
                                 <div class="bc-hero-overlay">
                                     <!-- 상단: 뒤로가기 + 찜 버튼 -->
                                     <div class="bc-hero-top">
-                                        <%--
                                         <button class="bc-back-btn" onclick="history.back()" aria-label="뒤로가기">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 19l-7-7 7-7" />
                                             </svg>
                                         </button>
-                                        --%>
-                                        <a href="${pageContext.request.contextPath}/bookclubs" class="bc-back-btn">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 19l-7-7 7-7" />
-                                            </svg>
-                                        </a>
-                                        <button class="bc-wish-btn ${isWished ? 'wished' : ''}"
-                                            id="wishBtn"
-                                            onclick="toggleWish(${bookClub.book_club_seq})"
+                                        <button class="bc-wish-btn" onclick="alert('TODO: 찜하기 기능 구현 예정')"
                                             aria-label="찜하기">
-                                            <svg fill="${isWished ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                             </svg>
@@ -142,9 +132,9 @@
                                         </div>
                                     </div>
 
-                                    <!-- 버튼 분기 처리 (기존 로직 유지) -->
+                                    <!-- CTA 버튼 분기 처리 (ctaStatus 기반) -->
                                     <c:choose>
-                                        <%-- 1순위: 비로그인 상태 --%>
+                                        <%-- 비로그인: 로그인 후 이용 버튼 --%>
                                             <c:when test="${not isLogin}">
                                                 <a href="${pageContext.request.contextPath}/login"
                                                     class="bc-btn bc-btn-secondary">
@@ -152,36 +142,62 @@
                                                 </a>
                                             </c:when>
 
-                                            <%-- 2순위: 모임장 --%>
-                                                <c:when test="${isLeader}">
-                                                    <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/manage"
-                                                        class="bc-btn bc-btn-primary">
-                                                        모임 관리하기
-                                                    </a>
-                                                </c:when>
+                                            <%-- 로그인 상태: ctaStatus에 따라 분기 --%>
+                                                <c:otherwise>
+                                                    <%-- 모임장이면 관리 버튼 우선 표시 (선택 사항: 멤버 상태와 병행 가능) --%>
+                                                        <c:if test="${isLeader}">
+                                                            <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/manage"
+                                                                class="bc-btn bc-btn-primary"
+                                                                style="margin-right: 8px;">
+                                                                모임 관리하기
+                                                            </a>
+                                                        </c:if>
 
-                                                <%-- 3순위: 가입된 멤버 --%>
-                                                    <c:when test="${isMember}">
-                                                        <button type="button" class="bc-btn bc-btn-danger"
-                                                            onclick="if(confirm('정말 모임을 나가시겠습니까?')) { alert('TODO: 모임 나가기 API 구현 예정'); }">
-                                                            모임 나가기
-                                                        </button>
-                                                    </c:when>
+                                                        <%-- CTA 상태별 버튼 렌더링 (JOINED> WAIT > REJECTED > NONE) --%>
+                                                            <c:choose>
+                                                                <%-- 멤버인 경우: 탈퇴하기 버튼 --%>
+                                                                    <c:when test="${ctaStatus == 'JOINED'}">
+                                                                        <button type="button"
+                                                                            class="bc-btn bc-btn-danger"
+                                                                            onclick="if(confirm('정말 모임을 나가시겠습니까?')) { alert('TODO: 모임 나가기 API 구현 예정'); }">
+                                                                            탈퇴하기
+                                                                        </button>
+                                                                    </c:when>
 
-                                                    <%-- 4순위: 신청중 상태 (request_st='WAIT' ) --%>
-                                                        <c:when test="${hasPendingRequest}">
-                                                            <button type="button" class="bc-btn bc-btn-secondary"
-                                                                disabled>
-                                                                신청중
-                                                            </button>
-                                                        </c:when>
+                                                                    <%-- 승인 대기 중: 비활성 버튼 --%>
+                                                                        <c:when test="${ctaStatus == 'WAIT'}">
+                                                                            <button type="button"
+                                                                                class="bc-btn bc-btn-secondary"
+                                                                                disabled>
+                                                                                승인 대기중
+                                                                            </button>
+                                                                        </c:when>
 
-                                                        <%-- 5순위: 비멤버 (로그인했지만 가입하지 않음, 신청하지도 않음) --%>
-                                                            <c:otherwise>
-                                                                <button type="button" id="btnOpenApplyModal" class="bc-btn bc-btn-primary">
-                                                                    가입 신청하기
-                                                                </button>
-                                                            </c:otherwise>
+                                                                        <%-- 거절된 경우: 다시 신청하기 버튼 --%>
+                                                                            <c:when test="${ctaStatus == 'REJECTED'}">
+                                                                                <form method="post"
+                                                                                    action="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/join-requests"
+                                                                                    style="display: inline;">
+                                                                                    <button type="submit"
+                                                                                        class="bc-btn bc-btn-primary">
+                                                                                        다시 신청하기
+                                                                                    </button>
+                                                                                </form>
+                                                                            </c:when>
+
+                                                                            <%-- 신청 이력 없음: 가입 신청하기 버튼 --%>
+                                                                                <c:otherwise>
+                                                                                    <form method="post"
+                                                                                        action="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/join-requests"
+                                                                                        style="display: inline;">
+                                                                                        <button type="submit"
+                                                                                            class="bc-btn bc-btn-primary">
+                                                                                            가입 신청하기
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </c:otherwise>
+                                                            </c:choose>
+                                                </c:otherwise>
                                     </c:choose>
                                 </div>
                             </div>
@@ -199,85 +215,9 @@
             <!-- contextPath를 JS에 전달 -->
             <script>
                 window.__CTX = "${pageContext.request.contextPath}";
-
-                // 게시글 삭제 확인 (게시판 탭 fragment에서 사용)
-                function confirmDeletePost(bookClubId, postId) {
-                    if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
-                        // 동적으로 폼 생성하여 제출
-                        const form = document.createElement('form');
-                        form.method = 'post';
-                        form.action = window.__CTX + '/bookclubs/' + bookClubId + '/posts/' + postId + '/delete';
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                }
-
-                // 찜 토글
-                function toggleWish(clubSeq) {
-                    fetch(window.__CTX + '/bookclubs/' + clubSeq + '/wish', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        if (data.needLogin) {
-                            alert('로그인이 필요합니다.');
-                            location.href = window.__CTX + '/login';
-                            return;
-                        }
-                        if (data.status === 'ok') {
-                            var btn = document.getElementById('wishBtn');
-                            var svg = btn.querySelector('svg');
-                            var wishCountSpan = document.querySelector('.bc-meta-item span');
-
-                            if (data.wished) {
-                                btn.classList.add('wished');
-                                svg.setAttribute('fill', 'currentColor');
-                            } else {
-                                btn.classList.remove('wished');
-                                svg.setAttribute('fill', 'none');
-                            }
-
-                            // 찜 개수 업데이트 (하단 메타 정보)
-                            var wishCountEl = document.querySelector('.bc-hero-meta .bc-meta-item:last-child span');
-                            if (wishCountEl) {
-                                wishCountEl.textContent = data.wishCount + ' 찜';
-                            }
-                        } else {
-                            alert(data.message || '오류가 발생했습니다.');
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error('찜 토글 실패:', err);
-                        alert('오류가 발생했습니다.');
-                    });
-                }
             </script>
 
             <!-- 독서모임 상세 페이지 전용 JS -->
             <script defer src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_detail.js"></script>
-
-            <!-- 가입 신청 모달 -->
-            <c:if test="${not empty bookClub}">
-                <div id="applyModal" class="bc-apply-modal">
-                    <div class="bc-apply-modal-overlay"></div>
-                    <div class="bc-apply-modal-container">
-                        <h2 class="bc-apply-modal-header">모임 가입 신청</h2>
-                        <h3 class="bc-apply-modal-club-name">${bookClub.book_club_name}</h3>
-                        <div class="bc-apply-modal-desc">${bookClub.book_club_desc}</div>
-                        <div class="bc-apply-modal-form">
-                            <label class="bc-apply-modal-label">지원 동기</label>
-                            <textarea id="applyReasonInput" class="bc-apply-modal-textarea" placeholder="모임장에게 보낼 간단한 인사를 적어주세요."></textarea>
-                        </div>
-                        <div class="bc-apply-modal-actions">
-                            <button type="button" id="btnCancelApply" class="bc-apply-btn bc-apply-btn-cancel">취소</button>
-                            <button type="button" id="btnSubmitApply" class="bc-apply-btn bc-apply-btn-submit">가입 신청</button>
-                        </div>
-                    </div>
-                </div>
-            </c:if>
 
             <jsp:include page="/WEB-INF/views/common/footer.jsp" />

@@ -70,18 +70,39 @@ public class BookClubController {
             boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
             model.addAttribute("isLeader", isLeader);
 
-            // 4-2. 멤버 여부 판단
+            // 4-2. 멤버 여부 판단 (JOINED 상태)
             boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
             model.addAttribute("isMember", isMember);
 
             // 4-3. 대기중인 가입 신청 여부 판단
             boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
             model.addAttribute("hasPendingRequest", hasPendingRequest);
+
+            // 4-4. 거절된 가입 신청 여부 판단
+            boolean hasRejectedRequest = bookClubService.hasRejectedRequest(bookClubId, loginMemberSeq);
+            model.addAttribute("hasRejectedRequest", hasRejectedRequest);
+
+            // 4-5. CTA 상태 계산 (우선순위: JOINED > WAIT > REJECTED > 신청 가능)
+            // - isLeader는 별도로 "모임 관리하기" 버튼 표시에 사용 가능
+            // - CTA는 가입/탈퇴/대기/재신청 상태를 나타냄
+            String ctaStatus;
+            if (isMember) {
+                ctaStatus = "JOINED"; // 탈퇴하기 버튼
+            } else if (hasPendingRequest) {
+                ctaStatus = "WAIT"; // 승인 대기중 문구 (버튼 비활성)
+            } else if (hasRejectedRequest) {
+                ctaStatus = "REJECTED"; // 다시 신청하기 버튼
+            } else {
+                ctaStatus = "NONE"; // 가입 신청하기 버튼
+            }
+            model.addAttribute("ctaStatus", ctaStatus);
         } else {
             // 비로그인 시 기본값 설정
             model.addAttribute("isLeader", false);
             model.addAttribute("isMember", false);
             model.addAttribute("hasPendingRequest", false);
+            model.addAttribute("hasRejectedRequest", false);
+            model.addAttribute("ctaStatus", "NONE"); // 비로그인은 가입 신청하기만 표시
         }
 
         // 5. 현재 참여 인원 수 조회
