@@ -250,7 +250,6 @@
         <h1 class="text-2xl font-bold text-gray-900">채팅</h1>
         <p class="text-sm text-gray-500 mt-1">거래 관련 대화를 나눠보세요</p>
     </div>
-
     <div class="flex gap-6 h-[600px]">
         <!-- 왼쪽 채팅방 리스트 -->
         <div class="w-80 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
@@ -316,7 +315,7 @@
                         </c:forEach>
                     </c:when>
                     <c:otherwise>
-                        <div class="flex items-center gap-3">
+                        <div id="chatEmpty" class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             </div>
@@ -325,7 +324,24 @@
                     </c:otherwise>
                 </c:choose>
             </div>
+            <!-- 채팅 헤더 아래에 책 정보 표시 -->
+            <div id="chatBookInfo" class="hidden px-6 py-3 border-b border-gray-100 bg-white-50 flex items-center gap-4">
+                <!-- 책 이미지 -->
+                <img id="chatBookImg" src="" alt="책 이미지" class="w-12 h-16 object-cover rounded-lg">
 
+                <!-- 책 상세 정보 -->
+                <div class="flex flex-col">
+                    <div id="chatBookTitle" class="font-semibold text-gray-900 text-sm"></div>
+                    <div id="chatBookStatus" class="text-xs text-gray-500"></div>
+                    <div id="chatBookPrice" class="font-semibold text-red-900 text-sm"></div>
+                </div>
+
+                <!-- 오른쪽 가운데 정렬 텍스트 -->
+                <div class="ml-auto text-right">
+                    <h4 id="chatSale_st" class="font-bold text-gray-700 text-sm">거래 제목</h4>
+                </div>
+
+            </div>
             <!-- 채팅 메시지 영역 -->
             <div id="chatContainer" class="flex-1 overflow-y-auto px-6 py-4 bg-gray-50">
                 <c:choose>
@@ -892,13 +908,16 @@ fetchMessages = function(roomSeq) {
                     book_title: tradeInfo.book_title || '',
                     sale_price: tradeInfo.sale_price || 0,
                     delivery_cost: tradeInfo.delivery_cost || 0,
-                    book_st: tradeInfo.book_st || ''
+                    book_st: tradeInfo.book_st || '',
+                    sale_title: tradeInfo.sale_title || '',
+                    sale_st: tradeInfo.sale_st || ''
                 };
 
                 // trade_seq 업데이트
                 if (tradeInfo.trade_seq) {
                     trade_seq = tradeInfo.trade_seq;
                 }
+                console.log('사진 출력 : ', tradeInfo.sale_title);
 
                 // 판매자 여부 재확인
                 if (tradeInfo.member_seller_seq) {
@@ -907,6 +926,56 @@ fetchMessages = function(roomSeq) {
                     console.log('isSeller 업데이트:', isSeller, 'loginMemberSeq:', loginMemberSeq, 'member_seller_seq:', member_seller_seq);
                     updatePlusButtonVisibility();
                 }
+
+                // DOM 업데이트 (책 정보)
+                    const bookInfoEl = document.getElementById('chatBookInfo');
+                    const bookImgEl = document.getElementById('chatBookImg');
+                    const bookTitleEl = document.getElementById('chatBookTitle');
+                    const bookStatusEl = document.getElementById('chatBookStatus');
+                    const bookPriceEl = document.getElementById('chatBookPrice');
+                    const bookSale_stEl = document.getElementById('chatSale_st');
+                    if (bookImgEl) bookImgEl.src = tradeInfo.book_img || '/resources/img/no-image.png';
+                    if (bookTitleEl) bookTitleEl.textContent = tradeInfo.book_title || '';
+                    if (bookPriceEl) {
+                        const totalPrice = (tradeInfo.sale_price || 0) + (tradeInfo.delivery_cost || 0);
+                        const formattedPrice = totalPrice.toLocaleString(); // 천 단위 콤마 적용
+                        bookPriceEl.textContent = formattedPrice + '원';
+                    }
+                    if (bookStatusEl) {
+                        switch (tradeInfo.book_st) {
+                            case 'LIKE_NEW':
+                                bookStatusEl.textContent = '거의 새책';
+                                break;
+                            case 'GOOD':
+                                bookStatusEl.textContent = '좋음';
+                                break;
+                            case 'USED':
+                                bookStatusEl.textContent = '사용됨';
+                                break;
+                            case 'NEW':
+                                bookStatusEl.textContent = '새책';
+                                break;
+                            default:
+                                bookStatusEl.textContent = ''; // 값이 없거나 알 수 없는 경우
+                                break;
+                        }
+                    }
+                    // 책 정보 영역 보이게
+                    if (bookInfoEl) {
+                        bookInfoEl.classList.remove('hidden'); // Tailwind hidden 제거
+                    }
+
+                    if  (bookSale_stEl) {
+                        switch (tradeInfo.sale_st) {
+                            case 'SALE':
+                                bookSale_stEl.textContent = '판매중';
+                                break;
+                            case 'SOLD':
+                                bookSale_stEl.textContent = '판매완료';
+                                bookSale_stEl.classList.add('text-red-500');
+                                break;
+                        }
+                    }
             }
 
             // 메시지 렌더링
@@ -921,6 +990,8 @@ fetchMessages = function(roomSeq) {
     })
     .catch(err => console.error('채팅 메시지 로드 실패:', err));
 };
+
+
 </script>
 
 <%@ include file="/WEB-INF/views/common/footer.jsp" %>
