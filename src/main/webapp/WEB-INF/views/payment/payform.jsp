@@ -160,9 +160,28 @@
                     </div>
                 </div>
 
+                <!-- 동의 체크박스 -->
+                <div class="px-5 pb-4">
+                    <label class="flex items-start gap-3 cursor-pointer group">
+                        <div class="relative flex items-center justify-center">
+                            <input type="checkbox" id="agreeCheckbox" class="peer sr-only">
+                            <div class="w-5 h-5 border-2 border-gray-300 rounded transition-all peer-checked:border-primary-500 peer-checked:bg-primary-500 group-hover:border-primary-400">
+                                <svg class="w-full h-full text-white opacity-0 peer-checked:opacity-100 p-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-600 leading-tight">
+                            주문 내용을 확인하였으며, 정보 제공 등에 동의합니다.
+                            <span class="text-red-500 font-medium">(필수)</span>
+                        </span>
+                    </label>
+                    <p id="agreeError" class="hidden text-xs text-red-500 mt-2 ml-8">결제를 진행하려면 동의가 필요합니다.</p>
+                </div>
+
                 <!-- 결제 버튼 -->
                 <div class="p-5 pt-0">
-                    <button type="button" id="payBtn" class="w-full py-4 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-bold text-lg transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                    <button type="button" id="payBtn" class="w-full py-4 bg-gray-300 text-gray-500 rounded-xl font-bold text-lg transition-all cursor-not-allowed flex items-center justify-center gap-2" disabled>
                         <fmt:formatNumber value="${trade.sale_price + trade.delivery_cost}" type="number"/>원 결제하기
                     </button>
                 </div>
@@ -217,7 +236,30 @@
     // 현재 도메인 기준 URL 생성
     const baseUrl = window.location.origin;
 
-    document.getElementById('payBtn').addEventListener('click', function() {
+    const payBtn = document.getElementById('payBtn');
+    const agreeCheckbox = document.getElementById('agreeCheckbox');
+    const agreeError = document.getElementById('agreeError');
+
+    // 체크박스 상태에 따라 버튼 활성화/비활성화
+    agreeCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            payBtn.disabled = false;
+            payBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            payBtn.classList.add('bg-primary-500', 'hover:bg-primary-600', 'text-white', 'shadow-sm', 'hover:shadow-md');
+            agreeError.classList.add('hidden');
+        } else {
+            payBtn.disabled = true;
+            payBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            payBtn.classList.remove('bg-primary-500', 'hover:bg-primary-600', 'text-white', 'shadow-sm', 'hover:shadow-md');
+        }
+    });
+
+    payBtn.addEventListener('click', function() {
+        if (!agreeCheckbox.checked) {
+            agreeError.classList.remove('hidden');
+            return;
+        }
+
         tossPayments.requestPayment("토스페이", {
             amount: totalAmount,
             orderId: "ORDER_" + tradeSeq + "_" + new Date().getTime(),

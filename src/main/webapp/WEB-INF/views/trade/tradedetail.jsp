@@ -140,7 +140,6 @@
                 <div>
                     거래지역 : ${trade.sale_rg}
                 </div>
-
             </div>
 
             <!-- 설명 -->
@@ -178,42 +177,48 @@
             </div>
 
 
+            <!-- 채팅하기 & 찜하기 버튼 -->
             <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
-                <div class="mt-6 flex items-center gap-4">
-
-                    <!-- 채팅하기 버튼 -->
+                <div class="mt-6 flex gap-3">
                     <form action="/chatrooms" method="post" class="flex-1">
                         <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
                         <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
                         <input type="hidden" name="sale_title" value="${trade.sale_title}">
-
-                        <button type="submit"
-                                class="w-full px-6 py-3 rounded-lg font-bold text-white transition flex items-center justify-center gap-2"
-                                style="background-color:#0036cc;">
-                            <!-- 채팅 아이콘 -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <button type="submit" class="w-full px-6 py-3.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                             </svg>
                             채팅하기
                         </button>
                     </form>
-
-                    <!-- 찜하기 -->
-                    <form id="wishForm-${trade.trade_seq}" class="flex items-center gap-1">
+                    <form id="wishForm-${trade.trade_seq}">
                         <input type="hidden" name="trade_seq" value="${trade.trade_seq}" />
-
                         <button type="button"
                                 onclick="toggleWish(${trade.trade_seq})"
-                                class="text-2xl transition ${wished ? 'text-red-500 active' : 'text-gray-400'}"
+                                class="px-4 py-3.5 border-2 rounded-xl transition-all flex items-center gap-2 ${wished ? 'border-red-200 bg-red-50 text-red-500' : 'border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-500'}"
                                 title="찜하기">
-                            ♥
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="${wished ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                            </svg>
+                            <span id="wishCount-${trade.trade_seq}" class="text-sm font-medium">${wishCount}</span>
                         </button>
+                    </form>
+                </div>
+            </c:if>
 
-                        <span id="wishCount-${trade.trade_seq}" class="text-sm text-gray-600">
-                            ${wishCount}
-                        </span>
+            <!-- 수정/삭제 버튼 -->
+            <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq}">
+                <div class="mt-6 flex gap-3">
+                    <a href="/trade/modify/${trade.trade_seq}"
+                       class="flex-1 px-6 py-3 bg-primary-500 text-white text-center rounded-lg hover:bg-primary-600 transition font-bold">
+                        수정
+                    </a>
+                    <form action="${pageConQtext.request.contextPath}/trade/delete/${trade.trade_seq}" method="post" class="flex-1"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit"
+                                class="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-bold">
+                            삭제
+                        </button>
                     </form>
                 </div>
             </c:if>
@@ -297,13 +302,16 @@ function toggleWish(tradeSeq) {
         }
 
         // 버튼 상태 반영
+        const heartIcon = btn.querySelector('svg');
         if (data.wished) {
-            btn.classList.add("active", "text-red-500");
-            btn.classList.remove("text-gray-400");
+            btn.classList.add("border-red-200", "bg-red-50", "text-red-500");
+            btn.classList.remove("border-gray-200", "bg-white", "text-gray-400", "hover:border-red-200", "hover:bg-red-50", "hover:text-red-500");
+            if (heartIcon) heartIcon.setAttribute('fill', 'currentColor');
             countSpan.textContent = parseInt(countSpan.textContent) + 1;
         } else {
-            btn.classList.remove("active", "text-red-500");
-            btn.classList.add("text-gray-400");
+            btn.classList.remove("border-red-200", "bg-red-50", "text-red-500");
+            btn.classList.add("border-gray-200", "bg-white", "text-gray-400", "hover:border-red-200", "hover:bg-red-50", "hover:text-red-500");
+            if (heartIcon) heartIcon.setAttribute('fill', 'none');
             countSpan.textContent = parseInt(countSpan.textContent) - 1;
         }
     })
