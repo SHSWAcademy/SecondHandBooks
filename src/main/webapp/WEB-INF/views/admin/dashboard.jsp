@@ -62,6 +62,9 @@
     <button onclick="switchView('groups', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
       <i data-lucide="book-open" class="w-5 h-5"></i> 모임 관리
     </button>
+    <button onclick="switchView('notice', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
+      <i data-lucide="megaphone" class="w-5 h-5"></i> 공지사항 관리
+    </button>
   </nav>
 
   <div class="p-4 border-t border-gray-100">
@@ -115,6 +118,16 @@
     <div id="view-groups" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/groupsContent.jsp" %>
     </div>
+
+    <!-- 공지사항 관리 -->
+    <div id="view-notice" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
+      <%@ include file="tabs/noticeContent.jsp" %>
+    </div>
+
+    <!-- 공지사항 관리 -->
+    <div id="view-notice-write" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
+          <%@ include file="tabs/noticeWriteForm.jsp" %>
+    </div>
   </div>
 </main>
 
@@ -125,13 +138,14 @@
 
   // 2. View Switching Logic
   function switchView(viewName, btn) {
+  if (btn) {
     document.querySelectorAll('.nav-item').forEach(el => {
       el.classList.remove('bg-primary-50', 'text-primary-700', 'font-bold');
       el.classList.add('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
     });
     btn.classList.remove('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
     btn.classList.add('bg-primary-50', 'text-primary-700', 'font-bold');
-
+}
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     const target = document.getElementById('view-' + viewName);
     if(target) target.classList.remove('hidden');
@@ -142,7 +156,9 @@
       'usersLog': 'User Access Logs',
       'adminLog': 'Admin Activity Logs',
       'books': 'Product Management',
-      'groups': 'Group Management'
+      'groups': 'Group Management',
+      'notice': 'Notice Management',
+      'notice-write': 'Create Notice'
     };
     document.getElementById('page-title').innerText = titleMap[viewName] || 'Dashboard';
   }
