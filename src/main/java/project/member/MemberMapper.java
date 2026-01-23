@@ -7,6 +7,7 @@ import java.util.Map;
 @Mapper
 public interface MemberMapper {
     MemberVO login(MemberVO vo);
+    int loginLogUpdate(long member_seq);
     int signUp(MemberVO vo);
     // CRUD, findById, save
     int idCheck(String login_id);
@@ -16,4 +17,7 @@ public interface MemberMapper {
     MemberVO getMemberByOAuth(Map<String, Object> map);
     void insertSocialMemberInfo(Map<String, Object> map);
     void insertMemberOAuth(Map<String, Object> map);
+
+    int updateMember(MemberVO vo);
+    int deleteMember(long member_seq);
 }

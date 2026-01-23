@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.admin.AdminMapper">
+
+    <select id="loginAdmin" resultType="project.admin.AdminVO">
+        SELECT * FROM ADMIN WHERE ADMIN_LOGIN_ID = #{id} AND ADMIN_PASSWORD = #{pwd}
+    </select>
+
+    <select id="countAllMembers" resultType="int">
+        SELECT COUNT(*) FROM MEMBER_INFO WHERE MEMBER_DELETED_DTM IS NULL
+    </select>
+    <select id="countAllTrades" resultType="int">
+        SELECT COUNT(*) FROM SB_TRADE_INFO WHERE DEL_DTM IS NULL
+    </select>
+    <select id="countAllBookClubs" resultType="int">
+        SELECT COUNT(*) FROM BOOK_CLUB WHERE BOOK_CLUB_DELETED_DT IS NULL
+    </select>
+
+    <select id="searchMembers" resultType="project.member.MemberVO">
+        SELECT * FROM MEMBER_INFO
+        WHERE MEMBER_DELETED_DTM IS NULL
+        <if test="status != null and status != '' and status != 'ALL'">
+            AND MEMBER_ST = #{status}::member_st_enum
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%') OR MEMBER_EMAIL LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY CRT_DTM DESC
+        LIMIT 50
+    </select>
+
+    <select id="searchTrades" resultType="project.trade.TradeVO">
+        SELECT trade_seq, sale_title, sale_price, sale_rg, sale_st, book_title, crt_dtm
+        FROM SB_TRADE_INFO
+        WHERE DEL_DTM IS NULL
+        <if test="status != null and status != '' and status != 'ALL'">
+            AND SALE_ST = #{status}::sale_st_enum
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY CRT_DTM DESC
+        LIMIT 50
+    </select>
+
+    <select id="searchBookClubs" resultType="project.bookclub.vo.BookClubVO">
+        SELECT BOOK_CLUB_SEQ, BOOK_CLUB_NAME, BOOK_CLUB_RG, BOOK_CLUB_MAX_MEMBER, BOOK_CLUB_SCHEDULE, CRT_DTM
+        FROM BOOK_CLUB
+        WHERE BOOK_CLUB_DELETED_DT IS NULL
+        <if test="keyword != null and keyword != ''">
+            AND BOOK_CLUB_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY CRT_DTM DESC
+        LIMIT 50
+    </select>
+
+    <update id="updateMemberStatus">
+        UPDATE MEMBER_INFO SET MEMBER_ST = #{status}::member_st_enum WHERE MEMBER_SEQ = #{seq}
+    </update>
+    <update id="deleteMember">
+        UPDATE MEMBER_INFO SET MEMBER_DELETED_DTM = NOW() WHERE MEMBER_SEQ = #{seq}
+    </update>
+
+    <update id="updateTradeStatus">
+        UPDATE SB_TRADE_INFO SET SALE_ST = #{status}::sale_st_enum WHERE TRADE_SEQ = #{seq}
+    </update>
+    <update id="deleteTrade">
+        UPDATE SB_TRADE_INFO SET DEL_DTM = NOW() WHERE TRADE_SEQ = #{seq}
+    </update>
+
+    <update id="deleteBookClub">
+        UPDATE BOOK_CLUB SET BOOK_CLUB_DELETED_DT = CURRENT_DATE WHERE BOOK_CLUB_SEQ = #{seq}
+    </update>
+
+    <select id="selectDailySignupStats" resultType="map">
+        SELECT to_char(crt_dtm, 'YYYY-MM-DD') as date, COUNT(*) as count
+        FROM MEMBER_INFO
+        WHERE crt_dtm >= current_date - interval '6 days'
+        GROUP BY to_char(crt_dtm, 'YYYY-MM-DD')
+        ORDER BY date
+    </select>
+
+    <select id="selectDailyTradeStats" resultType="map">
+        SELECT to_char(crt_dtm, 'YYYY-MM-DD') as date, COUNT(*) as count
+        FROM SB_TRADE_INFO
+        WHERE crt_dtm >= current_date - interval '6 days'
+        GROUP BY to_char(crt_dtm, 'YYYY-MM-DD')
+        ORDER BY date
+    </select>
+
+    <select id="selectCategoryStats" resultType="map">
+        SELECT c.category_nm as name, COUNT(t.trade_seq) as count
+        FROM category c
+            JOIN sb_trade_info t ON c.category_seq = t.category_seq
+        WHERE t.del_dtm IS NULL
+        GROUP BY c.category_nm
+        ORDER BY count DESC
+            LIMIT 5
+    </select>
+
+    <select id="selectRecentMembers" resultType="project.member.MemberVO">
+        SELECT * FROM MEMBER_INFO
+        WHERE MEMBER_DELETED_DTM IS NULL
+        ORDER BY CRT_DTM DESC
+            LIMIT 10
+    </select>
+
+    <select id="selectRecentTrades" resultType="project.trade.TradeVO">
+        SELECT trade_seq, sale_title, sale_price, sale_rg, sale_st, book_title, crt_dtm
+        FROM SB_TRADE_INFO
+        WHERE DEL_DTM IS NULL
+        ORDER BY CRT_DTM DESC
+            LIMIT 10
+    </select>
+
+    <select id="selectRecentBookClubs" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            BOOK_CLUB_SEQ,
+            BOOK_CLUB_NAME,
+            BOOK_CLUB_RG,
+            BOOK_CLUB_MAX_MEMBER,
+            BOOK_CLUB_SCHEDULE,
+            CRT_DTM
+        FROM BOOK_CLUB
+        WHERE BOOK_CLUB_DELETED_DT IS NULL
+        ORDER BY CRT_DTM DESC
+            LIMIT 10
+    </select>
+
+    <!--회원 로그인 기록 조회 -->
+    <select id="selectMemberLoginLogs" resultType="project.admin.LoginInfoVO">
+        SELECT L.LOGIN_INFO_SEQ
+             , L.MEMBER_SEQ
+             , L.LOGIN_DTM
+             , L.LOGIN_IP
+             , L.LOGOUT_DTM
+             , L.LOGOUT_IP
+             , M.MEMBER_NICKNM
+             , M.MEMBER_EMAIL
+          FROM LOGIN_INFO L
+         INNER JOIN MEMBER_INFO M
+            ON L.MEMBER_SEQ = M.MEMBER_SEQ
+         WHERE L.MEMBER_SEQ IS NOT NULL
+         ORDER BY L.LOGIN_DTM DESC
+         LIMIT 100
+    </select>
+
+    <!-- 관리자 로그인 기록 조회 -->
+    <select id="selectAdminLoginLogs" resultType="project.admin.LoginInfoVO">
+        SELECT L.LOGIN_INFO_SEQ
+             , L.ADMIN_SEQ
+             , L.LOGIN_DTM
+             , L.LOGIN_IP
+             , L.LOGOUT_DTM
+             , L.LOGOUT_IP
+             , A.ADMIN_LOGIN_ID
+          FROM LOGIN_INFO L
+         INNER JOIN ADMIN A
+            ON L.ADMIN_SEQ = A.ADMIN_SEQ
+         WHERE L.ADMIN_SEQ IS NOT NULL
+         ORDER BY L.LOGIN_DTM DESC
+         LIMIT 100
+    </select>
+
+    <!-- 관리자 로그인 기록 저장 -->
+    <insert id="insertAdminLogin">
+        INSERT INTO LOGIN_INFO (ADMIN_SEQ, LOGIN_DTM, LOGIN_IP)
+                        VALUES (#{admin_seq}, CURRENT_TIMESTAMP, #{login_ip})
+    </insert>
+
+    <!-- 관리자 로그아웃 기록 -->
+    <update id="updateAdminLogout">
+        UPDATE LOGIN_INFO
+           SET LOGOUT_DTM = CURRENT_TIMESTAMP
+             , LOGOUT_IP = #{logout_ip}
+         WHERE LOGIN_INFO_SEQ = (
+                                 SELECT LOGIN_INFO_SEQ
+                                   FROM LOGIN_INFO
+                                  WHERE ADMIN_SEQ = #{admin_seq}
+                                    AND LOGOUT_DTM IS NULL
+                                  ORDER BY LOGIN_DTM DESC
+                                  LIMIT 1
+                                 )
+    </update>
+
+    <insert id="insertMemberLogin">
+        INSERT INTO LOGIN_INFO (MEMBER_SEQ, LOGIN_DTM, LOGIN_IP)
+                        VALUES (#{member_seq}, CURRENT_TIMESTAMP, #{login_ip})
+    </insert>
+
+    <update id="updateMemberLogout">
+        UPDATE LOGIN_INFO
+           SET LOGOUT_DTM = CURRENT_TIMESTAMP
+             , LOGOUT_IP = #{logout_ip}
+         WHERE LOGIN_INFO_SEQ = (
+                                 SELECT LOGIN_INFO_SEQ
+                                   FROM LOGIN_INFO
+                                  WHERE MEMBER_SEQ = #{member_seq}
+                                    AND LOGOUT_DTM IS NULL
+                                  ORDER BY LOGIN_DTM DESC
+                                  LIMIT 1
+                                 )
+    </update>
+</mapper>

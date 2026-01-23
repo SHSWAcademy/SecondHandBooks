@@ -18,7 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import project.admin.AdminService;
+import project.bookclub.vo.BookClubVO;
+import project.bookclub.service.BookClubService;
+import project.util.Const;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +35,8 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MailService mailService;
+    private final AdminService adminService;
+    private final BookClubService bookClubService;
     // ----------------------------------
     // 카카오 로그인
     // ----------------------------------
@@ -70,7 +77,8 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public String login(MemberVO vo, Model model, HttpSession sess) {
+    public String login(MemberVO vo, Model model,
+                        HttpSession sess, HttpServletRequest request) {
         MemberVO memberVO = memberService.login(vo);
         if (memberVO == null) {
             model.addAttribute("msg", "아이디 또는 비밀번호가 올바르지 않습니다.");
@@ -79,8 +87,47 @@ public class MemberController {
         } else {
             System.out.println("로그인 성공");
             sess.setAttribute("loginSess", memberVO);
+            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+
+            // admin 로그 기록
+            String loginIp = getClientIP(request);
+            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
+            if (logUpdate) {
+                System.out.println("로그 찍기 성공");
+            } else {
+                System.out.println("로그 찍기 실패");
+            }
             return "redirect:/";
         }
+    }
+//    @GetMapping("/logout")
+//    public String logout(HttpSession sess) {
+//        // 세션에 저장된 모든 데이터 삭제 (loginSess 포함)
+//        sess.invalidate();
+//
+//        log.info("로그아웃 성공 - 세션 만료됨");
+//
+//        // 메인 화면으로 리다이렉트
+//        return "redirect:/";
+//    }
+    @GetMapping("/logout")
+    public String logout(HttpSession sess, Model model, HttpServletRequest request) {
+
+        MemberVO memberVO = (MemberVO) sess.getAttribute(Const.SESSION);
+
+        if (memberVO != null) {
+            String logoutIp = getClientIP(request);
+            adminService.recordMemberLogout(memberVO.getMember_seq(), logoutIp);
+        }
+        // 1. 세션 삭제
+        sess.invalidate();
+
+        // 2. 알림창 메시지와 이동할 주소 설정
+        model.addAttribute("msg", "로그아웃 되었습니다.");
+        model.addAttribute("url", "/");
+        model.addAttribute("cmd", "move");
+
+        return "common/return";
     }
 
     @GetMapping("/signup")
@@ -104,7 +151,8 @@ public class MemberController {
 
     // --- 카카오 로그인 콜백 ---
     @GetMapping("/auth/kakao/callback")
-    public String kakaoCallBack(@RequestParam String code, HttpSession sess, Model model) {
+    public String kakaoCallBack(@RequestParam String code, HttpSession sess,
+                                Model model, HttpServletRequest request) {
         log.info("Kakao Login Code: {}", code); // 1. 코드 수신 확인
 
         // 1. 엑세스 토큰 받기
@@ -128,8 +176,25 @@ public class MemberController {
 
         // 3. 서비스 호출
         try {
-            MemberVO loginUser = memberService.processSocialLogin(kakaoUserInfo);
-            sess.setAttribute("loginSess", loginUser);
+            MemberVO memberVO = memberService.processSocialLogin(kakaoUserInfo);
+            if (memberVO == null) {
+                log.warn("Withdrawal Kakao User attempted login.");
+                model.addAttribute("msg", "탈퇴한 카카오 유저입니다. 재가입이 불가능합니다.");
+                model.addAttribute("url", "/login"); // 로그인 페이지로 이동
+                model.addAttribute("cmd", "move");
+                return "common/return";
+            }
+            sess.setAttribute("loginSess", memberVO);
+            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+
+            // admin 로그 기록
+            String loginIp = getClientIP(request);
+            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
+            if (logUpdate) {
+                System.out.println("로그 찍기 성공");
+            } else {
+                System.out.println("로그 찍기 실패");
+            }
             return "redirect:/";
         } catch (Exception e) {
             log.error("Kakao Login Error", e); // 스택트레이스 출력
@@ -213,8 +278,30 @@ public class MemberController {
 
     // --- 네이버 로그인 콜백 ---
     @GetMapping("/auth/naver/callback")
-    public String naverCallBack(@RequestParam String code, @RequestParam String state, HttpSession sess, Model model) {
-        // 1. 액세스 토큰 받기
+    public String naverCallBack(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String error,
+            @RequestParam(required = false) String error_description,
+            HttpSession sess, Model model, HttpServletRequest request) {
+
+        // 1. 사용자가 로그인을 취소한 경우 처리
+        if ("access_denied".equals(error)) {
+            log.info("Naver login canceled by user: {}", error_description);
+            model.addAttribute("msg", "네이버 로그인을 취소하셨습니다.");
+            model.addAttribute("url", "/login");
+            model.addAttribute("cmd", "move");
+            return "common/return";
+        }
+
+        // 2. 코드가 없는 비정상 접근 처리
+        if (code == null) {
+            model.addAttribute("msg", "잘못된 접근입니다.");
+            model.addAttribute("cmd", "back");
+            return "common/return";
+        }
+
+        // 3. 액세스 토큰 받기 (기존 로직 유지)
         String accessToken = getNaverAccessToken(code, state);
         if (accessToken == null) {
             model.addAttribute("msg", "네이버 토큰 발급 실패");
@@ -222,14 +309,30 @@ public class MemberController {
             return "common/return";
         }
 
-        // 2. 사용자 정보 받기
+        // 4. 사용자 정보 받기 (기존 로직 유지)
         Map<String, Object> naverUserInfo = getNaverUserInfo(accessToken);
 
-        // 3. 서비스 호출 (기존 카카오에서 쓴 메서드를 재사용하거나 새로 만듭니다)
+        // 5. 서비스 호출 (기존 로직 유지)
         try {
-            // provider를 "NAVER"로 넘겨서 구분합니다.
-            MemberVO loginUser = memberService.processSocialLogin(naverUserInfo);
-            sess.setAttribute("loginSess", loginUser);
+            MemberVO memberVO = memberService.processSocialLogin(naverUserInfo);
+            if (memberVO == null) {
+                log.warn("Withdrawal Naver User attempted login.");
+                model.addAttribute("msg", "탈퇴한 네이버 유저입니다. 재가입이 불가능합니다.");
+                model.addAttribute("url", "/login");
+                model.addAttribute("cmd", "move");
+                return "common/return";
+            }
+            sess.setAttribute("loginSess", memberVO);
+            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
+
+            // admin 로그 기록
+            String loginIp = getClientIP(request);
+            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
+            if (logUpdate) {
+                System.out.println("로그 찍기 성공");
+            } else {
+                System.out.println("로그 찍기 실패");
+            }
             return "redirect:/";
         } catch (Exception e) {
             log.error("Naver Login Error", e);
@@ -309,5 +412,91 @@ public class MemberController {
     @ResponseBody
     public int nicknmCheck(@RequestParam String member_nicknm) {
         return memberService.nickNmCheck(member_nicknm);
+    }
+
+    // 프로필 페이지 기능
+    // 회원 정보 수정
+    @PostMapping("/member/update")
+    public String updateMember(MemberVO vo, HttpSession sess, Model model) {
+        // 1. 세션에서 로그인 중인 유저 정보 가져오기
+        MemberVO loginUser = (MemberVO) sess.getAttribute("loginSess");
+
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        // 2. pk(seq) 설정
+        vo.setMember_seq(loginUser.getMember_seq());
+
+        // 3. DB 업데이트
+        boolean result = memberService.updateMember(vo);
+        if (result) {
+            // 4. 업데이트 성공 시 세션 정보도 최신화
+            loginUser.setMember_nicknm(vo.getMember_nicknm());
+            loginUser.setMember_email(vo.getMember_email());
+            loginUser.setMember_tel_no(vo.getMember_tel_no());
+            sess.setAttribute("loginSess", loginUser); // 세션 갱신
+
+            model.addAttribute("msg", "회원 정보가 수정되었습니다.");
+            model.addAttribute("url", "/mypage");
+            model.addAttribute("cmd", "move");
+        } else {
+            model.addAttribute("msg", "정보 수집에 실패했습니다.");
+            model.addAttribute("cmd", "back");
+        }
+        return "common/return";
+    }
+
+    // 회원 탈퇴 처리
+    @GetMapping("/member/delete")
+    public String deleteMember(HttpSession sess, Model model) {
+        MemberVO loginUser = (MemberVO) sess.getAttribute("loginSess");
+
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        // SOFT DELETE 수행
+        boolean result = memberService.deleteMember(loginUser.getMember_seq());
+
+        if (result) {
+            sess.invalidate(); // 탈퇴 성공 시 세션 전체 삭제 (로그아웃)
+            model.addAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+            model.addAttribute("url", "/");
+            model.addAttribute("cmd", "move");
+        } else {
+            model.addAttribute("msg", "탈퇴 처리에 실패했습니다.");
+            model.addAttribute("cmd", "back");
+        }
+        return "common/return";
+    }
+
+    // Address 보여주기
+    @GetMapping("/profile/tab/addresses")
+    public String tabAddresses() {
+        return "member/tabs/addresses";
+    }
+
+    // IP 추출 메서드
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        if (ip != null && ip.indexOf(",") > 0) {
+            ip = ip.substring(0, ip.indexOf(","));
+        }
+        return ip;
     }
 }
