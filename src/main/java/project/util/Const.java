@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Const {
     public static final String SESSION = "loginSess";
+
     // 시간 포맷
     public static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
