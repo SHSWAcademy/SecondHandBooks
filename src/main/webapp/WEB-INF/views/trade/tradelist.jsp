@@ -15,15 +15,23 @@
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         <div class="absolute top-2 left-2 flex gap-1">
                             <c:choose>
-                                <c:when test="${trade.sale_st == 'SOLD'}">
-                                    <div class="bg-gray-800/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">판매완료</div>
+                                <c:when test="${trade.sale_st.name() == 'SOLD'}">
+                                    <div class="bg-gray-800/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">
+                                        판매완료
+                                    </div>
                                 </c:when>
-                                <c:when test="${trade.sale_st == 'RESERVED'}">
-                                    <div class="bg-orange-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">예약중</div>
+
+                                <c:when test="${trade.sale_st.name() == 'RESERVED'}">
+                                    <div class="bg-orange-500/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">
+                                        예약중
+                                    </div>
                                 </c:when>
-                                <c:otherwise>
-                                    <div class="bg-green-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">판매중</div>
-                                </c:otherwise>
+
+                                <c:when test="${trade.sale_st.name() == 'SALE'}">
+                                    <div class="bg-green-600/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">
+                                        판매중
+                                    </div>
+                                </c:when>
                             </c:choose>
                             <c:if test="${trade.book_st == 'NEW'}">
                                 <div class="bg-gray-900/80 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded">새책</div>
@@ -68,21 +76,26 @@
         <!-- 페이징 -->
         <div class="flex justify-center gap-2 mt-8">
             <c:if test="${currentPage > 1}">
-                <a href="javascript:loadTrade(${currentPage - 1})" class="px-3 py-2 border rounded hover:bg-gray-100">이전</a>
+                <a href="javascript:goPage(${currentPage - 1})"
+                   class="px-3 py-2 border rounded hover:bg-gray-100">
+                    이전
+                </a>
             </c:if>
 
             <c:forEach begin="1" end="${totalPages}" var="i">
-                <a href="javascript:loadTrade(${i})"
+                <a href="javascript:goPage(${i})"
                    class="px-3 py-2 border rounded ${i == currentPage ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'}">
                     ${i}
                 </a>
             </c:forEach>
 
             <c:if test="${currentPage < totalPages}">
-                <a href="javascript:loadTrade(${currentPage + 1})" class="px-3 py-2 border rounded hover:bg-gray-100">다음</a>
+                <a href="javascript:goPage(${currentPage + 1})"
+                   class="px-3 py-2 border rounded hover:bg-gray-100">
+                    다음
+                </a>
             </c:if>
         </div>
-
     </c:when>
     <c:otherwise>
         <div class="py-20 text-center text-gray-500 bg-white rounded-lg border border-gray-200">

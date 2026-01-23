@@ -7,11 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import project.chat.message.MessageService;
+import project.trade.ENUM.SaleStatus;
 import project.trade.TradeService;
 import project.trade.TradeVO;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Handles requests for the application home page.
@@ -25,6 +27,7 @@ public class HomeController {
 	 * Simply selects the home view to render by returning its name.
 	 */
 	private final TradeService tradeService;
+	private final MessageService messageService;
 
 	/*
 	@GetMapping({"/", "/home"})
@@ -34,40 +37,35 @@ public class HomeController {
 		return "/common/home";
 	}
 	 */
-//	@GetMapping("/mypage")
-//	public String profile(HttpSession sess, Model model) {
-//		// 로그인 안 되어 있으면 로그인 페이지로
-//		if (sess.getAttribute("loginSess") == null) {
-//			model.addAttribute("msg", "로그인이 필요한 서비스입니다.");
-//			model.addAttribute("url", "/login");
-//			model.addAttribute("cmd", "move");
-//			return "common/return";
-//		}
-//
-//		// 여기에 실제로는 DB에서 구매내역(orders), 판매내역(sales) 등을 조회해서 model에 담아야 합니다.
-//		// 현재는 UI 구현이 목적이므로 JSP에서 하드코딩된 예시 데이터를 보여줍니다.
-//
-//		return "/mypage";
-//	}
+
+	// 홈 화면 전체 판매글 출력
 	@GetMapping({"/", "/home"})
 	public String home(@RequestParam(defaultValue = "1") int page,
 					   TradeVO searchVO, Model model,
-					   HttpServletRequest request) {
+					   HttpServletRequest request,
+					   HttpServletResponse response) {
 		int size = 14;  // 한 페이지에 14개
 
+
+		log.info("tradeVO 판매중, 완료, 전체 :" + searchVO.getSale_st());
 		List<TradeVO> trades = tradeService.searchAllWithPaging(page, size, searchVO);
 		int totalCount = tradeService.countAll(searchVO);
 		int totalPages = (int) Math.ceil((double) totalCount / size);
 		List<TradeVO> category = tradeService.selectCategory();	// 카테고리 조회
+		// List<TradeVO> bookState = tradeService.selectBookState(); // 판매글 상태 조회
 
+		model.addAttribute("totalCount", totalCount);
 		model.addAttribute("trades", trades);
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("category", category);
 
+
+
 		// AJAX 요청이면 fragment만 반환
 		if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-			return "trade/tradeList";
+			response.setHeader("X-Total-Count", String.valueOf(totalCount));
+			return "trade/tradelist";
 		}
 		return "common/home";
 	}
