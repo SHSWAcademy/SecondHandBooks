@@ -103,4 +103,34 @@ public class AdminService {
         adminMapper.updateMemberLogout(member_seq, logout_ip);
     }
 
+    // [배너 관리]
+    public List<BannerVO> getBanners() {
+        return adminMapper.selectBanners();
+    }
+
+    @Transactional
+    public void saveBanner(BannerVO banner) {
+        adminMapper.insertBanner(banner);
+    }
+
+    @Transactional
+    public void deleteBanner(Long seq) {
+        adminMapper.deleteBanner(seq);
+    }
+
+    @Transactional
+    public Long saveTempPage(String title, String content) {
+        // TEMP_PAGE 테이블에 저장하고 PK(ID)를 반환하는 로직 구현 필요
+        // 여기서는 Mapper 호출 로직 작성
+        TempPageVO vo = new TempPageVO();
+        vo.setTitle(title);
+        vo.setContent(content);
+        adminMapper.insertTempPage(vo);
+        return vo.getPageSeq();
+    }
+
+    // [추가] 임시 페이지 조회
+    public TempPageVO getTempPage(Long id) {
+        return adminMapper.selectTempPage(id);
+    }
 }

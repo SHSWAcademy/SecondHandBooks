@@ -51,4 +51,13 @@ public interface AdminMapper {
     void updateAdminLogout(@Param("admin_seq") Long admin_seq, @Param("logout_ip") String logout_ip);
     void insertMemberLogin(@Param("member_seq") Long member_seq, @Param("login_ip") String login_ip);
     void updateMemberLogout(@Param("member_seq") Long member_seq, @Param("logout_ip") String logout_ip);
+
+    // [추가] 배너 관리 메서드
+    List<BannerVO> selectBanners();
+    void insertBanner(BannerVO banner);
+    void deleteBanner(@Param("seq") Long seq);
+
+    // [추가] 임시 페이지 관리 메서드
+    void insertTempPage(TempPageVO vo);
+    TempPageVO selectTempPage(@Param("seq") Long seq);
 }
