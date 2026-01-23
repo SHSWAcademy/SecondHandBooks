@@ -16,15 +16,16 @@ buildNumber.properties
 *.iws
 *.ipr
 .classpath
-.project
+.projectgit
 .settings/
 .springBeans
 .sts4-cache/
 .vscode/
 
 # Configuration
-*.properties
+src/main/resources/*.properties
 
+*.properties
 
 
 
@@ -44,3 +45,7 @@ cargo/
 
 pom.xml
 .gitignore
+
+bookclubDDL.md
+
+1.png
