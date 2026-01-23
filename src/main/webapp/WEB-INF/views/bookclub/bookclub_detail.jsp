@@ -168,13 +168,9 @@
 
                                                         <%-- 5순위: 비멤버 (로그인했지만 가입하지 않음, 신청하지도 않음) --%>
                                                             <c:otherwise>
-                                                                <form method="post"
-                                                                    action="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/join-requests"
-                                                                    style="display: inline;">
-                                                                    <button type="submit" class="bc-btn bc-btn-primary">
-                                                                        가입 신청하기
-                                                                    </button>
-                                                                </form>
+                                                                <button type="button" id="btnOpenApplyModal" class="bc-btn bc-btn-primary">
+                                                                    가입 신청하기
+                                                                </button>
                                                             </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -197,5 +193,25 @@
 
             <!-- 독서모임 상세 페이지 전용 JS -->
             <script defer src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_detail.js"></script>
+
+            <!-- 가입 신청 모달 -->
+            <c:if test="${not empty bookClub}">
+                <div id="applyModal" class="bc-apply-modal">
+                    <div class="bc-apply-modal-overlay"></div>
+                    <div class="bc-apply-modal-container">
+                        <h2 class="bc-apply-modal-header">모임 가입 신청</h2>
+                        <h3 class="bc-apply-modal-club-name">${bookClub.book_club_name}</h3>
+                        <div class="bc-apply-modal-desc">${bookClub.book_club_desc}</div>
+                        <div class="bc-apply-modal-form">
+                            <label class="bc-apply-modal-label">지원 동기</label>
+                            <textarea id="applyReasonInput" class="bc-apply-modal-textarea" placeholder="모임장에게 보낼 간단한 인사를 적어주세요."></textarea>
+                        </div>
+                        <div class="bc-apply-modal-actions">
+                            <button type="button" id="btnCancelApply" class="bc-apply-btn bc-apply-btn-cancel">취소</button>
+                            <button type="button" id="btnSubmitApply" class="bc-apply-btn bc-apply-btn-submit">가입 신청</button>
+                        </div>
+                    </div>
+                </div>
+            </c:if>
 
             <jsp:include page="/WEB-INF/views/common/footer.jsp" />
