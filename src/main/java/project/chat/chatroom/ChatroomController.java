@@ -62,7 +62,7 @@ public class ChatroomController {
             return "redirect:/";
         }
 
-        // 1. 판매글에서 채팅하기로 채팅에 들어왔을 경우 (프론트에서 tradeVO가 넘어올 경우)
+        // 1. 판매글에서 채팅하기로 채팅에 들어왔을 경우 (프론트에서 tradeVO가 넘어올 경우) 채팅방 속 메시지 데이터 프론트에 전달
         if (tradeVO.getTrade_seq() > 0) {
 
             long trade_seq = tradeVO.getTrade_seq();
@@ -82,7 +82,7 @@ public class ChatroomController {
             // sessionMember.getMember_seq() : 메시지 읽음 처리하는 사람의 seq, member_buyer_seq 로 넣어도 되지만 직관성을 위해 session 에서 조회한 값을 넣음
 
             model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
-            model.addAttribute("trade_info", findTrade);
+            model.addAttribute("trade_info", findTrade); // 현재 채팅방이 다루는 trade 전달
             model.addAttribute("messages", messages); // 현재 채팅방의 전체 메시지 전달 (이후 페이징 처리 필요)
         }
 
