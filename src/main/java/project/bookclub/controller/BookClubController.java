@@ -11,13 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -394,6 +388,36 @@ public class BookClubController {
         }
 
         return "redirect:/bookclubs/" + bookClubId;
+    }
+
+    /**
+     * 독서모임 가입 신청 (AJAX용)
+     * POST /bookclubs/{bookClubId}/join
+     */
+    @PostMapping("/{bookClubId}/join")
+    @ResponseBody
+    public Map<String, Object> createJoinRequestAjax(
+            @PathVariable("bookClubId") Long bookClubId,
+            @RequestBody(required = false) Map<String, String> body,
+            HttpSession session) {
+
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return Map.of("status", "fail", "message", "로그인이 필요합니다.");
+        }
+
+        String reason = (body != null) ? body.get("reason") : null;
+
+        JoinRequestResult result = bookClubService.createJoinRequest(
+                bookClubId,
+                loginMember.getMember_seq(),
+                reason);
+
+        if (result == JoinRequestResult.SUCCESS) {
+            return Map.of("status", "ok", "message", result.getMessage());
+        } else {
+            return Map.of("status", "fail", "message", result.getMessage());
+        }
     }
 
     /**
