@@ -84,47 +84,9 @@
             </h2>
 
             <div class="space-y-4">
-                <!-- 에디터 툴바 (선택사항) -->
-                <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <button type="button" onclick="insertText('**', '**')" title="굵게"
-                            class="p-2 hover:bg-gray-200 rounded transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
-                            <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
-                        </svg>
-                    </button>
-                    <button type="button" onclick="insertText('_', '_')" title="기울임"
-                            class="p-2 hover:bg-gray-200 rounded transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="19" x2="10" y1="4" y2="4"/>
-                            <line x1="14" x2="5" y1="20" y2="20"/>
-                            <line x1="15" x2="9" y1="4" y2="20"/>
-                        </svg>
-                    </button>
-                    <div class="w-px h-6 bg-gray-300"></div>
-                    <button type="button" onclick="insertList()" title="목록"
-                            class="p-2 hover:bg-gray-200 rounded transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="8" x2="21" y1="6" y2="6"/>
-                            <line x1="8" x2="21" y1="12" y2="12"/>
-                            <line x1="8" x2="21" y1="18" y2="18"/>
-                            <line x1="3" x2="3.01" y1="6" y2="6"/>
-                            <line x1="3" x2="3.01" y1="12" y2="12"/>
-                            <line x1="3" x2="3.01" y1="18" y2="18"/>
-                        </svg>
-                    </button>
-                    <button type="button" onclick="insertLink()" title="링크"
-                            class="p-2 hover:bg-gray-200 rounded transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                        </svg>
-                    </button>
-                </div>
-
                 <!-- 내용 입력 -->
                 <div>
-                    <label for="notice_content" class="block text-sm font-bold text-gray-700 mb-2">
+                    <label for="notice_cont" class="block text-sm font-bold text-gray-700 mb-2">
                         내용 <span class="text-red-500">*</span>
                     </label>
                     <textarea id="notice_content" name="notice_content" required rows="15"
