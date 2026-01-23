@@ -152,11 +152,24 @@ const BookClubManage = (() => {
 
     /**
      * CSRF 토큰 가져오기 (meta 태그에서 추출)
+     * @returns {{ token: string|null, header: string|null, isValid: boolean }}
      */
     function getCsrfToken() {
         const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
         const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
-        return { token, header };
+        const isValid = !!(token && header);
+        return { token, header, isValid };
+    }
+
+    /**
+     * API URL 빌드 헬퍼 (contextPath 지원)
+     * @param {string} path - API 경로 (예: '/bookclubs/123/manage/requests/456/approve')
+     * @returns {string} - 전체 URL
+     */
+    function buildUrl(path) {
+        // contextPath는 JSP에서 전역 변수로 설정 (window.contextPath)
+        const ctx = window.contextPath || '';
+        return ctx + path;
     }
 
     /**
@@ -264,10 +277,20 @@ const BookClubManage = (() => {
             saveBtn.textContent = '저장 중...';
 
             try {
+                // CSRF 토큰 검증
                 const csrf = getCsrfToken();
-                const bookClubId = window.location.pathname.split('/')[2]; // /bookclubs/{id}/manage
+                if (!csrf.isValid) {
+                    console.error('CSRF 토큰이 없습니다. meta 태그를 확인하세요.');
+                    showAlert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침하세요.', 'error');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = '변경사항 저장';
+                    return;
+                }
 
-                const response = await fetch(`/bookclubs/${bookClubId}/manage/settings`, {
+                const bookClubId = window.location.pathname.split('/')[2]; // /bookclubs/{id}/manage
+                const url = buildUrl(`/bookclubs/${bookClubId}/manage/settings`);
+
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -339,8 +362,21 @@ const BookClubManage = (() => {
                 btn.textContent = '처리 중...';
 
                 try {
+                    // CSRF 토큰 검증
                     const csrf = getCsrfToken();
-                    const response = await fetch(`/bookclubs/${clubSeq}/manage/requests/${requestSeq}/approve`, {
+                    if (!csrf.isValid) {
+                        console.error('CSRF 토큰이 없습니다. meta 태그를 확인하세요.');
+                        showAlert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침하세요.', 'error');
+                        btn.disabled = false;
+                        btn.textContent = '승인';
+                        return;
+                    }
+
+                    // URL 빌드 (contextPath 지원)
+                    const url = buildUrl(`/bookclubs/${clubSeq}/manage/requests/${requestSeq}/approve`);
+                    console.log('승인 요청 URL:', url);
+
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -395,7 +431,8 @@ const BookClubManage = (() => {
 
             const requestSeq = document.getElementById('rejectRequestSeq').value;
             const clubSeq = document.getElementById('rejectClubSeq').value;
-            const reason = document.getElementById('rejectReason').value;
+            // 거절 사유(reason)는 1차 단순화로 전송하지 않음 (DB 컬럼 없음)
+            // 추후 알림/메시지 기능 추가 시 확장 가능
 
             // 제출 버튼 비활성화 (중복 제출 방지)
             const submitBtn = rejectForm.querySelector('button[type="submit"]');
@@ -405,8 +442,23 @@ const BookClubManage = (() => {
             }
 
             try {
+                // CSRF 토큰 검증
                 const csrf = getCsrfToken();
-                const response = await fetch(`/bookclubs/${clubSeq}/manage/requests/${requestSeq}/reject`, {
+                if (!csrf.isValid) {
+                    console.error('CSRF 토큰이 없습니다. meta 태그를 확인하세요.');
+                    showAlert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침하세요.', 'error');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '거절하기';
+                    }
+                    return;
+                }
+
+                // URL 빌드 (contextPath 지원)
+                const url = buildUrl(`/bookclubs/${clubSeq}/manage/requests/${requestSeq}/reject`);
+                console.log('거절 요청 URL:', url);
+
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -453,8 +505,20 @@ const BookClubManage = (() => {
                 btn.textContent = '처리 중...';
 
                 try {
+                    // CSRF 토큰 검증
                     const csrf = getCsrfToken();
-                    const response = await fetch(`/bookclubs/${clubSeq}/manage/members/${memberSeq}/kick`, {
+                    if (!csrf.isValid) {
+                        console.error('CSRF 토큰이 없습니다. meta 태그를 확인하세요.');
+                        showAlert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침하세요.', 'error');
+                        btn.disabled = false;
+                        btn.textContent = '퇴장';
+                        return;
+                    }
+
+                    // URL 빌드 (contextPath 지원)
+                    const url = buildUrl(`/bookclubs/${clubSeq}/manage/members/${memberSeq}/kick`);
+
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

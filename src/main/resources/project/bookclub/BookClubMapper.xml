@@ -177,6 +177,15 @@
           AND request_st = 'WAIT'
     </select>
 
+    <!-- 특정 멤버의 최근 거절된 신청 확인 (request_st='REJECTED') -->
+    <select id="selectRejectedRequestCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_request
+        WHERE book_club_seq = #{bookClubSeq}
+          AND request_member_seq = #{memberSeq}
+          AND request_st = 'REJECTED'
+    </select>
+
     <!-- 가입 신청 INSERT -->
     <insert id="insertJoinRequest">
         INSERT INTO book_club_request (
