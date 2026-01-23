@@ -58,6 +58,7 @@
             category_nm,
             category_seq,
             book_st,
+            payment_type,
             sale_cont,
             sale_price,
             delivery_cost,
@@ -75,6 +76,7 @@
             #{category_nm},
             #{category_seq},
             #{book_st}::book_st_enum,
+            #{payment_type}::payment_type_enum,
             #{sale_cont},
             #{sale_price},
             #{delivery_cost},
@@ -82,6 +84,20 @@
             now()
         )
     </insert>
+
+    <!-- 찜하기 추가 -->
+    <insert id="saveLike">
+        INSERT INTO trade_wish (
+            trade_seq,
+            member_seq,
+            crt_dtm
+            ) VALUES (
+            #{trade_seq},
+            #{member_seq},
+            now()
+        )
+    </insert>
+
     <update id="update" parameterType="project.trade.TradeVO">
         UPDATE sb_trade_info
             SET
@@ -108,7 +124,14 @@
         SET del_dtm = now()
         WHERE trade_seq = #{trade_seq}
     </update>
-
+    <update id="updateStatus">
+        UPDATE sb_trade_info
+        SET
+            sale_st = #{sold}::sale_st_enum,
+            sale_st_dtm = now(),
+            book_sale_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
     <select id="findAll" resultType="project.trade.TradeVO">
         SELECT
         trade_seq,
@@ -118,52 +141,82 @@
         book_img,
         sale_title,
         sale_price,
+        sale_st,
         sale_rg,
         crt_dtm
         FROM sb_trade_info
-        WHERE del_dtm is null
+        WHERE
+            del_dtm IS NULL
+            OR
+            book_sale_dtm IS NULL
         ORDER BY crt_dtm DESC
     </select>
+    <!-- 쿼리 최적화 기억하기 -->
 
     <!-- 페이징 처리 -->
     <select id="findAllWithPaging" resultType="project.trade.TradeVO">
         SELECT
-            trade_seq,
-            book_title,
-            book_author,
-            book_publisher,
-            book_img,
-            sale_title,
-            sale_price,
-            sale_rg,
-            crt_dtm
+        trade_seq,
+        book_title,
+        book_author,
+        book_publisher,
+        book_img,
+        sale_title,
+        sale_price,
+        sale_st,
+        sale_rg,
+        crt_dtm
         FROM sb_trade_info
         WHERE del_dtm IS NULL
-        <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
+
+        <!-- 카테고리 -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
             AND category_seq = #{searchVO.category_seq}
         </if>
+
+        <!-- 상태 -->
         <if test="searchVO.book_st != null">
             AND book_st = #{searchVO.book_st}::book_st_enum
         </if>
+
+        <!-- 검색어 -->
         <if test="searchVO.search_word != null and searchVO.search_word != ''">
             AND (
-                book_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR sale_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
+            book_title LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
+            OR sale_title LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
+            OR book_author LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
+            OR book_publisher LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
             )
         </if>
-        ORDER BY crt_dtm DESC
+
+        <!-- 판매 상태 -->
+        <if test="searchVO.sale_st != null">
+            AND sale_st = #{searchVO.sale_st}::sale_st_enum
+        </if>
+
+        <!-- order 조건  -->
+        <choose>
+            <when test="searchVO.sort == 'priceAsc'">
+                ORDER BY sale_price ASC
+            </when>
+            <when test="searchVO.sort == 'likeDesc'">
+                ORDER BY (SELECT COUNT(*) FROM trade_wish tl WHERE tl.trade_seq = sb_trade_info.trade_seq) DESC
+            </when>
+            <otherwise>
+                ORDER BY crt_dtm DESC
+            </otherwise>
+        </choose>
         LIMIT #{limit}
         OFFSET #{offset}
     </select>
+
 
     <!-- 전체 개수 조회 (페이지 수 계산용) -->
     <select id="countAll" resultType="int">
         SELECT COUNT(*)
         FROM sb_trade_info
-        WHERE del_dtm IS NULL
+        WHERE
+            del_dtm IS NULL
         <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
             AND category_seq = #{searchVO.category_seq}
@@ -179,64 +232,65 @@
                 OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
             )
         </if>
+        <!-- 판매 상태 -->
+        <if test="searchVO.sale_st != null">
+            AND sale_st = #{searchVO.sale_st}::sale_st_enum
+        </if>
     </select>
 
-    <!-- 카테고리 조회 -->
     <select id="selectCategory" resultType="project.trade.TradeVO">
         SELECT
-            category_nm,
-            category_seq
+        category_nm,
+        category_seq
         FROM category
     </select>
 
-    <!-- 마이페이지 찜조회용 -->
-    <select id="selectWishTrades" parameterType="long" resultType="project.trade.TradeVO">
+    <!-- 찜하기 조회 -->
+    <select id="countLike" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM trade_wish
+        WHERE trade_seq = #{trade_seq} AND member_seq = #{member_seq}
+    </select>
+
+    <!-- 찜하기 조회 전체갯수 -->
+    <select id="countLikeAll" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM trade_wish
+        WHERE trade_seq = #{trade_seq}
+    </select>
+    <select id="findByChatRoomSeq" resultType="project.trade.TradeVO">
         SELECT
-            T.TRADE_SEQ,
-            T.SALE_TITLE,
-            T.SALE_PRICE,
-            T.SALE_ST,
-            T.BOOK_ST,
-            T.SALE_RG,
-            T.BOOK_IMG      FROM SB_TRADE_INFO T
-                                     JOIN TRADE_WISH W ON T.TRADE_SEQ = W.TRADE_SEQ
-        WHERE W.MEMBER_SEQ = #{member_seq}
-        ORDER BY W.CRT_DTM DESC
+            trade_seq,
+            member_seller_seq,
+            book_img,
+            book_title,
+            sale_price,
+            delivery_cost,
+            book_st,
+            member_seller_seq
+        FROM sb_trade_info
+        WHERE trade_seq = (
+            SELECT trade_seq
+            FROM chatroom
+            WHERE chat_room_seq = #{chat_room_seq}
+        )
+    </select>
+    <!-- 판매자 조회 -->
+    <select id="findSellerInfo" resultType="project.member.MemberVO">
+        SELECT
+            m.member_nicknm,
+            m.member_email,
+            m.member_tel_no
+        FROM sb_trade_info s
+        JOIN member_info m on s.member_seller_seq = m.member_seq
+        WHERE s.trade_seq = #{trade_seq}
     </select>
 
-    <!-- 구매내역 조회-->
-    <select id="selectPurchaseTrades" resultType="project.trade.TradeVO">
-        SELECT T.TRADE_SEQ
-             , T.SALE_TITLE
-             , T.SALE_PRICE
-             , T.SALE_ST
-             , T.BOOK_ST
-             , T.SALE_RG
-             , T.SALE_ST_DTM
-             , T.BOOK_IMG
-          FROM SB_TRADE_INFO T
-         WHERE T.MEMBER_BUYER_SEQ = #{member_seq}
-           AND T.DEL_DTM IS NULL
-         ORDER BY T.SALE_ST_DTM DESC
-    </select>
 
-    <!-- 판매내역 조회-->
-    <select id="selectSaleTrades" resultType="project.trade.TradeVO">
-        SELECT T.TRADE_SEQ
-             , T.SALE_TITLE
-             , T.SALE_PRICE
-             , T.SALE_ST
-             , T.BOOK_ST
-             , T.SALE_RG
-             , T.SALE_ST_DTM
-             , T.CRT_DTM
-             , T.BOOK_IMG
-          FROM SB_TRADE_INFO T
-         WHERE T.MEMBER_SELLER_SEQ = #{member_seq}
-           AND T.DEL_DTM IS NULL
-        <if test="status != null and status !='all'">
-            AND T.SALE_ST = #{status}::sale_st_enum
-        </if>
-         ORDER BY T.SALE_ST_DTM DESC
-    </select>
+    <!--좋아요 삭제-->
+    <delete id="deleteLike" >
+        DELETE FROM trade_wish
+        WHERE trade_seq = #{trade_seq} AND member_seq = #{member_seq}
+    </delete>
+
 </mapper>

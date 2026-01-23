@@ -7,16 +7,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import project.member.MemberService;
 import project.member.MemberVO;
 import project.util.Const;
 import project.util.book.BookApiService;
 import project.util.book.BookVO;
+import project.util.exception.NoSessionException;
+import project.util.exception.TradeNotFoundException;
 import project.util.imgUpload.FileStore;
 import project.util.imgUpload.UploadFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Slf4j
@@ -26,15 +31,25 @@ public class TradeController {
     private final BookApiService bookApiService;
     private final FileStore fileStore; // 이미지 저장 기능을 수행하는 객체
 
-
     // 판매글 단일 조회
     @GetMapping("/trade/{tradeSeq}")
-    public String getSaleDetail(@PathVariable long tradeSeq, Model model) {
+    public String getSaleDetail(@PathVariable long tradeSeq, Model model, HttpSession session) {
         TradeVO trade = tradeService.search(tradeSeq);
-        log.info("findTrade: {}", trade);
 
+        int wishCount = tradeService.countLikeAll(tradeSeq); // 총 찜 개수
+        boolean wished = false;
+
+        MemberVO login = (MemberVO) session.getAttribute(Const.SESSION);
+        MemberVO seller_info = tradeService.findSellerInfo(tradeSeq);   // 판매자 정보조회
+        if (login != null) {
+            wished = tradeService.isWished(tradeSeq, login.getMember_seq());    // 찜하기 눌렀는지 검증
+        }
+        model.addAttribute("seller_info", seller_info);
         model.addAttribute("trade", trade);
-        return "trade/tradeDetail";
+        model.addAttribute("wishCount", wishCount);
+        model.addAttribute("wished", wished);
+
+        return "trade/tradedetail";
     }
 
     // 판매글 등록
@@ -47,7 +62,7 @@ public class TradeController {
         }
         // 카테고리 데이터 add
         model.addAttribute("category", tradeService.selectCategory());
-        return "trade/tradeForm";
+        return "trade/tradeform";
     }
 
     // 판매글 create
@@ -94,6 +109,8 @@ public class TradeController {
         // 세션 검증
         try {
             checkSessionAndTrade(session, trade);
+        } catch (NoSessionException | TradeNotFoundException e) {
+            return "redirect:/";
         } catch (Exception e) {
             return "redirect:/";
         }
@@ -106,7 +123,7 @@ public class TradeController {
         // 카테고리 데이터 add
         model.addAttribute("category", tradeService.selectCategory());
         model.addAttribute("trade", trade);
-        return "trade/tradeUpdate";
+        return "trade/tradeupdate";
     }
 
     // 판매글 update 등록
@@ -159,8 +176,11 @@ public class TradeController {
 
         // 세션 검증
         TradeVO trade = tradeService.search(tradeSeq);
+        // 세션 검증
         try {
             checkSessionAndTrade(session, trade);
+        } catch (NoSessionException | TradeNotFoundException e) {
+            return "redirect:/";
         } catch (Exception e) {
             return "redirect:/";
         }
@@ -193,16 +213,37 @@ public class TradeController {
         MemberVO loginMember = (MemberVO)session.getAttribute(Const.SESSION);
         if (loginMember == null) {
             log.info("no session");
-            throw new Exception("no session");
+            throw new NoSessionException("no session");
         }
 
         // tradeVO 검증
         if (tradeVO == null || !tradeVO.checkTradeVO()){
             log.info("Invalid trade data: {}", tradeVO);
-            throw new Exception("cannot upload trade");
+            throw new TradeNotFoundException("cannot upload trade");
         }
         // tradeVO에 seller seq 할당
         tradeVO.setMember_seller_seq(loginMember.getMember_seq());
+    }
+
+    // 찜하기 처리
+    @PostMapping("/trade/like")
+    @ResponseBody
+    public Map<String, Object> tradeLike(@RequestParam long trade_seq, HttpSession session) {
+        MemberVO memberVO = (MemberVO) session.getAttribute(Const.SESSION);
+        // 비동기처리를 위해 map을 json으로 변환하여 전달
+        Map<String, Object> result = new HashMap<>();
+
+        if (memberVO.getMember_seq() == 0) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        boolean wished = tradeService.saveLike(trade_seq, memberVO.getMember_seq());
+        result.put("success", true);
+        result.put("wished", wished);
+
+        return result;
     }
 
 }

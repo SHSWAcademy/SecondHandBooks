@@ -55,9 +55,9 @@ public class TradeVO {
 
     // 검색용
     private String search_word;
+    private String sort;
 
-    public boolean checkTradeVO(
-    ) {
+    public boolean checkTradeVO() {
         return sale_title != null && !sale_title.equals("") &&
                 book_img != null && !book_img.equals("") &&
                 book_title != null && !book_title.equals("") &&
