@@ -52,12 +52,20 @@
                                 <div class="bc-hero-overlay">
                                     <!-- 상단: 뒤로가기 + 찜 버튼 -->
                                     <div class="bc-hero-top">
+                                        <%--
                                         <button class="bc-back-btn" onclick="history.back()" aria-label="뒤로가기">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 19l-7-7 7-7" />
                                             </svg>
                                         </button>
+                                        --%>
+                                        <a href="${pageContext.request.contextPath}/bookclubs" class="bc-back-btn">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </a>
                                         <button class="bc-wish-btn" onclick="alert('TODO: 찜하기 기능 구현 예정')"
                                             aria-label="찜하기">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,6 +197,18 @@
             <!-- contextPath를 JS에 전달 -->
             <script>
                 window.__CTX = "${pageContext.request.contextPath}";
+
+                // 게시글 삭제 확인 (게시판 탭 fragment에서 사용)
+                function confirmDeletePost(bookClubId, postId) {
+                    if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
+                        // 동적으로 폼 생성하여 제출
+                        const form = document.createElement('form');
+                        form.method = 'post';
+                        form.action = window.__CTX + '/bookclubs/' + bookClubId + '/posts/' + postId + '/delete';
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
             </script>
 
             <!-- 독서모임 상세 페이지 전용 JS -->

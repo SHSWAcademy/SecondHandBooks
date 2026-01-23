@@ -278,7 +278,10 @@
             bcb.board_img_url,
             bcb.member_seq,
             bcb.parent_book_club_board_seq,
-            bcb.book_info_seq,
+            bcb.isbn,
+            bcb.book_title,
+            bcb.book_author,
+            bcb.book_img_url,
             bcb.board_deleted_yn,
             bcb.board_deleted_dtm,
             bcb.crt_dtm AS board_crt_dtm,
@@ -320,4 +323,63 @@
         )
     </insert>
 
+    <!-- 게시글(원글) INSERT -->
+    <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
+        INSERT INTO book_club_board (
+            book_club_seq,
+            member_seq,
+            board_title,
+            board_cont,
+            board_img_url,
+            isbn,
+            book_title,
+            book_author,
+            book_img_url,
+            board_deleted_yn
+        ) VALUES (
+            #{book_club_seq},
+            #{member_seq},
+            #{board_title},
+            #{board_cont},
+            #{board_img_url},
+            #{isbn},
+            #{book_title},
+            #{book_author},
+            #{book_img_url},
+            false
+        )
+    </insert>
+
+    <select id="selectMyBookClubs" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            BC.BOOK_CLUB_SEQ,
+            BC.BOOK_CLUB_NAME,
+            BC.BOOK_CLUB_DESC,
+            BC.BOOK_CLUB_RG,
+            BC.BOOK_CLUB_MAX_MEMBER,
+            BC.BANNER_IMG_URL,
+            BC.BOOK_CLUB_SCHEDULE,
+            BC.CRT_DTM
+        FROM BOOK_CLUB BC
+                 JOIN BOOK_CLUB_MEMBER BCM ON BC.BOOK_CLUB_SEQ = BCM.BOOK_CLUB_SEQ
+        WHERE BCM.MEMBER_SEQ = #{member_seq}
+          AND BCM.JOIN_ST = 'JOINED'
+        ORDER BY BC.CRT_DTM DESC
+    </select>
+
+    <select id="selectWishBookClubs" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
+        SELECT
+            BC.BOOK_CLUB_SEQ,
+            BC.BOOK_CLUB_NAME,
+            BC.BOOK_CLUB_DESC,
+            BC.BOOK_CLUB_RG,
+            BC.BOOK_CLUB_MAX_MEMBER,
+            BC.BANNER_IMG_URL,
+            BC.BOOK_CLUB_SCHEDULE,
+            W.CRT_DTM
+        FROM BOOK_CLUB BC
+                 JOIN BOOK_CLUB_WISH W ON BC.BOOK_CLUB_SEQ = W.BOOK_CLUB_SEQ
+        WHERE W.MEMBER_SEQ = #{member_seq}
+        ORDER BY W.CRT_DTM DESC
+    </select>
 </mapper>
