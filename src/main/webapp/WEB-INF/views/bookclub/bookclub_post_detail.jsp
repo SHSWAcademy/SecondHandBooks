@@ -72,13 +72,63 @@
         margin: 1.5rem 0;
         border-radius: 0.5rem;
         overflow: hidden;
-        max-width: 100%;
+        max-width: 400px;
     }
 
     .bc-post-image img {
         width: 100%;
         height: auto;
         display: block;
+        border-radius: 0.5rem;
+    }
+
+    /* 책 정보 카드 */
+    .bc-book-info-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .bc-book-info-img {
+        width: 60px;
+        height: 85px;
+        object-fit: cover;
+        border-radius: 0.375rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+    }
+
+    .bc-book-info-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .bc-book-info-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0 0 0.25rem 0;
+        line-height: 1.4;
+    }
+
+    .bc-book-info-author {
+        font-size: 0.8125rem;
+        color: #718096;
+        margin: 0;
+    }
+
+    .bc-book-info-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        color: #4299e1;
+        margin-bottom: 0.5rem;
     }
 
     .bc-comments-section {
@@ -297,17 +347,25 @@
                     </div>
                 </div>
 
-                <!-- 이미지 (있을 경우) -->
-                <c:if test="${not empty post.board_img_url}">
-                    <div class="bc-post-image">
-                        <c:choose>
-                            <c:when test="${post.board_img_url.startsWith('http://') or post.board_img_url.startsWith('https://')}">
-                                <img src="${post.board_img_url}" alt="게시글 이미지">
-                            </c:when>
-                            <c:when test="${post.board_img_url.startsWith('/')}">
-                                <img src="${pageContext.request.contextPath}${post.board_img_url}" alt="게시글 이미지">
-                            </c:when>
-                        </c:choose>
+                <!-- 책 정보 (있을 경우) -->
+                <c:if test="${not empty post.book_title}">
+                    <div class="bc-book-info-card">
+                        <c:if test="${not empty post.book_img_url}">
+                            <img src="${post.book_img_url}" alt="책 표지" class="bc-book-info-img">
+                        </c:if>
+                        <div class="bc-book-info-text">
+                            <div class="bc-book-info-label">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                이 글의 책
+                            </div>
+                            <p class="bc-book-info-title">${fn:escapeXml(post.book_title)}</p>
+                            <c:if test="${not empty post.book_author}">
+                                <p class="bc-book-info-author">${fn:escapeXml(post.book_author)}</p>
+                            </c:if>
+                        </div>
                     </div>
                 </c:if>
 
@@ -315,6 +373,20 @@
                 <div class="bc-post-content">
                     ${fn:escapeXml(post.board_cont)}
                 </div>
+
+                <!-- 첨부 이미지 (있을 경우) -->
+                <c:if test="${not empty post.board_img_url}">
+                    <div class="bc-post-image">
+                        <c:choose>
+                            <c:when test="${post.board_img_url.startsWith('http://') or post.board_img_url.startsWith('https://')}">
+                                <img src="${post.board_img_url}" alt="첨부 이미지">
+                            </c:when>
+                            <c:when test="${post.board_img_url.startsWith('/')}">
+                                <img src="${pageContext.request.contextPath}${post.board_img_url}" alt="첨부 이미지">
+                            </c:when>
+                        </c:choose>
+                    </div>
+                </c:if>
 
                 <!-- 댓글 영역 -->
                 <div class="bc-comments-section" id="comments">
