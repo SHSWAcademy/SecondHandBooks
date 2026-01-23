@@ -293,4 +293,55 @@
         WHERE trade_seq = #{trade_seq} AND member_seq = #{member_seq}
     </delete>
 
+    <!-- 마이페이지 찜조회용 -->
+    <select id="selectWishTrades" parameterType="long" resultType="project.trade.TradeVO">
+        SELECT
+        T.TRADE_SEQ,
+        T.SALE_TITLE,
+        T.SALE_PRICE,
+        T.SALE_ST,
+        T.BOOK_ST,
+        T.SALE_RG,
+        T.BOOK_IMG      FROM SB_TRADE_INFO T
+        JOIN TRADE_WISH W ON T.TRADE_SEQ = W.TRADE_SEQ
+        WHERE W.MEMBER_SEQ = #{member_seq}
+        ORDER BY W.CRT_DTM DESC
+    </select>
+
+    <!-- 구매내역 조회-->
+    <select id="selectPurchaseTrades" resultType="project.trade.TradeVO">
+        SELECT T.TRADE_SEQ
+        , T.SALE_TITLE
+        , T.SALE_PRICE
+        , T.SALE_ST
+        , T.BOOK_ST
+        , T.SALE_RG
+        , T.SALE_ST_DTM
+        , T.BOOK_IMG
+        FROM SB_TRADE_INFO T
+        WHERE T.MEMBER_BUYER_SEQ = #{member_seq}
+        AND T.DEL_DTM IS NULL
+        ORDER BY T.SALE_ST_DTM DESC
+    </select>
+
+    <!-- 판매내역 조회-->
+    <select id="selectSaleTrades" resultType="project.trade.TradeVO">
+        SELECT T.TRADE_SEQ
+        , T.SALE_TITLE
+        , T.SALE_PRICE
+        , T.SALE_ST
+        , T.BOOK_ST
+        , T.SALE_RG
+        , T.SALE_ST_DTM
+        , T.CRT_DTM
+        , T.BOOK_IMG
+        FROM SB_TRADE_INFO T
+        WHERE T.MEMBER_SELLER_SEQ = #{member_seq}
+        AND T.DEL_DTM IS NULL
+        <if test="status != null and status !='all'">
+            AND T.SALE_ST = #{status}::sale_st_enum
+        </if>
+        ORDER BY T.SALE_ST_DTM DESC
+    </select>
+
 </mapper>

@@ -77,8 +77,39 @@
             </div>
 
             <!-- 가격 -->
-            <div class="text-3xl font-bold mb-4">
-                <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
+            <div class="mb-4 space-y-1">
+
+                <c:if test="${trade.book_org_price > 0}">
+                    <!-- 할인율 계산 -->
+                    <fmt:parseNumber var="discountRate"
+                        value="${((trade.book_org_price - trade.sale_price) * 100) / trade.book_org_price}"
+                        integerOnly="true" />
+
+                    <div class="flex items-end gap-3">
+                        <!-- 판매가 -->
+                        <div class="text-3xl font-bold text-gray-900">
+                            <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
+                        </div>
+
+                        <!-- 할인율 -->
+                        <div class="text-sm font-bold text-red-500">
+                            ${discountRate}%
+                        </div>
+
+                        <!-- 정가 (취소선) -->
+                        <div class="text-lg text-gray-400 line-through">
+                            <fmt:formatNumber value="${trade.book_org_price}" pattern="#,###" /> 원
+                        </div>
+                    </div>
+                </c:if>
+
+                <!-- 정가 없을 때 -->
+                <c:if test="${trade.book_org_price <= 0}">
+                    <div class="text-3xl font-bold text-gray-900">
+                        <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
+                    </div>
+                </c:if>
+
             </div>
 
             <!-- 배송 / 상태 -->
@@ -94,7 +125,16 @@
                 </div>
 
                 <div>
-                    상태 : <b>${trade.book_st}</b>
+                    상태 :
+                    <b>
+                        <c:choose>
+                            <c:when test="${trade.book_st eq 'LIKE_NEW'}">거의 새책</c:when>
+                            <c:when test="${trade.book_st eq 'GOOD'}">좋음</c:when>
+                            <c:when test="${trade.book_st eq 'USED'}">사용됨</c:when>
+                            <c:when test="${trade.book_st eq 'NEW'}">새책</c:when>
+                            <c:otherwise>상태정보 없음</c:otherwise>
+                        </c:choose>
+                    </b>
                 </div>
 
                 <div>
@@ -108,11 +148,63 @@
                 <p class="whitespace-pre-wrap">${trade.sale_cont}</p>
             </div>
 
-            <form action="/chatrooms" method="post">
-                <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
-                <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
-                <button type="submit" class="w-full px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-red-600 transition font-bold">채팅하기</button>
-            </form>
+            <!-- 판매자 정보 -->
+            <div class="mt-8 border-t pt-6">
+                <h3 class="font-bold mb-3 text-lg">판매자 정보</h3>
+
+                <c:choose>
+                    <c:when test="${not empty seller_info}">
+                        <div class="flex items-center gap-4">
+                           <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600">
+
+                           </div>
+                            <div class="text-sm space-y-1">
+                                <div>
+                                    닉네임 :
+                                    <b>${seller_info.member_nicknm}</b>
+                                </div>
+                            </div>
+
+                        </div>
+                    </c:when>
+
+                    <c:otherwise>
+                        <div class="text-sm text-gray-400">
+                            판매자 정보를 불러올 수 없습니다.
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+
+            <!-- 채팅하기 & 찜하기 버튼 -->
+            <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
+                <div class="mt-6 flex gap-3">
+                    <form action="/chatrooms" method="post" class="flex-1">
+                        <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
+                        <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
+                        <input type="hidden" name="sale_title" value="${trade.sale_title}">
+                        <button type="submit" class="w-full px-6 py-3.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            채팅하기
+                        </button>
+                    </form>
+                    <form id="wishForm-${trade.trade_seq}">
+                        <input type="hidden" name="trade_seq" value="${trade.trade_seq}" />
+                        <button type="button"
+                                onclick="toggleWish(${trade.trade_seq})"
+                                class="px-4 py-3.5 border-2 rounded-xl transition-all flex items-center gap-2 ${wished ? 'border-red-200 bg-red-50 text-red-500' : 'border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-500'}"
+                                title="찜하기">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="${wished ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                            </svg>
+                            <span id="wishCount-${trade.trade_seq}" class="text-sm font-medium">${wishCount}</span>
+                        </button>
+                    </form>
+                </div>
+            </c:if>
 
             <!-- 수정/삭제 버튼 -->
             <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq}">
@@ -177,6 +269,61 @@ function update() {
         }
     });
 }
+
+function toggleWish(tradeSeq) {
+    const form = document.getElementById(`wishForm-${tradeSeq}`);
+    if (!form) return;
+
+    const btn = form.querySelector("button");
+    const countSpan = document.getElementById(`wishCount-${tradeSeq}`);
+    if (!btn || !countSpan) return;
+
+    const formData = new FormData(form);
+
+    fetch("/trade/like", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(async res => {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error("서버 응답이 JSON이 아닙니다:\n" + text);
+        }
+    })
+    .then(data => {
+        if (!data.success) {
+            alert(data.message || "찜 처리 실패");
+            return;
+        }
+
+        // 버튼 상태 반영
+        const heartIcon = btn.querySelector('svg');
+        if (data.wished) {
+            btn.classList.add("border-red-200", "bg-red-50", "text-red-500");
+            btn.classList.remove("border-gray-200", "bg-white", "text-gray-400", "hover:border-red-200", "hover:bg-red-50", "hover:text-red-500");
+            if (heartIcon) heartIcon.setAttribute('fill', 'currentColor');
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        } else {
+            btn.classList.remove("border-red-200", "bg-red-50", "text-red-500");
+            btn.classList.add("border-gray-200", "bg-white", "text-gray-400", "hover:border-red-200", "hover:bg-red-50", "hover:text-red-500");
+            if (heartIcon) heartIcon.setAttribute('fill', 'none');
+            countSpan.textContent = parseInt(countSpan.textContent) - 1;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("네트워크 오류 또는 서버 오류 발생");
+    });
+}
+
+
+
+
 </script>
 
 <jsp:include page="../common/footer.jsp" />
