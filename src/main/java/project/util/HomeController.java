@@ -7,13 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import project.chat.message.MessageService;
-import project.trade.ENUM.SaleStatus;
 import project.trade.TradeService;
 import project.trade.TradeVO;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Handles requests for the application home page.
@@ -27,6 +25,7 @@ public class HomeController {
 	 * Simply selects the home view to render by returning its name.
 	 */
 	private final TradeService tradeService;
+	private final AdminService adminService;
 	private final MessageService messageService;
 
 	/*
@@ -52,6 +51,8 @@ public class HomeController {
 		int totalCount = tradeService.countAll(searchVO);
 		int totalPages = (int) Math.ceil((double) totalCount / size);
 		List<TradeVO> category = tradeService.selectCategory();	// 카테고리 조회
+		List<BannerVO> banners = adminService.getBanners(); // 배너 조회
+
 		// List<TradeVO> bookState = tradeService.selectBookState(); // 판매글 상태 조회
 
 		model.addAttribute("totalCount", totalCount);
@@ -59,6 +60,7 @@ public class HomeController {
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", totalPages);
 		model.addAttribute("category", category);
+		model.addAttribute("bannerList", banners); // 배너 조회
 
 
 
@@ -68,5 +70,12 @@ public class HomeController {
 			return "trade/tradelist";
 		}
 		return "common/home";
+	}
+
+	@GetMapping("/page/view/{id}")
+	public String viewPage(@PathVariable Long id, Model model) {
+		TempPageVO page = adminService.getTempPage(id);
+		model.addAttribute("page", page);
+		return "common/tempPage"; // 내용을 보여줄 jsp
 	}
 }

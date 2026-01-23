@@ -203,4 +203,48 @@
         LIMIT 1
         )
     </update>
+
+    <resultMap id="BannerMap" type="project.admin.BannerVO">
+        <id property="bannerSeq" column="BANNER_SEQ"/>
+        <result property="title" column="TITLE"/>
+        <result property="subtitle" column="SUBTITLE"/>
+        <result property="bgColorFrom" column="BG_COLOR_FROM"/>
+        <result property="bgColorTo" column="BG_COLOR_TO"/>
+        <result property="btnText" column="BTN_TEXT"/>
+        <result property="btnLink" column="BTN_LINK"/>
+        <result property="iconName" column="ICON_NAME"/>
+        <result property="orderIdx" column="ORDER_IDX"/>
+        <result property="isActive" column="IS_ACTIVE"/>
+        <result property="crtDtm" column="CRT_DTM"/>
+    </resultMap>
+
+    <resultMap id="TempPageMap" type="project.admin.TempPageVO">
+        <id property="pageSeq" column="PAGE_SEQ"/>
+        <result property="title" column="TITLE"/>
+        <result property="content" column="CONTENT"/>
+        <result property="crtDtm" column="CRT_DTM"/>
+    </resultMap>
+
+    <select id="selectBanners" resultMap="BannerMap">
+        SELECT * FROM BANNER WHERE IS_ACTIVE = TRUE ORDER BY ORDER_IDX ASC
+    </select>
+
+    <insert id="insertBanner">
+        INSERT INTO BANNER (TITLE, SUBTITLE, BG_COLOR_FROM, BG_COLOR_TO, BTN_TEXT, BTN_LINK, ICON_NAME, ORDER_IDX)
+        VALUES (#{title}, #{subtitle}, #{bgColorFrom}, #{bgColorTo}, #{btnText}, #{btnLink}, #{iconName},
+                (SELECT COALESCE(MAX(ORDER_IDX), 0) + 1 FROM BANNER))
+    </insert>
+
+    <delete id="deleteBanner">
+        DELETE FROM BANNER WHERE BANNER_SEQ = #{seq}
+    </delete>
+
+    <insert id="insertTempPage" useGeneratedKeys="true" keyProperty="pageSeq" keyColumn="PAGE_SEQ">
+        INSERT INTO TEMP_PAGE (TITLE, CONTENT)
+        VALUES (#{title}, #{content})
+    </insert>
+
+    <select id="selectTempPage" resultMap="TempPageMap">
+        SELECT * FROM TEMP_PAGE WHERE PAGE_SEQ = #{seq}
+    </select>
 </mapper>
