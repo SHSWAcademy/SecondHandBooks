@@ -28,4 +28,9 @@ public class BookClubBoardVO {
 
     // 댓글 수 (원글 목록 조회 시)
     private Integer comment_count; // 댓글 개수
+
+    private String isbn;
+    private String book_title;
+    private String book_author;
+    private String book_img_url;
 }
