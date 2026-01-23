@@ -150,6 +150,21 @@ public class AdminController {
         return "redirect:/admin/login";
     }
 
+    // 공지사항 폼 이동
+    @GetMapping("notice/create")
+    public String noticeWriteForm(HttpSession sess, Model model) {
+
+        AdminVO admin = (AdminVO) sess.getAttribute("adminSess");
+
+        if(admin == null) {
+            return "redirect:/admin/login";
+        }
+
+        model.addAttribute("adminName", admin.getAdmin_login_id());
+
+        return "admin/noticeWriteForm";
+    }
+
     // IP 추출 메서드
     private String getClientIP(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
