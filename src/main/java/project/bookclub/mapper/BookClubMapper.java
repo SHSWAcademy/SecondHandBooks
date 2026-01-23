@@ -39,6 +39,10 @@ public interface BookClubMapper {
     int selectPendingRequestCount(@Param("bookClubSeq") Long bookClubSeq,
                                   @Param("memberSeq") Long memberSeq);
 
+    // 특정 멤버의 최근 거절된 신청 확인 (request_st='REJECTED')
+    int selectRejectedRequestCount(@Param("bookClubSeq") Long bookClubSeq,
+            @Param("memberSeq") Long memberSeq);
+
     // 가입 신청 INSERT
     void insertJoinRequest(@Param("bookClubSeq") Long bookClubSeq,
                            @Param("memberSeq") Long memberSeq,

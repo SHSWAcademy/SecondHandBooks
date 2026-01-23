@@ -1,30 +1,30 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-        <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-            <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-                <!DOCTYPE html>
-                <html lang="ko">
+<!DOCTYPE html>
+<html lang="ko">
 
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <meta name="_csrf" content="${_csrf.token}">
-                    <meta name="_csrf_header" content="${_csrf.headerName}">
-                    <title>
-                        <c:out value="${bookclub.name}" /> 관리 - 신한북스
-                    </title>
-                    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub_manage.css">
-                </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <sec:csrfMetaTags />
+    <title>
+        <c:out value="${bookclub.name}" /> 관리 - 신한북스
+    </title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub_manage.css">
+</head>
 
-                <body>
-                    <jsp:include page="/WEB-INF/views/common/header.jsp" />
+<body>
+    <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
-                    <main class="bookclub-main">
-                        <div class="container">
-                            <!-- 에러/성공 메시지 영역 -->
-                            <div id="alertBanner" class="alert-banner" role="alert" aria-live="polite"
-                                style="display: none;"></div>
+    <main class="bookclub-main">
+        <div class="container">
+            <!-- 에러/성공 메시지 영역 -->
+            <div id="alertBanner" class="alert-banner" role="alert" aria-live="polite"
+                style="display: none;"></div>
 
                             <div class="page-header">
                                 <div>
@@ -345,6 +345,10 @@
 
                     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
+                    <script>
+                        // contextPath 전역 변수 설정 (JS에서 API URL 빌드에 사용)
+                        window.contextPath = '${pageContext.request.contextPath}';
+                    </script>
                     <script src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_manage.js"></script>
                     <script>
                         // 페이지별 초기화
