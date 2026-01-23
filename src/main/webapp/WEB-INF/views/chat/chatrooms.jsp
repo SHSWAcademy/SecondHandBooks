@@ -1,329 +1,926 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page import="java.time.LocalDateTime, java.util.Date, project.chat.message.MessageVO" %>
 
-<jsp:include page="../common/header.jsp" />
+<%@ include file="/WEB-INF/views/common/header.jsp" %>
 
-<div class="max-w-6xl mx-auto py-8">
-    <!-- Breadcrumb -->
-    <div class="text-xs text-gray-500 mb-4 flex items-center gap-2">
-        <a href="/" class="cursor-pointer hover:text-gray-900">홈</a>
-        <span>&gt;</span>
-        <span class="cursor-pointer hover:text-gray-900">도서</span>
-        <span>&gt;</span>
-        <span class="cursor-pointer hover:text-gray-900">${trade.category_nm}</span>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+    const loginMemberSeq = Number("${sessionScope.loginSess.member_seq}");
+    let chat_room_seq = Number("${trade_chat_room.chat_room_seq}");
+    let trade_seq = Number("${trade_chat_room.trade_seq}");
+    let member_seller_seq = Number("${trade_info.member_seller_seq}");
+    let isSeller = (loginMemberSeq === member_seller_seq);
+
+    // trade 정보 (안전결제용)
+    let currentTradeInfo = {
+        trade_seq: Number("${trade_info.trade_seq}") || 0,
+        book_img: "${trade_info.book_img}",
+        book_title: "${trade_info.book_title}",
+        sale_price: Number("${trade_info.sale_price}") || 0,
+        delivery_cost: Number("${trade_info.delivery_cost}") || 0,
+        book_st: "${trade_info.book_st}"
+    };
+</script>
+
+<style>
+    /* 채팅방 리스트 아이템 */
+    .chatroom-item.active {
+        background-color: #eef4ff;
+        border-left-color: #0046FF;
+    }
+
+    /* 스크롤바 */
+    #chatContainer::-webkit-scrollbar,
+    #chatroomsList::-webkit-scrollbar {
+        width: 6px;
+    }
+    #chatContainer::-webkit-scrollbar-track,
+    #chatroomsList::-webkit-scrollbar-track {
+        background: #f1f3f5;
+    }
+    #chatContainer::-webkit-scrollbar-thumb,
+    #chatroomsList::-webkit-scrollbar-thumb {
+        background: #ced4da;
+        border-radius: 3px;
+    }
+
+    /* 메시지 정렬 */
+    .msg-left,
+    .msg-right {
+        display: flex;
+        flex-direction: column;
+        max-width: 70%;
+        margin: 12px 0;
+    }
+    .msg-left {
+        align-items: flex-start;
+        margin-right: auto;
+    }
+    .msg-right {
+        align-items: flex-end;
+        margin-left: auto;
+    }
+
+    /* 말풍선 */
+    .msg-left .content {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        color: #212529;
+        border-radius: 16px;
+        border-top-left-radius: 4px;
+    }
+    .msg-right .content {
+        background: #0046FF;
+        color: #fff;
+        border-radius: 16px;
+        border-top-right-radius: 4px;
+    }
+    .content {
+        padding: 10px 14px;
+        font-size: 14px;
+        line-height: 1.5;
+        word-break: break-word;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    /* 시간 표시 */
+    .msg-time {
+        font-size: 10px;
+        color: #868e96;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* + 버튼 및 안전결제 메뉴 */
+    .plus-btn-wrapper {
+        position: relative;
+    }
+    .plus-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f1f3f5;
+        border: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .plus-btn:hover {
+        background: #e9ecef;
+    }
+    .plus-menu {
+        position: absolute;
+        bottom: 54px;
+        left: 0;
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 8px 0;
+        min-width: 180px;
+        display: none;
+        z-index: 100;
+    }
+    .plus-menu.show {
+        display: block;
+    }
+    .plus-menu-item {
+        padding: 10px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #212529;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .plus-menu-item:hover {
+        background: #f8f9fa;
+    }
+
+    /* 안전결제 요청 카드 */
+    .safe-payment-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        padding: 16px;
+        max-width: 280px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .safe-payment-card .card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .safe-payment-card .card-header svg {
+        color: #0046FF;
+    }
+    .safe-payment-card .card-title {
+        font-weight: 700;
+        font-size: 14px;
+        color: #212529;
+    }
+    .safe-payment-card .timer {
+        font-size: 12px;
+        color: #fa5252;
+        font-weight: 600;
+    }
+    .safe-payment-card .product-info {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .safe-payment-card .product-img {
+        width: 60px;
+        height: 80px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f1f3f5;
+    }
+    .safe-payment-card .product-detail {
+        flex: 1;
+        min-width: 0;
+    }
+    .safe-payment-card .product-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .safe-payment-card .product-status {
+        font-size: 11px;
+        color: #868e96;
+        margin-bottom: 6px;
+    }
+    .safe-payment-card .product-price {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0046FF;
+    }
+    .safe-payment-card .product-delivery {
+        font-size: 11px;
+        color: #868e96;
+        margin-top: 2px;
+    }
+    .safe-payment-card .action-btn {
+        width: 100%;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+    .safe-payment-card .action-btn.primary {
+        background: #0046FF;
+        color: #fff;
+    }
+    .safe-payment-card .action-btn.primary:hover {
+        background: #0039d1;
+    }
+    .safe-payment-card .action-btn:disabled {
+        background: #ced4da;
+        cursor: not-allowed;
+    }
+    .safe-payment-card .expired-notice {
+        text-align: center;
+        font-size: 12px;
+        color: #868e96;
+        padding: 10px;
+    }
+</style>
+
+<div class="min-h-[calc(100vh-200px)]">
+    <!-- 페이지 헤더 -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">채팅</h1>
+        <p class="text-sm text-gray-500 mt-1">거래 관련 대화를 나눠보세요</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <!-- Left: Images -->
-        <div class="space-y-4 select-none">
-            <div class="aspect-[1/1.2] bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative group">
+    <div class="flex gap-6 h-[600px]">
+        <!-- 왼쪽 채팅방 리스트 -->
+        <div class="w-80 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+                <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    내 채팅방
+                    <span class="ml-auto text-xs font-medium text-gray-400 bg-gray-200 px-2 py-0.5 rounded-full">${chatrooms.size()}</span>
+                </h3>
+            </div>
 
-                <!-- 대표 이미지 -->
+            <div id="chatroomsList" class="flex-1 overflow-y-auto">
                 <c:choose>
-                    <c:when test="${not empty trade.trade_img && trade.trade_img.size() > 0}">
-                        <img id="mainImage"
-                             src="${pageContext.request.contextPath}/img/${trade.trade_img[0].img_url}"
-                             alt="${trade.book_title}"
-                             class="w-full h-full object-contain p-4 bg-white" />
-                    </c:when>
-                    <c:otherwise>
-                        <img id="mainImage"
-                             src="${trade.book_img}"
-                             alt="${trade.book_title}"
-                             class="w-full h-full object-contain p-4 bg-white" />
-                    </c:otherwise>
-                </c:choose>
-
-                <!-- 이미지 슬라이더 -->
-                <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
-                    <button onclick="prevImage()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100">
-                        ◀
-                    </button>
-                    <button onclick="nextImage()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100">
-                        ▶
-                    </button>
-                    <div id="imageIndicator" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs">
-                        1 / ${trade.trade_img.size()}
-                    </div>
-                </c:if>
-            </div>
-
-            <!-- Thumbnail -->
-            <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
-                <div class="flex gap-2 overflow-x-auto">
-                    <c:forEach var="img" items="${trade.trade_img}" varStatus="status">
-                        <div onclick="setImage(${status.index})"
-                             id="thumb-${status.index}"
-                             class="w-20 h-20 border-2 ${status.index == 0 ? 'border-blue-500' : 'border-transparent'}">
-                            <img src="${pageContext.request.contextPath}/img/${img.img_url}" class="w-full h-full object-cover"/>
-                        </div>
-                    </c:forEach>
-                </div>
-            </c:if>
-        </div>
-
-        <!-- Right -->
-        <div>
-            <h1 class="text-2xl font-bold mb-4">
-                ${trade.sale_title}
-            </h1>
-
-            <!-- 도서 정보 -->
-            <div class="text-sm text-gray-600 mb-4">
-                <b>${trade.book_title}</b> |
-                ${trade.book_author} |
-                ${trade.book_publisher}
-            </div>
-
-            <!-- 가격 -->
-            <div class="mb-4 space-y-1">
-
-                <c:if test="${trade.book_org_price > 0}">
-                    <!-- 할인율 계산 -->
-                    <fmt:parseNumber var="discountRate"
-                        value="${((trade.book_org_price - trade.sale_price) * 100) / trade.book_org_price}"
-                        integerOnly="true" />
-
-                    <div class="flex items-end gap-3">
-                        <!-- 판매가 -->
-                        <div class="text-3xl font-bold text-gray-900">
-                            <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
-                        </div>
-
-                        <!-- 할인율 -->
-                        <div class="text-sm font-bold text-red-500">
-                            ${discountRate}%
-                        </div>
-
-                        <!-- 정가 (취소선) -->
-                        <div class="text-lg text-gray-400 line-through">
-                            <fmt:formatNumber value="${trade.book_org_price}" pattern="#,###" /> 원
-                        </div>
-                    </div>
-                </c:if>
-
-                <!-- 정가 없을 때 -->
-                <c:if test="${trade.book_org_price <= 0}">
-                    <div class="text-3xl font-bold text-gray-900">
-                        <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /> 원
-                    </div>
-                </c:if>
-
-            </div>
-
-            <!-- 배송 / 상태 -->
-            <div class="text-sm text-gray-600 space-y-2">
-                <div>
-                    배송비 :
-                    <c:choose>
-                        <c:when test="${trade.delivery_cost > 0}">
-                            <fmt:formatNumber value="${trade.delivery_cost}" pattern="#,###" /> 원
-                        </c:when>
-                        <c:otherwise>무료</c:otherwise>
-                    </c:choose>
-                </div>
-
-                <div>
-                    상태 :
-                    <b>
-                        <c:choose>
-                            <c:when test="${trade.book_st eq 'LIKE_NEW'}">거의 새책</c:when>
-                            <c:when test="${trade.book_st eq 'GOOD'}">좋음</c:when>
-                            <c:when test="${trade.book_st eq 'USED'}">사용됨</c:when>
-                            <c:when test="${trade.book_st eq 'NEW'}">새책</c:when>
-                            <c:otherwise>상태정보 없음</c:otherwise>
-                        </c:choose>
-                    </b>
-                </div>
-
-                <div>
-                    거래지역 : ${trade.sale_rg}
-                </div>
-            </div>
-
-            <!-- 설명 -->
-            <div class="mt-6">
-                <h3 class="font-bold mb-2">상품 설명</h3>
-                <p class="whitespace-pre-wrap">${trade.sale_cont}</p>
-            </div>
-
-            <!-- 판매자 정보 -->
-            <div class="mt-8 border-t pt-6">
-                <h3 class="font-bold mb-3 text-lg">판매자 정보</h3>
-
-                <c:choose>
-                    <c:when test="${not empty seller_info}">
-                        <div class="flex items-center gap-4">
-                           <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600">
-
-                           </div>
-                            <div class="text-sm space-y-1">
-                                <div>
-                                    닉네임 :
-                                    <b>${seller_info.member_nicknm}</b>
+                    <c:when test="${not empty chatrooms}">
+                        <c:forEach var="room" items="${chatrooms}">
+                            <div class="chatroom-item px-5 py-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 border-l-4 border-l-transparent ${room.chat_room_seq == trade_chat_room.chat_room_seq ? 'active' : ''}"
+                                 data-chat-room-seq="${room.chat_room_seq}">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-semibold text-gray-900 text-sm truncate">${room.sale_title}</div>
+                                        <div class="text-xs text-gray-500 mt-1 truncate">
+                                            <c:choose>
+                                                <c:when test="${not empty room.last_msg}">${room.last_msg}</c:when>
+                                                <c:otherwise><span class="text-gray-400 italic">아직 메시지가 없습니다</span></c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                        </div>
+                        </c:forEach>
                     </c:when>
-
                     <c:otherwise>
-                        <div class="text-sm text-gray-400">
-                            판매자 정보를 불러올 수 없습니다.
+                        <div class="flex flex-col items-center justify-center h-full py-12 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-3 text-gray-300"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <p class="text-sm">채팅방이 없습니다</p>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+
+        <!-- 오른쪽 채팅 영역 -->
+        <div id="chatArea" class="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
+            <!-- 채팅 헤더 -->
+            <div id="chatHeader" class="px-6 py-4 border-b border-gray-100 bg-white">
+                <c:choose>
+                    <c:when test="${not empty trade_chat_room}">
+                        <c:forEach var="room" items="${chatrooms}">
+                            <c:if test="${room.chat_room_seq == trade_chat_room.chat_room_seq}">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-900">${room.sale_title}</h4>
+                                        <p class="text-xs text-gray-500">거래 채팅</p>
+                                    </div>
+                                </div>
+                            </c:if>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <h4 class="font-medium text-gray-500">채팅방을 선택해주세요</h4>
                         </div>
                     </c:otherwise>
                 </c:choose>
             </div>
 
+            <!-- 채팅 메시지 영역 -->
+            <div id="chatContainer" class="flex-1 overflow-y-auto px-6 py-4 bg-gray-50">
+                <c:choose>
+                    <c:when test="${not empty messages}">
+                        <c:forEach var="msg" items="${messages}">
+                            <div class="${msg.sender_seq == sessionScope.loginSess.member_seq ? 'msg-right' : 'msg-left'}">
+                                <div class="content">${msg.chat_cont}</div>
+                                <div class="msg-time">
+                                    <%
+                                        Object obj = pageContext.findAttribute("msg");
+                                        if(obj != null) {
+                                            MessageVO message = (MessageVO) obj;
+                                            LocalDateTime ldt = message.getSent_dtm();
+                                            Date date = null;
+                                            if(ldt != null) {
+                                                date = Date.from(ldt.atZone(java.time.ZoneId.systemDefault()).toInstant());
+                                            }
+                                    %>
+                                    <fmt:formatDate value="<%=date%>" pattern="yyyy/MM/dd HH:mm"/>
+                                    <%
+                                        }
+                                    %>
+                                    <c:if test="${msg.read_yn}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0046FF" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </c:if>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <div id="emptyNotice" class="flex flex-col items-center justify-center h-full text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-4 text-gray-300"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <p class="text-sm font-medium">이전 메시지가 없습니다</p>
+                            <p class="text-xs text-gray-400 mt-1">첫 메시지를 보내보세요!</p>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
 
-            <!-- 채팅하기 & 찜하기 버튼 -->
-            <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
-                <div class="mt-6 flex gap-3">
-                    <form action="/chatrooms" method="post" class="flex-1">
-                        <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
-                        <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
-                        <input type="hidden" name="sale_title" value="${trade.sale_title}">
-                        <button type="submit" class="w-full px-6 py-3.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <!-- 메시지 입력 영역 -->
+            <div id="messageInputArea" class="px-6 py-4 border-t border-gray-100 bg-white">
+                <div class="flex items-center gap-3">
+                    <!-- + 버튼 (판매자에게만 보임) -->
+                    <div class="plus-btn-wrapper" id="plusBtnWrapper" style="display: none;">
+                        <button type="button" class="plus-btn" id="plusBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
-                            채팅하기
                         </button>
-                    </form>
-                    <form id="wishForm-${trade.trade_seq}">
-                        <input type="hidden" name="trade_seq" value="${trade.trade_seq}" />
-                        <button type="button"
-                                onclick="toggleWish(${trade.trade_seq})"
-                                class="px-4 py-3.5 border-2 rounded-xl transition-all flex items-center gap-2 ${wished ? 'border-red-200 bg-red-50 text-red-500' : 'border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-500'}"
-                                title="찜하기">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="${wished ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                            </svg>
-                            <span id="wishCount-${trade.trade_seq}" class="text-sm font-medium">${wishCount}</span>
-                        </button>
-                    </form>
+                        <div class="plus-menu" id="plusMenu">
+                            <div class="plus-menu-item" id="safePaymentRequestBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0046FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                                </svg>
+                                안전 결제 요청 보내기
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" id="message" placeholder="메시지를 입력하세요..."
+                           class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all text-sm" />
+                    <button id="sendBtn" class="px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2">
+                        전송
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
                 </div>
-            </c:if>
-
-            <!-- 수정/삭제 버튼 -->
-            <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq}">
-                <div class="mt-6 flex gap-3">
-                    <a href="/trade/modify/${trade.trade_seq}"
-                       class="flex-1 px-6 py-3 bg-primary-500 text-white text-center rounded-lg hover:bg-primary-600 transition font-bold">
-                        수정
-                    </a>
-                    <form action="${pageConQtext.request.contextPath}/trade/delete/${trade.trade_seq}" method="post" class="flex-1"
-                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                        <button type="submit"
-                                class="w-full px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-bold">
-                            삭제
-                        </button>
-                    </form>
-                </div>
-            </c:if>
+            </div>
         </div>
     </div>
 </div>
 
+<script src="${pageContext.request.contextPath}/resources/js/chat/chat.js"></script>
+
 <script>
-const images = [
-<c:choose>
-    <c:when test="${not empty trade.trade_img}">
-        <c:forEach var="img" items="${trade.trade_img}" varStatus="s">
-            "${img.img_url}"<c:if test="${!s.last}">,</c:if>
-        </c:forEach>
-    </c:when>
-    <c:otherwise>
-        "${trade.book_img}"
-    </c:otherwise>
-</c:choose>
-];
+console.log('=== 안전결제 스크립트 로드 시작 ===');
+console.log('chat.js fetchMessages 존재 여부:', typeof fetchMessages);
 
-let idx = 0;
+// =====================================================
+// 안전결제 기능 스크립트
+// =====================================================
 
-function setImage(i) {
-    idx = i;
-    update();
+// 타이머 관리 객체
+const safePaymentTimers = {};
+
+// 페이지 로드 시 판매자 여부에 따라 + 버튼 표시
+document.addEventListener("DOMContentLoaded", function() {
+    updatePlusButtonVisibility();
+    setupPlusButtonEvents();
+});
+
+// + 버튼 표시/숨김 (판매자만 보임)
+function updatePlusButtonVisibility() {
+    const plusBtnWrapper = document.getElementById('plusBtnWrapper');
+    console.log('=== updatePlusButtonVisibility ===');
+    console.log('loginMemberSeq:', loginMemberSeq);
+    console.log('member_seller_seq:', member_seller_seq);
+    console.log('isSeller:', isSeller);
+    console.log('chat_room_seq:', chat_room_seq);
+    console.log('plusBtnWrapper:', plusBtnWrapper);
+
+    if (plusBtnWrapper && isSeller && chat_room_seq > 0) {
+        plusBtnWrapper.style.display = 'block';
+        console.log('+ 버튼 표시');
+    } else if (plusBtnWrapper) {
+        plusBtnWrapper.style.display = 'none';
+        console.log('+ 버튼 숨김');
+    }
 }
-function prevImage() {
-    idx = (idx - 1 + images.length) % images.length;
-    update();
-}
-function nextImage() {
-    idx = (idx + 1) % images.length;
-    update();
-}
-function update() {
-    document.getElementById("mainImage").src = "/img/" + images[idx];
 
-    const ind = document.getElementById("imageIndicator");
-    if (ind) ind.innerText = (idx + 1) + " / " + images.length;
+// + 버튼 이벤트 설정
+function setupPlusButtonEvents() {
+    const plusBtn = document.getElementById('plusBtn');
+    const plusMenu = document.getElementById('plusMenu');
+    const safePaymentRequestBtn = document.getElementById('safePaymentRequestBtn');
 
-    // 썸네일 테두리 업데이트 (선택사항이지만 추천)
-    images.forEach((_, i) => {
-        const t = document.getElementById("thumb-" + i);
-        if (t) {
-            t.classList.toggle("border-blue-500", i === idx);
-            t.classList.toggle("border-transparent", i !== idx);
+    if (plusBtn && plusMenu) {
+        // + 버튼 클릭 시 메뉴 토글
+        plusBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            plusMenu.classList.toggle('show');
+        });
+
+        // 다른 곳 클릭 시 메뉴 닫기
+        document.addEventListener('click', function() {
+            plusMenu.classList.remove('show');
+        });
+    }
+
+    if (safePaymentRequestBtn) {
+        safePaymentRequestBtn.addEventListener('click', function() {
+            sendSafePaymentRequest();
+            plusMenu.classList.remove('show');
+        });
+    }
+}
+
+// 안전 결제 요청 보내기
+function sendSafePaymentRequest() {
+    if (!stompClient || !stompClient.connected) {
+        alert('채팅 연결이 필요합니다.');
+        return;
+    }
+
+    if (!isSeller) {
+        alert('판매자만 안전 결제 요청을 보낼 수 있습니다.');
+        return;
+    }
+
+    // 특별한 메시지 형식으로 안전 결제 요청 전송
+    stompClient.send(
+        "/sendMessage/chat/" + chat_room_seq,
+        {},
+        JSON.stringify({
+            chat_room_seq: chat_room_seq,
+            chat_cont: "[SAFE_PAYMENT_REQUEST]",
+            sender_seq: loginMemberSeq,
+            trade_seq: trade_seq
+        })
+    );
+}
+
+// 기존 showMessage 함수 오버라이드
+const originalShowMessage = showMessage;
+showMessage = function(msg) {
+    const chatCont = msg.chat_cont || '';
+
+    // 안전 결제 요청 메시지인 경우
+    if (chatCont === '[SAFE_PAYMENT_REQUEST]') {
+        showSafePaymentRequest(msg);
+        return;
+    }
+
+    // 구매 요청 수락 메시지인 경우
+    if (chatCont === '[SAFE_PAYMENT_ACCEPT]') {
+        showSafePaymentAccept(msg);
+        return;
+    }
+
+    // 결제 완료 메시지인 경우
+    if (chatCont === '[SAFE_PAYMENT_COMPLETE]') {
+        showSafePaymentComplete(msg);
+        return;
+    }
+
+    // 일반 메시지는 기존 함수 사용
+    originalShowMessage(msg);
+};
+
+// 안전 결제 요청 UI 표시
+function showSafePaymentRequest(msg) {
+    const log = document.getElementById("chatContainer");
+    const emptyNotice = document.getElementById("emptyNotice");
+    if (emptyNotice) emptyNotice.remove();
+
+    const msgWrapper = document.createElement('div');
+    const isMyMessage = Number(msg.sender_seq) === loginMemberSeq;
+    msgWrapper.className = isMyMessage ? 'msg-right' : 'msg-left';
+
+    const card = document.createElement('div');
+    card.className = 'safe-payment-card';
+
+    const msgId = 'safe-pay-req-' + Date.now();
+    card.id = msgId;
+
+    if (isMyMessage) {
+        // 판매자 본인이 보낸 경우 - 요청 완료 표시
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>' +
+                    '<line x1="1" y1="10" x2="23" y2="10"></line>' +
+                '</svg>' +
+                '<span class="card-title">안전 결제 요청</span>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px;">' +
+                '구매자에게 안전 결제 요청을 보냈습니다.' +
+            '</div>';
+    } else {
+        // 구매자가 받은 경우 - 구매 요청하기 버튼 표시
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>' +
+                    '<line x1="1" y1="10" x2="23" y2="10"></line>' +
+                '</svg>' +
+                '<span class="card-title">안전 결제 요청</span>' +
+                '<span class="timer" id="timer-' + msgId + '">01:00</span>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px; margin-bottom: 12px;">' +
+                '판매자가 안전 결제를 요청했습니다.' +
+            '</div>' +
+            '<button class="action-btn primary" id="btn-' + msgId + '" onclick="acceptSafePaymentRequest(\'' + msgId + '\')">' +
+                '구매 요청하기' +
+            '</button>';
+
+        // 1분 타이머 시작
+        startTimer(msgId, 60, function() {
+            expireSafePaymentRequest(msgId);
+        });
+    }
+
+    msgWrapper.appendChild(card);
+    log.appendChild(msgWrapper);
+    log.scrollTop = log.scrollHeight;
+}
+
+// 구매 요청 수락 (구매자가 클릭)
+function acceptSafePaymentRequest(msgId) {
+    // 타이머 정지
+    if (safePaymentTimers[msgId]) {
+        clearInterval(safePaymentTimers[msgId]);
+        delete safePaymentTimers[msgId];
+    }
+
+    // 구매 요청 수락 메시지 전송
+    if (stompClient && stompClient.connected) {
+        stompClient.send(
+            "/sendMessage/chat/" + chat_room_seq,
+            {},
+            JSON.stringify({
+                chat_room_seq: chat_room_seq,
+                chat_cont: "[SAFE_PAYMENT_ACCEPT]",
+                sender_seq: loginMemberSeq,
+                trade_seq: trade_seq
+            })
+        );
+    }
+
+    // 기존 카드 업데이트
+    const card = document.getElementById(msgId);
+    if (card) {
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<polyline points="20 6 9 17 4 12"></polyline>' +
+                '</svg>' +
+                '<span class="card-title">구매 요청 완료</span>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px;">' +
+                '구매 요청을 보냈습니다.' +
+            '</div>';
+    }
+}
+
+// 안전 결제 수락 UI 표시 (상품 정보 + 결제하기 버튼)
+function showSafePaymentAccept(msg) {
+    const log = document.getElementById("chatContainer");
+    const emptyNotice = document.getElementById("emptyNotice");
+    if (emptyNotice) emptyNotice.remove();
+
+    const msgWrapper = document.createElement('div');
+    const isMyMessage = Number(msg.sender_seq) === loginMemberSeq;
+    msgWrapper.className = isMyMessage ? 'msg-right' : 'msg-left';
+
+    const card = document.createElement('div');
+    card.className = 'safe-payment-card';
+
+    const msgId = 'safe-pay-accept-' + Date.now();
+    card.id = msgId;
+
+    // 상품 정보 가져오기
+    const trade = currentTradeInfo;
+    const bookStatusText = getBookStatusText(trade.book_st);
+    const totalPrice = trade.sale_price + trade.delivery_cost;
+    const bookImg = trade.book_img || '/resources/img/no-image.png';
+
+    if (isMyMessage) {
+        // 구매자 본인이 보낸 경우 - 결제하기 버튼 표시
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>' +
+                    '<line x1="1" y1="10" x2="23" y2="10"></line>' +
+                '</svg>' +
+                '<span class="card-title">결제 정보</span>' +
+                '<span class="timer" id="timer-' + msgId + '">01:00</span>' +
+            '</div>' +
+            '<div class="product-info">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<div class="product-detail">' +
+                    '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
+                    '<div class="product-status">' + bookStatusText + '</div>' +
+                    '<div class="product-price">' + numberFormat(trade.sale_price) + '원</div>' +
+                    '<div class="product-delivery">배송비 ' + numberFormat(trade.delivery_cost) + '원</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="text-align:right; margin-bottom: 12px; font-size: 14px; font-weight: 700; color: #212529;">' +
+                '총 결제금액: <span style="color: #0046FF;">' + numberFormat(totalPrice) + '원</span>' +
+            '</div>' +
+            '<button class="action-btn primary" id="btn-' + msgId + '" onclick="goToPayment(\'' + msgId + '\')">' +
+                '결제하기' +
+            '</button>';
+
+        // 1분 타이머 시작
+        startTimer(msgId, 60, function() {
+            expirePayment(msgId);
+        });
+    } else {
+        // 판매자가 받은 경우 - 구매자가 수락했다는 알림
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<polyline points="20 6 9 17 4 12"></polyline>' +
+                '</svg>' +
+                '<span class="card-title">구매 요청 수락</span>' +
+            '</div>' +
+            '<div class="product-info">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<div class="product-detail">' +
+                    '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
+                    '<div class="product-status">' + bookStatusText + '</div>' +
+                    '<div class="product-price">' + numberFormat(trade.sale_price) + '원</div>' +
+                    '<div class="product-delivery">배송비 ' + numberFormat(trade.delivery_cost) + '원</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px;">' +
+                '구매자가 결제를 진행 중입니다.' +
+            '</div>';
+    }
+
+    msgWrapper.appendChild(card);
+    log.appendChild(msgWrapper);
+    log.scrollTop = log.scrollHeight;
+}
+
+// 결제 페이지로 이동
+function goToPayment(msgId) {
+    // 타이머 정지
+    if (safePaymentTimers[msgId]) {
+        clearInterval(safePaymentTimers[msgId]);
+        delete safePaymentTimers[msgId];
+    }
+
+    const tradeSeq = currentTradeInfo.trade_seq || trade_seq;
+    if (tradeSeq > 0) {
+        window.location.href = '/payments?trade_seq=' + tradeSeq;
+    } else {
+        alert('거래 정보를 찾을 수 없습니다.');
+    }
+}
+
+// 결제 완료 UI 표시
+function showSafePaymentComplete(msg) {
+    const log = document.getElementById("chatContainer");
+    const emptyNotice = document.getElementById("emptyNotice");
+    if (emptyNotice) emptyNotice.remove();
+
+    const msgWrapper = document.createElement('div');
+    const isMyMessage = Number(msg.sender_seq) === loginMemberSeq;
+    msgWrapper.className = isMyMessage ? 'msg-right' : 'msg-left';
+
+    const card = document.createElement('div');
+    card.className = 'safe-payment-card';
+
+    // 상품 정보 가져오기
+    const trade = currentTradeInfo;
+    const bookStatusText = getBookStatusText(trade.book_st);
+    const totalPrice = trade.sale_price + trade.delivery_cost;
+    const bookImg = trade.book_img || '/resources/img/no-image.png';
+
+    if (isMyMessage) {
+        // 구매자 본인이 보낸 경우 - 결제 완료 표시
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>' +
+                    '<polyline points="22 4 12 14.01 9 11.01"></polyline>' +
+                '</svg>' +
+                '<span class="card-title" style="color: #22c55e;">결제 완료</span>' +
+            '</div>' +
+            '<div class="product-info">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<div class="product-detail">' +
+                    '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
+                    '<div class="product-status">' + bookStatusText + '</div>' +
+                    '<div class="product-price">' + numberFormat(trade.sale_price) + '원</div>' +
+                    '<div class="product-delivery">배송비 ' + numberFormat(trade.delivery_cost) + '원</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 12px 0; color: #22c55e; font-size: 13px; font-weight: 600;">' +
+                '결제가 완료되었습니다!' +
+            '</div>';
+    } else {
+        // 판매자가 받은 경우 - 구매자가 결제 완료했다는 알림
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>' +
+                    '<polyline points="22 4 12 14.01 9 11.01"></polyline>' +
+                '</svg>' +
+                '<span class="card-title" style="color: #22c55e;">결제 완료</span>' +
+            '</div>' +
+            '<div class="product-info">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<div class="product-detail">' +
+                    '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
+                    '<div class="product-status">' + bookStatusText + '</div>' +
+                    '<div class="product-price">' + numberFormat(trade.sale_price) + '원</div>' +
+                    '<div class="product-delivery">배송비 ' + numberFormat(trade.delivery_cost) + '원</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="text-align:center; padding: 12px 0; color: #22c55e; font-size: 13px; font-weight: 600;">' +
+                '구매자가 결제를 완료했습니다!' +
+            '</div>';
+    }
+
+    msgWrapper.appendChild(card);
+    log.appendChild(msgWrapper);
+    log.scrollTop = log.scrollHeight;
+}
+
+// 안전 결제 요청 만료
+function expireSafePaymentRequest(msgId) {
+    const card = document.getElementById(msgId);
+    if (card) {
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#868e96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<circle cx="12" cy="12" r="10"></circle>' +
+                    '<line x1="12" y1="8" x2="12" y2="12"></line>' +
+                    '<line x1="12" y1="16" x2="12.01" y2="16"></line>' +
+                '</svg>' +
+                '<span class="card-title" style="color: #868e96;">안전 결제 요청</span>' +
+            '</div>' +
+            '<div class="expired-notice">' +
+                '요청 시간이 만료되었습니다.' +
+            '</div>';
+    }
+}
+
+// 결제 만료
+function expirePayment(msgId) {
+    const card = document.getElementById(msgId);
+    if (card) {
+        const btn = document.getElementById('btn-' + msgId);
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '시간 만료';
         }
-    });
+        const timer = document.getElementById('timer-' + msgId);
+        if (timer) {
+            timer.textContent = '만료됨';
+            timer.style.color = '#868e96';
+        }
+    }
 }
 
-function toggleWish(tradeSeq) {
-    const form = document.getElementById(`wishForm-${tradeSeq}`);
-    if (!form) return;
+// 타이머 시작
+function startTimer(msgId, seconds, onExpire) {
+    let remaining = seconds;
+    const timerEl = document.getElementById('timer-' + msgId);
 
-    const btn = form.querySelector("button");
-    const countSpan = document.getElementById(`wishCount-${tradeSeq}`);
-    if (!btn || !countSpan) return;
-
-    const formData = new FormData(form);
-
-    fetch("/trade/like", {
-        method: "POST",
-        body: formData,
-        headers: {
-            "X-Requested-With": "XMLHttpRequest"
+    safePaymentTimers[msgId] = setInterval(function() {
+        remaining--;
+        if (timerEl) {
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            timerEl.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
         }
+
+        if (remaining <= 0) {
+            clearInterval(safePaymentTimers[msgId]);
+            delete safePaymentTimers[msgId];
+            if (onExpire) onExpire();
+        }
+    }, 1000);
+}
+
+// 책 상태 텍스트 변환
+function getBookStatusText(status) {
+    const statusMap = {
+        'NEW': '새 상품',
+        'LIKE_NEW': '거의 새 것',
+        'GOOD': '양호',
+        'ACCEPTABLE': '사용감 있음'
+    };
+    return statusMap[status] || status || '-';
+}
+
+// 숫자 포맷
+function numberFormat(num) {
+    return (num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// HTML 이스케이프
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// fetchMessages 함수 오버라이드 (Object[] 데이터 처리)
+const originalFetchMessages = fetchMessages;
+fetchMessages = function(roomSeq) {
+    const url = '/chat/messages?chat_room_seq=' + encodeURIComponent(roomSeq);
+    console.log('=== fetchMessages 호출 ===', roomSeq);
+
+    fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
     })
-    .then(async res => {
-        const text = await res.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            throw new Error("서버 응답이 JSON이 아닙니다:\n" + text);
-        }
+    .then(res => {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
     })
     .then(data => {
-        if (!data.success) {
-            alert(data.message || "찜 처리 실패");
-            return;
-        }
+        console.log('=== fetchMessages 응답 ===', data);
 
-        // 버튼 상태 반영
-        const heartIcon = btn.querySelector('svg');
-        if (data.wished) {
-            btn.classList.add("border-red-200", "bg-red-50", "text-red-500");
-            btn.classList.remove("border-gray-200", "bg-white", "text-gray-400", "hover:border-red-200", "hover:bg-red-50", "hover:text-red-500");
-            if (heartIcon) heartIcon.setAttribute('fill', 'currentColor');
-            countSpan.textContent = parseInt(countSpan.textContent) + 1;
-        } else {
-            btn.classList.remove("border-red-200", "bg-red-50", "text-red-500");
-            btn.classList.add("border-gray-200", "bg-white", "text-gray-400", "hover:border-red-200", "hover:bg-red-50", "hover:text-red-500");
-            if (heartIcon) heartIcon.setAttribute('fill', 'none');
-            countSpan.textContent = parseInt(countSpan.textContent) - 1;
+        // Object[] 형태: data[0] = 메시지 배열, data[1] = TradeVO
+        if (Array.isArray(data) && data.length >= 2) {
+            const messages = data[0];
+            const tradeInfo = data[1];
+
+            console.log('tradeInfo:', tradeInfo);
+
+            // trade 정보 업데이트
+            if (tradeInfo) {
+                currentTradeInfo = {
+                    trade_seq: tradeInfo.trade_seq || 0,
+                    book_img: tradeInfo.book_img || '',
+                    book_title: tradeInfo.book_title || '',
+                    sale_price: tradeInfo.sale_price || 0,
+                    delivery_cost: tradeInfo.delivery_cost || 0,
+                    book_st: tradeInfo.book_st || ''
+                };
+
+                // trade_seq 업데이트
+                if (tradeInfo.trade_seq) {
+                    trade_seq = tradeInfo.trade_seq;
+                }
+
+                // 판매자 여부 재확인
+                if (tradeInfo.member_seller_seq) {
+                    member_seller_seq = tradeInfo.member_seller_seq;
+                    isSeller = (loginMemberSeq === tradeInfo.member_seller_seq);
+                    console.log('isSeller 업데이트:', isSeller, 'loginMemberSeq:', loginMemberSeq, 'member_seller_seq:', member_seller_seq);
+                    updatePlusButtonVisibility();
+                }
+            }
+
+            // 메시지 렌더링
+            if (Array.isArray(messages)) {
+                messages.forEach(msg => showMessage(msg));
+            }
+        } else if (Array.isArray(data)) {
+            // 기존 형식 호환 (단일 배열)
+            console.log('기존 형식 (단일 배열) 사용');
+            data.forEach(msg => showMessage(msg));
         }
     })
-    .catch(err => {
-        console.error(err);
-        alert("네트워크 오류 또는 서버 오류 발생");
-    });
-}
-
-
-
-
+    .catch(err => console.error('채팅 메시지 로드 실패:', err));
+};
 </script>
 
-<jsp:include page="../common/footer.jsp" />
+<%@ include file="/WEB-INF/views/common/footer.jsp" %>
