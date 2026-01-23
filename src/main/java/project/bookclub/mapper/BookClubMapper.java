@@ -69,6 +69,13 @@ public interface BookClubMapper {
                            @Param("memberSeq") Long memberSeq,
                            @Param("commentCont") String commentCont);
 
+    // 게시글 수정
+    int updateBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
+
+    // 게시글 삭제 (soft delete)
+    int deleteBoardPost(@Param("bookClubSeq") Long bookClubSeq,
+            @Param("postId") Long postId);
+
     List<BookClubVO> selectMyBookClubs(long member_seq); // 내 모임 조회 추가
     List<BookClubVO> selectWishBookClubs(long member_seq);
 

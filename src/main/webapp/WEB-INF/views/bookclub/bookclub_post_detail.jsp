@@ -38,8 +38,54 @@
         font-size: 1.875rem;
         font-weight: 700;
         color: #1a202c;
-        margin: 0 0 1rem 0;
+        margin: 0;
         line-height: 1.3;
+        flex: 1;
+    }
+
+    .bc-post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .bc-post-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .bc-post-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: 0.375rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .bc-post-edit-btn {
+        background: #edf2f7;
+        color: #4a5568;
+    }
+
+    .bc-post-edit-btn:hover {
+        background: #e2e8f0;
+    }
+
+    .bc-post-delete-btn {
+        background: #fed7d7;
+        color: #c53030;
+    }
+
+    .bc-post-delete-btn:hover {
+        background: #feb2b2;
     }
 
     .bc-post-meta {
@@ -317,8 +363,36 @@
 
             <!-- 게시글 카드 -->
             <div class="bc-post-card">
-                <!-- 제목 -->
-                <h1 class="bc-post-title">${fn:escapeXml(post.board_title)}</h1>
+                <!-- 제목 + 수정/삭제 버튼 -->
+                <div class="bc-post-header">
+                    <h1 class="bc-post-title">${fn:escapeXml(post.board_title)}</h1>
+
+                    <!-- 수정/삭제 버튼 (작성자 또는 모임장만 표시) -->
+                    <c:if test="${post.member_seq == loginMemberSeq or isLeader}">
+                        <div class="bc-post-actions">
+                            <%-- 수정 버튼: 작성자만 --%>
+                            <c:if test="${post.member_seq == loginMemberSeq}">
+                                <button type="button" class="bc-post-action-btn bc-post-edit-btn"
+                                        onclick="location.href='${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/edit'">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                    수정
+                                </button>
+                            </c:if>
+                            <%-- 삭제 버튼: 작성자 + 모임장 --%>
+                            <button type="button" class="bc-post-action-btn bc-post-delete-btn"
+                                    onclick="confirmDeletePost()">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                삭제
+                            </button>
+                        </div>
+                    </c:if>
+                </div>
 
                 <!-- 메타 정보 (작성자 + 작성일) -->
                 <div class="bc-post-meta">
@@ -460,6 +534,18 @@
         </div>
     </c:when>
 </c:choose>
+
+<!-- 삭제 폼 (JavaScript에서 동적 제출) -->
+<form id="deletePostForm" method="post" action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/delete" style="display: none;">
+</form>
+
+<script>
+    function confirmDeletePost() {
+        if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
+            document.getElementById('deletePostForm').submit();
+        }
+    }
+</script>
 
 <script defer src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_post_detail.js"></script>
 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
