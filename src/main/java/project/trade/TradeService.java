@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.member.MemberVO;
 import project.util.exception.TradeNotFoundException;
 
 import java.io.File;
@@ -118,7 +119,45 @@ public class TradeService {
     public List<TradeVO> selectCategory() {
         return tradeMapper.selectCategory();
     }
+    public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
 
+    @Transactional
+    public void updateStatus(Long trade_seq, String sold, Long member_buyer_seq) {
+        tradeMapper.updateStatus(trade_seq, sold, member_buyer_seq);
+    }
+
+    // 찜하기 insert
+    @Transactional
+    public boolean saveLike(long trade_seq, long member_seq) {
+        int cnt = tradeMapper.countLike(trade_seq, member_seq);
+        log.info("Like count = {}", cnt);
+        if (cnt > 0) {  // 이미 누른 카운트가 있다면 delete하고 false 리턴
+            tradeMapper.deleteLike(trade_seq, member_seq);
+            return false;
+        } else {        // 좋아요 누른게 없다면 true
+            int insertLike = tradeMapper.saveLike(trade_seq, member_seq);
+            log.info("Like insert = {}", insertLike);
+            return true;
+        }
+    }
+
+    // 찜하기 이전에 눌렀는지 조회
+    public boolean isWished(long trade_seq, long member_seq) {
+        return tradeMapper.countLike(trade_seq, member_seq) > 0;
+    }
+    // 찜하기 전체 갯수 조회
+    public int countLikeAll(long trade_seq) {
+        return tradeMapper.countLikeAll(trade_seq);
+    }
+
+    public TradeVO findByChatRoomSeq(long chat_room_seq) {
+        return tradeMapper.findByChatRoomSeq(chat_room_seq);
+    }
+
+    // 판매자 정보조회
+    public MemberVO findSellerInfo(long tradeSeq) {
+        return tradeMapper.findSellerInfo(tradeSeq);
+    }
     public List<TradeVO> getWishTrades(long member_seq) {
         return tradeMapper.selectWishTrades(member_seq);
     }

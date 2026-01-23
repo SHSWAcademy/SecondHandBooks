@@ -18,7 +18,7 @@ public class WebClientConfig {
     // 외부 API 연동하는 클래스인데 아래는 예시 방식입니다 ! API 문서 잘 읽고 각자 파트 잘 넣어주세영 ~
     // resources - api.properties에 실제 발급한 키를 넣으면 됩니다 ! 해당 경로는 .gitignore에 올려서 외부 노출이 안되게 해야해영 ~
     
-    /*
+
     // API 키들 주입
     @Value("${api.toss.secret-key}")
     private String tossSecretKey;
@@ -26,6 +26,7 @@ public class WebClientConfig {
     @Value("${api.toss.base-url}")
     private String tossBaseUrl;
 
+    /*
     @Value("${api.kakao.rest-api-key}")
     private String kakaoRestApiKey;
 
@@ -46,6 +47,8 @@ public class WebClientConfig {
 
     @Value("${api.naver.login-url}")
     private String naverLoginUrl;
+
+     */
 
     // 1. 토스 결제 API
     @Bean
@@ -69,6 +72,7 @@ public class WebClientConfig {
                 .build();
     }
 
+    /*
     // 2. 카카오 도서 검색 API
     @Bean
     public WebClient kakaoBookWebClient() {
