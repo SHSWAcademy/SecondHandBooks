@@ -498,11 +498,14 @@ public class BookClubService {
             throw new IllegalArgumentException("잘못된 요청입니다.");
         }
 
-        // 필수 입력값 검증
-        if (dto.getName() == null || dto.getName().isBlank()) {
+        // 필수 입력값 검증 (trim 후 빈값 체크)
+        String newName = trimToNull(dto.getName());
+        String newDescription = trimToNull(dto.getDescription());
+
+        if (newName == null) {
             throw new IllegalArgumentException("모임 이름을 입력해주세요.");
         }
-        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
+        if (newDescription == null) {
             throw new IllegalArgumentException("모임 소개를 입력해주세요.");
         }
 
@@ -521,7 +524,6 @@ public class BookClubService {
         }
 
         // 4. 모임명 변경 시 중복 체크 (현재 모임 제외)
-        String newName = dto.getName().trim();
         String currentName = bookClub.getBook_club_name();
 
         if (!newName.equals(currentName)) {
@@ -535,13 +537,14 @@ public class BookClubService {
         }
 
         // 5. book_club UPDATE (정원은 제외)
+        // 빈값 정책: 빈 문자열("")은 null로 변환하여 저장
         int updatedRows = bookClubMapper.updateBookClubSettings(
                 bookClubSeq,
                 newName,
-                dto.getDescription().trim(),
-                dto.getRegion() != null ? dto.getRegion().trim() : null,
-                dto.getSchedule() != null ? dto.getSchedule().trim() : null,
-                dto.getBannerImgUrl() // URL 입력 방식 (null 가능)
+                newDescription,
+                trimToNull(dto.getRegion()),
+                trimToNull(dto.getSchedule()),
+                trimToNull(dto.getBannerImgUrl())
         );
 
         // 6. 업데이트 성공 확인
@@ -563,5 +566,17 @@ public class BookClubService {
                 "schedule", updatedBookClub.getBook_club_schedule() != null ? updatedBookClub.getBook_club_schedule() : "",
                 "bannerImgUrl", updatedBookClub.getBanner_img_url() != null ? updatedBookClub.getBanner_img_url() : ""
         );
+    }
+
+    /**
+     * 문자열 trim 후 빈 문자열이면 null 반환
+     * 정책A: 빈값은 null로 저장 (DB 정합성 + UI 일관성)
+     */
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
