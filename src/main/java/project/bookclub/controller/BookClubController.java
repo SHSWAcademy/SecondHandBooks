@@ -43,8 +43,8 @@ public class BookClubController {
         // 1. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
 
-        // 2. 조회 결과 없음 처리
-        if (bookClub == null) {
+        // 2. 조회 결과 없음 또는 삭제된 모임 처리
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
             model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
             return;
         }
@@ -243,7 +243,7 @@ public class BookClubController {
 
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
             model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
             return "bookclub/bookclub_post_forbidden";
         }
@@ -450,10 +450,11 @@ public class BookClubController {
      * 1. 로그인 확인
      * 2. 모임 존재 여부 확인
      * 3. Service 레이어에서 비즈니스 로직 처리:
-     *    - 일반 멤버: join_st='LEFT' 업데이트
-     *    - 모임장: 자동 승계 또는 모임 종료
+     * - 일반 멤버: join_st='LEFT' 업데이트
+     * - 모임장: 자동 승계 또는 모임 종료
      *
-     * @return JSON {success, message, leaderChanged?, newLeaderSeq?, clubClosed?, ctaStatus}
+     * @return JSON {success, message, leaderChanged?, newLeaderSeq?, clubClosed?,
+     *         ctaStatus}
      */
     @PostMapping("/{bookClubId}/leave")
     @ResponseBody
