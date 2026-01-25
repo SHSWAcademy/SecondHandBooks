@@ -148,4 +148,24 @@ public interface BookClubMapper {
 
     // 모임 종료 (soft delete)
     int closeBookClub(@Param("bookClubSeq") Long bookClubSeq);
+
+    // ===================================
+    // 멤버 탈퇴 - 내 멤버 상태 조회 (요구사항 SQL #1)
+    // ===================================
+    /**
+     * 내 멤버 상태 조회 (leader_yn, join_st만 조회)
+     * - leader_yn: Boolean (DB boolean 그대로)
+     * - join_st: String
+     */
+    java.util.Map<String, Object> selectMyMemberStatus(@Param("bookClubSeq") Long bookClubSeq,
+                                                        @Param("memberSeq") Long memberSeq);
+
+    // ===================================
+    // 동시성 제어 - book_club 행 잠금 (선택적)
+    // ===================================
+    /**
+     * book_club 행을 FOR UPDATE로 잠금 (비관적 락)
+     * 멤버 탈퇴 시 승계/종료 동시성 이슈 방지
+     */
+    Long lockBookClubForUpdate(@Param("bookClubSeq") Long bookClubSeq);
 }
