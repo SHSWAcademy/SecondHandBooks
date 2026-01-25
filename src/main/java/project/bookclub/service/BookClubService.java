@@ -680,10 +680,11 @@ public class BookClubService {
      *
      * 검증 및 처리 순서:
      * 1. 파라미터 null 체크
-     * 2. 멤버 조회 및 JOINED 상태 검증
-     * 3. 이미 LEFT/KICKED면 실패 처리
-     * 4-A. 일반 멤버 탈퇴: join_st='LEFT' 업데이트
-     * 4-B. 모임장 탈퇴:
+     * 2. book_club 행 잠금 (동시성 제어)
+     * 3. 멤버 상태 조회 (요구사항 SQL #1)
+     * 4. join_st 상태 검증
+     * 5-A. 일반 멤버 탈퇴: join_st='LEFT' 업데이트
+     * 5-B. 모임장 탈퇴:
      *      - JOINED 멤버가 있으면 자동 승계 (가장 오래된 멤버)
      *      - JOINED 멤버가 없으면 모임 종료 (soft delete)
      *
@@ -702,23 +703,39 @@ public class BookClubService {
             throw new IllegalArgumentException("잘못된 요청입니다.");
         }
 
-        // 2. 멤버 조회 및 상태 검증
-        project.bookclub.dto.BookClubManageMemberDTO member = bookClubMapper.selectMemberBySeq(bookClubSeq, memberSeq);
-        if (member == null) {
+        // 2. book_club 행 잠금 (동시성 제어 - 모임장 탈퇴 승계/종료 경쟁 방지)
+        Long lockedClubSeq = bookClubMapper.lockBookClubForUpdate(bookClubSeq);
+        if (lockedClubSeq == null) {
+            log.warn("멤버 탈퇴 실패: 모임이 존재하지 않거나 삭제됨 - bookClubSeq={}", bookClubSeq);
+            throw new IllegalStateException("존재하지 않거나 종료된 모임입니다.");
+        }
+
+        // 3. 멤버 상태 조회 (요구사항 SQL #1: leader_yn, join_st만 조회)
+        java.util.Map<String, Object> memberStatus = bookClubMapper.selectMyMemberStatus(bookClubSeq, memberSeq);
+        if (memberStatus == null) {
             log.warn("멤버 탈퇴 실패: 존재하지 않는 멤버 - bookClubSeq={}, memberSeq={}",
                     bookClubSeq, memberSeq);
             throw new IllegalStateException("존재하지 않는 멤버입니다.");
         }
 
-        // 3. JOINED 상태 검증 (이미 LEFT/KICKED면 실패)
-        if (!"JOINED".equals(member.getJoinSt())) {
-            log.warn("멤버 탈퇴 실패: JOINED 상태가 아님 - bookClubSeq={}, memberSeq={}, joinSt={}",
-                    bookClubSeq, memberSeq, member.getJoinSt());
-            throw new IllegalStateException("이미 탈퇴했거나 강퇴된 멤버입니다.");
+        // 4. join_st 상태 검증
+        String joinSt = (String) memberStatus.get("join_st");
+        if (!"JOINED".equals(joinSt)) {
+            // LEFT 또는 KICKED
+            if ("LEFT".equals(joinSt) || "KICKED".equals(joinSt)) {
+                log.warn("멤버 탈퇴 실패: 이미 탈퇴/강퇴 - bookClubSeq={}, memberSeq={}, joinSt={}",
+                        bookClubSeq, memberSeq, joinSt);
+                throw new IllegalStateException("이미 탈퇴했거나 강퇴된 멤버입니다.");
+            }
+            // WAIT, REJECTED 등 JOINED가 아닌 경우
+            log.warn("멤버 탈퇴 실패: 탈퇴 불가 상태 - bookClubSeq={}, memberSeq={}, joinSt={}",
+                    bookClubSeq, memberSeq, joinSt);
+            throw new IllegalStateException("탈퇴할 수 없는 상태입니다.");
         }
 
-        // 4. 모임장 여부 판단
-        boolean isLeader = "Y".equals(member.getLeaderYn());
+        // 5. 모임장 여부 판단 (Boolean.TRUE.equals로 안전하게 비교)
+        Boolean leaderYn = (Boolean) memberStatus.get("leader_yn");
+        boolean isLeader = Boolean.TRUE.equals(leaderYn);
 
         if (!isLeader) {
             // 4-A. 일반 멤버 탈퇴

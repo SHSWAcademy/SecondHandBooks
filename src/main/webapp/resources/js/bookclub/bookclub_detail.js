@@ -101,6 +101,18 @@
     });
 
     /**
+     * CSRF 토큰 가져오기 (meta 태그에서 추출)
+     */
+    function getCsrfToken() {
+        var token = document.querySelector('meta[name="_csrf"]');
+        var header = document.querySelector('meta[name="_csrf_header"]');
+        return {
+            token: token ? token.getAttribute('content') : null,
+            header: header ? header.getAttribute('content') : null
+        };
+    }
+
+    /**
      * 탈퇴하기 버튼 이벤트
      */
     (function initLeaveButton() {
@@ -122,6 +134,16 @@
                 return;
             }
 
+            // CSRF 토큰 가져오기
+            var csrf = getCsrfToken();
+            var headers = {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+            if (csrf.token && csrf.header) {
+                headers[csrf.header] = csrf.token;
+            }
+
             btnLeave.disabled = true;
             btnLeave.textContent = '처리 중...';
 
@@ -129,10 +151,7 @@
 
             fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: headers
             })
             .then(function (res) {
                 if (!res.ok) throw new Error('HTTP ' + res.status);
