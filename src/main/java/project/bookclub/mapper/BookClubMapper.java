@@ -41,7 +41,7 @@ public interface BookClubMapper {
 
     // 특정 멤버의 최근 거절된 신청 확인 (request_st='REJECTED')
     int selectRejectedRequestCount(@Param("bookClubSeq") Long bookClubSeq,
-            @Param("memberSeq") Long memberSeq);
+                                   @Param("memberSeq") Long memberSeq);
 
     // 가입 신청 INSERT
     void insertJoinRequest(@Param("bookClubSeq") Long bookClubSeq,
@@ -109,14 +109,21 @@ public interface BookClubMapper {
 
     // 관리 페이지 - 모임 설정 업데이트 (정보 수정)
     int updateBookClubSettings(@Param("bookClubSeq") Long bookClubSeq,
-                                @Param("name") String name,
-                                @Param("desc") String desc,
-                                @Param("region") String region,
-                                @Param("schedule") String schedule,
-                                @Param("bannerImgUrl") String bannerImgUrl);
+                               @Param("name") String name,
+                               @Param("desc") String desc,
+                               @Param("region") String region,
+                               @Param("schedule") String schedule,
+                               @Param("bannerImgUrl") String bannerImgUrl);
 
     // 모임명 중복 체크 (현재 모임 제외, 동일 리더의 다른 모임 중복 확인)
     int countByLeaderAndNameExcludingSelf(@Param("leaderSeq") Long leaderSeq,
-                                           @Param("name") String name,
-                                           @Param("bookClubSeq") Long bookClubSeq);
+                                          @Param("name") String name,
+                                          @Param("bookClubSeq") Long bookClubSeq);
+
+    // 게시글 수정
+    int updateBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
+
+    // 게시글 삭제 (soft delete)
+    int deleteBoardPost(@Param("bookClubSeq") Long bookClubSeq,
+                        @Param("postId") Long postId);
 }

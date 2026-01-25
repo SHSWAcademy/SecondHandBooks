@@ -182,8 +182,8 @@
         SELECT COUNT(*)
         FROM book_club_request
         WHERE book_club_seq = #{bookClubSeq}
-          AND request_member_seq = #{memberSeq}
-          AND request_st = 'REJECTED'
+        AND request_member_seq = #{memberSeq}
+        AND request_st = 'REJECTED'
     </select>
 
     <!-- 가입 신청 INSERT -->
@@ -352,6 +352,61 @@
         )
     </insert>
 
+    <!-- 게시글(원글) INSERT -->
+    <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
+        INSERT INTO book_club_board (
+        book_club_seq,
+        member_seq,
+        board_title,
+        board_cont,
+        board_img_url,
+        isbn,
+        book_title,
+        book_author,
+        book_img_url,
+        board_deleted_yn
+        ) VALUES (
+        #{book_club_seq},
+        #{member_seq},
+        #{board_title},
+        #{board_cont},
+        #{board_img_url},
+        #{isbn},
+        #{book_title},
+        #{book_author},
+        #{book_img_url},
+        false
+        )
+    </insert>
+
+    <!-- 게시글(원글) UPDATE -->
+    <update id="updateBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO">
+        UPDATE book_club_board
+        SET board_title = #{board_title},
+        board_cont = #{board_cont},
+        board_img_url = #{board_img_url},
+        isbn = #{isbn},
+        book_title = #{book_title},
+        book_author = #{book_author},
+        book_img_url = #{book_img_url},
+        upd_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{book_club_seq}
+        AND book_club_board_seq = #{book_club_board_seq}
+        AND parent_book_club_board_seq IS NULL
+        AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+    </update>
+
+    <!-- 게시글(원글) 삭제 (soft delete) -->
+    <update id="deleteBoardPost">
+        UPDATE book_club_board
+        SET board_deleted_yn = true,
+        board_deleted_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{bookClubSeq}
+        AND book_club_board_seq = #{postId}
+        AND parent_book_club_board_seq IS NULL
+        AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+    </update>
+
     <select id="selectMyBookClubs" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
         SELECT
         BC.BOOK_CLUB_SEQ,
@@ -476,33 +531,6 @@
         WHERE book_club_request_seq = #{requestSeq}
     </update>
 
-    <!-- 게시글(원글) INSERT -->
-    <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
-        INSERT INTO book_club_board (
-        book_club_seq,
-        member_seq,
-        board_title,
-        board_cont,
-        board_img_url,
-        isbn,
-        book_title,
-        book_author,
-        book_img_url,
-        board_deleted_yn
-        ) VALUES (
-        #{book_club_seq},
-        #{member_seq},
-        #{board_title},
-        #{board_cont},
-        #{board_img_url},
-        #{isbn},
-        #{book_title},
-        #{book_author},
-        #{book_img_url},
-        false
-        )
-    </insert>
-
     <!-- ===================================== -->
     <!-- 관리 페이지 - 멤버 강퇴 -->
     <!-- ===================================== -->
@@ -510,28 +538,28 @@
     <!-- 타겟 멤버 상태 조회 (강퇴 검증용) -->
     <select id="selectMemberBySeq" resultType="project.bookclub.dto.BookClubManageMemberDTO">
         SELECT
-            bcm.book_club_member_seq AS bookClubMemberSeq,
-            bcm.book_club_seq AS bookClubSeq,
-            bcm.member_seq AS memberSeq,
-            CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
-            bcm.join_st AS joinSt,
-            bcm.join_st_update_dtm AS joinStUpdateDtm,
-            m.member_nicknm AS nickname,
-            NULL::text AS profileImgUrl
+        bcm.book_club_member_seq AS bookClubMemberSeq,
+        bcm.book_club_seq AS bookClubSeq,
+        bcm.member_seq AS memberSeq,
+        CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
+        bcm.join_st AS joinSt,
+        bcm.join_st_update_dtm AS joinStUpdateDtm,
+        m.member_nicknm AS nickname,
+        NULL::text AS profileImgUrl
         FROM book_club_member bcm
         INNER JOIN member_info m ON bcm.member_seq = m.member_seq
         WHERE bcm.book_club_seq = #{bookClubSeq}
-          AND bcm.member_seq = #{memberSeq}
+        AND bcm.member_seq = #{memberSeq}
     </select>
 
     <!-- 멤버 강퇴 - join_st='KICKED' 업데이트 -->
     <update id="updateMemberToKicked">
         UPDATE book_club_member
         SET join_st = 'KICKED'::join_st_enum,
-            join_st_update_dtm = CURRENT_TIMESTAMP
+        join_st_update_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
-          AND member_seq = #{memberSeq}
-          AND join_st = 'JOINED'
+        AND member_seq = #{memberSeq}
+        AND join_st = 'JOINED'
     </update>
 
     <!-- ===================================== -->
@@ -542,13 +570,13 @@
     <update id="updateBookClubSettings">
         UPDATE book_club
         SET book_club_name = #{name},
-            book_club_desc = #{desc},
-            book_club_rg = #{region},
-            book_club_schedule = #{schedule},
-            banner_img_url = #{bannerImgUrl},
-            upd_dtm = CURRENT_TIMESTAMP
+        book_club_desc = #{desc},
+        book_club_rg = #{region},
+        book_club_schedule = #{schedule},
+        banner_img_url = #{bannerImgUrl},
+        upd_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
-          AND book_club_deleted_dt IS NULL
+        AND book_club_deleted_dt IS NULL
     </update>
 
     <!-- 모임명 중복 체크 (현재 모임 제외) -->
@@ -556,9 +584,9 @@
         SELECT COUNT(*)
         FROM book_club
         WHERE book_club_leader_seq = #{leaderSeq}
-          AND book_club_name = #{name}
-          AND book_club_seq != #{bookClubSeq}
-          AND book_club_deleted_dt IS NULL
+        AND book_club_name = #{name}
+        AND book_club_seq != #{bookClubSeq}
+        AND book_club_deleted_dt IS NULL
     </select>
 
 </mapper>
