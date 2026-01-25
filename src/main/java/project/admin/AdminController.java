@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import project.admin.notice.NoticeVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +44,8 @@ public class AdminController {
             model.addAttribute("userLogs", adminService.getMemberLoginLogs());
             model.addAttribute("adminLogs", adminService.getAdminLoginLogs());
 
+            // 4. 공지사항 목록 추가
+            model.addAttribute("notices", adminService.selectNotices());
             return "admin/dashboard";
         } catch (Exception e) {
             e.printStackTrace();
@@ -219,4 +223,84 @@ public class AdminController {
         String content = body.get("content");
         return adminService.saveTempPage(title, content);
     }
+
+    // 공지사항 등록
+    @PostMapping("/notices")
+    @ResponseBody
+    public Map<String, Object> creatNotice(@RequestParam String notice_title,
+                                           @RequestParam(required = false) String is_important,
+                                           @RequestParam String active,
+                                           @RequestParam String notice_cont,
+                                           HttpSession sess
+    ) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+
+
+            AdminVO adminVO = (AdminVO) sess.getAttribute("adminSess");
+            if (adminVO == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+
+            NoticeVO noticeVO = new NoticeVO();
+            noticeVO.setAdmin_seq(adminVO.getAdmin_seq());
+            noticeVO.setNotice_title(notice_title);
+            noticeVO.setNotice_cont(notice_cont);
+
+            int priority = "true".equals(is_important) ? 1 : 0;
+            noticeVO.setNotice_priority(priority);
+
+            noticeVO.setActive("true".equals(active));
+
+            adminService.insertNotice(noticeVO);
+
+            response.put("success", true);
+            response.put("message", "공지사항이 등록되었습니다.");
+        } catch (Exception e) {
+            log.error("공지사항 등록 실패", e);
+            response.put("success", false);
+            response.put("message", "등록 중 오류가 발생했습니다." + e.getMessage());
+        }
+        return response;
+    }
+
+    // 공지사항 목록 조회
+    @GetMapping("/api/notices")
+    @ResponseBody
+    public List<NoticeVO> selectNotices() {
+        return adminService.selectNotices();
+    }
+
+    @GetMapping("/notices/view")
+    public String viewNotice(@RequestParam Long notice_seq, Model model) {
+        adminService.increaseViewCount(notice_seq);
+
+        NoticeVO noticeVO = adminService.selectNotice(notice_seq);
+        model.addAttribute("notice", noticeVO);
+
+        return "admin/tabs/noticeView";
+    }
+
+    @DeleteMapping("/notices/delete/{notice_seq}")
+    @ResponseBody
+    public Map<String, Object> deleteNotice(@PathVariable Long notice_seq) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            adminService.deleteNotice(notice_seq);
+            response.put("success", true);
+        } catch (Exception e) {
+            log.error("공지사항 삭제 실패", e);
+            response.put("success", false);
+            response.put("message", e.getMessage());
+        }
+
+        return response;
+    }
+
+
 }

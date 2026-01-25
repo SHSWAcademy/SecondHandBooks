@@ -108,20 +108,20 @@
             <tr class="hover:bg-gray-50/50 transition-colors">
               <!-- 체크박스 -->
               <td class="px-6 py-4">
-                <input type="checkbox" name="noticeCheck" value="${notice.notice_id}"
+                <input type="checkbox" name="noticeCheck" value="${notice.notice_seq}"
                   class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500">
               </td>
 
               <!-- 제목 -->
               <td class="px-6 py-4">
                 <div class="flex items-center gap-2">
-                  <c:if test="${notice.is_important}">
+                  <c:if test="${notice.notice_priority == 1}">
                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-600">
                       <i data-lucide="alert-circle" class="w-3 h-3 mr-1"></i>
                       중요
                     </span>
                   </c:if>
-                  <a href="javascript:void(0)" onclick="viewNotice(${notice.notice_id})"
+                  <a href="javascript:void(0)" onclick="viewNotice(${notice.notice_seq})"
                     class="text-sm font-bold text-gray-900 hover:text-primary-600 transition-colors">
                     ${notice.notice_title}
                   </a>
@@ -133,10 +133,10 @@
                 <div class="flex items-center gap-2">
                   <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
                     <span class="text-xs font-bold text-primary-600">
-                      ${fn:substring(notice.admin_name, 0, 1)}
+                      ${fn:substring(notice.admin_login_id, 0, 1)}
                     </span>
                   </div>
-                  <span class="text-sm text-gray-700">${notice.admin_name}</span>
+                  <span class="text-sm text-gray-700">${notice.admin_login_id}</span>
                 </div>
               </td>
 
@@ -153,8 +153,8 @@
               <!-- 상태 -->
               <td class="px-6 py-4 text-center">
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold
-                  ${notice.is_active ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}">
-                  ${notice.is_active ? '공개' : '비공개'}
+                  ${notice.active ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}">
+                  ${notice.active ? '공개' : '비공개'}
                 </span>
               </td>
 
@@ -167,13 +167,13 @@
               <td class="px-6 py-4">
                 <div class="flex items-center justify-center gap-1">
                   <button
-                    onclick="editNotice(${notice.notice_id})"
+                    onclick="editNotice(${notice.notice_seq})"
                     class="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-all"
                     title="수정">
                     <i data-lucide="edit-2" class="w-4 h-4"></i>
                   </button>
                   <button
-                    onclick="deleteNotice(${notice.notice_id})"
+                    onclick="deleteNotice(${notice.notice_seq})"
                     class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
                     title="삭제">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -243,8 +243,8 @@
   }
 
   // 공지사항 보기
-  function viewNotice(noticeId) {
-    window.location.href = '/admin/notices/view?noticeId=' + noticeId;
+  function viewNotice(notice_seq) {
+    window.location.href = '/admin/notices/view?notice_seq=' + notice_seq;
   }
 
   // 공지사항 생성
@@ -253,14 +253,14 @@
   }
 
   // 공지사항 수정
-  function editNotice(noticeId) {
-    window.location.href = '/admin/notices/edit?noticeId=' + noticeId;
+  function editNotice(notice_seq) {
+    window.location.href = '/admin/notices/edit?notice_seq=' + notice_seq;
   }
 
   // 공지사항 삭제
-  function deleteNotice(noticeId) {
+  function deleteNotice(notice_seq) {
     if (confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
-      fetch('/admin/notices/delete/' + noticeId, {
+      fetch('/admin/notices/delete/' + notice_seq, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'

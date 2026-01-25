@@ -2,6 +2,7 @@ package project.admin;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import project.admin.notice.NoticeVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
@@ -60,4 +61,12 @@ public interface AdminMapper {
     // [추가] 임시 페이지 관리 메서드
     void insertTempPage(TempPageVO vo);
     TempPageVO selectTempPage(@Param("seq") Long seq);
+
+    // 공지사항 추가
+    void insertNotice(NoticeVO noticeVO);
+    void increaseViewCount(@Param("notice_seq") Long notice_seq);
+    void deleteNotice(@Param("notice_seq") Long notice_seq);
+
+    List<NoticeVO> selectNotices();
+    NoticeVO selectNotice(@Param("notice_seq") Long notice_seq);
 }
