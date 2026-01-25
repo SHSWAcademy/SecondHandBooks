@@ -443,6 +443,57 @@ public class BookClubController {
     }
 
     /**
+     * 독서모임 탈퇴 (AJAX용)
+     * POST /bookclubs/{bookClubId}/leave
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. Service 레이어에서 비즈니스 로직 처리:
+     *    - 일반 멤버: join_st='LEFT' 업데이트
+     *    - 모임장: 자동 승계 또는 모임 종료
+     *
+     * @return JSON {success, message, leaderChanged?, newLeaderSeq?, clubClosed?, ctaStatus}
+     */
+    @PostMapping("/{bookClubId}/leave")
+    @ResponseBody
+    public Map<String, Object> leaveBookClub(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 탈퇴 시도: bookClubId={}", bookClubId);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null) {
+            log.warn("존재하지 않는 모임 탈퇴 시도: bookClubId={}", bookClubId);
+            return Map.of("success", false, "message", "존재하지 않거나 삭제된 모임입니다.");
+        }
+
+        // 3. Service 호출 (비즈니스 로직 위임)
+        try {
+            Map<String, Object> result = bookClubService.leaveBookClub(bookClubId, loginMemberSeq);
+
+            log.info("멤버 탈퇴 완료: bookClubId={}, memberSeq={}, result={}",
+                    bookClubId, loginMemberSeq, result);
+
+            return result;
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("멤버 탈퇴 실패: bookClubId={}, memberSeq={}, error={}",
+                    bookClubId, loginMemberSeq, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
      * 파일 저장 (설정된 uploadPath에 저장)
      */
     private String saveFile(MultipartFile file) throws IOException {

@@ -126,4 +126,26 @@ public interface BookClubMapper {
     // 게시글 삭제 (soft delete)
     int deleteBoardPost(@Param("bookClubSeq") Long bookClubSeq,
                         @Param("postId") Long postId);
+
+    // ===================================
+    // 멤버 탈퇴 관련
+    // ===================================
+
+    // 멤버 탈퇴 - join_st='LEFT' 업데이트
+    int updateMemberToLeft(@Param("bookClubSeq") Long bookClubSeq,
+                           @Param("memberSeq") Long memberSeq);
+
+    // 승계 대상 조회 (leader 제외 JOINED 멤버 중 가장 오래된 1명)
+    Long selectNextLeaderCandidate(@Param("bookClubSeq") Long bookClubSeq);
+
+    // 새 리더로 승계 (leader_yn=true)
+    int updateMemberToLeader(@Param("bookClubSeq") Long bookClubSeq,
+                             @Param("newLeaderSeq") Long newLeaderSeq);
+
+    // book_club 리더 변경
+    int updateBookClubLeader(@Param("bookClubSeq") Long bookClubSeq,
+                             @Param("newLeaderSeq") Long newLeaderSeq);
+
+    // 모임 종료 (soft delete)
+    int closeBookClub(@Param("bookClubSeq") Long bookClubSeq);
 }
