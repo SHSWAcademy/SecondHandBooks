@@ -9,12 +9,12 @@
 <div class="max-w-4xl mx-auto py-8">
     <!-- Page Title -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">판매글 등록</h1>
-        <p class="text-gray-600">책 정보와 판매 조건을 입력해주세요</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">판매글 수정</h1>
+        <p class="text-gray-600">수정할 내용을 입력해주세요</p>
     </div>
 
     <!-- Form -->
-    <form action="/trade" method="post" enctype="multipart/form-data" class="space-y-8">
+    <form action="/trade/modify/${trade.trade_seq}" method="post" enctype="multipart/form-data" class="space-y-8">
 
         <!-- 책 정보 섹션 -->
         <div class="bg-white rounded-lg border border-gray-200 p-6">
@@ -25,28 +25,33 @@
 
             <div class="space-y-4">
                 <div class="relative flex gap-2">
-                    <input type="text" id="bookSearch"
-                           placeholder="책 제목을 입력하세요"
-                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                    <button type="button" id="searchBtn"
-                            class="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-bold">
-                        검색
-                    </button>
+                            <input type="text" id="bookSearch"
+                             placeholder="책 제목을 입력하세요"
+                              class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                         <button type="button" id="searchBtn"
+                             class="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-bold">
+                             검색
+                         </button>
 
-                    <div id="searchResults" class="absolute left-0 z-50 w-full mt-12 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
+                         <div id="searchResults" class="absolute left-0 z-50 w-full mt-12 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
+                         </div>
                     </div>
+                    <p class="text-xs text-gray-500 mt-1">책 제목으로 검색하여 도서를 선택하세요</p>
+
+                    <!-- 검색 결과 드롭다운 -->
+                   <div id="searchResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-80 overflow-y-auto">
+                   </div>
                 </div>
 
-
                 <!-- 선택된 책 미리보기 -->
-                <div id="selectedBookPreview" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div id="selectedBookPreview" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div class="flex gap-4">
-                        <img id="previewImg" src="" alt="책 표지" class="w-20 h-28 object-cover rounded shadow" />
+                        <img id="previewImg" src="${trade.book_img}" alt="책 표지" class="w-20 h-28 object-cover rounded shadow" />
                         <div class="flex-1">
-                            <h3 id="previewTitle" class="font-bold text-gray-900"></h3>
-                            <p id="previewAuthor" class="text-sm text-gray-600"></p>
-                            <p id="previewPublisher" class="text-sm text-gray-500"></p>
-                            <p id="previewPrice" class="text-sm text-primary-600 font-bold mt-1"></p>
+                            <h3 id="previewTitle" class="font-bold text-gray-900">${trade.book_title}</h3>
+                            <p id="previewAuthor" class="text-sm text-gray-600">${trade.book_author}</p>
+                            <p id="previewPublisher" class="text-sm text-gray-500">${trade.book_publisher}</p>
+                            <p id="previewPrice" class="text-sm text-primary-600 font-bold mt-1">${trade.book_org_price > 0 ? '정가: '.concat(trade.book_org_price).concat('원') : ''}</p>
                         </div>
                         <button type="button" id="clearBookBtn" class="self-start text-gray-400 hover:text-red-500">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -55,12 +60,12 @@
                 </div>
 
                 <!-- Hidden inputs for form submission -->
-                <input type="hidden" id="isbn" name="isbn" required />
-                <input type="hidden" id="book_title" name="book_title" required />
-                <input type="hidden" id="book_author" name="book_author" required />
-                <input type="hidden" id="book_publisher" name="book_publisher" required />
-                <input type="hidden" id="book_org_price" name="book_org_price" />
-                <input type="hidden" id="book_img" name="book_img" required />
+                <input type="hidden" id="isbn" name="isbn" value="${trade.isbn}" required />
+                <input type="hidden" id="book_title" name="book_title" value="${trade.book_title}" required />
+                <input type="hidden" id="book_author" name="book_author" value="${trade.book_author}" required />
+                <input type="hidden" id="book_publisher" name="book_publisher" value="${trade.book_publisher}" required />
+                <input type="hidden" id="book_org_price" name="book_org_price" value="${trade.book_org_price}" />
+                <input type="hidden" id="book_img" name="book_img" value="${trade.book_img}" required />
             </div>
         </div>
 
@@ -78,6 +83,7 @@
                         판매글 제목 <span class="text-red-500">*</span>
                     </label>
                     <input type="text" id="sale_title" name="sale_title" required
+                           value="${trade.sale_title}"
                            placeholder="클린 코드 판매합니다 (거의 새책)"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                 </div>
@@ -85,23 +91,23 @@
                 <!-- 카테고리 -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">
-                        카테고리 <span class="text-red-500">*</span>
-                    </label>
+                           카테고리 <span class="text-red-500">*</span>
+                              </label>
 
-                    <select id="categorySelect" name="category_seq" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">카테고리 선택</option>
+                              <select id="categorySelect" name="category_seq" required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    <option value="">카테고리 선택</option>
 
-                        <c:forEach var="cat" items="${category}">
-                            <option value="${cat.category_seq}"
-                                    data-nm="${cat.category_nm}">
-                                ${cat.category_nm}
-                            </option>
-                        </c:forEach>
-                    </select>
-                    <!-- 카테고리 네임 히든으로 보내기 위에는 seq보냄 -->
-                    <input type="hidden" name="category_nm" id="category_nm">
-                </div>
+                                    <c:forEach var="cat" items="${category}">
+                                         <option value="${cat.category_seq}"
+                                               data-nm="${cat.category_nm}">
+                                             ${cat.category_nm}
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                    <!-- 카테고리 네임 히든으로 보내기 위에는 seq보냄 -->
+                           <input type="hidden" name="category_nm" id="category_nm">
+                        </div>
 
                 <!-- 판매가격 -->
                 <div>
@@ -109,6 +115,7 @@
                         판매가격 (원)
                     </label>
                     <input type="number" id="sale_price" name="sale_price"
+                           value="${trade.sale_price}"
                            placeholder="25000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                 </div>
@@ -119,6 +126,7 @@
                         배송비 (원)
                     </label>
                     <input type="number" id="delivery_cost" name="delivery_cost"
+                           value="${trade.delivery_cost}"
                            placeholder="3000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                     <p class="text-xs text-gray-500 mt-1">무료배송인 경우 0을 입력하세요</p>
@@ -132,10 +140,10 @@
                     <select id="book_st" name="book_st"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <option value="">선택하세요</option>
-                        <option value="NEW">새책</option>
-                        <option value="LIKE_NEW">거의 새책</option>
-                        <option value="GOOD">좋음</option>
-                        <option value="USED">사용됨</option>
+                        <option value="NEW" ${trade.book_st == 'NEW' ? 'selected' : ''}>새책</option>
+                        <option value="LIKE_NEW" ${trade.book_st == 'LIKE_NEW' ? 'selected' : ''}>거의 새책</option>
+                        <option value="GOOD" ${trade.book_st == 'GOOD' ? 'selected' : ''}>좋음</option>
+                        <option value="USED" ${trade.book_st == 'USED' ? 'selected' : ''}>사용됨</option>
                     </select>
                 </div>
 
@@ -147,8 +155,8 @@
                     <select id="payment_type" name="payment_type"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <option value="">선택하세요</option>
-                        <option value="account">계좌이체</option>
-                        <option value="tossPay">토스페이</option>
+                        <option value="account" ${trade.payment_type == 'account' ? 'selected' : ''}>계좌이체</option>
+                        <option value="tosspay" ${trade.payment_type == 'tosspay' ? 'selected' : ''}>토스페이</option>
                     </select>
                 </div>
 
@@ -159,6 +167,7 @@
                     </label>
                     <div class="flex">
                         <input type="text" id="sale_rg" name="sale_rg" readonly
+                               value="${trade.sale_rg}"
                                placeholder="주소 검색을 클릭하세요"
                                class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                         <button type="button" onclick="searchRG()"
@@ -175,7 +184,7 @@
                     </label>
                     <textarea id="sale_cont" name="sale_cont" required rows="6"
                               placeholder="책의 상태, 특이사항 등을 자세히 설명해주세요"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"></textarea>
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none">${trade.sale_cont}</textarea>
                 </div>
             </div>
         </div>
@@ -186,6 +195,21 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                 추가 이미지 (최대 3장 업로드 가능합니다.)
             </h2>
+
+            <!-- 기존 이미지 표시 -->
+            <c:if test="${not empty trade.imgUrls}">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">현재 등록된 이미지</p>
+                    <div class="flex gap-2 flex-wrap">
+                        <c:forEach var="img" items="${trade.imgUrls}">
+                            <div class="w-20 h-20 border border-gray-200 rounded overflow-hidden">
+                                <img src="/img/${img}" alt="상품 이미지" class="w-full h-full object-cover" />
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <p class="text-xs text-red-500 mt-2">* 새 이미지를 업로드하면 기존 이미지는 삭제됩니다.</p>
+                </div>
+            </c:if>
 
             <div class="space-y-3">
                 <input type="file" name="uploadFiles" accept="image/*" multiple
@@ -202,7 +226,7 @@
             </button>
             <button type="submit"
                     class="flex-1 px-6 py-4 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-bold shadow-sm">
-                등록하기
+                수정하기
             </button>
         </div>
     </form>
@@ -215,6 +239,7 @@ const searchBtn = document.getElementById('searchBtn');
 const searchResults = document.getElementById('searchResults');
 const selectedBookPreview = document.getElementById('selectedBookPreview');
 const clearBookBtn = document.getElementById('clearBookBtn');
+
 
 bindCategoryName('categorySelect', 'category_nm');
 // 카테고리 선택시 input타입의 카테고리 네임도 넣기
@@ -258,6 +283,7 @@ function limitFileUploadTo3(inputEl, msgEl) {
 const fileInput = document.querySelector('input[name="uploadFiles"]');
 const msg = document.getElementById('fileMsg');
 limitFileUploadTo3(fileInput, msg);
+
 
 
 // 검색 버튼 클릭
@@ -366,6 +392,13 @@ clearBookBtn.addEventListener('click', function() {
     document.getElementById('book_publisher').value = '';
     document.getElementById('book_org_price').value = '';
     document.getElementById('book_img').value = '';
+
+    document.getElementById('previewImg').src = '';
+    document.getElementById('previewTitle').textContent = '';
+    document.getElementById('previewAuthor').textContent = '';
+    document.getElementById('previewPublisher').textContent = '';
+    document.getElementById('previewPrice').textContent = '';
+
     selectedBookPreview.classList.add('hidden');
 });
 
@@ -385,12 +418,6 @@ function searchRG() {
         }
     }).open();
 }
-
-// 폼 제출 전 검증
-document.querySelector('form').addEventListener('submit', function(e) {
-    // 필수 필드 체크는 HTML5 required 속성으로 자동 처리됨
-});
-
-
 </script>
-<jsp:include page="../common/footer.jsp" />
+
+<jsp:include page="/WEB-INF/views/common/footer.jsp" />
