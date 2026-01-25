@@ -85,6 +85,7 @@ public interface BookClubMapper {
 
     // 관리 페이지 - WAIT 상태 가입 신청 목록 조회 (member_info 조인)
     List<project.bookclub.dto.BookClubJoinRequestDTO> selectPendingRequestsForManage(@Param("bookClubSeq") Long bookClubSeq);
+
     // 댓글 UPDATE
     int updateBoardComment(@Param("commentId") Long commentId,
             @Param("commentCont") String commentCont);
