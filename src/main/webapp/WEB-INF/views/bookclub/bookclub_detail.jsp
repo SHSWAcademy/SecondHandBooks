@@ -158,8 +158,10 @@
                                                                 <%-- 멤버인 경우: 탈퇴하기 버튼 --%>
                                                                     <c:when test="${ctaStatus == 'JOINED'}">
                                                                         <button type="button"
+                                                                            id="btnLeaveBookClub"
                                                                             class="bc-btn bc-btn-danger"
-                                                                            onclick="if(confirm('정말 모임을 나가시겠습니까?')) { alert('TODO: 모임 나가기 API 구현 예정'); }">
+                                                                            data-club-id="${bookClub.book_club_seq}"
+                                                                            data-is-leader="${isLeader}">
                                                                             탈퇴하기
                                                                         </button>
                                                                     </c:when>

@@ -673,4 +673,135 @@ public class BookClubService {
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }
+
+    // #5-7. 멤버 탈퇴 (모임장 탈퇴 시 승계 또는 모임 종료 포함)
+    /**
+     * 독서모임 멤버 탈퇴
+     *
+     * 검증 및 처리 순서:
+     * 1. 파라미터 null 체크
+     * 2. 멤버 조회 및 JOINED 상태 검증
+     * 3. 이미 LEFT/KICKED면 실패 처리
+     * 4-A. 일반 멤버 탈퇴: join_st='LEFT' 업데이트
+     * 4-B. 모임장 탈퇴:
+     *      - JOINED 멤버가 있으면 자동 승계 (가장 오래된 멤버)
+     *      - JOINED 멤버가 없으면 모임 종료 (soft delete)
+     *
+     * @param bookClubSeq 독서모임 ID
+     * @param memberSeq   탈퇴하려는 멤버 ID
+     * @return 탈퇴 결과 Map (success, message, leaderChanged, newLeaderSeq, clubClosed, ctaStatus)
+     * @throws IllegalArgumentException 파라미터가 null인 경우
+     * @throws IllegalStateException    비즈니스 규칙 위반 시
+     */
+    @Transactional
+    public java.util.Map<String, Object> leaveBookClub(Long bookClubSeq, Long memberSeq) {
+        // 1. 파라미터 검증
+        if (bookClubSeq == null || memberSeq == null) {
+            log.warn("멤버 탈퇴 실패: 잘못된 파라미터 - bookClubSeq={}, memberSeq={}",
+                    bookClubSeq, memberSeq);
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        // 2. 멤버 조회 및 상태 검증
+        project.bookclub.dto.BookClubManageMemberDTO member = bookClubMapper.selectMemberBySeq(bookClubSeq, memberSeq);
+        if (member == null) {
+            log.warn("멤버 탈퇴 실패: 존재하지 않는 멤버 - bookClubSeq={}, memberSeq={}",
+                    bookClubSeq, memberSeq);
+            throw new IllegalStateException("존재하지 않는 멤버입니다.");
+        }
+
+        // 3. JOINED 상태 검증 (이미 LEFT/KICKED면 실패)
+        if (!"JOINED".equals(member.getJoinSt())) {
+            log.warn("멤버 탈퇴 실패: JOINED 상태가 아님 - bookClubSeq={}, memberSeq={}, joinSt={}",
+                    bookClubSeq, memberSeq, member.getJoinSt());
+            throw new IllegalStateException("이미 탈퇴했거나 강퇴된 멤버입니다.");
+        }
+
+        // 4. 모임장 여부 판단
+        boolean isLeader = "Y".equals(member.getLeaderYn());
+
+        if (!isLeader) {
+            // 4-A. 일반 멤버 탈퇴
+            int updatedRows = bookClubMapper.updateMemberToLeft(bookClubSeq, memberSeq);
+            if (updatedRows == 0) {
+                log.warn("멤버 탈퇴 실패: 업데이트 대상 없음 - bookClubSeq={}, memberSeq={}",
+                        bookClubSeq, memberSeq);
+                throw new IllegalStateException("탈퇴 처리에 실패했습니다.");
+            }
+
+            log.info("일반 멤버 탈퇴 완료: bookClubSeq={}, memberSeq={}", bookClubSeq, memberSeq);
+
+            return java.util.Map.of(
+                    "success", true,
+                    "message", "탈퇴했습니다.",
+                    "ctaStatus", "NONE"
+            );
+        }
+
+        // 4-B. 모임장 탈퇴
+        // 승계 대상 조회 (leader 제외 JOINED 멤버 중 가장 오래된 1명)
+        Long newLeaderSeq = bookClubMapper.selectNextLeaderCandidate(bookClubSeq);
+
+        if (newLeaderSeq != null) {
+            // 승계 대상이 있음 → 자동 승계
+            // 1) 기존 모임장: leader_yn=false + join_st='LEFT'
+            int leaderLeftRows = bookClubMapper.updateMemberToLeft(bookClubSeq, memberSeq);
+            if (leaderLeftRows == 0) {
+                log.warn("모임장 탈퇴 실패: 기존 모임장 LEFT 업데이트 실패 - bookClubSeq={}, memberSeq={}",
+                        bookClubSeq, memberSeq);
+                throw new IllegalStateException("탈퇴 처리에 실패했습니다.");
+            }
+
+            // 2) 새 모임장: leader_yn=true
+            int newLeaderRows = bookClubMapper.updateMemberToLeader(bookClubSeq, newLeaderSeq);
+            if (newLeaderRows == 0) {
+                log.warn("모임장 승계 실패: 새 모임장 설정 실패 - bookClubSeq={}, newLeaderSeq={}",
+                        bookClubSeq, newLeaderSeq);
+                throw new IllegalStateException("모임장 승계에 실패했습니다.");
+            }
+
+            // 3) book_club.book_club_leader_seq 변경
+            int clubUpdateRows = bookClubMapper.updateBookClubLeader(bookClubSeq, newLeaderSeq);
+            if (clubUpdateRows == 0) {
+                log.warn("모임장 승계 실패: book_club 리더 변경 실패 - bookClubSeq={}, newLeaderSeq={}",
+                        bookClubSeq, newLeaderSeq);
+                throw new IllegalStateException("모임장 승계에 실패했습니다.");
+            }
+
+            log.info("모임장 탈퇴 + 승계 완료: bookClubSeq={}, oldLeaderSeq={}, newLeaderSeq={}",
+                    bookClubSeq, memberSeq, newLeaderSeq);
+
+            return java.util.Map.of(
+                    "success", true,
+                    "message", "탈퇴했고 모임장이 승계되었습니다.",
+                    "leaderChanged", true,
+                    "newLeaderSeq", newLeaderSeq,
+                    "ctaStatus", "NONE"
+            );
+        } else {
+            // 승계 대상이 없음 → 모임 종료
+            // 1) 모임장 LEFT 처리
+            int leaderLeftRows = bookClubMapper.updateMemberToLeft(bookClubSeq, memberSeq);
+            if (leaderLeftRows == 0) {
+                log.warn("모임장 탈퇴 실패: 기존 모임장 LEFT 업데이트 실패 - bookClubSeq={}, memberSeq={}",
+                        bookClubSeq, memberSeq);
+                throw new IllegalStateException("탈퇴 처리에 실패했습니다.");
+            }
+
+            // 2) 모임 종료 (soft delete)
+            int closeRows = bookClubMapper.closeBookClub(bookClubSeq);
+            if (closeRows == 0) {
+                log.warn("모임 종료 실패: book_club 삭제 실패 - bookClubSeq={}", bookClubSeq);
+                throw new IllegalStateException("모임 종료에 실패했습니다.");
+            }
+
+            log.info("모임장 탈퇴 + 모임 종료 완료: bookClubSeq={}, memberSeq={}", bookClubSeq, memberSeq);
+
+            return java.util.Map.of(
+                    "success", true,
+                    "message", "모임이 종료되었습니다.",
+                    "clubClosed", true
+            );
+        }
+    }
 }
