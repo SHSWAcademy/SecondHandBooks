@@ -642,4 +642,20 @@
           AND book_club_deleted_dt IS NULL
     </update>
 
+    <!-- 내 멤버 상태 조회 (요구사항 SQL #1) -->
+    <select id="selectMyMemberStatus" resultType="java.util.HashMap">
+        SELECT leader_yn, join_st
+        FROM book_club_member
+        WHERE book_club_seq=#{bookClubSeq} AND member_seq=#{memberSeq}
+    </select>
+
+    <!-- book_club 행 잠금 (동시성 제어) -->
+    <select id="lockBookClubForUpdate" resultType="java.lang.Long">
+        SELECT book_club_seq
+        FROM book_club
+        WHERE book_club_seq = #{bookClubSeq}
+          AND book_club_deleted_dt IS NULL
+        FOR UPDATE
+    </select>
+
 </mapper>

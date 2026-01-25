@@ -28,6 +28,7 @@ import project.member.MemberVO;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/bookclubs")
+
 public class BookClubManageController {
 
     private final BookClubService bookClubService;
