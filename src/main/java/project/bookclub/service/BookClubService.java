@@ -219,6 +219,23 @@ public class BookClubService {
         return boardVO.getBook_club_board_seq();
     }
 
+    // #3-7. 게시글(원글) 수정
+    @Transactional
+    public boolean updateBoardPost(BookClubBoardVO boardVO) {
+        int result = bookClubMapper.updateBoardPost(boardVO);
+        return result > 0;
+    }
+
+    // #3-8. 게시글(원글) 삭제 (soft delete)
+    @Transactional
+    public boolean deleteBoardPost(Long bookClubSeq, Long postId) {
+        if (bookClubSeq == null || postId == null) {
+            return false;
+        }
+        int result = bookClubMapper.deleteBoardPost(bookClubSeq, postId);
+        return result > 0;
+    }
+
     /*
      * #4. 독서모임 생성
      */

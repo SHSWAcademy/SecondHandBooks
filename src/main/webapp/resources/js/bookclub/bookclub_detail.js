@@ -99,4 +99,83 @@
             switchTab(tabName);
         });
     });
+
+    /**
+     * 가입 신청 모달
+     */
+    (function initApplyModal() {
+        var btnOpen = document.getElementById('btnOpenApplyModal');
+        var modal = document.getElementById('applyModal');
+
+        if (!btnOpen || !modal) {
+            return;
+        }
+
+        var overlay = modal.querySelector('.bc-apply-modal-overlay');
+        var btnCancel = document.getElementById('btnCancelApply');
+        var btnSubmit = document.getElementById('btnSubmitApply');
+        var reasonInput = document.getElementById('applyReasonInput');
+
+        function openModal() {
+            modal.classList.add('bc-apply-modal-active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('bc-apply-modal-active');
+            document.body.style.overflow = '';
+            reasonInput.value = '';
+        }
+
+        btnOpen.addEventListener('click', openModal);
+        btnCancel.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && modal.classList.contains('bc-apply-modal-active')) {
+                closeModal();
+            }
+        });
+
+        btnSubmit.addEventListener('click', function () {
+            var reason = reasonInput.value.trim();
+
+            if (!reason) {
+                alert('지원 동기를 입력해주세요.');
+                reasonInput.focus();
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = '신청 중...';
+
+            var url = ctx + '/bookclubs/' + bookClubId + '/join';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(function (res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function () {
+                alert('가입 신청이 완료되었습니다.');
+                closeModal();
+                location.reload();
+            })
+            .catch(function (err) {
+                console.error('[bookclub_detail.js] 가입 신청 실패:', err);
+                alert('가입 신청에 실패했습니다. 잠시 후 다시 시도해주세요.');
+            })
+            .finally(function () {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = '가입 신청';
+            });
+        });
+    })();
 })();
