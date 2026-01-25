@@ -60,10 +60,10 @@
 
                     <!-- 공개 상태 -->
                     <div>
-                        <label for="is_active" class="block text-sm font-bold text-gray-700 mb-2">
+                        <label for="active" class="block text-sm font-bold text-gray-700 mb-2">
                             공개 상태 <span class="text-red-500">*</span>
                         </label>
-                        <select id="is_active" name="is_active" required
+                        <select id="active" name="active" required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                             <option value="true" selected>공개</option>
                             <option value="false">비공개</option>
@@ -89,8 +89,8 @@
                     <label for="notice_cont" class="block text-sm font-bold text-gray-700 mb-2">
                         내용 <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="notice_content" name="notice_content" required rows="15"
-                              placeholder="공지사항 내용을 작성해주세요.&#10;&#10;마크다운 문법을 지원합니다:&#10;- **굵게**: **텍스트**&#10;- _기울임_: _텍스트_&#10;- 목록: - 항목&#10;- 링크: [텍스트](URL)"
+                    <textarea id="notice_cont" name="notice_cont" required rows="15"
+                              placeholder="공지사항 내용을 작성해주세요."
                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none font-mono text-sm"></textarea>
                     <div class="flex items-center justify-between mt-2">
                         <p class="text-xs text-gray-500">작성하신 내용은 회원들에게 바로 노출됩니다.</p>
@@ -124,36 +124,9 @@
             </div>
         </div>
 
-        <!-- 미리보기 섹션 (선택사항) -->
-        <div class="bg-gray-50 rounded-lg border border-gray-200 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                    미리보기
-                </h2>
-                <button type="button" onclick="updatePreview()"
-                        class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                        <path d="M3 3v5h5"/>
-                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
-                        <path d="M16 16h5v5"/>
-                    </svg>
-                    새로고침
-                </button>
-            </div>
-
-            <div id="preview" class="bg-white rounded-lg border border-gray-200 p-6 min-h-[200px]">
-                <p class="text-gray-400 text-center py-8">미리보기 내용이 여기에 표시됩니다</p>
-            </div>
-        </div>
-
         <!-- 제출 버튼 -->
         <div class="flex gap-3 sticky bottom-4 bg-white p-4 rounded-lg border border-gray-200 shadow-lg">
-            <button type="button" onclick="showView('notice')"
+            <button type="button" onclick="switchView('notice')"
                     class="flex-1 px-6 py-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-bold">
                 취소
             </button>
@@ -171,7 +144,7 @@
 
 <script>
 // 글자 수 카운터
-const contentTextarea = document.getElementById('notice_content');
+const contentTextarea = document.getElementById('notice_cont');
 const charCount = document.getElementById('charCount');
 
 contentTextarea.addEventListener('input', function() {
@@ -185,53 +158,10 @@ contentTextarea.addEventListener('input', function() {
     }
 });
 
-// 텍스트 삽입 헬퍼 (마크다운 스타일)
-function insertText(before, after) {
-    const textarea = document.getElementById('notice_content');
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    const replacement = before + (selectedText || '텍스트') + after;
 
-    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
-    textarea.focus();
-    textarea.selectionStart = start + before.length;
-    textarea.selectionEnd = start + before.length + (selectedText || '텍스트').length;
 
-    // 글자 수 업데이트
-    contentTextarea.dispatchEvent(new Event('input'));
-}
 
-// 목록 삽입
-function insertList() {
-    const textarea = document.getElementById('notice_content');
-    const start = textarea.selectionStart;
-    const listItem = '\n- 항목 1\n- 항목 2\n- 항목 3';
 
-    textarea.value = textarea.value.substring(0, start) + listItem + textarea.value.substring(start);
-    textarea.focus();
-    textarea.selectionStart = start + 3;
-
-    contentTextarea.dispatchEvent(new Event('input'));
-}
-
-// 링크 삽입
-function insertLink() {
-    const url = prompt('링크 URL을 입력하세요:');
-    if (url) {
-        const text = prompt('링크 텍스트를 입력하세요:', '링크');
-        if (text) {
-            const textarea = document.getElementById('notice_content');
-            const start = textarea.selectionStart;
-            const link = '[' + text + '](' + url + ')';
-
-            textarea.value = textarea.value.substring(0, start) + link + textarea.value.substring(start);
-            textarea.focus();
-
-            contentTextarea.dispatchEvent(new Event('input'));
-        }
-    }
-}
 
 // 파일 업로드 제한 및 미리보기
 const fileInput = document.querySelector('input[name="attachments"]');
@@ -321,61 +251,15 @@ fileInput.addEventListener('change', function() {
     }
 });
 
-// 미리보기 업데이트
-function updatePreview() {
-    const title = document.getElementById('notice_title').value;
-    const content = document.getElementById('notice_content').value;
-    const isImportant = document.getElementById('is_important').checked;
-    const preview = document.getElementById('preview');
 
-    if (!title && !content) {
-        preview.innerHTML = '<p class="text-gray-400 text-center py-8">미리보기 내용이 여기에 표시됩니다</p>';
-        return;
-    }
-
-    let html = '';
-
-    if (title) {
-        html += '<div class="mb-4">';
-        if (isImportant) {
-            html += '<span class="inline-flex items-center px-2 py-1 rounded text-xs font-bold bg-red-50 text-red-600 mb-2">';
-            html += '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>';
-            html += '중요</span><br>';
-        }
-        html += '<h1 class="text-2xl font-bold text-gray-900">' + escapeHtml(title) + '</h1>';
-        html += '</div>';
-    }
-
-    if (content) {
-        // 간단한 마크다운 파싱 (실제로는 마크다운 라이브러리 사용 권장)
-        let processedContent = escapeHtml(content);
-        processedContent = processedContent
-            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            .replace(/_(.+?)_/g, '<em>$1</em>')
-            .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-primary-600 underline">$1</a>')
-            .replace(/^- (.+)$/gm, '<li>$1</li>')
-            .replace(/\n/g, '<br>');
-
-        html += '<div class="prose max-w-none text-gray-700">' + processedContent + '</div>';
-    }
-
-    preview.innerHTML = html;
-}
-
-// HTML 이스케이프
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 // 임시저장 기능
 function saveDraft() {
     const formData = {
         notice_title: document.getElementById('notice_title').value,
-        notice_content: document.getElementById('notice_content').value,
+        notice_cont: document.getElementById('notice_cont').value,
         is_important: document.getElementById('is_important').checked,
-        is_active: document.getElementById('is_active').value
+        active: document.getElementById('active').value
     };
 
     // localStorage에 저장
@@ -391,9 +275,9 @@ window.addEventListener('DOMContentLoaded', function() {
         if (confirm) {
             const data = JSON.parse(draft);
             document.getElementById('notice_title').value = data.notice_title || '';
-            document.getElementById('notice_content').value = data.notice_content || '';
+            document.getElementById('notice_cont').value = data.notice_content || '';
             document.getElementById('is_important').checked = data.is_important || false;
-            document.getElementById('is_active').value = data.is_active || 'true';
+            document.getElementById('active').value = data.active || 'true';
 
             // 글자 수 업데이트
             contentTextarea.dispatchEvent(new Event('input'));
@@ -407,7 +291,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
 
     // 필수 필드 검증
     const title = document.getElementById('notice_title').value.trim();
-    const content = document.getElementById('notice_content').value.trim();
+    const content = document.getElementById('notice_cont').value.trim();
 
     if (!title || !content) {
         e.preventDefault();
@@ -434,7 +318,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
             localStorage.removeItem('notice_draft');
 
             // 목록 탭으로 돌아가기
-            showView('notice', null);
+            switchView('notice', null);
 
             // 목록 새로고침 (선택사항)
             loadNoticeList();
