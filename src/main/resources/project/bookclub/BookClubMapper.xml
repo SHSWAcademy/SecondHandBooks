@@ -326,6 +326,38 @@
         )
     </insert>
 
+    <!-- 댓글 UPDATE -->
+    <update id="updateBoardComment">
+        UPDATE book_club_board
+        SET board_cont = #{commentCont}
+        WHERE book_club_board_seq = #{commentId}
+          AND parent_book_club_board_seq IS NOT NULL
+          AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+    </update>
+
+    <!-- 댓글 DELETE (soft delete) -->
+    <update id="deleteBoardComment">
+        UPDATE book_club_board
+        SET board_deleted_yn = true
+        WHERE book_club_board_seq = #{commentId}
+          AND parent_book_club_board_seq IS NOT NULL
+    </update>
+
+    <!-- 댓글 단건 조회 (권한 확인용) -->
+    <select id="selectBoardCommentById" resultType="project.bookclub.vo.BookClubBoardVO">
+        SELECT
+            book_club_board_seq,
+            book_club_seq,
+            parent_book_club_board_seq,
+            member_seq,
+            board_cont,
+            board_deleted_yn
+        FROM book_club_board
+        WHERE book_club_board_seq = #{commentId}
+          AND parent_book_club_board_seq IS NOT NULL
+          AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+    </select>
+
     <!-- 게시글(원글) INSERT -->
     <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
         INSERT INTO book_club_board (

@@ -349,6 +349,100 @@ public class BookClubController {
     }
 
     /**
+     * 댓글 수정
+     * POST /bookclubs/{bookClubId}/posts/{postId}/comments/{commentId}/edit
+     * - 로그인 필수
+     * - 댓글 작성자만 수정 가능
+     */
+    @PostMapping("/{bookClubId}/posts/{postId}/comments/{commentId}/edit")
+    public String updateComment(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("postId") Long postId,
+            @PathVariable("commentId") Long commentId,
+            @RequestParam("commentCont") String commentCont,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String redirectUrl = "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "#comments";
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return "redirect:/login";
+        }
+        Long memberSeq = loginMember.getMember_seq();
+
+        // 2. 댓글 조회 및 권한 확인
+        var comment = bookClubService.getBoardCommentById(commentId);
+        if (comment == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 댓글입니다.");
+            return redirectUrl;
+        }
+
+        // 작성자만 수정 가능
+        if (!comment.getMember_seq().equals(memberSeq)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "본인이 작성한 댓글만 수정할 수 있습니다.");
+            return redirectUrl;
+        }
+
+        // 3. 댓글 내용 검증
+        if (commentCont == null || commentCont.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "댓글 내용을 입력해주세요.");
+            return redirectUrl;
+        }
+
+        // 4. 댓글 UPDATE
+        bookClubService.updateBoardComment(commentId, commentCont);
+
+        return redirectUrl;
+    }
+
+    /**
+     * 댓글 삭제
+     * POST /bookclubs/{bookClubId}/posts/{postId}/comments/{commentId}/delete
+     * - 로그인 필수
+     * - 댓글 작성자 또는 모임장만 삭제 가능
+     */
+    @PostMapping("/{bookClubId}/posts/{postId}/comments/{commentId}/delete")
+    public String deleteComment(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("postId") Long postId,
+            @PathVariable("commentId") Long commentId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        String redirectUrl = "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "#comments";
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return "redirect:/login";
+        }
+        Long memberSeq = loginMember.getMember_seq();
+
+        // 2. 댓글 조회
+        var comment = bookClubService.getBoardCommentById(commentId);
+        if (comment == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 댓글입니다.");
+            return redirectUrl;
+        }
+
+        // 3. 권한 확인 (작성자 또는 모임장)
+        boolean isAuthor = comment.getMember_seq().equals(memberSeq);
+        boolean isLeader = bookClubService.isLeader(bookClubId, memberSeq);
+
+        if (!isAuthor && !isLeader) {
+            redirectAttributes.addFlashAttribute("errorMessage", "댓글을 삭제할 권한이 없습니다.");
+            return redirectUrl;
+        }
+
+        // 4. 댓글 DELETE (soft delete)
+        bookClubService.deleteBoardComment(commentId);
+
+        return redirectUrl;
+    }
+
+    /**
      * 독서모임 가입 신청 (승인형) - 개선판
      * POST /bookclubs/{bookClubId}/join-requests
      *

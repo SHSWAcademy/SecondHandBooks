@@ -74,6 +74,18 @@ public class BookClubService {
         return count > 0;
     }
 
+    // #2-2-1. 특정 멤버가 모임장인지 확인
+    public boolean isLeader(Long bookClubSeq, Long memberSeq) {
+        if (bookClubSeq == null || memberSeq == null) {
+            return false;
+        }
+        BookClubVO bookClub = bookClubMapper.selectById(bookClubSeq);
+        if (bookClub == null) {
+            return false;
+        }
+        return memberSeq.equals(bookClub.getBook_club_leader_seq());
+    }
+
     // #2-3. 독서모임의 전체 JOINED 멤버 수 조회
     public int getTotalJoinedMemberCount(Long bookClubSeq) {
         if (bookClubSeq == null) {
@@ -199,6 +211,34 @@ public class BookClubService {
     @Transactional
     public int createBoardComment(Long bookClubSeq, Long postId, Long memberSeq, String commentCont) {
         return bookClubMapper.insertBoardComment(bookClubSeq, postId, memberSeq, commentCont);
+    }
+
+    // #3-5-1. 댓글 단건 조회 (권한 확인용)
+    public BookClubBoardVO getBoardCommentById(Long commentId) {
+        if (commentId == null) {
+            return null;
+        }
+        return bookClubMapper.selectBoardCommentById(commentId);
+    }
+
+    // #3-5-2. 댓글 수정
+    @Transactional
+    public boolean updateBoardComment(Long commentId, String commentCont) {
+        if (commentId == null || commentCont == null || commentCont.isBlank()) {
+            return false;
+        }
+        int result = bookClubMapper.updateBoardComment(commentId, commentCont);
+        return result > 0;
+    }
+
+    // #3-5-3. 댓글 삭제 (soft delete)
+    @Transactional
+    public boolean deleteBoardComment(Long commentId) {
+        if (commentId == null) {
+            return false;
+        }
+        int result = bookClubMapper.deleteBoardComment(commentId);
+        return result > 0;
     }
 
     // #3-6. 게시글(원글) 작성
