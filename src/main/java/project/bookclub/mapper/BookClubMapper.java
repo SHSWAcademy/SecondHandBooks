@@ -119,8 +119,6 @@ public interface BookClubMapper {
     int countByLeaderAndNameExcludingSelf(@Param("leaderSeq") Long leaderSeq,
                                            @Param("name") String name,
                                            @Param("bookClubSeq") Long bookClubSeq);
-    // 게시글(원글) INSERT
-    void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
 
     // 게시글 수정
     int updateBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
@@ -128,7 +126,4 @@ public interface BookClubMapper {
     // 게시글 삭제 (soft delete)
     int deleteBoardPost(@Param("bookClubSeq") Long bookClubSeq,
             @Param("postId") Long postId);
-
-    List<BookClubVO> selectMyBookClubs(long member_seq); // 내 모임 조회 추가
-    List<BookClubVO> selectWishBookClubs(long member_seq);
 }
