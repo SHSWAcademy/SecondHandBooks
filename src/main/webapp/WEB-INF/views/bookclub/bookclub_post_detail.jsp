@@ -241,6 +241,108 @@
         margin: 0;
     }
 
+    .bc-comment-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    .bc-comment-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+    }
+
+    .bc-comment-edit-btn {
+        color: #718096;
+    }
+
+    .bc-comment-edit-btn:hover {
+        background: #edf2f7;
+        color: #4a5568;
+    }
+
+    .bc-comment-delete-btn {
+        color: #e53e3e;
+    }
+
+    .bc-comment-delete-btn:hover {
+        background: #fed7d7;
+    }
+
+    /* 댓글 수정 폼 */
+    .bc-comment-edit-form {
+        display: none;
+        margin-top: 0.5rem;
+    }
+
+    .bc-comment-edit-form.active {
+        display: block;
+    }
+
+    .bc-comment-edit-textarea {
+        width: 100%;
+        resize: none;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        font-family: inherit;
+        line-height: 1.5;
+        min-height: 60px;
+    }
+
+    .bc-comment-edit-textarea:focus {
+        outline: none;
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    }
+
+    .bc-comment-edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .bc-comment-edit-cancel-btn {
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        background: white;
+        color: #4a5568;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bc-comment-edit-cancel-btn:hover {
+        background: #f7fafc;
+    }
+
+    .bc-comment-edit-submit-btn {
+        padding: 0.375rem 0.75rem;
+        border: none;
+        border-radius: 0.375rem;
+        background: #4299e1;
+        color: white;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bc-comment-edit-submit-btn:hover {
+        background: #2b6cb0;
+    }
+
     .bc-error-message {
         max-width: 900px;
         margin: 2rem auto;
@@ -489,7 +591,7 @@
                             <!-- 댓글 목록 -->
                             <ul class="bc-comment-list">
                                 <c:forEach var="c" items="${comments}">
-                                    <li class="bc-comment-item">
+                                    <li class="bc-comment-item" data-comment-id="${c.book_club_board_seq}">
                                         <div class="bc-comment-header">
                                             <span class="bc-comment-author">${fn:escapeXml(c.member_nicknm)}</span>
                                             <span class="bc-comment-date">
@@ -502,8 +604,51 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                             </span>
+                                            <%-- 수정/삭제 버튼 (작성자 또는 모임장) --%>
+                                            <c:if test="${c.member_seq == loginMemberSeq or isLeader}">
+                                                <div class="bc-comment-actions">
+                                                    <%-- 수정 버튼: 작성자만 --%>
+                                                    <c:if test="${c.member_seq == loginMemberSeq}">
+                                                        <button type="button" class="bc-comment-action-btn bc-comment-edit-btn"
+                                                                onclick="toggleCommentEdit(${c.book_club_board_seq})"
+                                                                title="수정">
+                                                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                            </svg>
+                                                            수정
+                                                        </button>
+                                                    </c:if>
+                                                    <%-- 삭제 버튼: 작성자 + 모임장 --%>
+                                                    <button type="button" class="bc-comment-action-btn bc-comment-delete-btn"
+                                                            onclick="confirmDeleteComment(${c.book_club_board_seq})"
+                                                            title="삭제">
+                                                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </c:if>
                                         </div>
-                                        <p class="bc-comment-content">${fn:escapeXml(c.board_cont)}</p>
+                                        <p class="bc-comment-content" id="comment-content-${c.book_club_board_seq}">${fn:escapeXml(c.board_cont)}</p>
+
+                                        <%-- 수정 폼 (작성자만) --%>
+                                        <c:if test="${c.member_seq == loginMemberSeq}">
+                                            <div class="bc-comment-edit-form" id="comment-edit-form-${c.book_club_board_seq}">
+                                                <form action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments/${c.book_club_board_seq}/edit"
+                                                      method="post">
+                                                    <textarea name="commentCont" class="bc-comment-edit-textarea"
+                                                              required>${fn:escapeXml(c.board_cont)}</textarea>
+                                                    <div class="bc-comment-edit-actions">
+                                                        <button type="button" class="bc-comment-edit-cancel-btn"
+                                                                onclick="toggleCommentEdit(${c.book_club_board_seq})">취소</button>
+                                                        <button type="submit" class="bc-comment-edit-submit-btn">저장</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </c:if>
                                     </li>
                                 </c:forEach>
                             </ul>
@@ -543,6 +688,32 @@
     function confirmDeletePost() {
         if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
             document.getElementById('deletePostForm').submit();
+        }
+    }
+
+    // 댓글 수정 폼 토글
+    function toggleCommentEdit(commentId) {
+        var form = document.getElementById('comment-edit-form-' + commentId);
+        var content = document.getElementById('comment-content-' + commentId);
+
+        if (form.classList.contains('active')) {
+            form.classList.remove('active');
+            content.style.display = 'block';
+        } else {
+            form.classList.add('active');
+            content.style.display = 'none';
+        }
+    }
+
+    // 댓글 삭제 확인
+    function confirmDeleteComment(commentId) {
+        if (confirm('정말 이 댓글을 삭제하시겠습니까?')) {
+            // 동적으로 폼 생성하여 제출
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = '${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments/' + commentId + '/delete';
+            document.body.appendChild(form);
+            form.submit();
         }
     }
 </script>
