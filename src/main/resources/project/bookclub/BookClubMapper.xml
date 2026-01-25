@@ -531,33 +531,6 @@
         WHERE book_club_request_seq = #{requestSeq}
     </update>
 
-    <!-- 게시글(원글) INSERT -->
-    <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
-        INSERT INTO book_club_board (
-            book_club_seq,
-            member_seq,
-            board_title,
-            board_cont,
-            board_img_url,
-            isbn,
-            book_title,
-            book_author,
-            book_img_url,
-            board_deleted_yn
-        ) VALUES (
-            #{book_club_seq},
-            #{member_seq},
-            #{board_title},
-            #{board_cont},
-            #{board_img_url},
-            #{isbn},
-            #{book_title},
-            #{book_author},
-            #{book_img_url},
-            false
-        )
-    </insert>
-
     <!-- ===================================== -->
     <!-- 관리 페이지 - 멤버 강퇴 -->
     <!-- ===================================== -->
