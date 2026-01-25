@@ -20,7 +20,7 @@ public interface AdminMapper {
     int countAllBookClubs();
 
     // 검색 (리스트)
-    List<MemberVO> searchMembers(@Param("status") String status, @Param("keyword") String keyword);
+    List<MemberVO> searchMembers(@Param("status") String status, @Param("keyword") String keyword, @Param("searchType") String searchType);
     List<TradeVO> searchTrades(@Param("status") String status, @Param("keyword") String keyword);
     List<BookClubVO> searchBookClubs(@Param("keyword") String keyword);
 

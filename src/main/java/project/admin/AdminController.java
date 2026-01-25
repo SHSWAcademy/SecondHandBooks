@@ -64,8 +64,9 @@ public class AdminController {
     @GetMapping("/api/users")
     @ResponseBody
     public List<MemberVO> getUsers(@RequestParam(required = false) String status,
-                                   @RequestParam(required = false) String keyword) {
-        return adminService.searchMembers(status, keyword);
+                                   @RequestParam(required = false) String keyword,
+                                   @RequestParam(required = false) String searchType) {
+        return adminService.searchMembers(status, keyword, searchType);
     }
 
     // [API] 회원 액션

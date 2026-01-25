@@ -21,11 +21,21 @@
     <select id="searchMembers" resultType="project.member.MemberVO">
         SELECT * FROM MEMBER_INFO
         WHERE MEMBER_DELETED_DTM IS NULL
-        <if test="status != null and status != '' and status != 'ALL'">
+        <if test="status != null and status != '' and status != 'all' and status != 'ALL'">
             AND MEMBER_ST = #{status}::member_st_enum
         </if>
         <if test="keyword != null and keyword != ''">
-            AND (MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%') OR MEMBER_EMAIL LIKE CONCAT('%', #{keyword}, '%'))
+            <choose>
+                <when test="searchType == 'nickname'">
+                    AND MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'email'">
+                    AND MEMBER_EMAIL LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%') OR MEMBER_EMAIL LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
         </if>
         ORDER BY CRT_DTM DESC
         LIMIT 50
