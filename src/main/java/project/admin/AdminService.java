@@ -28,8 +28,8 @@ public class AdminService {
     public int countAllBookClubs() { return adminMapper.countAllBookClubs(); }
 
     // --- 검색 (API) ---
-    public List<MemberVO> searchMembers(String status, String keyword) {
-        return adminMapper.searchMembers(status, keyword);
+    public List<MemberVO> searchMembers(String status, String keyword, String searchType) {
+        return adminMapper.searchMembers(status, keyword, searchType);
     }
 
     public List<TradeVO> searchTrades(String status, String keyword) {
