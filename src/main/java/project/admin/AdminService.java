@@ -3,6 +3,7 @@ package project.admin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.admin.notice.NoticeVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
@@ -133,4 +134,26 @@ public class AdminService {
     public TempPageVO getTempPage(Long id) {
         return adminMapper.selectTempPage(id);
     }
+
+    // 공지사항 저장
+    public void insertNotice(NoticeVO noticeVO) {
+        adminMapper.insertNotice(noticeVO);
+    }
+
+    // 공지사항 목록 조회
+    public List<NoticeVO> selectNotices() {
+        return adminMapper.selectNotices();
+    }
+
+    public NoticeVO selectNotice(Long notice_seq) {
+        return adminMapper.selectNotice(notice_seq);
+    }
+    public void increaseViewCount(Long notice_seq) {
+        adminMapper.increaseViewCount(notice_seq);
+    }
+
+    public void deleteNotice(Long notice_seq) {
+        adminMapper.deleteNotice(notice_seq);
+    }
+
 }
