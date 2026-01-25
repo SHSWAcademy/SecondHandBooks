@@ -589,4 +589,57 @@
           AND book_club_deleted_dt IS NULL
     </select>
 
+    <!-- ===================================== -->
+    <!-- 멤버 탈퇴 관련 -->
+    <!-- ===================================== -->
+
+    <!-- 멤버 탈퇴 - join_st='LEFT' 업데이트 -->
+    <update id="updateMemberToLeft">
+        UPDATE book_club_member
+        SET join_st = 'LEFT'::join_st_enum,
+            join_st_update_dtm = CURRENT_TIMESTAMP,
+            leader_yn = false
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+          AND join_st = 'JOINED'
+    </update>
+
+    <!-- 승계 대상 조회 (leader 제외 JOINED 멤버 중 가장 오래된 1명) -->
+    <select id="selectNextLeaderCandidate" resultType="java.lang.Long">
+        SELECT member_seq
+        FROM book_club_member
+        WHERE book_club_seq = #{bookClubSeq}
+          AND join_st = 'JOINED'
+          AND leader_yn = false
+        ORDER BY join_st_update_dtm ASC NULLS LAST
+        LIMIT 1
+    </select>
+
+    <!-- 새 리더로 승계 (leader_yn=true) -->
+    <update id="updateMemberToLeader">
+        UPDATE book_club_member
+        SET leader_yn = true
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{newLeaderSeq}
+          AND join_st = 'JOINED'
+    </update>
+
+    <!-- book_club 리더 변경 -->
+    <update id="updateBookClubLeader">
+        UPDATE book_club
+        SET book_club_leader_seq = #{newLeaderSeq},
+            upd_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{bookClubSeq}
+          AND book_club_deleted_dt IS NULL
+    </update>
+
+    <!-- 모임 종료 (soft delete) -->
+    <update id="closeBookClub">
+        UPDATE book_club
+        SET book_club_deleted_dt = CURRENT_DATE,
+            upd_dtm = CURRENT_TIMESTAMP
+        WHERE book_club_seq = #{bookClubSeq}
+          AND book_club_deleted_dt IS NULL
+    </update>
+
 </mapper>

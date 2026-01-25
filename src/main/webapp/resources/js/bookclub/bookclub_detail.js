@@ -101,6 +101,70 @@
     });
 
     /**
+     * 탈퇴하기 버튼 이벤트
+     */
+    (function initLeaveButton() {
+        var btnLeave = document.getElementById('btnLeaveBookClub');
+        if (!btnLeave) {
+            return;
+        }
+
+        var clubId = btnLeave.dataset.clubId;
+        var isLeader = btnLeave.dataset.isLeader === 'true';
+
+        btnLeave.addEventListener('click', function () {
+            // 모임장 탈퇴 시 추가 경고
+            var confirmMsg = isLeader
+                ? '모임장이 탈퇴하면 다른 멤버에게 모임장이 자동 승계됩니다.\n멤버가 없으면 모임이 종료됩니다.\n\n정말 탈퇴하시겠습니까?'
+                : '정말 모임을 나가시겠습니까?';
+
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            btnLeave.disabled = true;
+            btnLeave.textContent = '처리 중...';
+
+            var url = ctx + '/bookclubs/' + clubId + '/leave';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(function (res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function (result) {
+                if (result.success) {
+                    alert(result.message);
+
+                    // 모임 종료된 경우 목록으로 이동
+                    if (result.clubClosed) {
+                        window.location.href = ctx + '/bookclubs';
+                    } else {
+                        // 일반 탈퇴 또는 승계: 페이지 새로고침
+                        window.location.reload();
+                    }
+                } else {
+                    alert(result.message || '탈퇴 처리에 실패했습니다.');
+                    btnLeave.disabled = false;
+                    btnLeave.textContent = '탈퇴하기';
+                }
+            })
+            .catch(function (err) {
+                console.error('[bookclub_detail.js] 탈퇴 요청 실패:', err);
+                alert('탈퇴 처리 중 오류가 발생했습니다.');
+                btnLeave.disabled = false;
+                btnLeave.textContent = '탈퇴하기';
+            });
+        });
+    })();
+
+    /**
      * 가입 신청 모달
      */
     (function initApplyModal() {
