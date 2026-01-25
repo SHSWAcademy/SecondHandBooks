@@ -48,18 +48,6 @@ public interface BookClubMapper {
     // 독서모임의 찜 개수 조회
     int selectWishCount(@Param("bookClubSeq") Long bookClubSeq);
 
-    // 특정 멤버의 찜 여부 확인
-    int selectWishExists(@Param("bookClubSeq") Long bookClubSeq,
-            @Param("memberSeq") Long memberSeq);
-
-    // 찜하기 추가
-    int insertWish(@Param("bookClubSeq") Long bookClubSeq,
-            @Param("memberSeq") Long memberSeq);
-
-    // 찜하기 취소
-    int deleteWish(@Param("bookClubSeq") Long bookClubSeq,
-            @Param("memberSeq") Long memberSeq);
-
     // 게시판 관련
     // 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인)
     List<project.bookclub.vo.BookClubBoardVO> selectRecentRootBoardsByClub(@Param("bookClubSeq") Long bookClubSeq);
@@ -81,16 +69,26 @@ public interface BookClubMapper {
                            @Param("memberSeq") Long memberSeq,
                            @Param("commentCont") String commentCont);
 
+    // 댓글 UPDATE
+    int updateBoardComment(@Param("commentId") Long commentId,
+                           @Param("commentCont") String commentCont);
+
+    // 댓글 DELETE (soft delete)
+    int deleteBoardComment(@Param("commentId") Long commentId);
+
+    // 댓글 단건 조회 (권한 확인용)
+    project.bookclub.vo.BookClubBoardVO selectBoardCommentById(@Param("commentId") Long commentId);
+
+    // 게시글(원글) INSERT
+    void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
+
     // 게시글 수정
     int updateBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
 
     // 게시글 삭제 (soft delete)
     int deleteBoardPost(@Param("bookClubSeq") Long bookClubSeq,
-            @Param("postId") Long postId);
+                        @Param("postId") Long postId);
 
     List<BookClubVO> selectMyBookClubs(long member_seq); // 내 모임 조회 추가
     List<BookClubVO> selectWishBookClubs(long member_seq);
-
-    // 게시글(원글) INSERT
-    void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
 }
