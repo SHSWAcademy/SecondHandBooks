@@ -231,6 +231,34 @@
         WHERE book_club_seq = #{bookClubSeq}
     </select>
 
+    <!-- 특정 멤버의 찜 여부 확인 -->
+    <select id="selectWishExists" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_wish
+        WHERE book_club_seq = #{bookClubSeq}
+        AND member_seq = #{memberSeq}
+    </select>
+
+    <!-- 찜하기 추가 -->
+    <insert id="insertWish">
+        INSERT INTO book_club_wish (
+        book_club_seq,
+        member_seq,
+        crt_dtm
+        ) VALUES (
+        #{bookClubSeq},
+        #{memberSeq},
+        NOW()
+        )
+    </insert>
+
+    <!-- 찜하기 취소 -->
+    <delete id="deleteWish">
+        DELETE FROM book_club_wish
+        WHERE book_club_seq = #{bookClubSeq}
+        AND member_seq = #{memberSeq}
+    </delete>
+
     <!-- ===================================== -->
     <!-- 게시판 관련 -->
     <!-- ===================================== -->
@@ -260,7 +288,8 @@
         FROM book_club_board c
         WHERE c.parent_book_club_board_seq = bcb.book_club_board_seq
         AND (c.board_deleted_yn IS NULL OR c.board_deleted_yn = false)
-        ) AS comment_count
+        ) AS comment_count,
+        (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -289,7 +318,8 @@
         bcb.crt_dtm AS board_crt_dtm,
         bcb.upd_dtm AS board_upd_dtm,
         to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-        m.member_nicknm
+        m.member_nicknm,
+        (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -316,7 +346,8 @@
         bcb.crt_dtm AS board_crt_dtm,
         bcb.upd_dtm AS board_upd_dtm,
         to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-        m.member_nicknm
+        m.member_nicknm,
+        (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -357,8 +388,8 @@
         UPDATE book_club_board
         SET board_cont = #{commentCont}
         WHERE book_club_board_seq = #{commentId}
-          AND parent_book_club_board_seq IS NOT NULL
-          AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+        AND parent_book_club_board_seq IS NOT NULL
+        AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
     </update>
 
     <!-- 댓글 DELETE (soft delete) -->
@@ -366,22 +397,22 @@
         UPDATE book_club_board
         SET board_deleted_yn = true
         WHERE book_club_board_seq = #{commentId}
-          AND parent_book_club_board_seq IS NOT NULL
+        AND parent_book_club_board_seq IS NOT NULL
     </update>
 
     <!-- 댓글 단건 조회 (권한 확인용) -->
     <select id="selectBoardCommentById" resultType="project.bookclub.vo.BookClubBoardVO">
         SELECT
-            book_club_board_seq,
-            book_club_seq,
-            parent_book_club_board_seq,
-            member_seq,
-            board_cont,
-            board_deleted_yn
+        book_club_board_seq,
+        book_club_seq,
+        parent_book_club_board_seq,
+        member_seq,
+        board_cont,
+        board_deleted_yn
         FROM book_club_board
         WHERE book_club_board_seq = #{commentId}
-          AND parent_book_club_board_seq IS NOT NULL
-          AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+        AND parent_book_club_board_seq IS NOT NULL
+        AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
     </select>
 
     <!-- 게시글(원글) INSERT -->
@@ -629,11 +660,11 @@
     <update id="updateMemberToLeft">
         UPDATE book_club_member
         SET join_st = 'LEFT'::join_st_enum,
-            join_st_update_dtm = CURRENT_TIMESTAMP,
-            leader_yn = false
+        join_st_update_dtm = CURRENT_TIMESTAMP,
+        leader_yn = false
         WHERE book_club_seq = #{bookClubSeq}
-          AND member_seq = #{memberSeq}
-          AND join_st = 'JOINED'
+        AND member_seq = #{memberSeq}
+        AND join_st = 'JOINED'
     </update>
 
     <!-- 승계 대상 조회 (leader 제외 JOINED 멤버 중 가장 오래된 1명) -->
@@ -641,8 +672,8 @@
         SELECT member_seq
         FROM book_club_member
         WHERE book_club_seq = #{bookClubSeq}
-          AND join_st = 'JOINED'
-          AND leader_yn = false
+        AND join_st = 'JOINED'
+        AND leader_yn = false
         ORDER BY join_st_update_dtm ASC NULLS LAST
         LIMIT 1
     </select>
@@ -652,26 +683,26 @@
         UPDATE book_club_member
         SET leader_yn = true
         WHERE book_club_seq = #{bookClubSeq}
-          AND member_seq = #{newLeaderSeq}
-          AND join_st = 'JOINED'
+        AND member_seq = #{newLeaderSeq}
+        AND join_st = 'JOINED'
     </update>
 
     <!-- book_club 리더 변경 -->
     <update id="updateBookClubLeader">
         UPDATE book_club
         SET book_club_leader_seq = #{newLeaderSeq},
-            upd_dtm = CURRENT_TIMESTAMP
+        upd_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
-          AND book_club_deleted_dt IS NULL
+        AND book_club_deleted_dt IS NULL
     </update>
 
     <!-- 모임 종료 (soft delete) -->
     <update id="closeBookClub">
         UPDATE book_club
         SET book_club_deleted_dt = CURRENT_DATE,
-            upd_dtm = CURRENT_TIMESTAMP
+        upd_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
-          AND book_club_deleted_dt IS NULL
+        AND book_club_deleted_dt IS NULL
     </update>
 
     <!-- 내 멤버 상태 조회 (요구사항 SQL #1) -->
@@ -686,8 +717,47 @@
         SELECT book_club_seq
         FROM book_club
         WHERE book_club_seq = #{bookClubSeq}
-          AND book_club_deleted_dt IS NULL
+        AND book_club_deleted_dt IS NULL
         FOR UPDATE
     </select>
+
+    <!-- ===================================== -->
+    <!-- 게시글/댓글 좋아요 관련 -->
+    <!-- ===================================== -->
+
+    <!-- 게시글/댓글의 좋아요 개수 조회 -->
+    <select id="selectBoardLikeCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_board_like
+        WHERE book_club_board_seq = #{boardSeq}
+    </select>
+
+    <!-- 특정 멤버의 좋아요 여부 확인 -->
+    <select id="selectBoardLikeExists" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_board_like
+        WHERE book_club_board_seq = #{boardSeq}
+        AND member_seq = #{memberSeq}
+    </select>
+
+    <!-- 좋아요 추가 -->
+    <insert id="insertBoardLike">
+        INSERT INTO book_club_board_like (
+        book_club_board_seq,
+        member_seq,
+        crt_dtm
+        ) VALUES (
+        #{boardSeq},
+        #{memberSeq},
+        CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- 좋아요 취소 -->
+    <delete id="deleteBoardLike">
+        DELETE FROM book_club_board_like
+        WHERE book_club_board_seq = #{boardSeq}
+        AND member_seq = #{memberSeq}
+    </delete>
 
 </mapper>

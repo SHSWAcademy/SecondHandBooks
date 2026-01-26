@@ -821,4 +821,43 @@ public class BookClubService {
             );
         }
     }
+
+    /*
+     * #6. 게시글/댓글 좋아요
+     */
+    // #6-1. 좋아요 개수 조회
+    public int getBoardLikeCount(Long boardSeq) {
+        if (boardSeq == null) {
+            return 0;
+        }
+        return bookClubMapper.selectBoardLikeCount(boardSeq);
+    }
+
+    // #6-2. 특정 멤버의 좋아요 여부 확인
+    public boolean isBoardLiked(Long boardSeq, Long memberSeq) {
+        if (boardSeq == null || memberSeq == null) {
+            return false;
+        }
+        return bookClubMapper.selectBoardLikeExists(boardSeq, memberSeq) > 0;
+    }
+
+    // #6-3. 좋아요 토글 (좋아요 추가/취소)
+    @Transactional
+    public boolean toggleBoardLike(Long boardSeq, Long memberSeq) {
+        if (boardSeq == null || memberSeq == null) {
+            return false;
+        }
+
+        boolean currentlyLiked = isBoardLiked(boardSeq, memberSeq);
+
+        if (currentlyLiked) {
+            // 이미 좋아요한 상태 → 좋아요 취소
+            bookClubMapper.deleteBoardLike(boardSeq, memberSeq);
+            return false; // 좋아요 해제됨
+        } else {
+            // 좋아요 안한 상태 → 좋아요 추가
+            bookClubMapper.insertBoardLike(boardSeq, memberSeq);
+            return true; // 좋아요됨
+        }
+    }
 }
