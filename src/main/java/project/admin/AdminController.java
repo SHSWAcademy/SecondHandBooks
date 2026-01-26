@@ -85,9 +85,11 @@ public class AdminController {
     // [API] 상품 목록
     @GetMapping("/api/trades")
     @ResponseBody
-    public List<TradeVO> getTrades(@RequestParam(required = false) String status,
-                                   @RequestParam(required = false) String keyword) {
-        return adminService.searchTrades(status, keyword);
+    public PageResult<TradeVO> getTrades(SearchVO searchVO) {
+        List<TradeVO> list = adminService.searchTrades(searchVO);
+
+        int total = adminService.countAllTradesBySearch(searchVO);
+        return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
     }
 
     // [API] 상품 액션
