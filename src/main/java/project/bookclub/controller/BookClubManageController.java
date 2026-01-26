@@ -1,12 +1,16 @@
 package project.bookclub.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.RequiredArgsConstructor;
@@ -326,25 +330,32 @@ public class BookClubManageController {
      * 1. 로그인 확인
      * 2. 모임 존재 여부 확인
      * 3. 모임장 권한 확인
-     * 4. Service 레이어에서 비즈니스 로직 처리:
+     * 4. 파일 업로드 처리 (있는 경우)
+     * 5. Service 레이어에서 비즈니스 로직 처리:
      * - 필수 입력값 검증 (name, description)
      * - 모임명 변경 시 중복 체크
      * - book_club UPDATE (정원 제외)
      *
-     * @param bookClubId 독서모임 ID
-     * @param dto        업데이트할 정보 (name, desc, region, schedule, bannerImgUrl)
-     * @param session    세션 (로그인 확인용)
+     * @param bookClubId    독서모임 ID
+     * @param name          모임 이름
+     * @param description   모임 소개
+     * @param region        지역
+     * @param schedule      정기 일정
+     * @param bannerFile    업로드 파일 (선택)
+     * @param bannerImgUrl  이미지 URL (선택, 파일이 없을 때만 사용)
+     * @param session       세션 (로그인 확인용)
      * @return JSON {success, message, updated}
-     *
-     *         TODO: 2차 개선 - bannerImgUrl 파일 업로드 구현
-     *         현재는 URL 입력 방식만 지원
-     *         MultipartFile로 받아서 saveFile() 호출 후 banner_img_url 업데이트
      */
     @PostMapping("/{bookClubId}/manage/settings")
     @ResponseBody
     public Map<String, Object> updateBookClubSettings(
             @PathVariable("bookClubId") Long bookClubId,
-            @RequestBody BookClubUpdateSettingsDTO dto,
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam(value = "region", required = false) String region,
+            @RequestParam(value = "schedule", required = false) String schedule,
+            @RequestParam(value = "bannerFile", required = false) MultipartFile bannerFile,
+            @RequestParam(value = "bannerImgUrl", required = false) String bannerImgUrl,
             HttpSession session) {
 
         // 1. 로그인 확인
@@ -371,7 +382,27 @@ public class BookClubManageController {
             return Map.of("success", false, "message", "모임장만 수정할 수 있습니다.");
         }
 
-        // 4. Service 호출 (비즈니스 로직 위임)
+        // 4. 파일 업로드 처리 (파일이 있으면 파일 우선)
+        String finalBannerUrl = bannerImgUrl;
+        if (bannerFile != null && !bannerFile.isEmpty()) {
+            try {
+                finalBannerUrl = saveUploadedFile(bannerFile, session);
+                log.info("배너 이미지 업로드 완료: bookClubId={}, path={}", bookClubId, finalBannerUrl);
+            } catch (IOException e) {
+                log.error("파일 업로드 실패: bookClubId={}, error={}", bookClubId, e.getMessage());
+                return Map.of("success", false, "message", "파일 업로드에 실패했습니다.");
+            }
+        }
+
+        // 5. DTO 생성
+        BookClubUpdateSettingsDTO dto = new BookClubUpdateSettingsDTO();
+        dto.setName(name);
+        dto.setDescription(description);
+        dto.setRegion(region);
+        dto.setSchedule(schedule);
+        dto.setBannerImgUrl(finalBannerUrl);
+
+        // 6. Service 호출 (비즈니스 로직 위임)
         try {
             Map<String, Object> updated = bookClubService.updateBookClubSettings(bookClubId, loginMemberSeq, dto);
 
@@ -386,5 +417,37 @@ public class BookClubManageController {
             log.warn("모임 설정 업데이트 실패: bookClubId={}, error={}", bookClubId, e.getMessage());
             return Map.of("success", false, "message", e.getMessage());
         }
+    }
+
+    /**
+     * 업로드된 파일을 서버 로컬에 저장
+     *
+     * @param file    업로드 파일
+     * @param session 세션 (실제 경로 조회용)
+     * @return 저장된 파일의 웹 경로 (예: /resources/upload/bookclub/uuid.jpg)
+     * @throws IOException 파일 저장 실패 시
+     */
+    private String saveUploadedFile(MultipartFile file, HttpSession session) throws IOException {
+        // 실제 물리 경로 조회
+        String uploadDir = session.getServletContext().getRealPath("/resources/upload/bookclub");
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        // 파일명 생성 (UUID + 원본 확장자)
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        String savedFilename = UUID.randomUUID().toString() + extension;
+
+        // 파일 저장
+        File dest = new File(uploadDir, savedFilename);
+        file.transferTo(dest);
+
+        // 웹 경로 반환 (contextPath는 클라이언트가 처리하므로 상대 경로만 반환)
+        return "/resources/upload/bookclub/" + savedFilename;
     }
 }

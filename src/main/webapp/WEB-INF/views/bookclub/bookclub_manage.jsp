@@ -249,41 +249,29 @@
                                         <!-- 모임 설정 탭 -->
                                         <div class="tab-panel" role="tabpanel" id="tabSettings"
                                             aria-labelledby="tabBtnSettings">
-                                            <div class="panel-header">
-                                                <h2>정보 수정</h2>
-                                            </div>
 
                                             <div class="settings-section">
                                                 <!-- 대표 이미지 (파일 업로드 + URL 입력) -->
                                                 <div class="form-section banner-upload-section">
-                                                    <h3 class="form-section-title">대표 이미지</h3>
-                                                    <div class="banner-preview-wrapper">
-                                                        <c:choose>
-                                                            <c:when test="${not empty bookclub.bannerImgUrl}">
-                                                                <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
-                                                                    alt="모임 대표 이미지" class="banner-image"
-                                                                    id="bannerPreview">
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <div class="banner-placeholder" id="bannerPreview">📚
-                                                                </div>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="bannerFile" class="form-label">이미지 파일 업로드</label>
-                                                        <input type="file" id="bannerFile" class="form-input"
-                                                            accept="image/*">
-                                                        <p class="form-help-text">이미지 파일을 선택하거나, 아래 URL을 입력하세요 (파일이 우선
-                                                            적용됩니다)</p>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="bannerImgUrl" class="form-label">이미지 URL</label>
-                                                        <input type="text" id="bannerImgUrl" class="form-input"
-                                                            value="<c:out value='${bookclub.bannerImgUrl}'/>"
-                                                            placeholder="예: https://example.com/image.jpg"
-                                                            maxlength="500">
-                                                    </div>
+                                                    <label for="bannerFile" class="banner-upload-label">
+                                                        <div class="banner-preview-wrapper">
+                                                            <c:choose>
+                                                                <c:when test="${not empty bookclub.bannerImgUrl}">
+                                                                    <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
+                                                                        alt="모임 대표 이미지" class="banner-image"
+                                                                        id="bannerPreview">
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <div class="banner-placeholder" id="bannerPreview">
+                                                                        📚
+                                                                    </div>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </div>
+                                                        <p class="banner-upload-hint">클릭해서 이미지 업로드</p>
+                                                    </label>
+                                                    <input type="file" id="bannerFile" class="banner-file-input"
+                                                        accept="image/*">
                                                 </div>
 
                                                 <!-- 모임 이름 -->
