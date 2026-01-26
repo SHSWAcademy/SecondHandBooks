@@ -18,6 +18,7 @@ public class TradeVO {
     private long category_seq;      // 추가
     private long book_info_seq;     // 추가
     private long settlement_seq;    // 추가
+    private Long pending_buyer_seq; // 추가
 
     private String sale_title;      //책 제목
     private BookStatus book_st;     // DB: book_st_enum 매핑
@@ -56,6 +57,9 @@ public class TradeVO {
     // 검색용
     private String search_word;
     private String sort;
+
+    private String safe_payment_st; // 안전결제 상태: NONE, PENDING, COMPLETED -> enum으로 리팩토링 하기
+    private LocalDateTime safe_payment_expire_dtm; // 안전결제 만료 시간
 
     public boolean checkTradeVO() {
         return sale_title != null && !sale_title.equals("") &&

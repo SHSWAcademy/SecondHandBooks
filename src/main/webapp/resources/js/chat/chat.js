@@ -21,9 +21,48 @@ function connect() {
 function subscribeCurrentRoom() {
     if (!stompClient) return;
 
+    // 메시지 수신 구독
     stompClient.subscribe('/chatroom/' + chat_room_seq, function (message) {
         const msg = JSON.parse(message.body);
         showMessage(msg);
+
+        // 상대방이 보낸 메시지를 실시간으로 받으면 읽음 처리 요청
+        if (Number(msg.sender_seq) !== loginMemberSeq) {
+            sendReadEvent();
+        }
+    });
+
+    // 읽음 이벤트 구독 (상대방이 내 메시지를 읽었을 때)
+    stompClient.subscribe('/chatroom/' + chat_room_seq + '/read', function (message) {
+        const readerSeq = JSON.parse(message.body);
+        // 상대방이 읽었으면 내가 보낸 메시지들에 체크 표시
+        if (Number(readerSeq) !== loginMemberSeq) {
+            updateReadStatus();
+        }
+    });
+}
+
+// 읽음 이벤트 전송 (내가 상대방 메시지를 읽었음을 알림)
+function sendReadEvent() {
+    if (!stompClient || !stompClient.connected) return;
+
+    stompClient.send(
+        "/sendMessage/chat/" + chat_room_seq + "/read",
+        {},
+        JSON.stringify({
+            chat_room_seq: chat_room_seq,
+            reader_seq: loginMemberSeq
+        })
+    );
+}
+
+// 내가 보낸 메시지들의 읽음 상태 업데이트
+function updateReadStatus() {
+    const myMessages = document.querySelectorAll('.msg-right .msg-time');
+    myMessages.forEach(function(timeEl) {
+        if (!timeEl.textContent.includes('✔')) {
+            timeEl.textContent = timeEl.textContent + ' ✔';
+        }
     });
 }
 
@@ -69,6 +108,18 @@ function showMessage(msg) {
         msgWrapper.className = 'msg-left';
     }
 
+    // 상대방 닉네임만 출력
+    if (Number(msg.sender_seq) !== loginMemberSeq) {
+        const msgNicknm = document.createElement('div');
+        msgNicknm.className = 'msg-nicknm';
+
+        const bold = document.createElement('b');
+        bold.textContent = msg.member_seller_nicknm || '';
+
+        msgNicknm.appendChild(bold);
+        msgWrapper.appendChild(msgNicknm);
+    }
+
     const msgContent = document.createElement('div');
     msgContent.className = 'content';
     msgContent.textContent = msg.chat_cont || '';
@@ -90,7 +141,11 @@ function showMessage(msg) {
 
     const msgTime = document.createElement('div');
     msgTime.className = 'msg-time';
-    msgTime.textContent = timeStr + (msg.read_yn ? " ✔" : "");
+
+    // 내가 보낸 메시지인 경우에만 읽음 표시
+    const isMyMessage = Number(msg.sender_seq) === loginMemberSeq;
+    const readMark = isMyMessage && msg.read_yn ? ' ✔' : '';
+    msgTime.textContent = timeStr + readMark;
 
     msgWrapper.appendChild(msgContent);
     msgWrapper.appendChild(msgTime);
@@ -110,16 +165,16 @@ function setupChatroomClick() {
             const selectedRoomSeq = this.getAttribute('data-chat-room-seq');
             chat_room_seq = Number(selectedRoomSeq);
 
-            // 메시지 영역 초기화
             document.getElementById("chatContainer").innerHTML =
                 '<div id="emptyNotice">이전 메시지가 없습니다.</div>';
 
-            // 헤더 제목 갱신
             const titleEl = this.querySelector('.room-title');
-            document.getElementById("chatHeader").textContent =
-                titleEl ? titleEl.textContent : '';
+            const headerTitleEl = document.getElementById('chatHeaderTitle');
 
-            // STOMP 재연결
+            if (headerTitleEl && titleEl) {
+                headerTitleEl.textContent = titleEl.textContent;
+            }
+
             if (stompClient) {
                 stompClient.disconnect(() => connect());
             }
@@ -128,6 +183,7 @@ function setupChatroomClick() {
         });
     });
 }
+
 
 /* -------------------------------
    메시지 AJAX 조회

@@ -15,19 +15,66 @@
         #{trade_seq}, now(), #{member_buyer_seq}, #{member_seller_seq}, #{sale_title}
         )
     </insert>
+    <update id="updateLastMessage">
+        UPDATE chatroom
+        SET
+            last_msg = #{last_msg},
+            last_msg_dtm = now()
+        WHERE chat_room_seq = #{chat_room_seq}
+    </update>
 
     <select id="findRoom" resultType="project.chat.chatroom.ChatroomVO">
-        SELECT chat_room_seq, trade_seq, crt_dtm, member_seller_seq, member_buyer_seq
+        SELECT
+            chat_room_seq,
+            trade_seq, crt_dtm,
+            member_seller_seq,
+            member_buyer_seq,
+            (SELECT member_nicknm FROM member_info WHERE chatroom.member_seller_seq = member_seq) AS member_seller_nicknm,
+            (SELECT member_nicknm FROM member_info WHERE chatroom.member_buyer_seq = member_seq) AS member_buyer_nicknm
         FROM chatroom
         WHERE member_seller_seq=#{member_seller_seq} and member_buyer_seq=#{member_buyer_seq} and trade_seq=#{trade_seq}
     </select>
+
     <select id="findAllByMemberSeq" resultType="project.chat.chatroom.ChatroomVO">
-        SELECT *
-        FROM chatroom
-        WHERE member_buyer_seq=#{member_seq} or
-        member_seller_seq =#{member_seq}
-        ORDER BY crt_dtm DESC
+        SELECT c.*, t.sale_st
+        FROM chatroom c
+        LEFT JOIN sb_trade_info t ON c.trade_seq = t.trade_seq
+        WHERE c.member_buyer_seq = #{member_seq}
+        OR c.member_seller_seq = #{member_seq}
+        ORDER BY c.crt_dtm DESC
     </select>
+
+    <!-- 페이징 채팅방 목록 조회 (수정) -->
+    <select id="findAllByMemberSeqWithPaging"
+            resultType="project.chat.chatroom.ChatroomVO">
+        SELECT c.*, t.sale_st
+        FROM chatroom c
+        LEFT JOIN sb_trade_info t ON c.trade_seq = t.trade_seq
+        WHERE (c.member_seller_seq = #{member_seq}
+        OR c.member_buyer_seq = #{member_seq})
+        <if test="sale_st != null and sale_st != ''">
+            AND t.sale_st = #{sale_st}::sale_st_enum
+        </if>
+        <!-- ORDER BY c.last_msg_dtm DESC NULLS LAST 로 정렬했다가 채팅방 생성 날짜 순으로 교체-->
+        ORDER BY c.crt_dtm DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+
+    <!-- 전체 개수 조회 (수정) -->
+    <select id="countByMemberSeq" resultType="int">
+        SELECT COUNT(*)
+        FROM chatroom c
+        <if test="sale_st != null and sale_st != ''">
+            LEFT JOIN sb_trade_info t ON c.trade_seq = t.trade_seq
+        </if>
+        WHERE (c.member_seller_seq = #{member_seq}
+        OR c.member_buyer_seq = #{member_seq})
+        <if test="sale_st != null and sale_st != ''">
+            AND t.sale_st = #{sale_st}::sale_st_enum
+        </if>
+    </select>
+
 
     <!-- 허용되지 않은 접근자의 채팅방 접근 체크 -->
     <select id="isMemberOfChatroom" resultType="java.lang.Boolean">
@@ -37,11 +84,26 @@
         AND (member_buyer_seq = #{member_seq}
         OR member_seller_seq = #{member_seq})
     </select>
-    <select id="findChatRoomSeqByTradeSeq" parameterType="long" resultType="long">
+    <select id="findChatRoomSeqByTradeAndBuyer" parameterType="long" resultType="long">
         SELECT chat_room_seq
         FROM chatroom
-        WHERE trade_seq = #{trade_seq}
+        WHERE
+            trade_seq = #{trade_seq}
+        and member_buyer_seq = #{buyer_seq}
         LIMIT 1
+    </select>
+
+    <!-- 해당 trade의 구매자(채팅방 참여자)인지 확인 -->
+    <select id="isBuyerOfTrade" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM chatroom
+        WHERE trade_seq = #{trade_seq}
+          AND member_buyer_seq = #{member_seq}
+    </select>
+
+    <!-- 채팅방 seq로 채팅방 조회 -->
+    <select id="findByChatRoomSeq" resultType="project.chat.chatroom.ChatroomVO">
+        SELECT * FROM chatroom WHERE chat_room_seq = #{chat_room_seq}
     </select>
     <!--
     <select id="findAllByChatRoomSeq" resultType="project.chat.message.MessageVO">
