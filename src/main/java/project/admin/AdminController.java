@@ -9,6 +9,8 @@ import project.admin.notice.NoticeVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
+import project.util.paging.PageResult;
+import project.util.paging.SearchVO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -63,10 +65,11 @@ public class AdminController {
     // [API] 회원 목록
     @GetMapping("/api/users")
     @ResponseBody
-    public List<MemberVO> getUsers(@RequestParam(required = false) String status,
-                                   @RequestParam(required = false) String keyword,
-                                   @RequestParam(required = false) String searchType) {
-        return adminService.searchMembers(status, keyword, searchType);
+    public PageResult<MemberVO> getUsers(SearchVO searchVO) {
+        List<MemberVO> list = adminService.searchMembers(searchVO);
+
+        int total = adminService.countAllMembersBySearch(searchVO);
+        return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
     }
 
     // [API] 회원 액션

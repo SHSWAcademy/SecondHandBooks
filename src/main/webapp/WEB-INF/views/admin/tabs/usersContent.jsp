@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<script src="/resources/js/paging/paging.js"></script>
 
 <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
   <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
@@ -74,21 +75,41 @@
     </c:forEach>
     </tbody>
   </table>
+
+  <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+      <div id="userPaginationInfo" class="text-sm text-gray-500">
+          </div>
+      <div id="userPaginationButtons" class="flex gap-1">
+          </div>
+  </div>
 </div>
 
 <script>
-    function searchMembers() {
+    function searchMembers(page) {
+        const p = page || 1;
         const searchType = document.getElementById('searchType').value;
         const keyword = document.getElementById('searchKeyword').value;
-        const url = '/admin/api/users?keyword=' + encodeURIComponent(keyword)
+        const url = '/admin/api/users?page=' + p
+                  + '&size=10'
+                  + '&keyword=' + encodeURIComponent(keyword)
                   + '&searchType=' + searchType
                   + '&status=all';
         fetch(url)
-            .then(response => response.json())
-            .then(members => {
-                renderMemberTable(members);
+            .then(function(response) {
+                return response.json();
             })
-            .catch(error => {
+            .then(function(data) {
+                renderMemberTable(data.list);
+
+                renderCommonPagination(
+                    'userPaginationButtons',
+                    data.total,
+                    data.curPage,
+                    data.size,
+                    'searchMembers'
+                );
+            })
+            .catch(function(error) {
                 console.error('검색 중 오류 발생:', error);
             });
     }
@@ -177,6 +198,11 @@
     function users_resetSearch() {
         document.getElementById('searchKeyword').value = '';
         document.getElementById('searchType').value = 'all';
-        searchMembers();
+        searchMembers(1);
     }
+
+    // 페이지 로드 시 자동으로 첫 페이지 데이터와 페이징 버튼을 가져옵니다.
+    document.addEventListener('DOMContentLoaded', function() {
+        searchMembers(1);
+    });
 </script>
