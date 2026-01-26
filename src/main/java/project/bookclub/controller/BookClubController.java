@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import project.bookclub.ENUM.JoinRequestResult;
+import project.bookclub.dto.BookClubPageResponse;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
@@ -152,24 +153,25 @@ public class BookClubController {
 
     @GetMapping("/search")
     @ResponseBody
-    public List<BookClubVO> searchBookClubs(
+    public BookClubPageResponse searchBookClubs(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false, defaultValue = "latest") String sort,
+            @RequestParam(required = false, defaultValue = "0") int page,
             HttpSession session) {
-        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword, sort);
+        BookClubPageResponse response = bookClubService.searchBookClubs(keyword, sort, page);
 
         // 로그인 사용자의 찜 여부 설정
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
 
-        for (BookClubVO club : bookClubs) {
+        for (BookClubVO club : response.getContent()) {
             club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
             if (memberSeq != null) {
                 club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
             }
         }
 
-        return bookClubs;
+        return response;
     }
 
     @PostMapping

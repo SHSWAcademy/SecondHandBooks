@@ -8,65 +8,7 @@
     <!-- 독서모임 검색 및 조회 -->
     <!-- ===================================== -->
 
-    <!-- 독서모임 전체 조회 -->
-    <select id="searchAll" resultType="project.bookclub.vo.BookClubVO">
-        SELECT
-        book_club_seq,
-        book_club_leader_seq,
-        book_club_name,
-        book_club_desc,
-        book_club_rg,
-        book_club_max_member,
-        book_club_deleted_dt,
-        banner_img_url,
-        book_club_schedule,
-        crt_dtm,
-        upd_dtm,
-        (
-        SELECT COUNT(*)
-        FROM book_club_member
-        WHERE book_club_member.book_club_seq = book_club.book_club_seq
-        AND join_st = 'JOINED'
-        ) AS joined_member_count
-        FROM book_club
-        WHERE book_club_deleted_dt IS NULL
-        ORDER BY book_club_seq
-    </select>
-
-    <!-- 독서모임 키워드 조회 -->
-    <select id="searchByKeyword" parameterType="list" resultType="project.bookclub.vo.BookClubVO">
-        SELECT
-        book_club_seq,
-        book_club_leader_seq,
-        book_club_name,
-        book_club_desc,
-        book_club_rg,
-        book_club_max_member,
-        book_club_deleted_dt,
-        banner_img_url,
-        book_club_schedule,
-        crt_dtm,
-        upd_dtm,
-        (
-        SELECT COUNT(*)
-        FROM book_club_member
-        WHERE book_club_member.book_club_seq = book_club.book_club_seq
-        AND join_st = 'JOINED'
-        ) AS joined_member_count
-        FROM book_club
-        WHERE book_club_deleted_dt IS NULL
-        AND
-        <foreach collection="tokens" item="token" separator="AND">
-            (
-            book_club_name LIKE CONCAT('%', #{token}, '%')
-            OR
-            book_club_rg LIKE CONCAT('%', #{token}, '%')
-            )
-        </foreach>
-        ORDER BY book_club_seq DESC
-    </select>
-
-    <!-- 독서모임 전체 조회 (정렬 옵션 포함) -->
+    <!-- 독서모임 전체 조회 (정렬 + 페이징) -->
     <select id="searchAllWithSort" resultType="project.bookclub.vo.BookClubVO">
         SELECT
             book_club_seq,
@@ -102,9 +44,10 @@
                 ORDER BY crt_dtm DESC
             </otherwise>
         </choose>
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!-- 독서모임 키워드 조회 (정렬 옵션 포함) -->
+    <!-- 독서모임 키워드 조회 (정렬 + 페이징) -->
     <select id="searchByKeywordWithSort" resultType="project.bookclub.vo.BookClubVO">
         SELECT
             book_club_seq,
@@ -148,40 +91,45 @@
                 ORDER BY crt_dtm DESC
             </otherwise>
         </choose>
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!-- 키워드 조회 개선판 : 매칭되는 토큰이 많은 게시물부터 게시 -->
-    <select id="searchByKeywordRanked" resultType="project.bookclub.vo.BookClubVO">
-        SELECT *,
-        (
-        <foreach collection="tokens" item="token" separator="+">
-            CASE WHEN book_club_name LIKE '%' || #{token} || '%' THEN 1 ELSE 0 END
-        </foreach>
-        ) AS match_count
+    <!-- 전체 모임 개수 조회 -->
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*)
         FROM book_club
         WHERE book_club_deleted_dt IS NULL
-        AND (
-        <foreach collection="tokens" item="token" separator="OR">
-            book_club_name LIKE '%' || #{token} || '%'
+    </select>
+
+    <!-- 키워드 검색 모임 개수 조회 -->
+    <select id="countByKeyword" resultType="long">
+        SELECT COUNT(*)
+        FROM book_club
+        WHERE book_club_deleted_dt IS NULL
+        AND
+        <foreach collection="tokens" item="token" separator="AND">
+            (
+                book_club_name LIKE CONCAT('%', #{token}, '%')
+                OR
+                book_club_rg LIKE CONCAT('%', #{token}, '%')
+            )
         </foreach>
-        )
-        ORDER BY match_count DESC
     </select>
 
     <!-- 독서모임 1건 조회 (상세 페이지용) -->
     <select id="selectById" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
         SELECT
-        book_club_seq,
-        book_club_name,
-        book_club_desc,
-        book_club_rg,
-        book_club_max_member,
-        book_club_deleted_dt,
-        banner_img_url,
-        book_club_schedule,
-        crt_dtm,
-        upd_dtm,
-        book_club_leader_seq
+            book_club_seq,
+            book_club_name,
+            book_club_desc,
+            book_club_rg,
+            book_club_max_member,
+            book_club_deleted_dt,
+            banner_img_url,
+            book_club_schedule,
+            crt_dtm,
+            upd_dtm,
+            book_club_leader_seq
         FROM book_club
         WHERE book_club_seq = #{bookClubSeq}
         AND book_club_deleted_dt IS NULL
@@ -194,23 +142,23 @@
     <!-- 독서모임 생성 -->
     <insert id="insertBookClub" parameterType="project.bookclub.vo.BookClubVO" useGeneratedKeys="true" keyProperty="book_club_seq">
         INSERT INTO book_club (
-        book_club_leader_seq,
-        book_club_name,
-        book_club_desc,
-        book_club_rg,
-        book_club_max_member,
-        banner_img_url,
-        book_club_schedule,
-        crt_dtm
+            book_club_leader_seq,
+            book_club_name,
+            book_club_desc,
+            book_club_rg,
+            book_club_max_member,
+            banner_img_url,
+            book_club_schedule,
+            crt_dtm
         ) VALUES (
-        #{book_club_leader_seq},
-        #{book_club_name},
-        #{book_club_desc},
-        #{book_club_rg},
-        #{book_club_max_member},
-        #{banner_img_url},
-        #{book_club_schedule},
-        now()
+            #{book_club_leader_seq},
+            #{book_club_name},
+            #{book_club_desc},
+            #{book_club_rg},
+            #{book_club_max_member},
+            #{banner_img_url},
+            #{book_club_schedule},
+            now()
         )
     </insert>
 
@@ -273,34 +221,34 @@
     <!-- 가입 신청 INSERT -->
     <insert id="insertJoinRequest">
         INSERT INTO book_club_request (
-        book_club_seq,
-        request_member_seq,
-        request_st,
-        request_dtm,
-        request_cont
+            book_club_seq,
+            request_member_seq,
+            request_st,
+            request_dtm,
+            request_cont
         ) VALUES (
-        #{bookClubSeq},
-        #{memberSeq},
-        'WAIT',
-        CURRENT_TIMESTAMP,
-        #{requestCont}
+            #{bookClubSeq},
+            #{memberSeq},
+            'WAIT',
+            CURRENT_TIMESTAMP,
+            #{requestCont}
         )
     </insert>
 
     <!-- 모임장을 book_club_member에 자동 등록 (모임 생성 시 사용) -->
     <insert id="insertLeaderMember">
         INSERT INTO book_club_member (
-        book_club_seq,
-        member_seq,
-        leader_yn,
-        join_st,
-        join_st_update_dtm
+            book_club_seq,
+            member_seq,
+            leader_yn,
+            join_st,
+            join_st_update_dtm
         ) VALUES (
-        #{bookClubSeq},
-        #{memberSeq},
-        true,
-        'JOINED',
-        CURRENT_TIMESTAMP
+            #{bookClubSeq},
+            #{memberSeq},
+            true,
+            'JOINED',
+            CURRENT_TIMESTAMP
         )
     </insert>
 
@@ -326,13 +274,13 @@
     <!-- 찜하기 추가 -->
     <insert id="insertWish">
         INSERT INTO book_club_wish (
-        book_club_seq,
-        member_seq,
-        crt_dtm
+            book_club_seq,
+            member_seq,
+            crt_dtm
         ) VALUES (
-        #{bookClubSeq},
-        #{memberSeq},
-        NOW()
+            #{bookClubSeq},
+            #{memberSeq},
+            NOW()
         )
     </insert>
 
@@ -350,30 +298,30 @@
     <!-- 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인) -->
     <select id="selectRecentRootBoardsByClub" resultType="project.bookclub.vo.BookClubBoardVO">
         SELECT
-        bcb.book_club_board_seq,
-        bcb.book_club_seq,
-        bcb.board_title,
-        bcb.board_cont,
-        bcb.board_img_url,
-        bcb.member_seq,
-        bcb.parent_book_club_board_seq,
-        bcb.isbn,
-        bcb.book_title,
-        bcb.book_author,
-        bcb.book_img_url,
-        bcb.board_deleted_yn,
-        bcb.board_deleted_dtm,
-        bcb.crt_dtm AS board_crt_dtm,
-        bcb.upd_dtm AS board_upd_dtm,
-        to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-        m.member_nicknm,
-        (
-        SELECT COUNT(*)
-        FROM book_club_board c
-        WHERE c.parent_book_club_board_seq = bcb.book_club_board_seq
-        AND (c.board_deleted_yn IS NULL OR c.board_deleted_yn = false)
-        ) AS comment_count,
-        (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
+            bcb.book_club_board_seq,
+            bcb.book_club_seq,
+            bcb.board_title,
+            bcb.board_cont,
+            bcb.board_img_url,
+            bcb.member_seq,
+            bcb.parent_book_club_board_seq,
+            bcb.isbn,
+            bcb.book_title,
+            bcb.book_author,
+            bcb.book_img_url,
+            bcb.board_deleted_yn,
+            bcb.board_deleted_dtm,
+            bcb.crt_dtm AS board_crt_dtm,
+            bcb.upd_dtm AS board_upd_dtm,
+            to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
+            m.member_nicknm,
+            (
+                SELECT COUNT(*)
+                FROM book_club_board c
+                WHERE c.parent_book_club_board_seq = bcb.book_club_board_seq
+                  AND (c.board_deleted_yn IS NULL OR c.board_deleted_yn = false)
+            ) AS comment_count,
+            (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -386,24 +334,24 @@
     <!-- 독서모임 게시글 단건 조회 (상세 페이지용) -->
     <select id="selectBoardDetail" resultType="project.bookclub.vo.BookClubBoardVO">
         SELECT
-        bcb.book_club_board_seq,
-        bcb.book_club_seq,
-        bcb.board_title,
-        bcb.board_cont,
-        bcb.board_img_url,
-        bcb.member_seq,
-        bcb.parent_book_club_board_seq,
-        bcb.isbn,
-        bcb.book_title,
-        bcb.book_author,
-        bcb.book_img_url,
-        bcb.board_deleted_yn,
-        bcb.board_deleted_dtm,
-        bcb.crt_dtm AS board_crt_dtm,
-        bcb.upd_dtm AS board_upd_dtm,
-        to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-        m.member_nicknm,
-        (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
+            bcb.book_club_board_seq,
+            bcb.book_club_seq,
+            bcb.board_title,
+            bcb.board_cont,
+            bcb.board_img_url,
+            bcb.member_seq,
+            bcb.parent_book_club_board_seq,
+            bcb.isbn,
+            bcb.book_title,
+            bcb.book_author,
+            bcb.book_img_url,
+            bcb.board_deleted_yn,
+            bcb.board_deleted_dtm,
+            bcb.crt_dtm AS board_crt_dtm,
+            bcb.upd_dtm AS board_upd_dtm,
+            to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
+            m.member_nicknm,
+            (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -414,24 +362,24 @@
     <!-- 독서모임 게시글의 댓글 목록 조회 (오래된 순) -->
     <select id="selectBoardComments" resultType="project.bookclub.vo.BookClubBoardVO">
         SELECT
-        bcb.book_club_board_seq,
-        bcb.book_club_seq,
-        bcb.board_title,
-        bcb.board_cont,
-        bcb.board_img_url,
-        bcb.member_seq,
-        bcb.parent_book_club_board_seq,
-        bcb.isbn,
-        bcb.book_title,
-        bcb.book_author,
-        bcb.book_img_url,
-        bcb.board_deleted_yn,
-        bcb.board_deleted_dtm,
-        bcb.crt_dtm AS board_crt_dtm,
-        bcb.upd_dtm AS board_upd_dtm,
-        to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-        m.member_nicknm,
-        (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
+            bcb.book_club_board_seq,
+            bcb.book_club_seq,
+            bcb.board_title,
+            bcb.board_cont,
+            bcb.board_img_url,
+            bcb.member_seq,
+            bcb.parent_book_club_board_seq,
+            bcb.isbn,
+            bcb.book_title,
+            bcb.book_author,
+            bcb.book_img_url,
+            bcb.board_deleted_yn,
+            bcb.board_deleted_dtm,
+            bcb.crt_dtm AS board_crt_dtm,
+            bcb.upd_dtm AS board_upd_dtm,
+            to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
+            m.member_nicknm,
+            (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -453,17 +401,17 @@
     <!-- 댓글 INSERT -->
     <insert id="insertBoardComment">
         INSERT INTO book_club_board (
-        book_club_seq,
-        parent_book_club_board_seq,
-        member_seq,
-        board_cont,
-        board_deleted_yn
+            book_club_seq,
+            parent_book_club_board_seq,
+            member_seq,
+            board_cont,
+            board_deleted_yn
         ) VALUES (
-        #{bookClubSeq},
-        #{postId},
-        #{memberSeq},
-        #{commentCont},
-        false
+            #{bookClubSeq},
+            #{postId},
+            #{memberSeq},
+            #{commentCont},
+            false
         )
     </insert>
 
@@ -487,12 +435,12 @@
     <!-- 댓글 단건 조회 (권한 확인용) -->
     <select id="selectBoardCommentById" resultType="project.bookclub.vo.BookClubBoardVO">
         SELECT
-        book_club_board_seq,
-        book_club_seq,
-        parent_book_club_board_seq,
-        member_seq,
-        board_cont,
-        board_deleted_yn
+            book_club_board_seq,
+            book_club_seq,
+            parent_book_club_board_seq,
+            member_seq,
+            board_cont,
+            board_deleted_yn
         FROM book_club_board
         WHERE book_club_board_seq = #{commentId}
         AND parent_book_club_board_seq IS NOT NULL
@@ -502,27 +450,27 @@
     <!-- 게시글(원글) INSERT -->
     <insert id="insertBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO" useGeneratedKeys="true" keyProperty="book_club_board_seq">
         INSERT INTO book_club_board (
-        book_club_seq,
-        member_seq,
-        board_title,
-        board_cont,
-        board_img_url,
-        isbn,
-        book_title,
-        book_author,
-        book_img_url,
-        board_deleted_yn
+            book_club_seq,
+            member_seq,
+            board_title,
+            board_cont,
+            board_img_url,
+            isbn,
+            book_title,
+            book_author,
+            book_img_url,
+            board_deleted_yn
         ) VALUES (
-        #{book_club_seq},
-        #{member_seq},
-        #{board_title},
-        #{board_cont},
-        #{board_img_url},
-        #{isbn},
-        #{book_title},
-        #{book_author},
-        #{book_img_url},
-        false
+            #{book_club_seq},
+            #{member_seq},
+            #{board_title},
+            #{board_cont},
+            #{board_img_url},
+            #{isbn},
+            #{book_title},
+            #{book_author},
+            #{book_img_url},
+            false
         )
     </insert>
 
@@ -530,13 +478,13 @@
     <update id="updateBoardPost" parameterType="project.bookclub.vo.BookClubBoardVO">
         UPDATE book_club_board
         SET board_title = #{board_title},
-        board_cont = #{board_cont},
-        board_img_url = #{board_img_url},
-        isbn = #{isbn},
-        book_title = #{book_title},
-        book_author = #{book_author},
-        book_img_url = #{book_img_url},
-        upd_dtm = CURRENT_TIMESTAMP
+            board_cont = #{board_cont},
+            board_img_url = #{board_img_url},
+            isbn = #{isbn},
+            book_title = #{book_title},
+            book_author = #{book_author},
+            book_img_url = #{book_img_url},
+            upd_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{book_club_seq}
         AND book_club_board_seq = #{book_club_board_seq}
         AND parent_book_club_board_seq IS NULL
@@ -547,7 +495,7 @@
     <update id="deleteBoardPost">
         UPDATE book_club_board
         SET board_deleted_yn = true,
-        board_deleted_dtm = CURRENT_TIMESTAMP
+            board_deleted_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
         AND book_club_board_seq = #{postId}
         AND parent_book_club_board_seq IS NULL
@@ -556,16 +504,16 @@
 
     <select id="selectMyBookClubs" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
         SELECT
-        BC.BOOK_CLUB_SEQ,
-        BC.BOOK_CLUB_NAME,
-        BC.BOOK_CLUB_DESC,
-        BC.BOOK_CLUB_RG,
-        BC.BOOK_CLUB_MAX_MEMBER,
-        BC.BANNER_IMG_URL,
-        BC.BOOK_CLUB_SCHEDULE,
-        BC.CRT_DTM
+            BC.BOOK_CLUB_SEQ,
+            BC.BOOK_CLUB_NAME,
+            BC.BOOK_CLUB_DESC,
+            BC.BOOK_CLUB_RG,
+            BC.BOOK_CLUB_MAX_MEMBER,
+            BC.BANNER_IMG_URL,
+            BC.BOOK_CLUB_SCHEDULE,
+            BC.CRT_DTM
         FROM BOOK_CLUB BC
-        JOIN BOOK_CLUB_MEMBER BCM ON BC.BOOK_CLUB_SEQ = BCM.BOOK_CLUB_SEQ
+            JOIN BOOK_CLUB_MEMBER BCM ON BC.BOOK_CLUB_SEQ = BCM.BOOK_CLUB_SEQ
         WHERE BCM.MEMBER_SEQ = #{member_seq}
         AND BCM.JOIN_ST = 'JOINED'
         ORDER BY BC.CRT_DTM DESC
@@ -573,16 +521,16 @@
 
     <select id="selectWishBookClubs" parameterType="long" resultType="project.bookclub.vo.BookClubVO">
         SELECT
-        BC.BOOK_CLUB_SEQ,
-        BC.BOOK_CLUB_NAME,
-        BC.BOOK_CLUB_DESC,
-        BC.BOOK_CLUB_RG,
-        BC.BOOK_CLUB_MAX_MEMBER,
-        BC.BANNER_IMG_URL,
-        BC.BOOK_CLUB_SCHEDULE,
-        W.CRT_DTM
+            BC.BOOK_CLUB_SEQ,
+            BC.BOOK_CLUB_NAME,
+            BC.BOOK_CLUB_DESC,
+            BC.BOOK_CLUB_RG,
+            BC.BOOK_CLUB_MAX_MEMBER,
+            BC.BANNER_IMG_URL,
+            BC.BOOK_CLUB_SCHEDULE,
+            W.CRT_DTM
         FROM BOOK_CLUB BC
-        JOIN BOOK_CLUB_WISH W ON BC.BOOK_CLUB_SEQ = W.BOOK_CLUB_SEQ
+            JOIN BOOK_CLUB_WISH W ON BC.BOOK_CLUB_SEQ = W.BOOK_CLUB_SEQ
         WHERE W.MEMBER_SEQ = #{member_seq}
         ORDER BY W.CRT_DTM DESC
     </select>
@@ -594,14 +542,14 @@
     <!-- 관리 페이지 - JOINED 멤버 목록 조회 (member_info 조인) -->
     <select id="selectJoinedMembersForManage" resultType="project.bookclub.dto.BookClubManageMemberDTO">
         SELECT
-        bcm.book_club_member_seq AS bookClubMemberSeq,
-        bcm.book_club_seq AS bookClubSeq,
-        bcm.member_seq AS memberSeq,
-        CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
-        bcm.join_st AS joinSt,
-        bcm.join_st_update_dtm AS joinStUpdateDtm,
-        m.member_nicknm AS nickname,
-        NULL::text AS profileImgUrl
+            bcm.book_club_member_seq AS bookClubMemberSeq,
+            bcm.book_club_seq AS bookClubSeq,
+            bcm.member_seq AS memberSeq,
+            CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
+            bcm.join_st AS joinSt,
+            bcm.join_st_update_dtm AS joinStUpdateDtm,
+            m.member_nicknm AS nickname,
+            NULL::text AS profileImgUrl
         FROM book_club_member bcm
         INNER JOIN member_info m ON bcm.member_seq = m.member_seq
         WHERE bcm.book_club_seq = #{bookClubSeq}
@@ -612,14 +560,14 @@
     <!-- 관리 페이지 - WAIT 상태 가입 신청 목록 조회 (member_info 조인) -->
     <select id="selectPendingRequestsForManage" resultType="project.bookclub.dto.BookClubJoinRequestDTO">
         SELECT
-        bcr.book_club_request_seq AS requestSeq,
-        bcr.book_club_seq AS bookClubSeq,
-        bcr.request_member_seq AS requestMemberSeq,
-        bcr.request_cont AS requestCont,
-        bcr.request_st AS requestSt,
-        bcr.request_dtm AS requestDtm,
-        m.member_nicknm AS nickname,
-        NULL::text AS profileImgUrl
+            bcr.book_club_request_seq AS requestSeq,
+            bcr.book_club_seq AS bookClubSeq,
+            bcr.request_member_seq AS requestMemberSeq,
+            bcr.request_cont AS requestCont,
+            bcr.request_st AS requestSt,
+            bcr.request_dtm AS requestDtm,
+            m.member_nicknm AS nickname,
+            NULL::text AS profileImgUrl
         FROM book_club_request bcr
         INNER JOIN member_info m ON bcr.request_member_seq = m.member_seq
         WHERE bcr.book_club_seq = #{bookClubSeq}
@@ -634,13 +582,13 @@
     <!-- request 단건 조회 (ID로 조회) -->
     <select id="selectRequestById" resultType="project.bookclub.dto.BookClubJoinRequestDTO">
         SELECT
-        bcr.book_club_request_seq AS requestSeq,
-        bcr.book_club_seq AS bookClubSeq,
-        bcr.request_member_seq AS requestMemberSeq,
-        bcr.request_cont AS requestCont,
-        bcr.request_st AS requestSt,
-        bcr.request_dtm AS requestDtm,
-        bcr.request_processed_dt AS requestProcessedDt
+            bcr.book_club_request_seq AS requestSeq,
+            bcr.book_club_seq AS bookClubSeq,
+            bcr.request_member_seq AS requestMemberSeq,
+            bcr.request_cont AS requestCont,
+            bcr.request_st AS requestSt,
+            bcr.request_dtm AS requestDtm,
+            bcr.request_processed_dt AS requestProcessedDt
         FROM book_club_request bcr
         WHERE bcr.book_club_request_seq = #{requestSeq}
     </select>
@@ -664,17 +612,17 @@
     <!-- book_club_member INSERT (승인 시 사용, leader_yn=false, join_st='JOINED') -->
     <insert id="insertMember">
         INSERT INTO book_club_member (
-        book_club_seq,
-        member_seq,
-        leader_yn,
-        join_st,
-        join_st_update_dtm
+            book_club_seq,
+            member_seq,
+            leader_yn,
+            join_st,
+            join_st_update_dtm
         ) VALUES (
-        #{bookClubSeq},
-        #{memberSeq},
-        false,
-        'JOINED',
-        CURRENT_TIMESTAMP
+            #{bookClubSeq},
+            #{memberSeq},
+            false,
+            'JOINED',
+            CURRENT_TIMESTAMP
         )
     </insert>
 
@@ -693,7 +641,7 @@
     <update id="updateRequestStatus">
         UPDATE book_club_request
         SET request_st = #{status}::request_st_enum,
-        request_processed_dt = CURRENT_DATE
+            request_processed_dt = CURRENT_DATE
         WHERE book_club_request_seq = #{requestSeq}
     </update>
 
@@ -704,14 +652,14 @@
     <!-- 타겟 멤버 상태 조회 (강퇴 검증용) -->
     <select id="selectMemberBySeq" resultType="project.bookclub.dto.BookClubManageMemberDTO">
         SELECT
-        bcm.book_club_member_seq AS bookClubMemberSeq,
-        bcm.book_club_seq AS bookClubSeq,
-        bcm.member_seq AS memberSeq,
-        CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
-        bcm.join_st AS joinSt,
-        bcm.join_st_update_dtm AS joinStUpdateDtm,
-        m.member_nicknm AS nickname,
-        NULL::text AS profileImgUrl
+            bcm.book_club_member_seq AS bookClubMemberSeq,
+            bcm.book_club_seq AS bookClubSeq,
+            bcm.member_seq AS memberSeq,
+            CASE WHEN bcm.leader_yn = true THEN 'Y' ELSE 'N' END AS leaderYn,
+            bcm.join_st AS joinSt,
+            bcm.join_st_update_dtm AS joinStUpdateDtm,
+            m.member_nicknm AS nickname,
+            NULL::text AS profileImgUrl
         FROM book_club_member bcm
         INNER JOIN member_info m ON bcm.member_seq = m.member_seq
         WHERE bcm.book_club_seq = #{bookClubSeq}
@@ -722,7 +670,7 @@
     <update id="updateMemberToKicked">
         UPDATE book_club_member
         SET join_st = 'KICKED'::join_st_enum,
-        join_st_update_dtm = CURRENT_TIMESTAMP
+            join_st_update_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
         AND member_seq = #{memberSeq}
         AND join_st = 'JOINED'
@@ -736,11 +684,11 @@
     <update id="updateBookClubSettings">
         UPDATE book_club
         SET book_club_name = #{name},
-        book_club_desc = #{desc},
-        book_club_rg = #{region},
-        book_club_schedule = #{schedule},
-        banner_img_url = #{bannerImgUrl},
-        upd_dtm = CURRENT_TIMESTAMP
+            book_club_desc = #{desc},
+            book_club_rg = #{region},
+            book_club_schedule = #{schedule},
+            banner_img_url = #{bannerImgUrl},
+            upd_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
         AND book_club_deleted_dt IS NULL
     </update>
@@ -763,8 +711,8 @@
     <update id="updateMemberToLeft">
         UPDATE book_club_member
         SET join_st = 'LEFT'::join_st_enum,
-        join_st_update_dtm = CURRENT_TIMESTAMP,
-        leader_yn = false
+            join_st_update_dtm = CURRENT_TIMESTAMP,
+            leader_yn = false
         WHERE book_club_seq = #{bookClubSeq}
         AND member_seq = #{memberSeq}
         AND join_st = 'JOINED'
@@ -794,7 +742,7 @@
     <update id="updateBookClubLeader">
         UPDATE book_club
         SET book_club_leader_seq = #{newLeaderSeq},
-        upd_dtm = CURRENT_TIMESTAMP
+            upd_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
         AND book_club_deleted_dt IS NULL
     </update>
@@ -803,7 +751,7 @@
     <update id="closeBookClub">
         UPDATE book_club
         SET book_club_deleted_dt = CURRENT_DATE,
-        upd_dtm = CURRENT_TIMESTAMP
+            upd_dtm = CURRENT_TIMESTAMP
         WHERE book_club_seq = #{bookClubSeq}
         AND book_club_deleted_dt IS NULL
     </update>
@@ -846,13 +794,13 @@
     <!-- 좋아요 추가 -->
     <insert id="insertBoardLike">
         INSERT INTO book_club_board_like (
-        book_club_board_seq,
-        member_seq,
-        crt_dtm
+            book_club_board_seq,
+            member_seq,
+            crt_dtm
         ) VALUES (
-        #{boardSeq},
-        #{memberSeq},
-        CURRENT_TIMESTAMP
+            #{boardSeq},
+            #{memberSeq},
+            CURRENT_TIMESTAMP
         )
     </insert>
 
