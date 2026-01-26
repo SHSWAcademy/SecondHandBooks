@@ -115,15 +115,25 @@ public class TradeService {
         return result > 0;
     }
 
-    // 카테고리조회
+    // 카테고리 조회
     public List<TradeVO> selectCategory() {
         return tradeMapper.selectCategory();
     }
     //public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
 
+    // 판매글 sale status를 sold로 업데이트
     @Transactional
-    public void updateStatus(Long trade_seq, String sold, Long member_buyer_seq) {
+    public void updateStatusToSold(Long trade_seq, String sold, Long member_buyer_seq) {
         tradeMapper.updateStatus(trade_seq, sold, member_buyer_seq);
+    }
+
+    // 안전 결제 상태 업데이트
+    // 안전 결제 접근 시 인증 후 safe_payment_st를 PENDING으로 업데이트
+    // 안전 결제로 판매 완료 시 sale_st를 sold로, safe_payment_st를 COMPLETED로 업데이트
+    // 안전 결제로 결제 실패 시 safe_payment_st를 PENDING -> NONE으로 업데이트
+    @Transactional
+    public void updateSafePaymentStatus(long trade_seq, String status) {
+        tradeMapper.updateSafePaymentStatus(trade_seq, status);
     }
 
     // 찜하기 insert
@@ -150,6 +160,7 @@ public class TradeService {
         return tradeMapper.countLikeAll(trade_seq);
     }
 
+    // chat_room_seq 으로 trade 찾기
     public TradeVO findByChatRoomSeq(long chat_room_seq) {
         return tradeMapper.findByChatRoomSeq(chat_room_seq);
     }
@@ -193,11 +204,7 @@ public class TradeService {
         return status != null ? status : "NONE";
     }
 
-    // 안전 결제 상태 업데이트
-    @Transactional
-    public void updateSafePaymentStatus(long trade_seq, String status) {
-        tradeMapper.updateSafePaymentStatus(trade_seq, status);
-    }
+
 
 
     // 안전 결제 요청 처리 (트랜잭션으로 상태 체크, 업데이트 원자적 처리), 5분 만료 시간 설정
