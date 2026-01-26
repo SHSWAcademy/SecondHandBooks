@@ -1,10 +1,13 @@
 package project.trade;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 import project.trade.ENUM.BookStatus;
 import project.trade.ENUM.PaymentType;
 import project.trade.ENUM.SaleStatus;
+import project.util.Const;
 import project.util.book.BookVO;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +39,7 @@ public class TradeVO {
     private String addr_d;          // 수정: address_d -> addr_d
     private String recipient_ph;    // 구매자 전화번호
     private String recipient_nm;    // 구매자 이름
-    private LocalDateTime crt_dtm;  // 완료일자
+//    private LocalDateTime crt_dtm;  // 완료일자
     private LocalDateTime upd_dtm;  // 업데이트 일자
     private PaymentType payment_type; // 거래방법
     private String category_nm; // 카테고리 이름
@@ -76,5 +79,14 @@ public class TradeVO {
 
     public BookVO generateBook () {
         return new BookVO(isbn, book_title, book_author, book_publisher, book_img, book_org_price);
+    }
+
+    @JsonIgnore  // JSON 변환 시 제외
+    private LocalDateTime crt_dtm;
+
+    // JSON으로 반환할 포맷팅된 문자열
+    @JsonProperty("crt_dtm")
+    public String getCrtDtmFormatted() {
+        return crt_dtm != null ? crt_dtm.format(Const.DATETIME_FORMATTER) : null;
     }
 }
