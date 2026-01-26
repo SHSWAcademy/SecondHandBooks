@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.member.MemberVO;
+import project.trade.ENUM.SaleStatus;
 import project.util.exception.TradeNotFoundException;
 
 import java.io.File;
@@ -256,5 +257,11 @@ public class TradeService {
     @Transactional
     public int resetExpiredSafePayments() {
         return tradeMapper.resetExpiredSafePayments();
+    }
+
+    // 판매상태 수동 업데이트
+    @Transactional
+    public boolean statusUpdate(long trade_seq) {
+        return tradeMapper.statusUpdate(trade_seq, SaleStatus.SOLD) > 0;
     }
 }

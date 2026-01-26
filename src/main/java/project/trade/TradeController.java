@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import project.member.MemberService;
 import project.member.MemberVO;
+import project.trade.ENUM.SaleStatus;
 import project.util.Const;
 import project.util.book.BookApiService;
 import project.util.book.BookVO;
@@ -274,6 +275,13 @@ public class TradeController {
         result.put("wished", wished);
 
         return result;
+    }
+
+    // 판매상태 수동처리
+    @PostMapping("/trade/statusUpdate")
+    @ResponseBody
+    public boolean statusUpdate (@RequestParam long trade_seq) {
+        return tradeService.statusUpdate(trade_seq);
     }
 
 }
