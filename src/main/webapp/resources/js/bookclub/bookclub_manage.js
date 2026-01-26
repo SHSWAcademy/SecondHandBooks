@@ -388,8 +388,8 @@ const BookClubManage = (() => {
 
                     if (result.success) {
                         showAlert(result.message, 'success');
-                        removeRequestCard(requestSeq);
-                        updateCounts(result.memberCount, result.pendingCount);
+                        setTimeout(() => location.reload(), 600);
+                        return;
                     } else {
                         showAlert(result.message, 'error');
                         // 실패 시 버튼 원래대로
@@ -470,9 +470,9 @@ const BookClubManage = (() => {
 
                 if (result.success) {
                     showAlert(result.message, 'success');
-                    removeRequestCard(requestSeq);
-                    updateCounts(undefined, result.pendingCount);
                     closeModal();
+                    setTimeout(() => location.reload(), 600);
+                    return;
                 } else {
                     showAlert(result.message, 'error');
                 }
@@ -530,15 +530,8 @@ const BookClubManage = (() => {
 
                     if (result.success) {
                         showAlert(result.message, 'success');
-
-                        // DOM 제거 - 해당 멤버의 tr.member-row 제거
-                        const memberRow = btn.closest('tr.member-row');
-                        if (memberRow) {
-                            memberRow.remove();
-                        }
-
-                        // 현재 인원 업데이트
-                        updateCounts(result.memberCount, undefined);
+                        setTimeout(() => location.reload(), 600);
+                        return;
                     } else {
                         showAlert(result.message, 'error');
                         // 실패 시 버튼 원래대로
