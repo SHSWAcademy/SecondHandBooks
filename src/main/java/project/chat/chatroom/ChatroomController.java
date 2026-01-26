@@ -41,7 +41,7 @@ public class ChatroomController {
     @GetMapping("/chatrooms")
     public String chat(Model model, HttpSession session,
                        @RequestParam(defaultValue = "1") int page
-                       ) {
+    ) {
 
         int size = 10;
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
