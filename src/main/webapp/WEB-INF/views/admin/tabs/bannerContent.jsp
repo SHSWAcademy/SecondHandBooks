@@ -141,29 +141,44 @@
 
   // 2. 배너 저장
   window.saveBanner = async function() {
+    // [1] 유효성 검사 (서버 전송 전에 수행해야 함)
+    const linkValue = document.getElementById('btnLink').value;
+    if (linkValue.includes('<html') || linkValue.includes('<!DOCTYPE')) {
+      alert('잘못된 링크 형식입니다. 페이지를 다시 생성해주세요.\n(HTML 코드가 링크에 포함되어 있습니다)');
+      return;
+    }
+
     const data = {
       title: document.getElementById('bannerTitle').value,
       subtitle: document.getElementById('bannerSubtitle').value,
       bgColorFrom: document.getElementById('colorFrom').value,
       bgColorTo: document.getElementById('colorTo').value,
       btnText: document.getElementById('btnText').value,
-      btnLink: document.getElementById('btnLink').value,
+      btnLink: linkValue,
       iconName: document.getElementById('iconName').value,
-      textAlign: document.getElementById('textAlign').value // DB에 컬럼 추가 필요 (없으면 subtitle 등에 합쳐서 저장하는 꼼수 가능)
+      textAlign: document.getElementById('textAlign').value
     };
 
-    // textAlign 컬럼이 없으면 subtitle 앞부분에 태그로 숨겨서 저장하는 트릭 사용 (간단 구현 위해)
-    // 실제로는 DB 컬럼 추가를 권장합니다. 여기서는 트릭 사용: "text-center|||부제목내용"
+    // textAlign 컬럼이 없으면 subtitle 앞부분에 태그로 숨겨서 저장하는 트릭 사용
     data.subtitle = data.textAlign + '|||' + data.subtitle;
 
-    await fetch('/admin/api/banners', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(data)
-    });
+    try {
+      const res = await fetch('/admin/api/banners', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
 
-    alert('배너가 게시되었습니다.');
-    loadBannerList();
+      if (res.ok) {
+        alert('배너가 게시되었습니다.'); // [2] 오타 수정됨 (documnet -> document 불필요, 로직 이동됨)
+        loadBannerList();
+      } else {
+        alert('저장에 실패했습니다. (서버 오류)');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('저장 중 오류가 발생했습니다.');
+    }
   }
 
   // 3. 배너 목록 로드
@@ -206,26 +221,45 @@
   window.closePageModal = function() {
     document.getElementById('pageModal').classList.add('hidden');
   }
+  // [수정] 임시 페이지 저장 함수 (에러 핸들링 강화)
   window.saveTempPage = async function() {
     const title = document.getElementById('tempPageTitle').value;
     const content = document.getElementById('tempPageContent').value;
 
-    if(!title || !content) { alert('제목과 내용을 입력하세요.'); return; }
+    if (!title || !content) {
+      alert('제목과 내용을 입력하세요.');
+      return;
+    }
 
-    // 서버에 페이지 저장 요청 (별도 API 필요)
-    const res = await fetch('/admin/api/pages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ title, content })
-    });
-    const pageId = await res.text(); // 생성된 페이지 ID 반환 가정
+    try {
+      const res = await fetch('/admin/api/pages', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title, content})
+      });
 
-    // 링크 입력창에 자동 입력
-    document.getElementById('btnLink').value = `/page/view/\${pageId}`;
-    closePageModal();
-    alert('페이지가 생성되었습니다. 링크가 적용되었습니다.');
+      if (!res.ok) {
+        // 에러 발생 시 텍스트(HTML)가 아닌 에러를 던짐
+        throw new Error("서버 저장 실패: " + res.status);
+      }
+
+      const pageId = await res.text(); // 정상적인 ID만 받음
+
+      // ID가 숫자인지 확인
+      if (isNaN(pageId)) {
+        throw new Error("유효하지 않은 응답입니다.");
+      }
+
+      // 링크 입력창에 자동 입력
+      document.getElementById('btnLink').value = `/page/view/\${pageId}`;
+      closePageModal();
+      alert('페이지가 생성되었습니다. 링크가 적용되었습니다.');
+
+    } catch (e) {
+      console.error(e);
+      alert('페이지 생성 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    }
   }
-
   // 초기화
   lucide.createIcons();
   updatePreview();

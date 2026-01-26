@@ -1,54 +1,104 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
 <jsp:include page="header.jsp" />
 
 <div class="space-y-8">
-    <!-- Carousel Hero Banner -->
     <div class="relative overflow-hidden rounded-lg shadow-lg h-[320px]" id="bannerCarousel">
+
         <div class="flex transition-transform duration-500 ease-out h-full" id="bannerSlider">
+            <c:choose>
+                <c:when test="${not empty bannerList}">
+                    <c:forEach var="b" items="${bannerList}" varStatus="st">
+                        <div class="w-full flex-shrink-0 p-12 flex items-center relative"
+                             style="background: linear-gradient(to right, ${b.bgColorFrom}, ${b.bgColorTo});">
 
-            <c:forEach var="b" items="${bannerList}" varStatus="st">
-                <div class="w-full flex-shrink-0 p-12 flex items-center relative"
-                     style="background: linear-gradient(to right, ${b.bgColorFrom}, ${b.bgColorTo});">
+                                <%-- Text Alignment Parsing --%>
+                            <c:set var="alignClass" value="text-left" />
+                            <c:set var="realSubtitle" value="${b.subtitle}" />
+                            <c:if test="${fn:contains(b.subtitle, '|||')}">
+                                <c:set var="parts" value="${fn:split(b.subtitle, '|||')}" />
+                                <c:set var="alignClass" value="${parts[0]}" />
+                                <c:set var="realSubtitle" value="${parts[1]}" />
+                            </c:if>
 
-                        <%-- 텍스트 정렬 파싱 (트릭: text-center|||내용) --%>
-                    <c:set var="alignClass" value="text-left" />
-                    <c:set var="realSubtitle" value="${b.subtitle}" />
-                    <c:if test="${fn:contains(b.subtitle, '|||')}">
-                        <c:set var="parts" value="${fn:split(b.subtitle, '|||')}" />
-                        <c:set var="alignClass" value="${parts[0]}" />
-                        <c:set var="realSubtitle" value="${parts[1]}" />
-                    </c:if>
+                            <div class="z-10 text-white max-w-lg w-full ${alignClass}">
+                                <i data-lucide="${b.iconName != null ? b.iconName : 'star'}" class="w-12 h-12 text-white/80 mb-4 inline-block"></i>
 
-                    <div class="z-10 text-white max-w-lg w-full ${alignClass}">
-                        <i data-lucide="${b.iconName}" class="w-12 h-12 text-white/80 mb-4 inline-block"></i>
+                                <h1 class="text-4xl font-extrabold mb-4 leading-tight">${b.title}</h1>
+                                <p class="text-white/90 text-lg mb-8 font-medium">${realSubtitle}</p>
 
-                        <h1 class="text-4xl font-extrabold mb-4 leading-tight">${b.title}</h1>
-                        <p class="text-white/90 text-lg mb-8 font-medium">${realSubtitle}</p>
+                                <c:if test="${not empty b.btnLink}">
+                                    <a href="${b.btnLink}" class="bg-white text-gray-900 px-6 py-3 rounded-md font-bold text-sm hover:bg-gray-100 transition shadow-md inline-block">
+                                            ${b.btnText}
+                                    </a>
+                                </c:if>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </c:when>
 
-                        <a href="${b.btnLink}" class="bg-white text-gray-900 px-6 py-3 rounded-md font-bold text-sm hover:bg-gray-100 transition shadow-md inline-block">
-                                ${b.btnText}
-                        </a>
+                <c:otherwise>
+                    <div class="w-full flex-shrink-0 bg-gradient-to-r from-gray-700 to-gray-900 p-12 flex items-center relative">
+                        <div class="z-10 text-white max-w-lg">
+                            <h1 class="text-4xl font-extrabold mb-4">Shinhan Books</h1>
+                            <p class="text-white/90 text-lg mb-8">Welcome. Experience better trading.</p>
+                        </div>
                     </div>
-                </div>
-            </c:forEach>
-
-        <!-- Carousel Controls -->
-        <div class="absolute bottom-6 left-12 flex gap-2 z-20" id="bannerDots">
-            <button onclick="setBanner(0)" class="w-2 h-2 rounded-full transition-all bg-white w-6"></button>
-            <button onclick="setBanner(1)" class="w-2 h-2 rounded-full transition-all bg-white/40 hover:bg-white/60"></button>
-            <button onclick="setBanner(2)" class="w-2 h-2 rounded-full transition-all bg-white/40 hover:bg-white/60"></button>
+                </c:otherwise>
+            </c:choose>
         </div>
 
-        <button onclick="prevBanner()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 p-2 rounded-full text-white backdrop-blur-sm transition">
+        <div class="absolute bottom-6 left-12 flex gap-2 z-20" id="bannerDots">
+            <c:choose>
+                <c:when test="${not empty bannerList}">
+                    <c:forEach var="b" items="${bannerList}" varStatus="st">
+                        <button onclick="setBanner(${st.index})" class="w-2 h-2 rounded-full transition-all ${st.first ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/60'}"></button>
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <button class="w-2 h-2 rounded-full bg-white w-6"></button>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <button onclick="prevBanner()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 p-2 rounded-full text-white backdrop-blur-sm transition z-30">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
-        <button onclick="nextBanner()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 p-2 rounded-full text-white backdrop-blur-sm transition">
+        <button onclick="nextBanner()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 p-2 rounded-full text-white backdrop-blur-sm transition z-30">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
-    </div>
 
+    </div> <div class="flex flex-col gap-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 gap-4">
+        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            Total Items
+            <c:if test="${not empty trades}">
+                <span class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">${trades.size()} ea</span>
+            </c:if>
+        </h2>
+        <div class="ml-4 flex items-center gap-2">
+            <input type="text"
+                   id="searchInput"
+                   placeholder="Book title, author, publisher, etc."
+                   class="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"/>
+            <button onclick="searchTrade()"
+                    class="px-3 py-1.5 bg-gray-900 text-white text-sm rounded-md hover:bg-gray-700 transition">
+                Search
+            </button>
+        </div>
+        <div class="flex gap-4 text-sm text-gray-500 font-medium">
+            <a href="/?sort=newest" class="transition-colors ${param.sort == 'newest' || empty param.sort ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">Newest</a>
+            <span class="text-gray-300">|</span>
+            <a href="/?sort=priceAsc" class="transition-colors ${param.sort == 'priceAsc' ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">Lowest Price</a>
+            <span class="text-gray-300">|</span>
+            <a href="/?sort=likes" class="transition-colors ${param.sort == 'likes' ? 'text-gray-900 font-bold' : 'hover:text-gray-700'}">Popularity</a>
+        </div>
+    </div>
     <div class="flex flex-col gap-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-4 gap-4">
             <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">

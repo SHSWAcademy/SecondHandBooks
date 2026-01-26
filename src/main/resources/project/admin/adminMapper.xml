@@ -236,16 +236,16 @@
     </insert>
 
     <delete id="deleteBanner">
-        DELETE FROM BANNER WHERE BANNER_SEQ = #{seq}
+        DELETE FROM BANNER WHERE BANNER_SEQ = #{bannerSeq}
     </delete>
 
-    <insert id="insertTempPage" useGeneratedKeys="true" keyProperty="pageSeq" keyColumn="PAGE_SEQ">
+    <insert id="insertTempPage" useGeneratedKeys="true" keyProperty="pageSeq">
         INSERT INTO TEMP_PAGE (TITLE, CONTENT)
         VALUES (#{title}, #{content})
     </insert>
 
     <select id="selectTempPage" resultMap="TempPageMap">
-        SELECT * FROM TEMP_PAGE WHERE PAGE_SEQ = #{seq}
+        SELECT * FROM TEMP_PAGE WHERE PAGE_SEQ = #{pageSeq}
     </select>
 
     <insert id="insertNotice">
