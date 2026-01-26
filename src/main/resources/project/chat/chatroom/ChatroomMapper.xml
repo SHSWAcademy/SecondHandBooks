@@ -24,7 +24,13 @@
     </update>
 
     <select id="findRoom" resultType="project.chat.chatroom.ChatroomVO">
-        SELECT chat_room_seq, trade_seq, crt_dtm, member_seller_seq, member_buyer_seq
+        SELECT
+            chat_room_seq,
+            trade_seq, crt_dtm,
+            member_seller_seq,
+            member_buyer_seq,
+            (SELECT member_nicknm FROM member_info WHERE chatroom.member_seller_seq = member_seq) AS member_seller_nicknm,
+            (SELECT member_nicknm FROM member_info WHERE chatroom.member_buyer_seq = member_seq) AS member_buyer_nicknm
         FROM chatroom
         WHERE member_seller_seq=#{member_seller_seq} and member_buyer_seq=#{member_buyer_seq} and trade_seq=#{trade_seq}
     </select>

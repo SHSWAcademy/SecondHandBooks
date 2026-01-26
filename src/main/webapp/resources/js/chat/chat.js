@@ -165,16 +165,16 @@ function setupChatroomClick() {
             const selectedRoomSeq = this.getAttribute('data-chat-room-seq');
             chat_room_seq = Number(selectedRoomSeq);
 
-            // 메시지 영역 초기화
             document.getElementById("chatContainer").innerHTML =
                 '<div id="emptyNotice">이전 메시지가 없습니다.</div>';
 
-            // 헤더 제목 갱신
             const titleEl = this.querySelector('.room-title');
-            document.getElementById("chatHeader").textContent =
-                titleEl ? titleEl.textContent : '';
+            const headerTitleEl = document.getElementById('chatHeaderTitle');
 
-            // STOMP 재연결
+            if (headerTitleEl && titleEl) {
+                headerTitleEl.textContent = titleEl.textContent;
+            }
+
             if (stompClient) {
                 stompClient.disconnect(() => connect());
             }
@@ -183,6 +183,7 @@ function setupChatroomClick() {
         });
     });
 }
+
 
 /* -------------------------------
    메시지 AJAX 조회
