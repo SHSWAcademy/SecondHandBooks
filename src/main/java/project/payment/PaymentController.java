@@ -18,7 +18,6 @@ import project.trade.ENUM.SaleStatus;
 import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.Const;
-import project.util.Util;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
