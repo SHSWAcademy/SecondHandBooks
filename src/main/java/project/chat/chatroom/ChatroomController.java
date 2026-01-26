@@ -146,8 +146,7 @@ public class ChatroomController {
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION); // 메시지 읽음 처리할 회원
 
         // 권한 체크 추가
-        if (!chatroomService.isMemberOfChatroom(chat_room_seq,
-                sessionMember.getMember_seq())) {
+        if (sessionMember == null || !chatroomService.isMemberOfChatroom(chat_room_seq, sessionMember.getMember_seq())) {
             log.warn("권한 없는 채팅방 메시지 조회 시도: member_seq={}, chat_room_seq={}", sessionMember.getMember_seq(), chat_room_seq);
             return new List[]{Collections.emptyList()};
         }

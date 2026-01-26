@@ -13,6 +13,7 @@ import project.chat.message.MessageService;
 import project.chat.message.MessageVO;
 import project.member.MemberVO;
 import project.trade.TradeService;
+import project.trade.TradeVO;
 import project.util.Const;
 
 import java.util.Map;
@@ -71,6 +72,22 @@ public class StompController {
 
     private boolean canUseSafePayment(Long chat_room_seq, long trade_seq, String chatMessage, MemberVO sessionMember) {
         if ("[SAFE_PAYMENT_REQUEST]".equals(chatMessage)) {
+
+            // // '판매자' 만 안전 결제 요청 가능, 다른 유저가 시도 시 return false
+            TradeVO trade = tradeService.search(trade_seq);
+            if (trade == null || trade.getMember_seller_seq() != sessionMember.getMember_seq()) {
+                log.warn("안전결제 요청 권한 없음: member_seq={}, trade_seq={}", sessionMember.getMember_seq(), trade_seq);
+
+                // 에러 메시지 전송
+                MessageVO errorMsg = new MessageVO();
+                errorMsg.setChat_room_seq(chat_room_seq);
+                errorMsg.setSender_seq(sessionMember.getMember_seq());
+                errorMsg.setChat_cont("[SAFE_PAYMENT_UNAUTHORIZED]");
+                errorMsg.setTrade_seq(trade_seq);
+
+                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
+                return false;
+            }
 
             // 안전 결제 요청 : 내부적으로 안전 결제 상태 확인
             boolean canRequest = tradeService.requestSafePayment(trade_seq);
