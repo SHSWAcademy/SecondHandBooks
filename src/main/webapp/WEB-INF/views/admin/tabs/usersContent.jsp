@@ -13,7 +13,7 @@
         <div class="flex items-center gap-3">
           <!-- 검색 타입 -->
           <select
-            id="searchType"
+            id="userSearchType"
             class="px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
             <option value="all">전체</option>
             <option value="nickname">닉네임</option>
@@ -24,7 +24,7 @@
           <div class="flex-1 relative">
             <input
               type="text"
-              id="searchKeyword"
+              id="userSearchKeyword"
               placeholder="검색어를 입력하세요..."
               class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition pl-10"
               onkeypress="if(event.keyCode === 13) searchMembers()">
@@ -54,7 +54,7 @@
     <thead class="bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
     <tr><th class="px-6 py-4 text-left">회원 정보</th><th class="px-6 py-4 text-left">상태</th><th class="px-6 py-4 text-left">가입일</th><th class="px-6 py-4 text-right">관리</th></tr>
     </thead>
-    <tbody class="divide-y divide-gray-50">
+    <tbody id="userTableBody" class="divide-y divide-gray-50">
     <c:forEach var="m" items="${members}">
       <tr class="hover:bg-gray-50/50 transition-colors">
         <td class="px-6 py-4">
@@ -76,7 +76,7 @@
     </tbody>
   </table>
 
-  <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+  <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-center">
       <div id="userPaginationInfo" class="text-sm text-gray-500">
           </div>
       <div id="userPaginationButtons" class="flex gap-1">
@@ -87,8 +87,8 @@
 <script>
     function searchMembers(page) {
         const p = page || 1;
-        const searchType = document.getElementById('searchType').value;
-        const keyword = document.getElementById('searchKeyword').value;
+        const searchType = document.getElementById('userSearchType').value;
+        const keyword = document.getElementById('userSearchKeyword').value;
         const url = '/admin/api/users?page=' + p
                   + '&size=10'
                   + '&keyword=' + encodeURIComponent(keyword)
@@ -115,7 +115,7 @@
     }
 
     function renderMemberTable(members) {
-        const tbody = document.querySelector('tbody.divide-y');
+        const tbody = document.querySelector('#userTableBody');
         tbody.innerHTML = ''; // 기존 내용 삭제
 
         if (!members || members.length === 0) {
@@ -196,8 +196,8 @@
     }
 
     function users_resetSearch() {
-        document.getElementById('searchKeyword').value = '';
-        document.getElementById('searchType').value = 'all';
+        document.getElementById('userSearchKeyword').value = '';
+        document.getElementById('userSearchType').value = 'all';
         searchMembers(1);
     }
 
