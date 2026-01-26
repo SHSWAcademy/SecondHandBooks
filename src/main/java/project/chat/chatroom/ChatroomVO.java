@@ -2,6 +2,7 @@ package project.chat.chatroom;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import project.trade.ENUM.SaleStatus;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -18,6 +19,7 @@ public class ChatroomVO {
     private String sale_title;
     private long member_buyer_seq;
     private long member_seller_seq;
+    private SaleStatus sale_st; // 각 채팅방들의 거래 판매 상태
 
     public ChatroomVO(long trade_seq, long member_buyer_seq, long member_seller_seq, String sale_title) {
         this.trade_seq = trade_seq;

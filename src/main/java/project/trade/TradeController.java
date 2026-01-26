@@ -129,10 +129,27 @@ public class TradeController {
     // 판매글 update 등록
     @PostMapping("/trade/modify/{tradeSeq}")
     public String modifyUpload(@PathVariable Long tradeSeq, TradeVO updateTrade,
-                               RedirectAttributes redirectAttributes) throws Exception {
+                               RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
 
-        //checkSessionAndTrade(session, updateTrade);
-        // if (updateTrade.getMember_seller_seq() != (MemberVO)session.getAttribute(Const.SESSION).getMember_seq())
+        // 기존 게시글 조회
+        TradeVO existingTrade = tradeService.search(tradeSeq);
+        if (existingTrade == null) {
+            return "redirect:/";
+        }
+
+        // 세션 검증
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+        if (sessionMember == null) {
+            return "redirect:/";
+        }
+
+        // 수정하려는 사람의 pk가 게시글의 작성자 pk와 동일한지 검증
+        if (existingTrade.getMember_seller_seq() != sessionMember.getMember_seq()) {
+            return "redirect:/";
+        }
+
+        // updateTrade에 seller seq 할당
+        updateTrade.setMember_seller_seq(sessionMember.getMember_seq());
 
 
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
@@ -233,10 +250,9 @@ public class TradeController {
         // 비동기처리를 위해 map을 json으로 변환하여 전달
         Map<String, Object> result = new HashMap<>();
 
-        if (memberVO.getMember_seq() == 0) {
+        if (memberVO == null || memberVO.getMember_seq() == 0) {
             result.put("success", false);
             result.put("message", "로그인이 필요합니다.");
-            return result;
         }
 
         boolean wished = tradeService.saveLike(trade_seq, memberVO.getMember_seq());
