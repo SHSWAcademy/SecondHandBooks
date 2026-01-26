@@ -373,6 +373,18 @@ public class BookClubController {
         // 댓글 목록 조회
         List<BookClubBoardVO> comments = bookClubService.getBoardComments(bookClubId, postId);
 
+        // 좋아요 여부 설정 (로그인 사용자)
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember != null) {
+            Long memberSeq = loginMember.getMember_seq();
+            // 게시글 좋아요 여부
+            post.setIs_liked(bookClubService.isBoardLiked(post.getBook_club_board_seq(), memberSeq));
+            // 댓글 좋아요 여부
+            for (BookClubBoardVO comment : comments) {
+                comment.setIs_liked(bookClubService.isBoardLiked(comment.getBook_club_board_seq(), memberSeq));
+            }
+        }
+
         // model에 데이터 담기
         model.addAttribute("post", post);
         model.addAttribute("comments", comments);
@@ -721,6 +733,54 @@ public class BookClubController {
                     bookClubId, loginMemberSeq, e.getMessage());
             return Map.of("success", false, "message", e.getMessage());
         }
+    }
+
+    /**
+     * 게시글/댓글 좋아요 토글 (AJAX용)
+     * POST /bookclubs/{bookClubId}/boards/{boardSeq}/like
+     * - 로그인 필수
+     * - 모임 멤버만 좋아요 가능
+     * - 좋아요 상태 토글 (좋아요 ↔ 좋아요 해제)
+     */
+    @PostMapping("/{bookClubId}/boards/{boardSeq}/like")
+    @ResponseBody
+    public Map<String, Object> toggleBoardLike(
+            @PathVariable("bookClubId") Long bookClubId,
+            @PathVariable("boardSeq") Long boardSeq,
+            HttpSession session) {
+
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return Map.of("status", "fail", "message", "로그인이 필요합니다.", "needLogin", true);
+        }
+
+        Long memberSeq = loginMember.getMember_seq();
+
+        // 모임 멤버 여부 확인
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            return Map.of("status", "fail", "message", "존재하지 않거나 종료된 모임입니다.");
+        }
+
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
+
+        if (!isLeader && !isMember) {
+            return Map.of("status", "fail", "message", "모임 멤버만 좋아요할 수 있습니다.");
+        }
+
+        // 좋아요 토글 실행
+        boolean isLiked = bookClubService.toggleBoardLike(boardSeq, memberSeq);
+
+        // 새로운 좋아요 개수 조회
+        int likeCount = bookClubService.getBoardLikeCount(boardSeq);
+
+        return Map.of(
+                "status", "ok",
+                "liked", isLiked,
+                "likeCount", likeCount,
+                "message", isLiked ? "좋아요를 눌렀습니다." : "좋아요를 취소했습니다."
+        );
     }
 
     /**

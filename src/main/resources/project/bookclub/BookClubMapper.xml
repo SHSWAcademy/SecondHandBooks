@@ -288,7 +288,8 @@
                 FROM book_club_board c
                 WHERE c.parent_book_club_board_seq = bcb.book_club_board_seq
                   AND (c.board_deleted_yn IS NULL OR c.board_deleted_yn = false)
-            ) AS comment_count
+            ) AS comment_count,
+            (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -317,7 +318,8 @@
             bcb.crt_dtm AS board_crt_dtm,
             bcb.upd_dtm AS board_upd_dtm,
             to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-            m.member_nicknm
+            m.member_nicknm,
+            (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -344,7 +346,8 @@
             bcb.crt_dtm AS board_crt_dtm,
             bcb.upd_dtm AS board_upd_dtm,
             to_char(bcb.crt_dtm, 'YYYY-MM-DD HH24:MI') AS board_crt_dtm_text,
-            m.member_nicknm
+            m.member_nicknm,
+            (SELECT COUNT(*) FROM book_club_board_like WHERE book_club_board_seq = bcb.book_club_board_seq) AS like_count
         FROM book_club_board bcb
         INNER JOIN member_info m ON bcb.member_seq = m.member_seq
         WHERE bcb.book_club_seq = #{bookClubSeq}
@@ -717,5 +720,44 @@
           AND book_club_deleted_dt IS NULL
         FOR UPDATE
     </select>
+
+    <!-- ===================================== -->
+    <!-- 게시글/댓글 좋아요 관련 -->
+    <!-- ===================================== -->
+
+    <!-- 게시글/댓글의 좋아요 개수 조회 -->
+    <select id="selectBoardLikeCount" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_board_like
+        WHERE book_club_board_seq = #{boardSeq}
+    </select>
+
+    <!-- 특정 멤버의 좋아요 여부 확인 -->
+    <select id="selectBoardLikeExists" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_board_like
+        WHERE book_club_board_seq = #{boardSeq}
+          AND member_seq = #{memberSeq}
+    </select>
+
+    <!-- 좋아요 추가 -->
+    <insert id="insertBoardLike">
+        INSERT INTO book_club_board_like (
+            book_club_board_seq,
+            member_seq,
+            crt_dtm
+        ) VALUES (
+            #{boardSeq},
+            #{memberSeq},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <!-- 좋아요 취소 -->
+    <delete id="deleteBoardLike">
+        DELETE FROM book_club_board_like
+        WHERE book_club_board_seq = #{boardSeq}
+          AND member_seq = #{memberSeq}
+    </delete>
 
 </mapper>

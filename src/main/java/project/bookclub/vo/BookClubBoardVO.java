@@ -33,4 +33,8 @@ public class BookClubBoardVO {
     private String book_title;
     private String book_author;
     private String book_img_url;
+
+    // 좋아요 관련 필드
+    private Integer like_count;  // 좋아요 개수
+    private Boolean is_liked;    // 현재 로그인 사용자의 좋아요 여부
 }
