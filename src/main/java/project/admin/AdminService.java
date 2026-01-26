@@ -37,8 +37,8 @@ public class AdminService {
         return adminMapper.searchTrades(searchVO);
     }
 
-    public List<BookClubVO> searchBookClubs(String keyword) {
-        return adminMapper.searchBookClubs(keyword);
+    public List<BookClubVO> searchBookClubs(SearchVO searchVO) {
+        return adminMapper.searchBookClubs(searchVO);
     }
 
     // --- 관리 액션 (API) ---
@@ -163,5 +163,9 @@ public class AdminService {
 
     public int countAllTradesBySearch(SearchVO searchVO) {
         return adminMapper.countAllTradesBySearch(searchVO);
+    }
+
+    public int countAllGroupsBySearch(SearchVO searchVO) {
+        return adminMapper.countAllGroupsBySearch(searchVO);
     }
 }

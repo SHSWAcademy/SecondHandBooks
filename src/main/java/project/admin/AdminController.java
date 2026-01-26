@@ -105,8 +105,12 @@ public class AdminController {
     // [API] 모임 목록
     @GetMapping("/api/clubs")
     @ResponseBody
-    public List<BookClubVO> getClubs(@RequestParam(required = false) String keyword) {
-        return adminService.searchBookClubs(keyword);
+    public PageResult<BookClubVO> getClubs(SearchVO searchVO) {
+        List<BookClubVO> list = adminService.searchBookClubs(searchVO);
+
+        int total = adminService.countAllGroupsBySearch(searchVO);
+
+        return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
     }
 
     // [API] 모임 삭제
