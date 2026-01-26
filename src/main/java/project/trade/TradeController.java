@@ -253,6 +253,7 @@ public class TradeController {
         if (memberVO == null || memberVO.getMember_seq() == 0) {
             result.put("success", false);
             result.put("message", "로그인이 필요합니다.");
+            return result;
         }
 
         boolean wished = tradeService.saveLike(trade_seq, memberVO.getMember_seq());
