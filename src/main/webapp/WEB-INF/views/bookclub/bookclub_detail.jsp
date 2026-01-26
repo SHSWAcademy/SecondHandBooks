@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+            <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+                <sec:csrfMetaTags />
             <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
             <!-- 독서모임 상세 페이지 전용 CSS -->
@@ -142,9 +144,9 @@
                                         </div>
                                     </div>
 
-                                    <!-- 버튼 분기 처리 (기존 로직 유지) -->
+                                    <!-- CTA 버튼 분기 처리 (ctaStatus 기반) -->
                                     <c:choose>
-                                        <%-- 1순위: 비로그인 상태 --%>
+                                        <%-- 비로그인: 로그인 후 이용 버튼 --%>
                                             <c:when test="${not isLogin}">
                                                 <a href="${pageContext.request.contextPath}/login"
                                                     class="bc-btn bc-btn-secondary">
@@ -152,36 +154,64 @@
                                                 </a>
                                             </c:when>
 
-                                            <%-- 2순위: 모임장 --%>
-                                                <c:when test="${isLeader}">
-                                                    <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/edit"
-                                                        class="bc-btn bc-btn-primary">
-                                                        모임 관리하기
-                                                    </a>
-                                                </c:when>
+                                            <%-- 로그인 상태: ctaStatus에 따라 분기 --%>
+                                                <c:otherwise>
+                                                    <%-- 모임장이면 관리 버튼 우선 표시 (선택 사항: 멤버 상태와 병행 가능) --%>
+                                                        <c:if test="${isLeader}">
+                                                            <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/manage"
+                                                                class="bc-btn bc-btn-primary"
+                                                                style="margin-right: 8px;">
+                                                                모임 관리하기
+                                                            </a>
+                                                        </c:if>
 
-                                                <%-- 3순위: 가입된 멤버 --%>
-                                                    <c:when test="${isMember}">
-                                                        <button type="button" class="bc-btn bc-btn-danger"
-                                                            onclick="if(confirm('정말 모임을 나가시겠습니까?')) { alert('TODO: 모임 나가기 API 구현 예정'); }">
-                                                            모임 나가기
-                                                        </button>
-                                                    </c:when>
+                                                        <%-- CTA 상태별 버튼 렌더링 (JOINED> WAIT > REJECTED > NONE) --%>
+                                                            <c:choose>
+                                                                <%-- 멤버인 경우: 탈퇴하기 버튼 --%>
+                                                                    <c:when test="${ctaStatus == 'JOINED'}">
+                                                                        <button type="button"
+                                                                            id="btnLeaveBookClub"
+                                                                            class="bc-btn bc-btn-danger"
+                                                                            data-club-id="${bookClub.book_club_seq}"
+                                                                            data-is-leader="${isLeader}">
+                                                                            탈퇴하기
+                                                                        </button>
+                                                                    </c:when>
 
-                                                    <%-- 4순위: 신청중 상태 (request_st='WAIT' ) --%>
-                                                        <c:when test="${hasPendingRequest}">
-                                                            <button type="button" class="bc-btn bc-btn-secondary"
-                                                                disabled>
-                                                                신청중
-                                                            </button>
-                                                        </c:when>
+                                                                    <%-- 승인 대기 중: 비활성 버튼 --%>
+                                                                        <c:when test="${ctaStatus == 'WAIT'}">
+                                                                            <button type="button"
+                                                                                class="bc-btn bc-btn-secondary"
+                                                                                disabled>
+                                                                                승인 대기중
+                                                                            </button>
+                                                                        </c:when>
 
-                                                        <%-- 5순위: 비멤버 (로그인했지만 가입하지 않음, 신청하지도 않음) --%>
-                                                            <c:otherwise>
-                                                                <button type="button" id="btnOpenApplyModal" class="bc-btn bc-btn-primary">
-                                                                    가입 신청하기
-                                                                </button>
-                                                            </c:otherwise>
+                                                                        <%-- 거절된 경우: 다시 신청하기 버튼 --%>
+                                                                            <c:when test="${ctaStatus == 'REJECTED'}">
+                                                                                <form method="post"
+                                                                                    action="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/join-requests"
+                                                                                    style="display: inline;">
+                                                                                    <button type="submit"
+                                                                                        class="bc-btn bc-btn-primary">
+                                                                                        다시 신청하기
+                                                                                    </button>
+                                                                                </form>
+                                                                            </c:when>
+
+                                                                            <%-- 신청 이력 없음: 가입 신청하기 버튼 --%>
+                                                                                <c:otherwise>
+                                                                                    <form method="post"
+                                                                                        action="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/join-requests"
+                                                                                        style="display: inline;">
+                                                                                        <button type="submit"
+                                                                                            class="bc-btn bc-btn-primary">
+                                                                                            가입 신청하기
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </c:otherwise>
+                                                            </c:choose>
+                                                </c:otherwise>
                                     </c:choose>
                                 </div>
                             </div>

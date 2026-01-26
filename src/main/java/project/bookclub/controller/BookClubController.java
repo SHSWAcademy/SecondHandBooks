@@ -43,8 +43,8 @@ public class BookClubController {
         // 1. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
 
-        // 2. 조회 결과 없음 처리
-        if (bookClub == null) {
+        // 2. 조회 결과 없음 또는 삭제된 모임 처리
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
             model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
             return;
         }
@@ -63,7 +63,7 @@ public class BookClubController {
             boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
             model.addAttribute("isLeader", isLeader);
 
-            // 4-2. 멤버 여부 판단
+            // 4-2. 멤버 여부 판단 (JOINED 상태)
             boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
             model.addAttribute("isMember", isMember);
 
@@ -71,15 +71,36 @@ public class BookClubController {
             boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
             model.addAttribute("hasPendingRequest", hasPendingRequest);
 
-            // 4-4. 찜 여부 판단
+            // 4-4. 거절된 가입 신청 여부 판단
+            boolean hasRejectedRequest = bookClubService.hasRejectedRequest(bookClubId, loginMemberSeq);
+            model.addAttribute("hasRejectedRequest", hasRejectedRequest);
+
+            // 4-5. 찜 여부 판단
             boolean isWished = bookClubService.isWished(bookClubId, loginMemberSeq);
             model.addAttribute("isWished", isWished);
+
+            // 4-6. CTA 상태 계산 (우선순위: JOINED > WAIT > REJECTED > 신청 가능)
+            // - isLeader는 별도로 "모임 관리하기" 버튼 표시에 사용 가능
+            // - CTA는 가입/탈퇴/대기/재신청 상태를 나타냄
+            String ctaStatus;
+            if (isMember) {
+                ctaStatus = "JOINED"; // 탈퇴하기 버튼
+            } else if (hasPendingRequest) {
+                ctaStatus = "WAIT"; // 승인 대기중 문구 (버튼 비활성)
+            } else if (hasRejectedRequest) {
+                ctaStatus = "REJECTED"; // 다시 신청하기 버튼
+            } else {
+                ctaStatus = "NONE"; // 가입 신청하기 버튼
+            }
+            model.addAttribute("ctaStatus", ctaStatus);
         } else {
             // 비로그인 시 기본값 설정
             model.addAttribute("isLeader", false);
             model.addAttribute("isMember", false);
             model.addAttribute("hasPendingRequest", false);
+            model.addAttribute("hasRejectedRequest", false);
             model.addAttribute("isWished", false);
+            model.addAttribute("ctaStatus", "NONE"); // 비로그인은 가입 신청하기만 표시
         }
 
         // 5. 현재 참여 인원 수 조회
@@ -197,7 +218,21 @@ public class BookClubController {
     public String getBookClubDetail(
             @PathVariable("bookClubId") Long bookClubId,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        // 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+            Long memberSeq = (loginMember != null ? loginMember.getMember_seq() : null);
+
+            log.warn("종료된 모임 상세 GET 접근: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
+
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
         // 공통 model 세팅 메서드 호출
         loadBookClubDetailModel(bookClubId, session, model);
         return "bookclub/bookclub_detail";
@@ -221,14 +256,36 @@ public class BookClubController {
             HttpSession session,
             Model model) {
 
-        // 권한 검증 (공통 메서드 재사용)
-        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
-        if (permissionCheckResult != null) {
-            // fragment에서는 redirect 불가 → 로그인 실패도 forbidden 처리
+        model.addAttribute("bookClubId", bookClubId);
+
+        // 1. 로그인 여부 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            // fragment에서는 redirect 불가 → forbidden 처리
             return "bookclub/bookclub_board_forbidden";
         }
 
-        // 권한 있음: 공통 model 세팅 + 게시판 목록 조회
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시판 fragment 접근: bookClubId={}, memberSeq={}", bookClubId, loginMemberSeq);
+            // 종료된 모임 전용 fragment 반환
+            return "bookclub/bookclub_closed_fragment";
+        }
+
+        // 3. 권한 판정 (모임장 또는 JOINED 멤버만)
+        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
+
+        if (!isLeader && !isMember) {
+            // 권한 없음 - forbidden fragment 반환
+            model.addAttribute("isLogin", true);
+            return "bookclub/bookclub_board_forbidden";
+        }
+
+        // 4. 권한 있음: 공통 model 세팅 + 게시판 목록 조회
         loadBookClubDetailModel(bookClubId, session, model);
 
         // 게시판 목록 조회 (최근 원글 10개)
@@ -240,10 +297,10 @@ public class BookClubController {
 
     /**
      * 권한 검증 공통 메서드
-     * 
-     * @return 권한 있으면 null, 없으면 forbidden view 이름
+     *
+     * @return 권한 있으면 null, 없으면 forbidden view 이름 또는 redirect
      */
-    private String checkBoardAccessPermission(Long bookClubId, HttpSession session, Model model) {
+    private String checkBoardAccessPermission(Long bookClubId, Long postId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         model.addAttribute("bookClubId", bookClubId);
 
         // 1. 로그인 여부 확인
@@ -256,9 +313,10 @@ public class BookClubController {
 
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
-            return "bookclub/bookclub_post_forbidden";
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시글 GET 접근: bookClubId={}, postId={}, memberSeq={}", bookClubId, postId, loginMemberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
         }
 
         // 3. 권한 판정
@@ -294,10 +352,11 @@ public class BookClubController {
             @PathVariable("bookClubId") Long bookClubId,
             @PathVariable("postId") Long postId,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
         // 권한 검증 (공통 메서드 재사용)
-        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, postId, session, model, redirectAttributes);
         if (permissionCheckResult != null) {
             return permissionCheckResult;
         }
@@ -348,8 +407,9 @@ public class BookClubController {
 
         // 2. 권한 체크 (모임장 OR JOINED 멤버)
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 댓글 작성 시도: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
             return "redirect:/bookclubs";
         }
 
@@ -406,6 +466,14 @@ public class BookClubController {
         }
         Long memberSeq = loginMember.getMember_seq();
 
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 댓글 수정 시도: bookClubId={}, commentId={}, memberSeq={}", bookClubId, commentId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
         // 2. 댓글 조회 및 권한 확인
         var comment = bookClubService.getBoardCommentById(commentId);
         if (comment == null) {
@@ -454,6 +522,14 @@ public class BookClubController {
         }
         Long memberSeq = loginMember.getMember_seq();
 
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 댓글 삭제 시도: bookClubId={}, commentId={}, memberSeq={}", bookClubId, commentId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
         // 2. 댓글 조회
         var comment = bookClubService.getBoardCommentById(commentId);
         if (comment == null) {
@@ -497,6 +573,14 @@ public class BookClubController {
             return "redirect:/login";
         }
 
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 가입 신청 시도: bookClubId={}, memberSeq={}", bookClubId, loginMember.getMember_seq());
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
         // 2. Service 호출 → enum 결과 받기 (비즈니스 로직은 Service에 위임)
         JoinRequestResult result = bookClubService.createJoinRequest(
                 bookClubId,
@@ -533,6 +617,13 @@ public class BookClubController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
             return Map.of("status", "fail", "message", "로그인이 필요합니다.");
+        }
+
+        // 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 가입 시도: bookClubId={}, memberSeq={}", bookClubId, loginMember.getMember_seq());
+            return Map.of("status", "fail", "message", "존재하지 않거나 종료된 모임입니다.");
         }
 
         String reason = (body != null) ? body.get("reason") : null;
@@ -581,6 +672,58 @@ public class BookClubController {
     }
 
     /**
+     * 독서모임 탈퇴 (AJAX용)
+     * POST /bookclubs/{bookClubId}/leave
+     *
+     * 검증 순서:
+     * 1. 로그인 확인
+     * 2. 모임 존재 여부 확인
+     * 3. Service 레이어에서 비즈니스 로직 처리:
+     * - 일반 멤버: join_st='LEFT' 업데이트
+     * - 모임장: 자동 승계 또는 모임 종료
+     *
+     * @return JSON {success, message, leaderChanged?, newLeaderSeq?, clubClosed?,
+     *         ctaStatus}
+     */
+    @PostMapping("/{bookClubId}/leave")
+    @ResponseBody
+    public Map<String, Object> leaveBookClub(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session) {
+
+        // 1. 로그인 확인
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            log.warn("비로그인 상태에서 탈퇴 시도: bookClubId={}", bookClubId);
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        Long loginMemberSeq = loginMember.getMember_seq();
+
+        // 2. 모임 조회
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 탈퇴 시도: bookClubId={}", bookClubId);
+            return Map.of("success", false, "message", "존재하지 않거나 종료된 모임입니다.");
+        }
+
+        // 3. Service 호출 (비즈니스 로직 위임)
+        try {
+            Map<String, Object> result = bookClubService.leaveBookClub(bookClubId, loginMemberSeq);
+
+            log.info("멤버 탈퇴 완료: bookClubId={}, memberSeq={}, result={}",
+                    bookClubId, loginMemberSeq, result);
+
+            return result;
+
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            log.warn("멤버 탈퇴 실패: bookClubId={}, memberSeq={}, error={}",
+                    bookClubId, loginMemberSeq, e.getMessage());
+            return Map.of("success", false, "message", e.getMessage());
+        }
+    }
+
+    /**
      * 파일 저장 (설정된 uploadPath에 저장)
      */
     private String saveFile(MultipartFile file) throws IOException {
@@ -617,10 +760,11 @@ public class BookClubController {
     public String createPostForm(
             @PathVariable("bookClubId") Long bookClubId,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
         // 권한 검증
-        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, null, session, model, redirectAttributes);
         if (permissionCheckResult != null) {
             return permissionCheckResult;
         }
@@ -663,8 +807,9 @@ public class BookClubController {
 
         // 2. 권한 체크 (모임장 OR JOINED 멤버)
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시글 작성 시도: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
             return "redirect:/bookclubs";
         }
 
@@ -742,6 +887,14 @@ public class BookClubController {
 
         Long memberSeq = loginMember.getMember_seq();
 
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시글 수정 폼 접근: bookClubId={}, postId={}, memberSeq={}", bookClubId, postId, memberSeq);
+            model.addAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "bookclub/bookclub_post_forbidden";
+        }
+
         // 2. 게시글 조회
         BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
         if (post == null) {
@@ -755,8 +908,7 @@ public class BookClubController {
             return "bookclub/bookclub_post_forbidden";
         }
 
-        // 4. 모임 정보 조회
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        // 4. 모임 정보 조회 (이미 위에서 조회했으므로 재사용)
         model.addAttribute("bookClub", bookClub);
         model.addAttribute("bookClubId", bookClubId);
         model.addAttribute("post", post);
@@ -793,6 +945,14 @@ public class BookClubController {
         }
 
         Long memberSeq = loginMember.getMember_seq();
+
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시글 수정 시도: bookClubId={}, postId={}, memberSeq={}", bookClubId, postId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
 
         // 2. 게시글 조회
         BookClubBoardVO existingPost = bookClubService.getBoardDetail(bookClubId, postId);
@@ -884,8 +1044,9 @@ public class BookClubController {
 
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
-        if (bookClub == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않는 모임입니다.");
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시글 삭제 시도: bookClubId={}, postId={}, memberSeq={}", bookClubId, postId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
             return "redirect:/bookclubs";
         }
 
