@@ -416,6 +416,14 @@ public class BookClubController {
         }
         Long memberSeq = loginMember.getMember_seq();
 
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 댓글 수정 시도: bookClubId={}, commentId={}, memberSeq={}", bookClubId, commentId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
         // 2. 댓글 조회 및 권한 확인
         var comment = bookClubService.getBoardCommentById(commentId);
         if (comment == null) {
@@ -463,6 +471,14 @@ public class BookClubController {
             return "redirect:/login";
         }
         Long memberSeq = loginMember.getMember_seq();
+
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 댓글 삭제 시도: bookClubId={}, commentId={}, memberSeq={}", bookClubId, commentId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
 
         // 2. 댓글 조회
         var comment = bookClubService.getBoardCommentById(commentId);
@@ -789,6 +805,14 @@ public class BookClubController {
 
         Long memberSeq = loginMember.getMember_seq();
 
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시글 수정 폼 접근: bookClubId={}, postId={}, memberSeq={}", bookClubId, postId, memberSeq);
+            model.addAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "bookclub/bookclub_post_forbidden";
+        }
+
         // 2. 게시글 조회
         BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
         if (post == null) {
@@ -802,8 +826,7 @@ public class BookClubController {
             return "bookclub/bookclub_post_forbidden";
         }
 
-        // 4. 모임 정보 조회
-        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        // 4. 모임 정보 조회 (이미 위에서 조회했으므로 재사용)
         model.addAttribute("bookClub", bookClub);
         model.addAttribute("bookClubId", bookClubId);
         model.addAttribute("post", post);
@@ -840,6 +863,14 @@ public class BookClubController {
         }
 
         Long memberSeq = loginMember.getMember_seq();
+
+        // 1-1. 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            log.warn("종료된 모임 게시글 수정 시도: bookClubId={}, postId={}, memberSeq={}", bookClubId, postId, memberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
 
         // 2. 게시글 조회
         BookClubBoardVO existingPost = bookClubService.getBoardDetail(bookClubId, postId);
