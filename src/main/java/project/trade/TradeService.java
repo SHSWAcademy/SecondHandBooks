@@ -202,7 +202,8 @@ public class TradeService {
     @Transactional
     public String getSafePaymentStatus(long trade_seq) {
         String status = tradeMapper.findSafePaymentStatus(trade_seq);
-        return status != null ? status : "NONE";
+
+        return status;
     }
 
     // 안전 결제 요청 처리 (트랜잭션으로 상태 체크, 업데이트 원자적 처리), 5분 만료 시간 설정
