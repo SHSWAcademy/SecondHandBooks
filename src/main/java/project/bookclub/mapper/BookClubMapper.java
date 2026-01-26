@@ -191,4 +191,23 @@ public interface BookClubMapper {
      * 멤버 탈퇴 시 승계/종료 동시성 이슈 방지
      */
     Long lockBookClubForUpdate(@Param("bookClubSeq") Long bookClubSeq);
+
+    // ===================================
+    // 게시글/댓글 좋아요 관련
+    // ===================================
+
+    // 게시글/댓글의 좋아요 개수 조회
+    int selectBoardLikeCount(@Param("boardSeq") Long boardSeq);
+
+    // 특정 멤버의 좋아요 여부 확인
+    int selectBoardLikeExists(@Param("boardSeq") Long boardSeq,
+                               @Param("memberSeq") Long memberSeq);
+
+    // 좋아요 추가
+    int insertBoardLike(@Param("boardSeq") Long boardSeq,
+                        @Param("memberSeq") Long memberSeq);
+
+    // 좋아요 취소
+    int deleteBoardLike(@Param("boardSeq") Long boardSeq,
+                        @Param("memberSeq") Long memberSeq);
 }
