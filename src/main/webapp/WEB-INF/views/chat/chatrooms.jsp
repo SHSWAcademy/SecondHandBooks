@@ -1518,8 +1518,6 @@ fetchMessages = function(roomSeq) {
             // 메시지 렌더링
             if (Array.isArray(messages)) {
                 messages.forEach(msg => showMessage(msg));
-            // 상대방 닉네임 헤더 갱신
-            renderChatHeaderWithMessages(messages);
             }
         } else if (Array.isArray(data)) {
             // 기존 형식 호환 (단일 배열)
@@ -1540,7 +1538,6 @@ function renderChatBookInfo(tradeInfo) {
     const bookPriceEl = document.getElementById('chatBookPrice');
     const bookSale_stEl = document.getElementById('chatSale_st');
     const headerTitleEl = document.getElementById('chatHeaderTitle');
-    const headerSubEl = document.getElementById('chatHeaderSub');
 
     // 채팅 헤더 제목
     if (headerTitleEl) {
@@ -1580,28 +1577,6 @@ function renderChatBookInfo(tradeInfo) {
     // 책 정보 영역 보이게
     if (bookInfoEl) bookInfoEl.style.display = 'flex';
 }
-
-// 상대방 닉네임 표시 (messages 기준, 모델이 없을 경우만)
-function renderChatHeaderWithMessages(messages) {
-    const headerSubEl = document.getElementById('chatHeaderSub');
-    if (!headerSubEl || !Array.isArray(messages) || messages.length === 0) return;
-
-    // 모델에서 이미 값이 들어있는지 체크
-    if (headerSubEl.textContent && headerSubEl.textContent.trim() !== '') return;
-
-    // 첫 메시지 기준으로 상대방 닉네임 가져오기
-    const firstMsg = messages[0];
-    console.log('상대방 닉네임 출력' , firstMsg);
-    let otherNick = '';
-    if (loginMemberSeq === firstMsg.member_seller_seq) {
-        otherNick = firstMsg.member_buyer_nicknm || '';
-    } else {
-        otherNick = firstMsg.member_seller_nicknm || '';
-    }
-
-    headerSubEl.textContent = otherNick ? `${otherNick}님과의 채팅` : '';
-}
-
 
 // =====================================================
 // 이미지 전송 기능
