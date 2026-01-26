@@ -172,7 +172,7 @@
 
             const tdDate = document.createElement('td');
             tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
-            tdDate.textContent = m.crt_dtm ? String(m.crt_dtm).substring(0, 10) : '-';
+            tdDate.textContent = m.crt_dtm ? String(m.crt_dtm) : '-';
 
             const tdAction = document.createElement('td');
             tdAction.className = 'px-6 py-4 text-right';
