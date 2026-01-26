@@ -57,7 +57,7 @@ public class TradeVO {
     private String search_word;
     private String sort;
 
-    private String safe_payment_st; // 안전결제 상태: NONE, PENDING, COMPLETED
+    private String safe_payment_st; // 안전결제 상태: NONE, PENDING, COMPLETED -> enum으로 리팩토링 하기
     private LocalDateTime safe_payment_expire_dtm; // 안전결제 만료 시간
 
     public boolean checkTradeVO() {
