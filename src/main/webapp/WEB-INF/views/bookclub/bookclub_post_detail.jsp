@@ -439,6 +439,90 @@
         white-space: nowrap;
         border: 0;
     }
+
+    /* 좋아요 버튼 스타일 - 게시글용 (크고 가운데 정렬) */
+    .bc-like-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 9999px;
+        background: white;
+        color: #718096;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bc-like-btn:hover {
+        background: #ebf8ff;
+        border-color: #4299e1;
+        color: #2b6cb0;
+    }
+
+    .bc-like-btn.liked {
+        background: #ebf8ff;
+        border-color: #4299e1;
+        color: #2b6cb0;
+    }
+
+    .bc-like-btn.liked svg {
+        fill: #4299e1;
+    }
+
+    .bc-like-btn svg {
+        transition: fill 0.2s;
+    }
+
+    .bc-post-footer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem 0;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 2rem;
+    }
+
+    /* 좋아요 버튼 스타일 - 댓글용 */
+    .bc-comment-like-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.625rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 9999px;
+        background: white;
+        color: #a0aec0;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .bc-comment-like-btn:hover {
+        background: #ebf8ff;
+        border-color: #4299e1;
+        color: #2b6cb0;
+    }
+
+    .bc-comment-like-btn.liked {
+        background: #ebf8ff;
+        border-color: #4299e1;
+        color: #2b6cb0;
+    }
+
+    .bc-comment-like-btn.liked svg {
+        fill: #4299e1;
+    }
+
+    .bc-comment-footer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
 </style>
 
 <c:choose>
@@ -564,6 +648,21 @@
                     </div>
                 </c:if>
 
+                <!-- 게시글 좋아요 버튼 -->
+                <div class="bc-post-footer">
+                    <button type="button" class="bc-like-btn ${post.is_liked ? 'liked' : ''}"
+                            id="post-like-btn"
+                            data-board-seq="${post.book_club_board_seq}"
+                            onclick="toggleLike(${bookClubId}, ${post.book_club_board_seq}, 'post')">
+                        <svg width="24" height="24" fill="${post.is_liked ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                        </svg>
+                        <span>좋아요</span>
+                        <span id="post-like-count">${post.like_count != null ? post.like_count : 0}</span>
+                    </button>
+                </div>
+
                 <!-- 댓글 영역 -->
                 <div class="bc-comments-section" id="comments">
                     <h2 class="bc-comments-title">
@@ -633,6 +732,20 @@
                                             </c:if>
                                         </div>
                                         <p class="bc-comment-content" id="comment-content-${c.book_club_board_seq}">${fn:escapeXml(c.board_cont)}</p>
+
+                                        <%-- 댓글 좋아요 버튼 --%>
+                                        <div class="bc-comment-footer">
+                                            <button type="button" class="bc-comment-like-btn ${c.is_liked ? 'liked' : ''}"
+                                                    id="comment-like-btn-${c.book_club_board_seq}"
+                                                    data-board-seq="${c.book_club_board_seq}"
+                                                    onclick="toggleLike(${bookClubId}, ${c.book_club_board_seq}, 'comment')">
+                                                <svg width="14" height="14" fill="${c.is_liked ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                          d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                                                </svg>
+                                                <span id="comment-like-count-${c.book_club_board_seq}">${c.like_count != null ? c.like_count : 0}</span>
+                                            </button>
+                                        </div>
 
                                         <%-- 수정 폼 (작성자만) --%>
                                         <c:if test="${c.member_seq == loginMemberSeq}">
@@ -715,6 +828,52 @@
             document.body.appendChild(form);
             form.submit();
         }
+    }
+
+    // 좋아요 토글 (게시글/댓글 공통)
+    function toggleLike(bookClubId, boardSeq, type) {
+        fetch('${pageContext.request.contextPath}/bookclubs/' + bookClubId + '/boards/' + boardSeq + '/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                // 좋아요 상태 업데이트
+                var btn, countSpan, svg;
+                if (type === 'post') {
+                    btn = document.getElementById('post-like-btn');
+                    countSpan = document.getElementById('post-like-count');
+                } else {
+                    btn = document.getElementById('comment-like-btn-' + boardSeq);
+                    countSpan = document.getElementById('comment-like-count-' + boardSeq);
+                }
+
+                if (btn && countSpan) {
+                    countSpan.textContent = data.likeCount;
+                    svg = btn.querySelector('svg');
+
+                    if (data.liked) {
+                        btn.classList.add('liked');
+                        if (svg) svg.setAttribute('fill', 'currentColor');
+                    } else {
+                        btn.classList.remove('liked');
+                        if (svg) svg.setAttribute('fill', 'none');
+                    }
+                }
+            } else if (data.needLogin) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '${pageContext.request.contextPath}/login';
+            } else {
+                alert(data.message || '좋아요 처리에 실패했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('좋아요 오류:', error);
+            alert('좋아요 처리 중 오류가 발생했습니다.');
+        });
     }
 </script>
 
