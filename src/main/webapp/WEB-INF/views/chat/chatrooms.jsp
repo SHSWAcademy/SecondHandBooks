@@ -96,6 +96,15 @@
         gap: 4px;
     }
 
+    .msg-nickName {
+        font-size: 15px;
+        color: #868e96;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
     /* + 버튼 및 안전결제 메뉴 */
     .plus-btn-wrapper {
         position: relative;
@@ -348,6 +357,7 @@
                     <c:when test="${not empty messages}">
                         <c:forEach var="msg" items="${messages}">
                             <div class="${msg.sender_seq == sessionScope.loginSess.member_seq ? 'msg-right' : 'msg-left'}">
+                                <div class="msg-time" style="color:red;">${msg.sender_seq}</div>
                                 <div class="content">${msg.chat_cont}</div>
                                 <div class="msg-time">
                                     <%
