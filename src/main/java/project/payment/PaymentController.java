@@ -111,7 +111,7 @@ public class PaymentController {
         // 프론트에 payment 전송 후
 
         // 1. trade의 sale_st를 SOLD로 변경 : 판매 완료 처리
-        tradeService.updateStatus(trade_seq, "SOLD", buyer.getMember_seq());
+        tradeService.updateStatusToSold(trade_seq, "SOLD", buyer.getMember_seq());
 
         // 2. trade의 safe_payment_st를 COMPLETED로 변경 : 안전결제 완료 처리
         tradeService.completeSafePayment(trade_seq);
@@ -229,17 +229,22 @@ public class PaymentController {
 
     // 결제 실패 시 채팅방에 메시지 전달
     private void sendPaymentFailedMessage(Long trade_seq) {
-        Long chatRoomSeq = chatroomService.findChatRoomSeqByTradeSeq(trade_seq);
-        if (chatRoomSeq != null) {
-            MessageVO failMsg = new MessageVO();
-            failMsg.setChat_room_seq(chatRoomSeq);
-            failMsg.setSender_seq(0L); // 시스템 메시지
-            failMsg.setChat_cont("[SAFE_PAYMENT_FAILED]");
+        try {
+            Long chat_room_seq = chatroomService.findChatRoomSeqByTradeSeq(trade_seq);
+            if (chat_room_seq != null) {
+                MessageVO failMsg = new MessageVO();
+                failMsg.setChat_room_seq(chat_room_seq);
+                failMsg.setSender_seq(0L); // 시스템 메시지
+                failMsg.setChat_cont("[SAFE_PAYMENT_FAILED]");
 
-            messageService.saveMessage(failMsg);
-            messagingTemplate.convertAndSend("/chatroom/" + chatRoomSeq, failMsg);
+                messageService.saveMessage(failMsg);
+                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, failMsg);
 
-            log.info("결제 실패 메시지 전송: chat_room_seq={}", chatRoomSeq);
+                log.info("결제 실패 메시지 전송: chat_room_seq={}", chat_room_seq);
+            }
+        } catch (Exception e) {
+            log.error("결제 실패 메시지 전송 실패 : trade_seq = {}", trade_seq, e);
+            // 상세 예외 처리 마지막에 하기 + 리팩토링
         }
     }
 

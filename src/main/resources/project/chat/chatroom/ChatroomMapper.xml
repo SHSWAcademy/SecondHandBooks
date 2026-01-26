@@ -49,8 +49,8 @@
         <if test="sale_st != null and sale_st != ''">
             AND t.sale_st = #{sale_st}::sale_st_enum
         </if>
-        <!-- ORDER BY c.crt_dtm DESC 로 정렬했다가 최신 메시지 순으로 교체-->
-        ORDER BY c.last_msg_dtm DESC NULLS LAST
+        <!-- ORDER BY c.last_msg_dtm DESC NULLS LAST 로 정렬했다가 채팅방 생성 날짜 순으로 교체-->
+        ORDER BY c.crt_dtm DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 

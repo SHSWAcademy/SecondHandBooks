@@ -147,7 +147,7 @@ public class ChatroomController {
 
         // 권한 체크 추가
         if (sessionMember == null || !chatroomService.isMemberOfChatroom(chat_room_seq, sessionMember.getMember_seq())) {
-            log.warn("권한 없는 채팅방 메시지 조회 시도: member_seq={}, chat_room_seq={}", sessionMember.getMember_seq(), chat_room_seq);
+            log.warn("권한 없는 채팅방 메시지 조회 시도");
             return new List[]{Collections.emptyList()};
         }
 
