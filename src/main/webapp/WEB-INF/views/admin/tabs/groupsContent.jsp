@@ -113,57 +113,49 @@ function searchGroups(page) {
             return;
         }
 
-        groups.forEach(t => {
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-50/50 transition-colors';
+        groups.forEach(g => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50/50 transition-colors';
 
-            const tdTitle = document.createElement('td');
-            tdTitle.className = 'px-6 py-4';
+                const tdTitle = document.createElement('td');
+                tdTitle.className = 'px-6 py-4';
+                const titleP = document.createElement('p');
+                titleP.className = 'text-sm font-bold text-gray-900';
+                titleP.textContent = g.book_club_name || '이름 없음';
+                tdTitle.appendChild(titleP);
 
-            const mainP = document.createElement('p');
-            mainP.className = 'text-sm font-bold text-gray-900 w-64 truncate';
-            mainP.textContent = t.sale_title;
+                const tdRegion = document.createElement('td');
+                tdRegion.className = 'px-6 py-4 text-xs text-gray-500';
+                const regionDiv = document.createElement('div');
+                regionDiv.className = 'flex items-center gap-1';
 
-            const subP = document.createElement('p');
-            subP.className = 'text-[10px] text-gray-400';
-            subP.textContent = t.book_title;
+                const pinIcon = document.createElement('i');
+                pinIcon.setAttribute('data-lucide', 'map-pin');
+                pinIcon.className = 'w-3 h-3';
 
-            tdTitle.appendChild(mainP);
-            tdTitle.appendChild(subP);
+                regionDiv.appendChild(pinIcon);
+                regionDiv.appendChild(document.createTextNode(' ' + (g.book_club_rg || '-')));
+                tdRegion.appendChild(regionDiv);
 
-            const tdPrice = document.createElement('td');
-            tdPrice.className = 'px-6 py-4 text-sm font-black text-primary-600';
+                const tdMax = document.createElement('td');
+                tdMax.className = 'px-6 py-4 text-xs font-bold text-primary-600';
+                tdMax.textContent = (g.book_club_max_member || 0) + '명';
 
-            const priceText = Number(t.sale_price).toLocaleString() + '원';
-            tdPrice.textContent = priceText;
+                const tdSchedule = document.createElement('td');
+                tdSchedule.className = 'px-6 py-4 text-xs text-gray-500';
+                tdSchedule.textContent = g.book_club_schedule || '-';
 
-            const tdRegion = document.createElement('td');
-            tdRegion.className = 'px-6 py-4 text-xs text-gray-500';
-            tdRegion.textContent = t.sale_rg || '-';
+                const tdDate = document.createElement('td');
+                tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
+                tdDate.textContent = g.crt_dtm ? String(g.crt_dtm).substring(0, 10) : '-';
 
-            const tdStatus = document.createElement('td');
-            tdStatus.className = 'px-6 py-4';
-            const statusBadge = document.createElement('span');
-            statusBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ';
-            if (t.sale_st === 'SALE') {
-                statusBadge.className += 'bg-green-50 text-green-600';
-            } else {
-                statusBadge.className += 'bg-gray-100 text-gray-500';
-            }
-            statusBadge.textContent = t.sale_st;
-            tdStatus.appendChild(statusBadge);
+                tr.appendChild(tdTitle);
+                tr.appendChild(tdRegion);
+                tr.appendChild(tdMax);
+                tr.appendChild(tdSchedule);
+                tr.appendChild(tdDate);
 
-            const tdDate = document.createElement('td');
-            tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
-            tdDate.textContent = t.crt_dtm ? String(t.crt_dtm).substring(0,10) : '-';
-
-            tr.appendChild(tdTitle);
-            tr.appendChild(tdPrice);
-            tr.appendChild(tdRegion);
-            tr.appendChild(tdStatus);
-            tr.appendChild(tdDate);
-
-            tbody.appendChild(tr);
+                tbody.appendChild(tr);
         });
         if (window.lucide) {
             lucide.createIcons();
