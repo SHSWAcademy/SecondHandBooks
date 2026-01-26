@@ -32,11 +32,16 @@ public class BookClubService {
         return bookClubMapper.searchAll();
     }
 
-    // #1-2. 독서모임 검색
-    public List<BookClubVO> searchBookClubs(String keyword) {
+    // #1-2. 독서모임 검색 (정렬 옵션 포함)
+    public List<BookClubVO> searchBookClubs(String keyword, String sort) {
+        // 정렬 옵션 검증 (기본값: latest)
+        if (sort == null || (!sort.equals("latest") && !sort.equals("activity"))) {
+            sort = "latest";
+        }
+
         // 키워드 없으면 전체 검색
         if (keyword == null || keyword.isBlank()) {
-            return bookClubMapper.searchAll();
+            return bookClubMapper.searchAllWithSort(sort);
         }
 
         List<String> tokens = new ArrayList<>();
@@ -46,11 +51,11 @@ public class BookClubService {
         }
 
         if (tokens.isEmpty()) {
-            return bookClubMapper.searchAll();
+            return bookClubMapper.searchAllWithSort(sort);
         }
 
-        // 키워드 검색 SQL
-        return bookClubMapper.searchByKeyword(tokens);
+        // 키워드 검색 SQL (정렬 옵션 포함)
+        return bookClubMapper.searchByKeywordWithSort(tokens, sort);
     }
 
     // #1-3. 독서모임 생성 가능 여부 : 로그인 여부, (추후) 생성 개수 제한, 권한

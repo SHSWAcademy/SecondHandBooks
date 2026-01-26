@@ -327,9 +327,44 @@
     display: none;
 }
 
-/* 결과 정보 숨김 */
+/* 결과 정보 및 정렬 */
 .result-info {
-    display: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.result-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.sort-toggle {
+    display: flex;
+    gap: 8px;
+}
+
+.sort-btn {
+    padding: 6px 14px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.sort-btn.active {
+    background: #3a3a3a;
+    color: #fff;
+    border-color: #3a3a3a;
+}
+
+.sort-btn:hover:not(.active) {
+    border-color: #aaa;
 }
 
 /* 카드 그리드 - 5개씩 배치 */

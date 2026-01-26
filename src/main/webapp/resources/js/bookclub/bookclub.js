@@ -1,6 +1,7 @@
 const BookClub = (() => {
 
     let debounceTimer = null;
+    let currentSort = "latest"; // 기본 정렬: 최신순
 
     /** 초기화 */
     function initList() {
@@ -12,18 +13,41 @@ const BookClub = (() => {
 
             debounceTimer = setTimeout(() => {
                 const keyword = keywordInput.value.trim();
-                search(keyword);
+                search(keyword, currentSort);
             }, 300); // 입력 멈춘 후 300ms
         });
+
+        // 정렬 버튼 초기화
+        initSortButtons();
     }
+
+    /** 정렬 버튼 초기화 */
+    function initSortButtons() {
+        const sortBtns = document.querySelectorAll(".sort-btn");
+        sortBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                // 버튼 활성화 상태 변경
+                sortBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                // 정렬 값 변경 및 재검색
+                currentSort = btn.dataset.sort;
+                const keywordInput = document.getElementById("keyword");
+                const keyword = keywordInput ? keywordInput.value.trim() : "";
+                search(keyword, currentSort);
+            });
+        });
+    }
+
     // 초기 전체 조회
-    search("");
+    search("", "latest");
 
     /** 서버 검색 요청 */
-    function search(keyword) {
-        const url = keyword
-            ? `/bookclubs/search?keyword=${encodeURIComponent(keyword)}`
-            : `/bookclubs/search`;
+    function search(keyword, sort) {
+        let url = `/bookclubs/search?sort=${sort || "latest"}`;
+        if (keyword) {
+            url += `&keyword=${encodeURIComponent(keyword)}`;
+        }
 
         fetch(url, {
             method: "GET",
@@ -44,6 +68,12 @@ const BookClub = (() => {
     function renderList(list) {
         const grid = document.getElementById("bookclubGrid");
         grid.innerHTML = "";
+
+        // 모임 개수 업데이트
+        const clubCountEl = document.getElementById("clubCount");
+        if (clubCountEl) {
+            clubCountEl.textContent = list ? list.length : 0;
+        }
 
         if (!list || list.length === 0) {
             grid.innerHTML = `
@@ -97,7 +127,7 @@ const BookClub = (() => {
     function reload() {
         const keywordInput = document.getElementById("keyword");
         const keyword = keywordInput ? keywordInput.value.trim() : "";
-        search(keyword);
+        search(keyword, currentSort);
     }
 
     return {
