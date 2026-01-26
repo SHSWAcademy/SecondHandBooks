@@ -21,4 +21,13 @@ public class SafePaymentScheduler {
             log.info("만료된 안전결제 {}건 초기화 완료", count);
         }
     }
+
+    // 15일 지난 구매 자동 확정 (1일 1회 실행)
+    @Scheduled(cron = "0 0 0 * * *")  // 매일 자정
+    public void autoConfirmExpiredPurchases() {
+        int count = tradeService.autoConfirmExpiredPurchases();
+        if (count > 0) {
+            log.info("15일 경과 구매 확정 처리: {}건", count);
+        }
+    }
 }

@@ -88,6 +88,14 @@ public class MvcConfig implements WebMvcConfigurer {
         dataSource.setJdbcUrl(url);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
+
+        // 공용 RDS를 위한 커넥션 풀 설정
+        dataSource.setMaximumPoolSize(5);      // 최대 커넥션 수 (공용이므로 작게)
+        dataSource.setMinimumIdle(2);          // 최소 유휴 커넥션
+        dataSource.setConnectionTimeout(30000); // 커넥션 획득 대기 시간 (30초)
+        dataSource.setIdleTimeout(600000);     // 유휴 커넥션 유지 시간 (10분)
+        dataSource.setMaxLifetime(1800000);    // 커넥션 최대 수명 (30분)
+
         return dataSource;
     }
 

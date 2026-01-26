@@ -259,6 +259,57 @@ public class TradeService {
         return tradeMapper.resetExpiredSafePayments();
     }
 
+
+    // 판매자 수동 sold 변경
+    @Transactional
+    public boolean updateToSoldManually(long trade_seq, long member_seq) {
+        return tradeMapper.updateToSoldManually(trade_seq, member_seq) > 0;
+    }
+
+    // 구매 확정
+    @Transactional
+    public boolean confirmPurchase(long trade_seq, long member_seq) {
+        return tradeMapper.confirmPurchase(trade_seq, member_seq) > 0;
+    }
+
+    // 15일 지난 미확정 건 자동 확정
+    @Transactional
+    public int autoConfirmExpiredPurchases() {
+        return tradeMapper.autoConfirmExpiredPurchases();
+    }
+
+    // 구매자의 안전결제 구매 내역 조회
+    public List<TradeVO> findPurchasesByBuyer(long member_seq) {
+        return tradeMapper.findPurchasesByBuyer(member_seq);
+    }
+
+
+
+
+    // 수정 가능 여부 체크
+    public boolean canEdit(TradeVO trade, long member_seq) {
+        // 본인 글이 아니면 불가
+        if (trade.getMember_seller_seq() != member_seq) return false;
+        // sold면 불가
+        if ("sold".equals(trade.getSale_st())) return false;
+        // 안전결제 진행중(PENDING)이면 불가
+        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
+        return true;
+    }
+
+    // 삭제 가능 여부 체크
+    public boolean canDelete(TradeVO trade, long member_seq) {
+        // 본인 글이 아니면 불가
+        if (trade.getMember_seller_seq() != member_seq) return false;
+        // 안전결제 완료(COMPLETED)면 불가
+        if ("COMPLETED".equals(trade.getSafe_payment_st())) return false;
+        // 안전결제 진행중(PENDING)이면 불가
+        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
+        // 수동 sold(confirm_purchase가 null)면 삭제 가능
+        return true;
+    }
+
+
     // 판매상태 수동 업데이트
     @Transactional
     public boolean statusUpdate(long trade_seq) {

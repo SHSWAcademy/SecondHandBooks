@@ -136,21 +136,26 @@
             }
         }
 
-        // 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            // 탭 링크 클릭 이벤트
-            document.querySelectorAll('[data-tab]').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const tabName = link.dataset.tab;
-                    loadTab(tabName);
-                });
-            });
 
-            // 첫 로드시 profile 활성화
-            updateActiveTab('profile');
-            lucide.createIcons();
-        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+              // 탭 링크 클릭 이벤트
+              document.querySelectorAll('[data-tab]').forEach(link => {
+                  link.addEventListener('click', (e) => {
+                      e.preventDefault();
+                      const tabName = link.dataset.tab;
+                      loadTab(tabName);
+                  });
+              });
+
+              // URL에서 현재 탭 확인
+              const pathParts = window.location.pathname.split('/');
+              const currentTab = pathParts[2] || 'profile';  // /mypage/purchases -> purchases
+
+              // 해당 탭 로드
+              loadTab(currentTab);
+              lucide.createIcons();
+          });
 
         // 브라우저 뒤로가기
         window.addEventListener('popstate', (event) => {
@@ -158,6 +163,41 @@
                 loadTab(event.state.tab, event.state.params || {});
             }
         });
+
+        function updateToSold(trade_seq) {
+            if (!confirm('판매 완료 처리하면 다시 판매 중으로 되돌릴 수 없습니다.\n(판매글 수정 불가, 삭제 가능)')) {
+                return;
+            }
+
+            fetch('/trade/sold/' + trade_seq, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('판매 완료 처리되었습니다.');
+                        location.reload();
+                    } else {
+                        alert('처리에 실패했습니다.');
+                    }
+                });
+        }
+
+        function confirmPurchase(trade_seq) {
+            if (!confirm('구매를 확정하시겠습니까?')) {
+                return;
+            }
+
+            fetch('/trade/confirm/' + trade_seq, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('구매 확정되었습니다.');
+                        location.reload();
+                    } else {
+                        alert('처리에 실패했습니다.');
+                    }
+                });
+        }
+
 </script>
 
 <jsp:include page="../common/footer.jsp" />

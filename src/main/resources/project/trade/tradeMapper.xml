@@ -132,15 +132,7 @@
         SET del_dtm = now()
         WHERE trade_seq = #{trade_seq}
     </update>
-    <update id="updateStatus">
-        UPDATE sb_trade_info
-        SET
-            sale_st = #{sold}::sale_st_enum,
-            sale_st_dtm = now(),
-            book_sale_dtm = now(),
-            member_buyer_seq = #{member_buyer_seq}
-        WHERE trade_seq = #{trade_seq}
-    </update>
+
     <select id="findAll" resultType="project.trade.TradeVO">
         SELECT
         trade_seq,
@@ -329,6 +321,7 @@
         , T.SALE_RG
         , T.SALE_ST_DTM
         , T.BOOK_IMG
+        , T.CONFIRM_PURCHASE
         FROM SB_TRADE_INFO T
         WHERE T.MEMBER_BUYER_SEQ = #{member_seq}
         AND T.DEL_DTM IS NULL
@@ -346,13 +339,14 @@
         , T.SALE_ST_DTM
         , T.CRT_DTM
         , T.BOOK_IMG
+        , T.SAFE_PAYMENT_ST
         FROM SB_TRADE_INFO T
         WHERE T.MEMBER_SELLER_SEQ = #{member_seq}
         AND T.DEL_DTM IS NULL
         <if test="status != null and status !='all'">
             AND T.SALE_ST = #{status}::sale_st_enum
         </if>
-        ORDER BY T.SALE_ST_DTM DESC
+        ORDER BY T.CRT_DTM DESC
     </select>
 
     <!-- 안전결제 상태 조회 (비관적 락) -->
@@ -413,5 +407,67 @@
         WHERE trade_seq = #{trade_seq}
     </select>
 
+
+    <!-- 판매자 수동 sold 변경 (sale일 때만 가능, safe_payment_st가 NONE일 때만)
+  -->
+    <update id="updateToSoldManually">
+        UPDATE sb_trade_info
+        SET sale_st = 'sold'::sale_st_enum,
+        sale_st_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+        AND member_seller_seq = #{member_seq}
+        AND sale_st = 'sale'::sale_st_enum
+        AND (safe_payment_st IS NULL OR safe_payment_st = 'NONE')
+    </update>
+
+    <!-- 안전결제 완료 시 (기존 updateStatus 수정) -->
+    <!--
+    <update id="updateStatus">
+        UPDATE sb_trade_info
+        SET
+            sale_st = #{sold}::sale_st_enum,
+            sale_st_dtm = now(),
+            book_sale_dtm = now(),
+            member_buyer_seq = #{member_buyer_seq}
+        WHERE trade_seq = #{trade_seq}
+    </update>
+    -->
+    <update id="updateStatus">
+        UPDATE sb_trade_info
+        SET sale_st = #{sold}::sale_st_enum,
+        sale_st_dtm = now(),
+        book_sale_dtm = now(),
+        member_buyer_seq = #{member_buyer_seq},
+        confirm_purchase = false   <!-- 안전결제 완료 시 false로 설정 -->
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 구매 확정 -->
+    <update id="confirmPurchase">
+        UPDATE sb_trade_info
+        SET confirm_purchase = true
+        WHERE trade_seq = #{trade_seq}
+        AND member_buyer_seq = #{member_seq}
+        AND confirm_purchase = false
+    </update>
+
+    <!-- 15일 지난 미확정 건 자동 확정 (스케줄러용) -->
+    <update id="autoConfirmExpiredPurchases">
+        <![CDATA[
+            UPDATE sb_trade_info
+            SET confirm_purchase = true
+            WHERE confirm_purchase = false
+            AND sale_st_dtm < now() - INTERVAL '15 days'
+            ]]>
+    </update>
+
+    <!-- 구매자의 안전결제 구매 내역 조회 -->
+    <select id="findPurchasesByBuyer" resultType="project.trade.TradeVO">
+        SELECT *
+        FROM sb_trade_info
+        WHERE member_buyer_seq = #{member_seq}
+        AND confirm_purchase IS NOT NULL
+        ORDER BY sale_st_dtm DESC
+    </select>
 
 </mapper>

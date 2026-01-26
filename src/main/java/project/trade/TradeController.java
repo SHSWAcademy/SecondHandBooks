@@ -277,7 +277,59 @@ public class TradeController {
         return result;
     }
 
-    // 판매상태 수동처리
+    // 판매자 수동 sold 변경 API, 새로 추가
+    @PostMapping("/trade/sold/{trade_seq}")
+    @ResponseBody
+    public Map<String, Object> updateToSold(
+            @PathVariable long trade_seq,
+            HttpSession session
+    ) {
+        MemberVO member = (MemberVO) session.getAttribute(Const.SESSION);
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        boolean success = tradeService.updateToSoldManually(
+                trade_seq, member.getMember_seq()
+        );
+
+        result.put("success", success);
+        return result;
+    }
+
+
+    // 구매 확정 api
+    @PostMapping("/trade/confirm/{trade_seq}")
+    @ResponseBody
+    public Map<String, Object> confirmPurchase(
+            @PathVariable long trade_seq,
+            HttpSession session
+    ) {
+        MemberVO member = (MemberVO) session.getAttribute(Const.SESSION);
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        boolean success = tradeService.confirmPurchase(
+                trade_seq, member.getMember_seq()
+        );
+
+        result.put("success", success);
+        return result;
+    }
+
+
+    // 판매상태 수동처리, 범근님 추가
     @PostMapping("/trade/statusUpdate")
     @ResponseBody
     public boolean statusUpdate (@RequestParam long trade_seq) {

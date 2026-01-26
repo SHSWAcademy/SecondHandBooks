@@ -55,5 +55,21 @@ public interface TradeMapper {
 
     int resetExpiredSafePayments();
 
+
+    // 판매자 수동 sold 변경 (계좌 거래용)
+    int updateToSoldManually(@Param("trade_seq") long trade_seq,
+                             @Param("member_seq") long member_seq);
+
+    // 구매 확정 처리
+    int confirmPurchase(@Param("trade_seq") long trade_seq,
+                        @Param("member_seq") long member_seq);
+
+    // 15일 지난 미확정 건 자동 확정 (스케줄러용)
+    int autoConfirmExpiredPurchases();
+
+    // 구매자의 안전결제 구매 내역 조회
+    List<TradeVO> findPurchasesByBuyer(@Param("member_seq") long member_seq);
+
+    // 범근님 추가
     int statusUpdate(@Param("trade_seq") long trade_seq, @Param("saleStatus") SaleStatus saleStatus);
 }
