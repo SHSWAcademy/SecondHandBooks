@@ -188,6 +188,7 @@ public class TradeService {
     }
 
     // 안전 결제 상태 조회
+    @Transactional
     public String getSafePaymentStatus(long trade_seq) {
         String status = tradeMapper.findSafePaymentStatus(trade_seq);
         return status != null ? status : "NONE";

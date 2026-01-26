@@ -12,6 +12,7 @@ import project.chat.chatroom.ChatroomService;
 import project.chat.message.MessageService;
 import project.chat.message.MessageVO;
 import project.member.MemberVO;
+import project.trade.ENUM.SaleStatus;
 import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.Const;
@@ -85,6 +86,18 @@ public class StompController {
                 errorMsg.setChat_cont("[SAFE_PAYMENT_UNAUTHORIZED]");
                 errorMsg.setTrade_seq(trade_seq);
 
+                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
+                return false;
+            }
+
+            // 안전 결제 요청 시 해당 상품 판매상태 확인
+            if (trade.getSale_st() == SaleStatus.SOLD) {
+                log.warn("이미 판매 완료된 상품 안전결제 요청: trade_seq={}", trade_seq);
+                MessageVO errorMsg = new MessageVO();
+                errorMsg.setChat_room_seq(chat_room_seq);
+                errorMsg.setSender_seq(sessionMember.getMember_seq());
+                errorMsg.setChat_cont("[SAFE_PAYMENT_ALREADY_SOLD]");
+                errorMsg.setTrade_seq(trade_seq);
                 messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
                 return false;
             }
