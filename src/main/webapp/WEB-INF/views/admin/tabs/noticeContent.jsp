@@ -115,7 +115,7 @@
     </div>
 
     <div class="text-sm text-gray-600">
-      총 <span class="font-bold text-primary-600">${fn:length(notices)}</span>개의 공지사항
+      총 <span id="noticeTotalCount" class="font-bold text-primary-600">${fn:length(notices)}</span>개의 공지사항
     </div>
   </div>
 </div>
@@ -275,7 +275,7 @@
 
       // 총 개수 업데이트
       function updateNoticeCount(count) {
-        const countElement = document.querySelector('.text-primary-600');
+        const countElement = document.querySelector('#noticeTotalCount');
         if (countElement) {
           countElement.textContent = count;
         }
