@@ -202,7 +202,6 @@ public class TradeService {
     @Transactional
     public String getSafePaymentStatus(long trade_seq) {
         String status = tradeMapper.findSafePaymentStatus(trade_seq);
-
         return status;
     }
 
@@ -220,7 +219,7 @@ public class TradeService {
 
         // 2-2. DB에서 조회한 안전 결제 상태가 COMPLETED일 경우 false
         if ("COMPLETED".equals(currentStatus)) {
-            // sale_st = sold 처리 필요 ?
+            // sale_st = sold 처리 필요 ? => 노노 이미 결제 완료 시 sold 처리됨
             return false; // 이미 완료된 거래
         }
 

@@ -351,7 +351,7 @@
         SELECT COALESCE(safe_payment_st, 'NONE')
         FROM sb_trade_info
         WHERE trade_seq = #{trade_seq}
-        FOR UPDATE
+        FOR UPDATE <!-- DB 입장에서는 조회가 아닌 쓰기-->
     </select>
 
     <!-- 안전결제 상태 업데이트 -->

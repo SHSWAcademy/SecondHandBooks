@@ -51,8 +51,13 @@ public class ChatroomService {
         return chatroomMapper.isMemberOfChatroom(chat_room_seq, member_seq);
     }
 
-    public Long findChatRoomSeqByTradeSeq(Long trade_seq) {
-        return chatroomMapper.findChatRoomSeqByTradeSeq(trade_seq);
+    public Long findChatRoomSeqByTradeAndBuyer(Long trade_seq, Long buyer_seq) {
+        return chatroomMapper.findChatRoomSeqByTradeAndBuyer(trade_seq, buyer_seq);
+    }
+
+    // 해당 trade의 구매자(채팅방 참여자)인지 확인
+    public boolean isBuyerOfTrade(long trade_seq, long member_seq) {
+        return chatroomMapper.isBuyerOfTrade(trade_seq, member_seq);
     }
 
 
