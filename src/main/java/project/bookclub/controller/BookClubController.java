@@ -111,7 +111,11 @@ public class BookClubController {
         int wishCount = bookClubService.getWishCount(bookClubId);
         model.addAttribute("wishCount", wishCount);
 
-        // 7. Model에 데이터 담기
+        // 7. 멤버 목록 조회 (홈 탭 - 함께하는 멤버)
+        var members = bookClubService.getJoinedMembersForManage(bookClubId);
+        model.addAttribute("members", members);
+
+        // 8. Model에 데이터 담기
         model.addAttribute("bookClub", bookClub);
     }
 
