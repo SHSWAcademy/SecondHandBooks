@@ -118,6 +118,13 @@ function showMessage(msg) {
 
         msgNicknm.appendChild(bold);
         msgWrapper.appendChild(msgNicknm);
+
+        // chatHeaderSub에도 닉네임 넣기
+        const headerSubEl = document.getElementById('chatHeaderSub');
+        if (headerSubEl) {
+                const otherNick = msg.member_seller_nicknm || '';
+                headerSubEl.textContent = otherNick ? `${otherNick}님과의 채팅` : '';
+            }
     }
 
     const msgContent = document.createElement('div');
