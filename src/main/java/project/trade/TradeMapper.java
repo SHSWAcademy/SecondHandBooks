@@ -3,6 +3,7 @@ package project.trade;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import project.member.MemberVO;
+import project.trade.ENUM.SaleStatus;
 
 import java.util.List;
 
@@ -53,4 +54,6 @@ public interface TradeMapper {
     Long findPendingBuyerSeq(@Param("trade_seq") long trade_seq);
 
     int resetExpiredSafePayments();
+
+    int statusUpdate(@Param("trade_seq") long trade_seq, @Param("saleStatus") SaleStatus saleStatus);
 }

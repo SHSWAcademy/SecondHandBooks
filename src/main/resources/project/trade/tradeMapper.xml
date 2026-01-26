@@ -395,6 +395,12 @@
         AND safe_payment_expire_dtm &lt; now()
     </update>
 
+    <update id="statusUpdate">
+        UPDATE sb_trade_info
+        SET SALE_ST = #{saleStatus}::sale_st_enum
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
     <!-- 안전결제 만료까지 남은 초 조회 -->
     <select id="findSafePaymentExpireSeconds" resultType="Long">
         SELECT
