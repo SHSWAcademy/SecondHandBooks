@@ -54,15 +54,25 @@
                                 <div class="bc-hero-overlay">
                                     <!-- 상단: 뒤로가기 + 찜 버튼 -->
                                     <div class="bc-hero-top">
+                                        <%--
                                         <button class="bc-back-btn" onclick="history.back()" aria-label="뒤로가기">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 19l-7-7 7-7" />
                                             </svg>
                                         </button>
-                                        <button class="bc-wish-btn" onclick="alert('TODO: 찜하기 기능 구현 예정')"
-                                            aria-label="찜하기">
+                                        --%>
+                                        <a href="${pageContext.request.contextPath}/bookclubs" class="bc-back-btn">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </a>
+                                        <button class="bc-wish-btn ${isWished ? 'wished' : ''}"
+                                            id="wishBtn"
+                                            onclick="toggleWish(${bookClub.book_club_seq})"
+                                            aria-label="찜하기">
+                                            <svg fill="${isWished ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                             </svg>
@@ -219,9 +229,85 @@
             <!-- contextPath를 JS에 전달 -->
             <script>
                 window.__CTX = "${pageContext.request.contextPath}";
+
+                // 게시글 삭제 확인 (게시판 탭 fragment에서 사용)
+                function confirmDeletePost(bookClubId, postId) {
+                    if (confirm('정말 이 게시글을 삭제하시겠습니까?')) {
+                        // 동적으로 폼 생성하여 제출
+                        const form = document.createElement('form');
+                        form.method = 'post';
+                        form.action = window.__CTX + '/bookclubs/' + bookClubId + '/posts/' + postId + '/delete';
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
+
+                // 찜 토글
+                function toggleWish(clubSeq) {
+                    fetch(window.__CTX + '/bookclubs/' + clubSeq + '/wish', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data.needLogin) {
+                            alert('로그인이 필요합니다.');
+                            location.href = window.__CTX + '/login';
+                            return;
+                        }
+                        if (data.status === 'ok') {
+                            var btn = document.getElementById('wishBtn');
+                            var svg = btn.querySelector('svg');
+                            var wishCountSpan = document.querySelector('.bc-meta-item span');
+
+                            if (data.wished) {
+                                btn.classList.add('wished');
+                                svg.setAttribute('fill', 'currentColor');
+                            } else {
+                                btn.classList.remove('wished');
+                                svg.setAttribute('fill', 'none');
+                            }
+
+                            // 찜 개수 업데이트 (하단 메타 정보)
+                            var wishCountEl = document.querySelector('.bc-hero-meta .bc-meta-item:last-child span');
+                            if (wishCountEl) {
+                                wishCountEl.textContent = data.wishCount + ' 찜';
+                            }
+                        } else {
+                            alert(data.message || '오류가 발생했습니다.');
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('찜 토글 실패:', err);
+                        alert('오류가 발생했습니다.');
+                    });
+                }
             </script>
 
             <!-- 독서모임 상세 페이지 전용 JS -->
             <script defer src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_detail.js"></script>
+
+            <!-- 가입 신청 모달 -->
+            <c:if test="${not empty bookClub}">
+                <div id="applyModal" class="bc-apply-modal">
+                    <div class="bc-apply-modal-overlay"></div>
+                    <div class="bc-apply-modal-container">
+                        <h2 class="bc-apply-modal-header">모임 가입 신청</h2>
+                        <h3 class="bc-apply-modal-club-name">${bookClub.book_club_name}</h3>
+                        <div class="bc-apply-modal-desc">${bookClub.book_club_desc}</div>
+                        <div class="bc-apply-modal-form">
+                            <label class="bc-apply-modal-label">지원 동기</label>
+                            <textarea id="applyReasonInput" class="bc-apply-modal-textarea" placeholder="모임장에게 보낼 간단한 인사를 적어주세요."></textarea>
+                        </div>
+                        <div class="bc-apply-modal-actions">
+                            <button type="button" id="btnCancelApply" class="bc-apply-btn bc-apply-btn-cancel">취소</button>
+                            <button type="button" id="btnSubmitApply" class="bc-apply-btn bc-apply-btn-submit">가입 신청</button>
+                        </div>
+                    </div>
+                </div>
+            </c:if>
 
             <jsp:include page="/WEB-INF/views/common/footer.jsp" />

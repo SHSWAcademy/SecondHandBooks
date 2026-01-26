@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
@@ -60,7 +61,7 @@ public class BookClubController {
             model.addAttribute("loginMemberSeq", loginMemberSeq);
 
             // 4-1. 모임장 여부 판단
-            boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+            boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), loginMemberSeq);
             model.addAttribute("isLeader", isLeader);
 
             // 4-2. 멤버 여부 판단 (JOINED 상태)
@@ -75,7 +76,11 @@ public class BookClubController {
             boolean hasRejectedRequest = bookClubService.hasRejectedRequest(bookClubId, loginMemberSeq);
             model.addAttribute("hasRejectedRequest", hasRejectedRequest);
 
-            // 4-5. CTA 상태 계산 (우선순위: JOINED > WAIT > REJECTED > 신청 가능)
+            // 4-5. 찜 여부 판단
+            boolean isWished = bookClubService.isWished(bookClubId, loginMemberSeq);
+            model.addAttribute("isWished", isWished);
+
+            // 4-6. CTA 상태 계산 (우선순위: JOINED > WAIT > REJECTED > 신청 가능)
             // - isLeader는 별도로 "모임 관리하기" 버튼 표시에 사용 가능
             // - CTA는 가입/탈퇴/대기/재신청 상태를 나타냄
             String ctaStatus;
@@ -95,6 +100,7 @@ public class BookClubController {
             model.addAttribute("isMember", false);
             model.addAttribute("hasPendingRequest", false);
             model.addAttribute("hasRejectedRequest", false);
+            model.addAttribute("isWished", false);
             model.addAttribute("ctaStatus", "NONE"); // 비로그인은 가입 신청하기만 표시
         }
 
@@ -121,16 +127,45 @@ public class BookClubController {
      */
 
     @GetMapping
-    public String getBookClubs(Model model) {
+    public String getBookClubs(Model model, HttpSession session) {
         List<BookClubVO> bookClubs = bookClubService.getBookClubList();
+
+        // 로그인 사용자의 찜 여부 설정
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
+
+        for (BookClubVO club : bookClubs) {
+            // 찜 개수 설정
+            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
+            // 로그인 시 찜 여부 설정
+            if (memberSeq != null) {
+                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
+            }
+        }
+
         model.addAttribute("bookclubList", bookClubs);
         return "bookclub/bookclub_list";
     }
 
     @GetMapping("/search")
     @ResponseBody
-    public List<BookClubVO> searchBookClubs(@RequestParam(required = false) String keyword) {
-        return bookClubService.searchBookClubs(keyword);
+    public List<BookClubVO> searchBookClubs(
+            @RequestParam(required = false) String keyword,
+            HttpSession session) {
+        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword);
+
+        // 로그인 사용자의 찜 여부 설정
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
+
+        for (BookClubVO club : bookClubs) {
+            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
+            if (memberSeq != null) {
+                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
+            }
+        }
+
+        return bookClubs;
     }
 
     @PostMapping
@@ -246,7 +281,7 @@ public class BookClubController {
         }
 
         // 3. 권한 판정 (모임장 또는 JOINED 멤버만)
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), loginMemberSeq);
         boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
 
         if (!isLeader && !isMember) {
@@ -290,7 +325,7 @@ public class BookClubController {
         }
 
         // 3. 권한 판정
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(loginMemberSeq);
+        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), loginMemberSeq);
         boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
         boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
 
@@ -395,7 +430,7 @@ public class BookClubController {
             return "redirect:/bookclubs";
         }
 
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), memberSeq);
         boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
 
         if (!isLeader && !isMember) {
@@ -464,7 +499,7 @@ public class BookClubController {
         }
 
         // 작성자만 수정 가능
-        if (!comment.getMember_seq().equals(memberSeq)) {
+        if (!Objects.equals(comment.getMember_seq(), memberSeq)) {
             redirectAttributes.addFlashAttribute("errorMessage", "본인이 작성한 댓글만 수정할 수 있습니다.");
             return redirectUrl;
         }
@@ -520,7 +555,7 @@ public class BookClubController {
         }
 
         // 3. 권한 확인 (작성자 또는 모임장)
-        boolean isAuthor = comment.getMember_seq().equals(memberSeq);
+        boolean isAuthor = Objects.equals(comment.getMember_seq(), memberSeq);
         boolean isLeader = bookClubService.isLeader(bookClubId, memberSeq);
 
         if (!isAuthor && !isLeader) {
@@ -623,6 +658,37 @@ public class BookClubController {
     }
 
     /**
+     * 독서모임 찜 토글 (AJAX용)
+     * POST /bookclubs/{bookClubId}/wish
+     * - 로그인 필수
+     * - 찜 상태 토글 (찜 ↔ 찜 해제)
+     */
+    @PostMapping("/{bookClubId}/wish")
+    @ResponseBody
+    public Map<String, Object> toggleWish(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session) {
+
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return Map.of("status", "fail", "message", "로그인이 필요합니다.", "needLogin", true);
+        }
+
+        // 찜 토글 실행
+        boolean isWished = bookClubService.toggleWish(bookClubId, loginMember.getMember_seq());
+
+        // 새로운 찜 개수 조회
+        int wishCount = bookClubService.getWishCount(bookClubId);
+
+        return Map.of(
+                "status", "ok",
+                "wished", isWished,
+                "wishCount", wishCount,
+                "message", isWished ? "찜 목록에 추가되었습니다." : "찜 목록에서 제거되었습니다."
+        );
+    }
+
+    /**
      * 독서모임 탈퇴 (AJAX용)
      * POST /bookclubs/{bookClubId}/leave
      *
@@ -701,7 +767,7 @@ public class BookClubController {
             return Map.of("status", "fail", "message", "존재하지 않거나 종료된 모임입니다.");
         }
 
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), memberSeq);
         boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
 
         if (!isLeader && !isMember) {
@@ -812,7 +878,7 @@ public class BookClubController {
             return "redirect:/bookclubs";
         }
 
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), memberSeq);
         boolean isMember = bookClubService.isMemberJoined(bookClubId, memberSeq);
 
         if (!isLeader && !isMember) {
@@ -902,7 +968,7 @@ public class BookClubController {
         }
 
         // 3. 작성자 확인 (수정은 작성자만 가능)
-        if (!post.getMember_seq().equals(memberSeq)) {
+        if (!Objects.equals(post.getMember_seq(), memberSeq)) {
             model.addAttribute("errorMessage", "수정 권한이 없습니다.");
             return "bookclub/bookclub_post_forbidden";
         }
@@ -961,7 +1027,7 @@ public class BookClubController {
         }
 
         // 3. 작성자 확인 (수정은 작성자만 가능)
-        if (!existingPost.getMember_seq().equals(memberSeq)) {
+        if (!Objects.equals(existingPost.getMember_seq(), memberSeq)) {
             redirectAttributes.addFlashAttribute("errorMessage", "수정 권한이 없습니다.");
             return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
         }
@@ -1057,8 +1123,8 @@ public class BookClubController {
         }
 
         // 4. 삭제 권한 확인 (작성자 OR 모임장)
-        boolean isAuthor = post.getMember_seq().equals(memberSeq);
-        boolean isLeader = bookClub.getBook_club_leader_seq().equals(memberSeq);
+        boolean isAuthor = Objects.equals(post.getMember_seq(), memberSeq);
+        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), memberSeq);
 
         if (!isAuthor && !isLeader) {
             redirectAttributes.addFlashAttribute("errorMessage", "삭제 권한이 없습니다.");

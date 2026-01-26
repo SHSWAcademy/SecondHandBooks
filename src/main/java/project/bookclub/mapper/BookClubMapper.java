@@ -56,6 +56,18 @@ public interface BookClubMapper {
     // 독서모임의 찜 개수 조회
     int selectWishCount(@Param("bookClubSeq") Long bookClubSeq);
 
+    // 특정 멤버의 찜 여부 확인
+    int selectWishExists(@Param("bookClubSeq") Long bookClubSeq,
+                         @Param("memberSeq") Long memberSeq);
+
+    // 찜하기 추가
+    int insertWish(@Param("bookClubSeq") Long bookClubSeq,
+                   @Param("memberSeq") Long memberSeq);
+
+    // 찜하기 취소
+    int deleteWish(@Param("bookClubSeq") Long bookClubSeq,
+                   @Param("memberSeq") Long memberSeq);
+
     // 게시판 관련
     // 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인)
     List<project.bookclub.vo.BookClubBoardVO> selectRecentRootBoardsByClub(@Param("bookClubSeq") Long bookClubSeq);
@@ -88,7 +100,7 @@ public interface BookClubMapper {
 
     // 댓글 UPDATE
     int updateBoardComment(@Param("commentId") Long commentId,
-            @Param("commentCont") String commentCont);
+                           @Param("commentCont") String commentCont);
 
     // 댓글 DELETE (soft delete)
     int deleteBoardComment(@Param("commentId") Long commentId);
@@ -175,7 +187,7 @@ public interface BookClubMapper {
      * - join_st: String
      */
     java.util.Map<String, Object> selectMyMemberStatus(@Param("bookClubSeq") Long bookClubSeq,
-                                                        @Param("memberSeq") Long memberSeq);
+                                                       @Param("memberSeq") Long memberSeq);
 
     // ===================================
     // 동시성 제어 - book_club 행 잠금 (선택적)
@@ -195,7 +207,7 @@ public interface BookClubMapper {
 
     // 특정 멤버의 좋아요 여부 확인
     int selectBoardLikeExists(@Param("boardSeq") Long boardSeq,
-                               @Param("memberSeq") Long memberSeq);
+                              @Param("memberSeq") Long memberSeq);
 
     // 좋아요 추가
     int insertBoardLike(@Param("boardSeq") Long boardSeq,

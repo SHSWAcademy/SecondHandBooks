@@ -574,7 +574,7 @@
         SELECT join_st
         FROM book_club_member
         WHERE book_club_seq = #{bookClubSeq}
-          AND member_seq = #{memberSeq}
+        AND member_seq = #{memberSeq}
     </select>
 
     <!-- book_club_member INSERT (승인 시 사용, leader_yn=false, join_st='JOINED') -->
@@ -598,11 +598,11 @@
     <update id="restoreMemberToJoined">
         UPDATE book_club_member
         SET join_st = 'JOINED',
-            join_st_update_dtm = CURRENT_TIMESTAMP,
-            leader_yn = false
+        join_st_update_dtm = CURRENT_TIMESTAMP,
+        leader_yn = false
         WHERE book_club_seq = #{bookClubSeq}
-          AND member_seq = #{memberSeq}
-          AND join_st != 'JOINED'
+        AND member_seq = #{memberSeq}
+        AND join_st != 'JOINED'
     </update>
 
     <!-- book_club_request 상태 업데이트 (APPROVED 또는 REJECTED) -->
