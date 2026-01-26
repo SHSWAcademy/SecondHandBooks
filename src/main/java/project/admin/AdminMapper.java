@@ -56,11 +56,11 @@ public interface AdminMapper {
     // [추가] 배너 관리 메서드
     List<BannerVO> selectBanners();
     void insertBanner(BannerVO banner);
-    void deleteBanner(@Param("seq") Long seq);
+    void deleteBanner(@Param("bannerSeq") Long seq);
 
     // [추가] 임시 페이지 관리 메서드
     void insertTempPage(TempPageVO vo);
-    TempPageVO selectTempPage(@Param("seq") Long seq);
+    TempPageVO selectTempPage(@Param("pageSeq") Long seq);
 
     // 공지사항 추가
     void insertNotice(NoticeVO noticeVO);
