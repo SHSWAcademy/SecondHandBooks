@@ -147,7 +147,7 @@ function searchGroups(page) {
 
                 const tdDate = document.createElement('td');
                 tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
-                tdDate.textContent = g.crt_dtm ? String(g.crt_dtm).substring(0, 10) : '-';
+                tdDate.textContent = g.crt_dtm ? String(g.crt_dtm) : '-';
 
                 tr.appendChild(tdTitle);
                 tr.appendChild(tdRegion);
