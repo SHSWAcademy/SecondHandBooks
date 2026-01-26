@@ -60,8 +60,12 @@ const BookClub = (() => {
                     <!-- 지역 태그 - 왼쪽 상단 -->
                     <span class="card-region-tag">${club.book_club_rg}</span>
                     <!-- 찜 버튼 - 오른쪽 상단 -->
-                    <button type="button" class="btn-wish" onclick="alert('구현 예정입니다.'); return false;">
-                        <span class="wish-icon">♡</span>
+                    <button type="button" class="btn-wish ${club.wished ? 'wished' : ''}"
+                        onclick="toggleWish(${club.book_club_seq}, this); event.preventDefault(); event.stopPropagation();"
+                        data-club-seq="${club.book_club_seq}">
+                        <svg class="wish-icon" width="18" height="18" viewBox="0 0 24 24" fill="${club.wished ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
                     </button>
 
                     <a href="/bookclubs/${club.book_club_seq}" class="card-link">

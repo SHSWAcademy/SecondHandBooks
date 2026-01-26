@@ -70,11 +70,16 @@ public class BookClubController {
             // 4-3. 대기중인 가입 신청 여부 판단
             boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
             model.addAttribute("hasPendingRequest", hasPendingRequest);
+
+            // 4-4. 찜 여부 판단
+            boolean isWished = bookClubService.isWished(bookClubId, loginMemberSeq);
+            model.addAttribute("isWished", isWished);
         } else {
             // 비로그인 시 기본값 설정
             model.addAttribute("isLeader", false);
             model.addAttribute("isMember", false);
             model.addAttribute("hasPendingRequest", false);
+            model.addAttribute("isWished", false);
         }
 
         // 5. 현재 참여 인원 수 조회
@@ -96,16 +101,45 @@ public class BookClubController {
      */
 
     @GetMapping
-    public String getBookClubs(Model model) {
+    public String getBookClubs(Model model, HttpSession session) {
         List<BookClubVO> bookClubs = bookClubService.getBookClubList();
+
+        // 로그인 사용자의 찜 여부 설정
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
+
+        for (BookClubVO club : bookClubs) {
+            // 찜 개수 설정
+            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
+            // 로그인 시 찜 여부 설정
+            if (memberSeq != null) {
+                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
+            }
+        }
+
         model.addAttribute("bookclubList", bookClubs);
         return "bookclub/bookclub_list";
     }
 
     @GetMapping("/search")
     @ResponseBody
-    public List<BookClubVO> searchBookClubs(@RequestParam(required = false) String keyword) {
-        return bookClubService.searchBookClubs(keyword);
+    public List<BookClubVO> searchBookClubs(
+            @RequestParam(required = false) String keyword,
+            HttpSession session) {
+        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword);
+
+        // 로그인 사용자의 찜 여부 설정
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
+
+        for (BookClubVO club : bookClubs) {
+            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
+            if (memberSeq != null) {
+                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
+            }
+        }
+
+        return bookClubs;
     }
 
     @PostMapping
@@ -419,6 +453,37 @@ public class BookClubController {
         } else {
             return Map.of("status", "fail", "message", result.getMessage());
         }
+    }
+
+    /**
+     * 독서모임 찜 토글 (AJAX용)
+     * POST /bookclubs/{bookClubId}/wish
+     * - 로그인 필수
+     * - 찜 상태 토글 (찜 ↔ 찜 해제)
+     */
+    @PostMapping("/{bookClubId}/wish")
+    @ResponseBody
+    public Map<String, Object> toggleWish(
+            @PathVariable("bookClubId") Long bookClubId,
+            HttpSession session) {
+
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+        if (loginMember == null) {
+            return Map.of("status", "fail", "message", "로그인이 필요합니다.", "needLogin", true);
+        }
+
+        // 찜 토글 실행
+        boolean isWished = bookClubService.toggleWish(bookClubId, loginMember.getMember_seq());
+
+        // 새로운 찜 개수 조회
+        int wishCount = bookClubService.getWishCount(bookClubId);
+
+        return Map.of(
+                "status", "ok",
+                "wished", isWished,
+                "wishCount", wishCount,
+                "message", isWished ? "찜 목록에 추가되었습니다." : "찜 목록에서 제거되었습니다."
+        );
     }
 
     /**

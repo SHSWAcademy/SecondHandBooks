@@ -66,9 +66,11 @@
                                                     d="M15 19l-7-7 7-7" />
                                             </svg>
                                         </a>
-                                        <button class="bc-wish-btn" onclick="alert('TODO: 찜하기 기능 구현 예정')"
+                                        <button class="bc-wish-btn ${isWished ? 'wished' : ''}"
+                                            id="wishBtn"
+                                            onclick="toggleWish(${bookClub.book_club_seq})"
                                             aria-label="찜하기">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg fill="${isWished ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                             </svg>
@@ -208,6 +210,50 @@
                         document.body.appendChild(form);
                         form.submit();
                     }
+                }
+
+                // 찜 토글
+                function toggleWish(clubSeq) {
+                    fetch(window.__CTX + '/bookclubs/' + clubSeq + '/wish', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data.needLogin) {
+                            alert('로그인이 필요합니다.');
+                            location.href = window.__CTX + '/login';
+                            return;
+                        }
+                        if (data.status === 'ok') {
+                            var btn = document.getElementById('wishBtn');
+                            var svg = btn.querySelector('svg');
+                            var wishCountSpan = document.querySelector('.bc-meta-item span');
+
+                            if (data.wished) {
+                                btn.classList.add('wished');
+                                svg.setAttribute('fill', 'currentColor');
+                            } else {
+                                btn.classList.remove('wished');
+                                svg.setAttribute('fill', 'none');
+                            }
+
+                            // 찜 개수 업데이트 (하단 메타 정보)
+                            var wishCountEl = document.querySelector('.bc-hero-meta .bc-meta-item:last-child span');
+                            if (wishCountEl) {
+                                wishCountEl.textContent = data.wishCount + ' 찜';
+                            }
+                        } else {
+                            alert(data.message || '오류가 발생했습니다.');
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('찜 토글 실패:', err);
+                        alert('오류가 발생했습니다.');
+                    });
                 }
             </script>
 
