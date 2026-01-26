@@ -30,7 +30,12 @@ public interface ChatroomMapper {
     public boolean isMemberOfChatroom(@Param("chat_room_seq") long chat_room_seq,
                                       @Param("member_seq") long member_seq);
 
-    Long findChatRoomSeqByTradeSeq(@Param("trade_seq") Long trade_seq);
+    Long findChatRoomSeqByTradeAndBuyer(@Param("trade_seq") Long trade_seq,
+                                   @Param("buyer_seq") Long buyer_seq
+                                    );
+
+    // 해당 trade의 구매자(채팅방 참여자 중 판매자가 아닌 사람)인지 확인
+    boolean isBuyerOfTrade(@Param("trade_seq") long trade_seq, @Param("member_seq") long member_seq);
 
     void updateLastMessage(@Param("chat_room_seq") long chat_room_seq,
                            @Param("last_msg") String last_msg);

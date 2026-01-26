@@ -52,20 +52,19 @@ public class PaymentController {
             model.addAttribute("errorMessage", "이미 판매 완료된 상품입니다.");
             return "payment/fail";
         }
+
         // 안전결제 상태 확인 (직접 url 접근 시 체크)
         String safePaymentStatus = tradeService.getSafePaymentStatus(trade_seq);
         if (!"PENDING".equals(safePaymentStatus)) {
             return "redirect:/";  // 안전결제 요청이 없으면 접근 불가
         }
 
-        model.addAttribute("trade", trade);
+        long remainingSeconds = tradeService.getSafePaymentExpireSeconds(trade_seq); // 남은 결제 시간 (초) DB 에서 조회 후 전달
+        List<AddressVO> address = paymentService.findAddress(sessionMember.getMember_seq()); // 구매자 주소 DB 에서 조회 후 전달
 
-        List<AddressVO> address = paymentService.findAddress(sessionMember.getMember_seq());
-        model.addAttribute("addressList", address);
-
-        // 남은 결제 시간 (초) DB 에서 조회 후 전달
-        long remainingSeconds = tradeService.getSafePaymentExpireSeconds(trade_seq);
         model.addAttribute("remainingSeconds", remainingSeconds);
+        model.addAttribute("addressList", address);
+        model.addAttribute("trade", trade);
 
         return "payment/payform";
     }
@@ -82,7 +81,7 @@ public class PaymentController {
 
         // 결제 금액 검증: DB의 실제 가격과 비교 먼저 하기
         TradeVO trade = tradeService.search(trade_seq);
-        if (trade == null || trade.getSale_price()+trade.getDelivery_cost() != amount) {
+        if (trade == null || trade.getSale_price() + trade.getDelivery_cost() != amount) {
             log.error("결제 금액 불일치: trade_seq={}, 요청금액={}, 실제가격={}", trade_seq, amount, trade != null ? trade.getSale_price() : "null");
             tradeService.cancelSafePayment(trade_seq); // DB 실제 가격과 다를 경우 결제 취소 쳐리
             model.addAttribute("errorMessage", "결제 금액이 일치하지 않습니다.");
@@ -107,6 +106,7 @@ public class PaymentController {
             model.addAttribute("errorMessage", "세션 누락");
             return "payment/fail";
         }
+
         PaymentVO payment = new PaymentVO();
         payment.setTrade_seq(trade_seq);
         payment.setMember_buyer_seq(buyer.getMember_seq());
@@ -127,7 +127,7 @@ public class PaymentController {
         tradeService.completeSafePayment(trade_seq);
 
         // 3. 채팅방 조회 후 결제 완료 메시지 전송
-        Long chat_room_seq = chatroomService.findChatRoomSeqByTradeSeq(trade_seq); // 3-1. 채팅방 조회
+        Long chat_room_seq = chatroomService.findChatRoomSeqByTradeAndBuyer(trade_seq, buyer.getMember_seq()); // 3-1. 채팅방 조회
         if (chat_room_seq != null) {
             // 3-2. 결제 완료 메시지 준비
             try {
@@ -160,12 +160,13 @@ public class PaymentController {
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
         if (trade_seq != null && sessionMember != null) {
             TradeVO trade = tradeService.search(trade_seq);
-            if (trade != null && trade.getMember_buyer_seq() == sessionMember.getMember_seq()) {
+            // 채팅방 참여자(구매자)인지 확인 (결제 실패 시점에서 member_buyer_seq는 아직 설정되지 않았으므로 채팅방으로 검증)
+            if (trade != null && chatroomService.isBuyerOfTrade(trade_seq, sessionMember.getMember_seq())) {
                 tradeService.cancelSafePayment(trade_seq); // 1.안전결제 상태를 NONE 으로 변경 (재시도 가능)
-                sendPaymentFailedMessage(trade_seq); // 2.채팅방에 결제 실패 메시지 전송
+                sendPaymentFailedMessage(trade_seq, sessionMember.getMember_seq()); // 2.채팅방에 결제 실패 메시지 전송
                 log.info("결제 실패로 안전결제 상태 초기화: trade_seq={}", trade_seq);
             } else {
-                return "redirect:/"; // 구매자 seq와 세션 seq가 다른 경우 홈으로 리다이렉트 (url로 거래 접근 방지)
+                return "redirect:/"; // 구매자가 아닌 경우 홈으로 리다이렉트 (url로 거래 접근 방지)
             }
         }
 
@@ -192,7 +193,7 @@ public class PaymentController {
 
         // 검증 : 구매자 seq != 세션 seq일 경우
         TradeVO trade = tradeService.search(trade_seq);
-        if (trade == null || trade.getMember_buyer_seq() != sessionMember.getMember_seq()) {
+        if (trade == null || !chatroomService.isBuyerOfTrade(trade_seq, sessionMember.getMember_seq())) {
             result.put("success", false);
             result.put("message", "권한이 없습니다.");
             return result;
@@ -203,7 +204,7 @@ public class PaymentController {
         log.info("결제 타임아웃으로 안전결제 상태 초기화: trade_seq={}", trade_seq);
 
         // 2. 채팅방에 결제 실패 메시지 전송
-        sendPaymentFailedMessage(trade_seq);
+        sendPaymentFailedMessage(trade_seq, sessionMember.getMember_seq());
 
         result.put("success", true);
         result.put("message", "결제 시간이 만료되었습니다.");
@@ -238,9 +239,9 @@ public class PaymentController {
     }
 
     // 결제 실패 시 채팅방에 메시지 전달
-    private void sendPaymentFailedMessage(Long trade_seq) {
+    private void sendPaymentFailedMessage(Long trade_seq, Long member_seq) {
         try {
-            Long chat_room_seq = chatroomService.findChatRoomSeqByTradeSeq(trade_seq);
+            Long chat_room_seq = chatroomService.findChatRoomSeqByTradeAndBuyer(trade_seq, member_seq);
             if (chat_room_seq != null) {
                 MessageVO failMsg = new MessageVO();
                 failMsg.setChat_room_seq(chat_room_seq);

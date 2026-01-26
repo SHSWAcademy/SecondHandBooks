@@ -959,7 +959,7 @@ function showSafePaymentAccept(msg) {
                 '<span class="timer" id="timer-' + msgId + '">01:00</span>' +
             '</div>' +
             '<div class="product-info">' +
-                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/img/no-image.png\'">' +
                 '<div class="product-detail">' +
                     '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
                     '<div class="product-status">' + bookStatusText + '</div>' +
@@ -988,7 +988,7 @@ function showSafePaymentAccept(msg) {
                 '<span class="card-title">구매 요청 수락</span>' +
             '</div>' +
             '<div class="product-info">' +
-                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/img/no-image.png\'">' +
                 '<div class="product-detail">' +
                     '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
                     '<div class="product-status">' + bookStatusText + '</div>' +
@@ -1039,7 +1039,7 @@ function showSafePaymentComplete(msg) {
     const trade = currentTradeInfo;
     const bookStatusText = getBookStatusText(trade.book_st);
     const totalPrice = trade.sale_price + trade.delivery_cost;
-    const bookImg = trade.book_img || '/resources/img/no-image.png';
+    const bookImg = trade.book_img || '/img/no-image.png';
 
     if (isMyMessage) {
         // 구매자 본인이 보낸 경우 - 결제 완료 표시
@@ -1052,7 +1052,7 @@ function showSafePaymentComplete(msg) {
                 '<span class="card-title" style="color: #22c55e;">결제 완료</span>' +
             '</div>' +
             '<div class="product-info">' +
-                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/img/no-image.png\'">' +
                 '<div class="product-detail">' +
                     '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
                     '<div class="product-status">' + bookStatusText + '</div>' +
@@ -1074,7 +1074,7 @@ function showSafePaymentComplete(msg) {
                 '<span class="card-title" style="color: #22c55e;">결제 완료</span>' +
             '</div>' +
             '<div class="product-info">' +
-                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/resources/img/no-image.png\'">' +
+                '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/img/no-image.png\'">' +
                 '<div class="product-detail">' +
                     '<div class="product-title">' + escapeHtml(trade.book_title) + '</div>' +
                     '<div class="product-status">' + bookStatusText + '</div>' +
@@ -1468,7 +1468,7 @@ fetchMessages = function(roomSeq) {
                     const bookStatusEl = document.getElementById('chatBookStatus');
                     const bookPriceEl = document.getElementById('chatBookPrice');
                     const bookSale_stEl = document.getElementById('chatSale_st');
-                    if (bookImgEl) bookImgEl.src = tradeInfo.book_img || '/resources/img/no-image.png';
+                    if (bookImgEl) bookImgEl.src = tradeInfo.book_img || '/img/no-image.png';
                     if (bookTitleEl) bookTitleEl.textContent = tradeInfo.book_title || '';
                     if (bookPriceEl) {
                         const totalPrice = (tradeInfo.sale_price || 0) + (tradeInfo.delivery_cost || 0);
@@ -1655,7 +1655,8 @@ function showImageMessage(msg) {
     img.style.borderRadius = '12px';
     img.style.cursor = 'pointer';
     img.onerror = function() {
-        this.src = '/resources/img/no-image.png';
+        this.onerror = null; // 무한 루프 차단
+        this.src = '/img/no-image.png';
     };
     // 클릭 시 새 탭에서 원본 이미지 보기
     img.onclick = function() {
