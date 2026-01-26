@@ -46,7 +46,8 @@ public class StompController {
         if (sessionMember == null || trade_seq <= 0) {
             return; // 검증 실패 시 바로 종료
         }
-
+        // 세션 seq기준 닉네임 조회
+        message.setMember_seller_nicknm(messageService.findBySellerNicknm(sessionMember.getMember_seq()));
         // sender_seq를 세션에서 가져온 값으로 설정
         message.setSender_seq(sessionMember.getMember_seq());
         message.setChat_room_seq(chat_room_seq);

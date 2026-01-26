@@ -108,6 +108,18 @@ function showMessage(msg) {
         msgWrapper.className = 'msg-left';
     }
 
+    // 상대방 닉네임만 출력
+    if (Number(msg.sender_seq) !== loginMemberSeq) {
+        const msgNicknm = document.createElement('div');
+        msgNicknm.className = 'msg-nicknm';
+
+        const bold = document.createElement('b');
+        bold.textContent = msg.member_seller_nicknm || '';
+
+        msgNicknm.appendChild(bold);
+        msgWrapper.appendChild(msgNicknm);
+    }
+
     const msgContent = document.createElement('div');
     msgContent.className = 'content';
     msgContent.textContent = msg.chat_cont || '';
