@@ -227,7 +227,7 @@
               // 5. 등록일
               const tdDate = document.createElement('td');
               tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
-              tdDate.textContent = notice.formattedCrtDtm?.substring(0, 10) || '날짜 없음';
+              tdDate.textContent = notice.crt_dtm ? String(notice.crt_dtm) :'-';
               tr.appendChild(tdDate);
 
               // 6. 관리 버튼

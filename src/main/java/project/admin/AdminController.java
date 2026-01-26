@@ -1,6 +1,7 @@
 package project.admin;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -164,6 +165,16 @@ public class AdminController {
         return "redirect:/admin/login";
     }
 
+    //관리자 로그인 로그 목록
+    @GetMapping("/api/adminLogs")
+    @ResponseBody
+    public PageResult<LoginInfoVO> getAdminLogs(SearchVO searchVO) {
+        List<LoginInfoVO> list = adminService.searchAdminLoginLogs(searchVO);
+
+        int total = adminService.countAdminLoginLogsBySearch(searchVO);
+
+        return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
+    }
     // 공지사항 폼 이동
     @GetMapping("notice/create")
     public String noticeWriteForm(HttpSession sess, Model model) {

@@ -41,6 +41,10 @@ public class AdminService {
         return adminMapper.searchBookClubs(searchVO);
     }
 
+    public List<LoginInfoVO> searchAdminLoginLogs(SearchVO searchVO) {
+        return adminMapper.searchAdminLoginLogs(searchVO);
+    }
+
     // --- 관리 액션 (API) ---
     @Transactional
     public void handleMemberAction(Long seq, String action) {
@@ -167,5 +171,9 @@ public class AdminService {
 
     public int countAllGroupsBySearch(SearchVO searchVO) {
         return adminMapper.countAllGroupsBySearch(searchVO);
+    }
+
+    public int countAdminLoginLogsBySearch(SearchVO searchVO) {
+        return adminMapper.countAdminLoginLogsBySearch(searchVO);
     }
 }

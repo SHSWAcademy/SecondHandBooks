@@ -30,51 +30,56 @@ public interface AdminMapper {
     List<BookClubVO> searchBookClubs(SearchVO searchVO);
     int countAllGroupsBySearch(SearchVO searchVO);
 
+    List<LoginInfoVO> searchAdminLoginLogs(SearchVO searchVO);
+    int countAdminLoginLogsBySearch(SearchVO searchVO);
+
     // 관리 (액션)
     void updateMemberStatus(@Param("seq") Long seq, @Param("status") String status);
-    void deleteMember(@Param("seq") Long seq);
 
+    void deleteMember(@Param("seq") Long seq);
     void updateTradeStatus(@Param("seq") Long seq, @Param("status") String status);
+
     void deleteTrade(@Param("seq") Long seq);
 
     void deleteBookClub(@Param("seq") Long seq);
-
     // [NEW] 차트 통계
     List<Map<String, Object>> selectDailySignupStats();
     List<Map<String, Object>> selectDailyTradeStats();
-    List<Map<String, Object>> selectCategoryStats();
 
+    List<Map<String, Object>> selectCategoryStats();
     // 목록 조회
     List<MemberVO> selectRecentMembers();
     List<TradeVO> selectRecentTrades();
-    List<BookClubVO> selectRecentBookClubs();
 
+    List<BookClubVO> selectRecentBookClubs();
     // 조회
     List<LoginInfoVO> selectMemberLoginLogs();
-    List<LoginInfoVO> selectAdminLoginLogs();
 
+    List<LoginInfoVO> selectAdminLoginLogs();
     // 저장/업데이트
     void insertAdminLogin(@Param("admin_seq") Long admin_seq, @Param("login_ip") String login_ip);
     void updateAdminLogout(@Param("admin_seq") Long admin_seq, @Param("logout_ip") String logout_ip);
     void insertMemberLogin(@Param("member_seq") Long member_seq, @Param("login_ip") String login_ip);
-    void updateMemberLogout(@Param("member_seq") Long member_seq, @Param("logout_ip") String logout_ip);
 
+    void updateMemberLogout(@Param("member_seq") Long member_seq, @Param("logout_ip") String logout_ip);
     // [추가] 배너 관리 메서드
     List<BannerVO> selectBanners();
     void insertBanner(BannerVO banner);
-    void deleteBanner(@Param("bannerSeq") Long seq);
 
+    void deleteBanner(@Param("bannerSeq") Long seq);
     // [추가] 임시 페이지 관리 메서드
     void insertTempPage(TempPageVO vo);
-    TempPageVO selectTempPage(@Param("pageSeq") Long seq);
 
+    TempPageVO selectTempPage(@Param("pageSeq") Long seq);
     // 공지사항 추가
     void insertNotice(NoticeVO noticeVO);
     void increaseViewCount(@Param("notice_seq") Long notice_seq);
-    void deleteNotice(@Param("notice_seq") Long notice_seq);
 
+    void deleteNotice(@Param("notice_seq") Long notice_seq);
     List<NoticeVO> selectNotices();
+
     NoticeVO selectNotice(@Param("notice_seq") Long notice_seq);
+
 
 
 }
