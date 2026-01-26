@@ -100,15 +100,46 @@ const BookClubManage = (() => {
      */
     function initImagePreview() {
         const bannerImgUrlInput = document.getElementById('bannerImgUrl');
+        const bannerFileInput = document.getElementById('bannerFile');
         const bannerPreview = document.getElementById('bannerPreview');
 
-        if (!bannerImgUrlInput || !bannerPreview) return;
+        // bannerPreview만 필수 조건으로 변경
+        if (!bannerPreview) return;
 
-        // URL 입력 시 미리보기 업데이트
-        bannerImgUrlInput.addEventListener('blur', () => {
-            const url = bannerImgUrlInput.value.trim();
-            updateBannerPreview(url);
-        });
+        // URL 입력 이벤트 (input이 존재할 때만)
+        if (bannerImgUrlInput) {
+            bannerImgUrlInput.addEventListener('blur', () => {
+                const url = bannerImgUrlInput.value.trim();
+                updateBannerPreview(url);
+            });
+        }
+
+        // 파일 선택 시 미리보기 업데이트 (항상 등록)
+        if (bannerFileInput) {
+            bannerFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // 이미지 파일인지 검증
+                if (!file.type.startsWith('image/')) {
+                    alert('이미지 파일만 선택할 수 있습니다.');
+                    bannerFileInput.value = '';
+                    return;
+                }
+
+                // URL input 비우기 (파일 우선 정책 - input이 존재할 때만)
+                if (bannerImgUrlInput) {
+                    bannerImgUrlInput.value = '';
+                }
+
+                // FileReader로 data URL 생성 후 즉시 미리보기
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    updateBannerPreview(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
     }
 
     /**
@@ -256,6 +287,7 @@ const BookClubManage = (() => {
             const region = document.getElementById('clubRegion')?.value.trim();
             const schedule = document.getElementById('clubSchedule')?.value.trim();
             const bannerImgUrl = document.getElementById('bannerImgUrl')?.value.trim();
+            const bannerFile = document.getElementById('bannerFile')?.files[0];
 
             // 필수 입력값 검증
             if (!name) {
@@ -290,19 +322,27 @@ const BookClubManage = (() => {
                 const bookClubId = window.location.pathname.split('/')[2]; // /bookclubs/{id}/manage
                 const url = buildUrl(`/bookclubs/${bookClubId}/manage/settings`);
 
+                // FormData 생성 (multipart/form-data)
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('description', description);
+                formData.append('region', region || '');
+                formData.append('schedule', schedule || '');
+
+                // 파일이 있으면 파일 우선, 없으면 URL
+                if (bannerFile) {
+                    formData.append('bannerFile', bannerFile);
+                } else if (bannerImgUrl) {
+                    formData.append('bannerImgUrl', bannerImgUrl);
+                }
+
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         [csrf.header]: csrf.token
+                        // Content-Type은 브라우저가 자동으로 multipart/form-data로 설정
                     },
-                    body: JSON.stringify({
-                        name,
-                        description,
-                        region,
-                        schedule,
-                        bannerImgUrl: bannerImgUrl || null
-                    })
+                    body: formData
                 });
 
                 const result = await response.json();
