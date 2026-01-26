@@ -26,13 +26,24 @@ public class StompController {
     private final ChatroomService chatroomService;
     private final TradeService tradeService;
 
+    /*
+      1. 클라이언트 전송: /sendMessage/chat/{chat_room_seq}
+
+      2. StompController @MessageMapping("/chat/{chat_room_seq}")
+
+      3. DB 저장, 구독자에게 전송: /chatroom/{chat_room_seq}
+
+      4. 클라이언트 구독: /chatroom/{chat_room_seq}
+     */
     @MessageMapping("/chat/{chat_room_seq}")
     public void sendMessage(@DestinationVariable Long chat_room_seq, @Payload MessageVO message,
                             SimpMessageHeaderAccessor headerAccessor) {
 
-        // 로그인 및 채팅방 참여자 검증
+
+        // 검증 : 로그인 및 채팅방 참여자, trade 번호
         MemberVO sessionMember = validateSessionAndMembership(chat_room_seq, headerAccessor);
-        if (sessionMember == null) {
+        long trade_seq = message.getTrade_seq();
+        if (sessionMember == null || trade_seq <= 0) {
             return; // 검증 실패 시 바로 종료
         }
 
@@ -40,23 +51,30 @@ public class StompController {
         message.setSender_seq(sessionMember.getMember_seq());
         message.setChat_room_seq(chat_room_seq);
 
-        String chatCont = message.getChat_cont();
+        String chatMessage = message.getChat_cont();
 
-        // 안전 결제 요청 처리
-        if ("[SAFE_PAYMENT_REQUEST]".equals(chatCont)) {
-            long trade_seq = message.getTrade_seq();
+        // 안전 결제 요청일 경우, 이용 불가 시 return
+        if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember)) return;
 
-            // trade_seq 유효성 검사
-            if (trade_seq <= 0) {
-                log.error("안전결제 요청 실패: trade_seq가 유효하지 않음. trade_seq={}", trade_seq);
-                return;
-            }
+        log.info("메시지 수신: chat_room_seq={}, sender={}, content={}", chat_room_seq, message.getSender_seq(), message.getChat_cont());
+
+        // 1. DB에 메시지 저장
+        messageService.saveMessage(message);
+
+        // 2. last message 업데이트
+        chatroomService.updateLastMessage(chat_room_seq, chatMessage);
+
+        // 3. 해당 채팅방 구독자에게 메시지 전송
+        messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, message);
+    }
+
+    private boolean canUseSafePayment(Long chat_room_seq, long trade_seq, String chatMessage, MemberVO sessionMember) {
+        if ("[SAFE_PAYMENT_REQUEST]".equals(chatMessage)) {
 
             // 안전 결제 요청 : 내부적으로 안전 결제 상태 확인
             boolean canRequest = tradeService.requestSafePayment(trade_seq);
-
             if (!canRequest) { // 안전 결제 불가능할 경우 (다른 트랜잭션이 안전 결제를 진행하는 중일 경우)
-                // 이미 진행 중이면 에러 메시지 전송 (DB에 저장하지 않음)
+                // 이미 진행 중이면 에러 메시지 전송 (에러 메시지는 DB에 저장하지 않음)
                 MessageVO errorMsg = new MessageVO();
                 errorMsg.setChat_room_seq(chat_room_seq);
                 errorMsg.setSender_seq(sessionMember.getMember_seq());
@@ -67,31 +85,12 @@ public class StompController {
                 messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
 
                 log.info("안전결제 요청 거부: trade_seq={}, 이미 진행 중", trade_seq);
-                return;
+                return false; // 안전 결제 이용 불가
             }
-
             log.info("안전결제 요청 승인: trade_seq={}", trade_seq);
         }
-
-
-        log.info("메시지 수신: chat_room_seq={}, sender={}, content={}",
-                chat_room_seq, message.getSender_seq(), message.getChat_cont());
-
-        // DB에 메시지 저장
-        messageService.saveMessage(message);
-
-        // 해당 채팅방 구독자에게 메시지 전송
-        messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, message);
+        return true; // 안전 결제 이용 가능
     }
-    /*
-      1. 클라이언트 전송: /sendMessage/chat/{chat_room_seq}
-
-      2. StompController @MessageMapping("/chat/{chat_room_seq}")
-
-      3. DB 저장, 구독자에게 전송: /chatroom/{chat_room_seq}
-
-      4. 클라이언트 구독: /chatroom/{chat_room_seq}
-     */
 
     // 로그인 및 채팅방 참여자 검증
     private MemberVO validateSessionAndMembership(Long chatRoomSeq, SimpMessageHeaderAccessor headerAccessor) {

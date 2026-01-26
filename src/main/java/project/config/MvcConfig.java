@@ -87,6 +87,25 @@ public class MvcConfig implements WebMvcConfigurer {
         dataSource.setJdbcUrl(url);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
+
+        /*
+        첫 요청 시 최적화
+        dataSource.setMinimumIdle(5); // 최소 유휴 연결, 기본값 :0 -> 현재 설정값 5
+
+        서버 시작 시 커넥션을 먼저 몇 개 띄워둘 것인지에 대한 설정
+        풀에서 '항상 유지할' 최소 유휴 연결 수
+        설정을 따로 하지 않으면 기본값 0 적용 : 서버 시작 시 0개의 커넥션을 먼저 띄운다.
+        setMinimumIdle(5) : 서버 시작 시 5개의 커넥션을 먼저 띄운다.
+        => 서버를 띄우고 맨 처음 요청 시 느린 현상이 없어진다.
+
+        서버가 띄워지고 맨 처음 요청 시 실행 시간이 1초가 넘어가서 추가를 해봤는데도 크게 성능이 줄어들지가 않는군..
+        커넥션 풀 문제가 아니라 JSP 컴파일 타임때문에 실행 시간이 많이 걸리는듯 .. ?
+
+        dataSource.setConnectionTestQuery("SELECT 1");
+        // 연결 유효성 검사 (안정성), DB 연결이 끊어졌는지에 대한 검증
+         */
+
+
         return dataSource;
     }
 

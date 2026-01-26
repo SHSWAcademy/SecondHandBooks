@@ -55,12 +55,38 @@ public class ChatroomService {
         return chatroomMapper.findChatRoomSeqByTradeSeq(trade_seq);
     }
 
-    /*
-    채팅방 메시지 전체 조회는 messageService 에서 처리
-    public List<MessageVO> getAllMessages(long chat_room_seq) {
-        return chatroomMapper.findAllByChatRoomSeq(chat_room_seq);
-        // select * from messageVO where chatRoomSeq = chat_room_seq
-    }
-     */
 
+
+    public List<ChatroomVO> searchAllWithPaging(long memberSeq, int limit, int offset, String sale_st) {
+        return chatroomMapper.findAllByMemberSeqWithPaging(memberSeq, limit, offset, sale_st);
+    }
+
+    public int countAll(long member_seq, String sale_st) {
+        return chatroomMapper.countByMemberSeq(member_seq, sale_st);
+    }
+
+    @Transactional
+    public void updateLastMessage(Long chat_room_seq, String last_msg) {
+        // null 체크
+        if (last_msg == null || last_msg.isEmpty()) {
+            return;
+        }
+
+        // 이미지 메시지일 경우 처리
+        if ("[IMAGE]".equals(last_msg) || last_msg.startsWith("[IMAGE]")) {
+            last_msg = "사진을 보냈습니다.";
+        }
+
+        // 안전결제 메시지일 경우 처리
+        if (last_msg.startsWith("[SAFE_PAYMENT")) {
+            last_msg = "안전결제 요청";
+        }
+
+        // 길이 50 초과 시 자르기
+        if (last_msg.length() > 50) {
+            last_msg = last_msg.substring(0, 50) + "...";
+        }
+
+        chatroomMapper.updateLastMessage(chat_room_seq, last_msg);
+    }
 }

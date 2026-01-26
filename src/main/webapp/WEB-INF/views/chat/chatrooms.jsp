@@ -254,11 +254,17 @@
         <!-- 왼쪽 채팅방 리스트 -->
         <div class="w-80 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
-                <h3 class="font-bold text-gray-800 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    내 채팅방
-                    <span class="ml-auto text-xs font-medium text-gray-400 bg-gray-200 px-2 py-0.5 rounded-full">${chatrooms.size()}</span>
-                </h3>
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        내 채팅방
+                    </h3>
+                    <select id="saleStatusFilter" class="text-xs px-2 py-1 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary-300">
+                        <option value="">전체</option>
+                        <option value="SALE">판매중</option>
+                        <option value="SOLD">판매완료</option>
+                    </select>
+                </div>
             </div>
 
             <div id="chatroomsList" class="flex-1 overflow-y-auto">
@@ -272,7 +278,24 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="font-semibold text-gray-900 text-sm truncate">${room.sale_title}</div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <div class="font-semibold text-gray-900 text-sm truncate flex items-center gap-2">
+                                                ${room.sale_title}
+                                                <c:choose>
+                                                    <c:when test="${room.sale_st.name() == 'SOLD'}">
+                                                        <span class="text-xs px-1.5 py-0.5 rounded bg-gray-200 text-gray-600 whitespace-nowrap">판매완료</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 whitespace-nowrap">판매중</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                            <c:if test="${not empty room.last_msg_dtm}">
+                                                <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                                                    <fmt:formatDate value="${room.lastMsgDtmAsDate}" pattern="MM/dd HH:mm"/>
+                                                </span>
+                                            </c:if>
+                                        </div>
                                         <div class="text-xs text-gray-500 mt-1 truncate">
                                             <c:choose>
                                                 <c:when test="${not empty room.last_msg}">${room.last_msg}</c:when>
@@ -285,12 +308,24 @@
                         </c:forEach>
                     </c:when>
                     <c:otherwise>
-                        <div class="flex flex-col items-center justify-center h-full py-12 text-gray-400">
+                        <div id="emptyRoomNotice" class="flex flex-col items-center justify-center h-full py-12 text-gray-400">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-3 text-gray-300"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             <p class="text-sm">채팅방이 없습니다</p>
                         </div>
                     </c:otherwise>
                 </c:choose>
+                <!-- 로딩 인디케이터 -->
+                <div id="chatroomLoadingIndicator" class="hidden py-4 text-center">
+                    <svg class="animate-spin h-5 w-5 mx-auto text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-xs text-gray-400 mt-2">불러오는 중...</p>
+                </div>
+                <!-- 더 이상 채팅방 없음 표시 -->
+                <div id="noMoreRoomsNotice" class="hidden py-3 text-center text-xs text-gray-400">
+                    더 이상 채팅방이 없습니다
+                </div>
             </div>
         </div>
 
@@ -364,7 +399,7 @@
                                     <%
                                         }
                                     %>
-                                    <c:if test="${msg.read_yn}">
+                                    <c:if test="${msg.sender_seq == sessionScope.loginSess.member_seq && msg.read_yn}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0046FF" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                                     </c:if>
                                 </div>
@@ -384,7 +419,7 @@
             <!-- 메시지 입력 영역 -->
             <div id="messageInputArea" class="px-6 py-4 border-t border-gray-100 bg-white">
                 <div class="flex items-center gap-3">
-                    <!-- + 버튼 (판매자에게만 보임) -->
+                    <!-- + 버튼 (채팅방 선택 시 모두에게 보임) -->
                     <div class="plus-btn-wrapper" id="plusBtnWrapper" style="display: none;">
                         <button type="button" class="plus-btn" id="plusBtn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -393,7 +428,18 @@
                             </svg>
                         </button>
                         <div class="plus-menu" id="plusMenu">
-                            <div class="plus-menu-item" id="safePaymentRequestBtn">
+                            <!-- 사진 전송 (모든 사용자) -->
+                            <div class="plus-menu-item" id="imageUploadBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                                사진 전송
+                                <span class="text-xs text-gray-400 ml-1">(1장)</span>
+                            </div>
+                            <!-- 안전 결제 요청 (판매자만) -->
+                            <div class="plus-menu-item" id="safePaymentRequestBtn" style="display: none;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0046FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                                     <line x1="1" y1="10" x2="23" y2="10"></line>
@@ -402,6 +448,8 @@
                             </div>
                         </div>
                     </div>
+                    <!-- 숨겨진 파일 input -->
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;" />
                     <input type="text" id="message" placeholder="메시지를 입력하세요..."
                            class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all text-sm" />
                     <button id="sendBtn" class="px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2">
@@ -433,22 +481,33 @@ document.addEventListener("DOMContentLoaded", function() {
     setupPlusButtonEvents();
 });
 
-// + 버튼 표시/숨김 (판매자만 보임)
+// + 버튼 표시/숨김 (채팅방 선택 시 모두에게 보임, 안전결제는 판매자만)
 function updatePlusButtonVisibility() {
     const plusBtnWrapper = document.getElementById('plusBtnWrapper');
-    console.log('=== updatePlusButtonVisibility ===');
-    console.log('loginMemberSeq:', loginMemberSeq);
-    console.log('member_seller_seq:', member_seller_seq);
-    console.log('isSeller:', isSeller);
-    console.log('chat_room_seq:', chat_room_seq);
-    console.log('plusBtnWrapper:', plusBtnWrapper);
+    const safePaymentRequestBtn = document.getElementById('safePaymentRequestBtn');
 
-    if (plusBtnWrapper && isSeller && chat_room_seq > 0) {
+    console.log('=== updatePlusButtonVisibility ===');
+    console.log('chat_room_seq:', chat_room_seq);
+    console.log('isSeller:', isSeller);
+
+    // + 버튼: 채팅방이 선택되면 모든 사용자에게 보임
+    if (plusBtnWrapper && chat_room_seq > 0) {
         plusBtnWrapper.style.display = 'block';
         console.log('+ 버튼 표시');
     } else if (plusBtnWrapper) {
         plusBtnWrapper.style.display = 'none';
         console.log('+ 버튼 숨김');
+    }
+
+    // 안전결제 버튼: 판매자에게만 보임
+    if (safePaymentRequestBtn) {
+        if (isSeller && chat_room_seq > 0) {
+            safePaymentRequestBtn.style.display = 'flex';
+            console.log('안전결제 버튼 표시');
+        } else {
+            safePaymentRequestBtn.style.display = 'none';
+            console.log('안전결제 버튼 숨김');
+        }
     }
 }
 
@@ -457,6 +516,8 @@ function setupPlusButtonEvents() {
     const plusBtn = document.getElementById('plusBtn');
     const plusMenu = document.getElementById('plusMenu');
     const safePaymentRequestBtn = document.getElementById('safePaymentRequestBtn');
+    const imageUploadBtn = document.getElementById('imageUploadBtn');
+    const imageInput = document.getElementById('imageInput');
 
     if (plusBtn && plusMenu) {
         // + 버튼 클릭 시 메뉴 토글
@@ -468,6 +529,22 @@ function setupPlusButtonEvents() {
         // 다른 곳 클릭 시 메뉴 닫기
         document.addEventListener('click', function() {
             plusMenu.classList.remove('show');
+        });
+    }
+
+    // 사진 전송 버튼 클릭 시 파일 선택창 열기
+    if (imageUploadBtn && imageInput) {
+        imageUploadBtn.addEventListener('click', function() {
+            plusMenu.classList.remove('show');
+            imageInput.click();
+        });
+
+        // 파일 선택 시 업로드
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                uploadAndSendImage(this.files[0]);
+                this.value = ''; // 같은 파일 재선택 가능하도록 초기화
+            }
         });
     }
 
@@ -1082,6 +1159,242 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// =====================================================
+// 채팅방 리스트 무한 스크롤 페이징
+// =====================================================
+
+const chatroomPaging = {
+    currentPage: 0,
+    pageSize: 10,  // 한 번에 불러올 채팅방 수
+    isLoading: false,
+    hasMore: true,
+    isInitialLoad: ${not empty chatrooms},  // 초기 로드 여부
+    saleStatusFilter: ''  // 필터: '', 'SALE', 'SOLD'
+};
+
+// 채팅방 리스트 스크롤 이벤트
+document.addEventListener('DOMContentLoaded', function() {
+    const chatroomsList = document.getElementById('chatroomsList');
+    if (chatroomsList) {
+        chatroomsList.addEventListener('scroll', handleChatroomScroll);
+
+        // 초기 데이터가 있으면 페이지 1부터 시작 (이미 0페이지 데이터가 렌더링됨)
+        if (chatroomPaging.isInitialLoad) {
+            chatroomPaging.currentPage = 1;
+        }
+    }
+
+    // 필터 셀렉트 박스 이벤트
+    const saleStatusFilter = document.getElementById('saleStatusFilter');
+    if (saleStatusFilter) {
+        saleStatusFilter.addEventListener('change', function() {
+            chatroomPaging.saleStatusFilter = this.value;
+            resetAndReloadChatrooms();
+        });
+    }
+});
+
+// 채팅방 리스트 초기화 및 다시 로드
+function resetAndReloadChatrooms() {
+    // 페이징 상태 초기화
+    chatroomPaging.currentPage = 0;
+    chatroomPaging.hasMore = true;
+    chatroomPaging.isLoading = false;
+
+    // 기존 채팅방 리스트 비우기
+    const container = document.getElementById('chatroomsList');
+    if (container) {
+        // 로딩 인디케이터와 더 이상 없음 표시는 유지
+        const loadingIndicator = document.getElementById('chatroomLoadingIndicator');
+        const noMoreNotice = document.getElementById('noMoreRoomsNotice');
+
+        container.innerHTML = '';
+
+        if (loadingIndicator) container.appendChild(loadingIndicator);
+        if (noMoreNotice) {
+            noMoreNotice.classList.add('hidden');
+            container.appendChild(noMoreNotice);
+        }
+    }
+
+    // 첫 페이지 로드
+    loadMoreChatrooms();
+}
+
+// 스크롤 이벤트 핸들러
+function handleChatroomScroll() {
+    const container = document.getElementById('chatroomsList');
+    if (!container) return;
+
+    // 스크롤이 하단 100px 이내에 도달했을 때
+    const scrollBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    if (scrollBottom < 100 && !chatroomPaging.isLoading && chatroomPaging.hasMore) {
+        loadMoreChatrooms();
+    }
+}
+
+// 추가 채팅방 로드
+function loadMoreChatrooms() {
+    if (chatroomPaging.isLoading || !chatroomPaging.hasMore) return;
+
+    chatroomPaging.isLoading = true;
+    showChatroomLoading(true);
+
+    const offset = chatroomPaging.currentPage * chatroomPaging.pageSize;
+    let url = '/chat/rooms/list?limit=' + chatroomPaging.pageSize + '&offset=' + offset;
+
+    // 필터가 있으면 파라미터 추가
+    if (chatroomPaging.saleStatusFilter) {
+        url += '&sale_st=' + chatroomPaging.saleStatusFilter;
+    }
+
+    fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(function(response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('채팅방 페이징 응답:', data);
+
+        if (data && Array.isArray(data.rooms)) {
+            if (data.rooms.length > 0) {
+                appendChatrooms(data.rooms);
+                chatroomPaging.currentPage++;
+            }
+
+            // 더 이상 데이터가 없으면
+            if (data.rooms.length < chatroomPaging.pageSize || !data.hasMore) {
+                chatroomPaging.hasMore = false;
+                showNoMoreRooms();
+            }
+        } else {
+            chatroomPaging.hasMore = false;
+            showNoMoreRooms();
+        }
+    })
+    .catch(function(error) {
+        console.error('채팅방 로드 실패:', error);
+    })
+    .finally(function() {
+        chatroomPaging.isLoading = false;
+        showChatroomLoading(false);
+    });
+}
+
+// 채팅방 아이템 DOM에 추가
+function appendChatrooms(rooms) {
+    const container = document.getElementById('chatroomsList');
+    const loadingIndicator = document.getElementById('chatroomLoadingIndicator');
+    const emptyNotice = document.getElementById('emptyRoomNotice');
+
+    if (emptyNotice) emptyNotice.remove();
+
+    rooms.forEach(function(room) {
+        const div = document.createElement('div');
+        div.className = 'chatroom-item px-5 py-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 border-l-4 border-l-transparent';
+        div.setAttribute('data-chat-room-seq', room.chat_room_seq);
+
+        const lastMsg = room.last_msg
+            ? escapeHtml(room.last_msg)
+            : '<span class="text-gray-400 italic">아직 메시지가 없습니다</span>';
+
+        var saleBadge = (room.sale_st === 'SOLD')
+            ? '<span class="text-xs px-1.5 py-0.5 rounded bg-gray-200 text-gray-600 whitespace-nowrap">판매완료</span>'
+            : '<span class="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 whitespace-nowrap">판매중</span>';
+
+        // 마지막 메시지 시간 포맷팅
+        var timeHtml = '';
+        if (room.last_msg_dtm) {
+            var date = new Date(room.last_msg_dtm);
+            var month = String(date.getMonth() + 1).padStart(2, '0');
+            var day = String(date.getDate()).padStart(2, '0');
+            var hours = String(date.getHours()).padStart(2, '0');
+            var minutes = String(date.getMinutes()).padStart(2, '0');
+            timeHtml = '<span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">' + month + '/' + day + ' ' + hours + ':' + minutes + '</span>';
+        }
+
+        div.innerHTML =
+            '<div class="flex items-start gap-3">' +
+                '<div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>' +
+                '</div>' +
+                '<div class="flex-1 min-w-0">' +
+                    '<div class="flex items-center justify-between gap-2">' +
+                        '<div class="font-semibold text-gray-900 text-sm truncate flex items-center gap-2">' + escapeHtml(room.sale_title || '') + saleBadge + '</div>' +
+                        timeHtml +
+                    '</div>' +
+                    '<div class="text-xs text-gray-500 mt-1 truncate">' + lastMsg + '</div>' +
+                '</div>' +
+            '</div>';
+
+        // 채팅방 클릭 이벤트 추가
+        div.addEventListener('click', function() {
+            selectChatroom(room.chat_room_seq);
+        });
+
+        // loadingIndicator 앞에 삽입
+        if (loadingIndicator) {
+            container.insertBefore(div, loadingIndicator);
+        } else {
+            container.appendChild(div);
+        }
+    });
+}
+
+// 채팅방 선택 (AJAX로 메시지 로드)
+function selectChatroom(chatRoomSeq) {
+    chat_room_seq = Number(chatRoomSeq);
+
+    // 메시지 영역 초기화
+    document.getElementById("chatContainer").innerHTML =
+        '<div id="emptyNotice" class="flex flex-col items-center justify-center h-full text-gray-400">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-4 text-gray-300"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' +
+            '<p class="text-sm font-medium">이전 메시지가 없습니다</p>' +
+            '<p class="text-xs text-gray-400 mt-1">첫 메시지를 보내보세요!</p>' +
+        '</div>';
+
+    // active 클래스 처리
+    document.querySelectorAll('.chatroom-item').forEach(function(item) {
+        item.classList.remove('active');
+    });
+    var selectedItem = document.querySelector('[data-chat-room-seq="' + chatRoomSeq + '"]');
+    if (selectedItem) {
+        selectedItem.classList.add('active');
+    }
+
+    // STOMP 재연결
+    if (typeof stompClient !== 'undefined' && stompClient) {
+        stompClient.disconnect(function() {
+            connect();
+        });
+    }
+
+    // 메시지 조회
+    fetchMessages(chat_room_seq);
+}
+
+// 로딩 인디케이터 표시/숨김
+function showChatroomLoading(show) {
+    const indicator = document.getElementById('chatroomLoadingIndicator');
+    if (indicator) {
+        indicator.classList.toggle('hidden', !show);
+    }
+}
+
+// 더 이상 채팅방 없음 표시
+function showNoMoreRooms() {
+    const notice = document.getElementById('noMoreRoomsNotice');
+    const indicator = document.getElementById('chatroomLoadingIndicator');
+
+    if (indicator) indicator.classList.add('hidden');
+    if (notice) notice.classList.remove('hidden');
+}
+
 // fetchMessages 함수 오버라이드 (Object[] 데이터 처리)
 const originalFetchMessages = fetchMessages;
 fetchMessages = function(roomSeq) {
@@ -1198,6 +1511,163 @@ fetchMessages = function(roomSeq) {
     .catch(err => console.error('채팅 메시지 로드 실패:', err));
 };
 
+// =====================================================
+// 이미지 전송 기능
+// =====================================================
+
+// 이미지 업로드 및 전송
+function uploadAndSendImage(file) {
+    // 파일 타입 검증
+    if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 전송할 수 있습니다.');
+        return;
+    }
+
+    // 파일 크기 검증 (5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('이미지 크기는 5MB 이하만 가능합니다.');
+        return;
+    }
+
+    // 채팅방 선택 확인
+    if (!chat_room_seq || chat_room_seq <= 0) {
+        alert('채팅방을 선택해주세요.');
+        return;
+    }
+
+    // FormData 생성
+    var formData = new FormData();
+    formData.append('image', file);
+    formData.append('chat_room_seq', chat_room_seq);
+    formData.append('trade_seq', trade_seq);
+
+    // 업로드 중 표시
+    var log = document.getElementById('chatContainer');
+    var uploadingDiv = document.createElement('div');
+    uploadingDiv.className = 'msg-right';
+    uploadingDiv.id = 'uploading-indicator';
+    uploadingDiv.innerHTML = '<div class="content" style="background: #e9ecef; color: #868e96;">이미지 업로드 중...</div>';
+    log.appendChild(uploadingDiv);
+    log.scrollTop = log.scrollHeight;
+
+    // 서버로 업로드
+    fetch('/chat/image/upload', {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: formData
+    })
+    .then(function(response) {
+        if (!response.ok) throw new Error('업로드 실패');
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('이미지 업로드 응답:', data);
+
+        // 업로드 중 표시 제거
+        var indicator = document.getElementById('uploading-indicator');
+        if (indicator) indicator.remove();
+
+        if (data.success && data.imageUrl) {
+            // STOMP로 이미지 메시지 전송
+            sendImageMessage(data.imageUrl);
+        } else {
+            alert('이미지 업로드에 실패했습니다.');
+        }
+    })
+    .catch(function(error) {
+        console.error('이미지 업로드 오류:', error);
+        var indicator = document.getElementById('uploading-indicator');
+        if (indicator) indicator.remove();
+        alert('이미지 업로드 중 오류가 발생했습니다.');
+    });
+}
+
+// STOMP로 이미지 메시지 전송
+function sendImageMessage(imageUrl) {
+    if (!stompClient || !stompClient.connected) {
+        alert('채팅 연결이 필요합니다.');
+        return;
+    }
+
+    stompClient.send(
+        "/sendMessage/chat/" + chat_room_seq,
+        {},
+        JSON.stringify({
+            chat_room_seq: chat_room_seq,
+            chat_cont: "[IMAGE]" + imageUrl,
+            sender_seq: loginMemberSeq,
+            trade_seq: trade_seq
+        })
+    );
+}
+
+// showMessage 함수에 이미지 처리 추가
+var originalShowMessageForImage = showMessage;
+showMessage = function(msg) {
+    var chatCont = msg.chat_cont || '';
+
+    // 이미지 메시지인 경우
+    if (chatCont.startsWith('[IMAGE]')) {
+        showImageMessage(msg);
+        return;
+    }
+
+    // 기존 로직 실행
+    originalShowMessageForImage(msg);
+};
+
+// 이미지 메시지 표시
+function showImageMessage(msg) {
+    var log = document.getElementById('chatContainer');
+    var emptyNotice = document.getElementById('emptyNotice');
+    if (emptyNotice) emptyNotice.remove();
+
+    var imageUrl = msg.chat_cont.replace('[IMAGE]', '');
+    var isMyMessage = Number(msg.sender_seq) === loginMemberSeq;
+
+    var msgWrapper = document.createElement('div');
+    msgWrapper.className = isMyMessage ? 'msg-right' : 'msg-left';
+
+    var imgContainer = document.createElement('div');
+    imgContainer.className = 'content';
+    imgContainer.style.padding = '4px';
+    imgContainer.style.background = isMyMessage ? '#0046FF' : '#fff';
+
+    var img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = '전송된 이미지';
+    img.style.maxWidth = '200px';
+    img.style.maxHeight = '200px';
+    img.style.borderRadius = '12px';
+    img.style.cursor = 'pointer';
+    img.onerror = function() {
+        this.src = '/resources/img/no-image.png';
+    };
+    // 클릭 시 새 탭에서 원본 이미지 보기
+    img.onclick = function() {
+        window.open(imageUrl, '_blank');
+    };
+
+    imgContainer.appendChild(img);
+    msgWrapper.appendChild(imgContainer);
+
+    // 시간 표시
+    var timeDiv = document.createElement('div');
+    timeDiv.className = 'msg-time';
+    if (msg.sent_dtm) {
+        var date = new Date(msg.sent_dtm);
+        var timeStr = date.getFullYear() + '/' +
+            String(date.getMonth() + 1).padStart(2, '0') + '/' +
+            String(date.getDate()).padStart(2, '0') + ' ' +
+            String(date.getHours()).padStart(2, '0') + ':' +
+            String(date.getMinutes()).padStart(2, '0');
+        timeDiv.textContent = timeStr;
+    }
+    msgWrapper.appendChild(timeDiv);
+
+    log.appendChild(msgWrapper);
+    log.scrollTop = log.scrollHeight;
+}
 
 </script>
 
