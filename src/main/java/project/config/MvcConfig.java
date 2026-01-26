@@ -75,7 +75,7 @@ public class MvcConfig implements WebMvcConfigurer {
     // 이미지 경로 매핑 (임시 S3사용시 필요없음)
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/img/**")
-                .addResourceLocations("file:/Users/aaa/Downloads/secondaryBook/img/");
+                .addResourceLocations("img/");
     }
 
     // hikaricp

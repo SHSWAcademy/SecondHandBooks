@@ -205,9 +205,6 @@ public class TradeService {
         return status != null ? status : "NONE";
     }
 
-
-
-
     // 안전 결제 요청 처리 (트랜잭션으로 상태 체크, 업데이트 원자적 처리), 5분 만료 시간 설정
     // return true : 안전 결제 요청 성공, false : 이미 안전 결제 요청 처리
     @Transactional

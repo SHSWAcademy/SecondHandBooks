@@ -82,7 +82,7 @@ public class PaymentController {
 
         // 결제 금액 검증: DB의 실제 가격과 비교 먼저 하기
         TradeVO trade = tradeService.search(trade_seq);
-        if (trade == null || trade.getSale_price() != amount) {
+        if (trade == null || trade.getSale_price()+trade.getDelivery_cost() != amount) {
             log.error("결제 금액 불일치: trade_seq={}, 요청금액={}, 실제가격={}", trade_seq, amount, trade != null ? trade.getSale_price() : "null");
             tradeService.cancelSafePayment(trade_seq); // DB 실제 가격과 다를 경우 결제 취소 쳐리
             model.addAttribute("errorMessage", "결제 금액이 일치하지 않습니다.");

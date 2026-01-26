@@ -31,6 +31,7 @@ public class TossApiService {
             // 2. WebClient로 POST 요청
             TossPaymentResponse response = tossPaymentWebClient
                     .post()
+                    .uri("/v1/payments/confirm")
                     .bodyValue(requestBody)           // JSON 바디
                     .retrieve()                       // 응답 받기
                     .bodyToMono(TossPaymentResponse.class)  // JSON → 객체 변환
