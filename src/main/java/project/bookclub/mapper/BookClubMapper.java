@@ -106,8 +106,14 @@ public interface BookClubMapper {
     // book_club_member 중복 체크 (book_club_seq, member_seq 조합)
     int selectMemberCount(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
 
+    // join_st 상태만 조회 (재가입 승인 로직용 - 키 문제 방지)
+    String selectMemberJoinSt(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
     // book_club_member INSERT (승인 시 사용, leader_yn=false)
     void insertMember(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
+
+    // book_club_member UPDATE (재가입 승인 시 LEFT/KICKED/REJECTED -> JOINED로 복구)
+    int restoreMemberToJoined(@Param("bookClubSeq") Long bookClubSeq, @Param("memberSeq") Long memberSeq);
 
     // book_club_request 상태 업데이트 (APPROVED 또는 REJECTED)
     void updateRequestStatus(@Param("requestSeq") Long requestSeq, @Param("status") String status);

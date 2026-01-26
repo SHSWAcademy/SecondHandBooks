@@ -374,15 +374,17 @@ public class BookClubService {
 
     // #5-3. 관리 페이지 - 가입 신청 승인
     /**
-     * 독서모임 가입 신청 승인
+     * 독서모임 가입 신청 승인 (재가입 지원)
      *
      * 검증 및 처리 순서:
      * 1. 파라미터 null 체크
      * 2. request 조회 및 WAIT 상태 검증
      * 3. 정원 초과 방지 (JOINED 멤버 수 < max_member)
-     * 4. 중복 승인 방지 (book_club_member에 이미 존재하는지 확인)
-     * 5. book_club_member INSERT (join_st='JOINED', leader_yn=false)
-     * 6. book_club_request UPDATE (request_st='APPROVED', request_processed_dt=오늘)
+     * 4. 멤버 상태 확인:
+     *    - 멤버 row 없음 → INSERT (신규 가입)
+     *    - join_st='JOINED' → 승인 실패 (이미 가입된 멤버)
+     *    - join_st='LEFT/KICKED/REJECTED/WAIT' → UPDATE (재가입 복구)
+     * 5. book_club_request UPDATE (request_st='APPROVED', request_processed_dt=오늘)
      *
      * @param bookClubSeq 독서모임 ID
      * @param requestSeq  가입 신청 ID
@@ -435,19 +437,34 @@ public class BookClubService {
             throw new IllegalStateException("모임 정원이 초과되었습니다.");
         }
 
-        // 4. 중복 승인 방지 (book_club_member에 이미 존재하는지 확인)
-        int existingMemberCount = bookClubMapper.selectMemberCount(bookClubSeq, request.getRequestMemberSeq());
-        if (existingMemberCount > 0) {
-            log.warn("승인 처리 실패: 이미 멤버로 등록됨 - bookClubSeq={}, memberSeq={}",
-                    bookClubSeq, request.getRequestMemberSeq());
+        // 4. 멤버 상태 확인 (재가입 지원)
+        Long memberSeq = request.getRequestMemberSeq();
+        String joinSt = bookClubMapper.selectMemberJoinSt(bookClubSeq, memberSeq);
+
+        if (joinSt == null) {
+            // 4-A. 멤버 row 없음 → 신규 가입 (INSERT)
+            bookClubMapper.insertMember(bookClubSeq, memberSeq);
+            log.info("신규 멤버 등록 완료: bookClubSeq={}, memberSeq={}", bookClubSeq, memberSeq);
+
+        } else if ("JOINED".equals(joinSt)) {
+            // 4-B. 이미 JOINED 상태 → 승인 실패
+            log.warn("승인 처리 실패: 이미 JOINED 상태 - bookClubSeq={}, memberSeq={}, joinSt={}",
+                    bookClubSeq, memberSeq, joinSt);
             throw new IllegalStateException("이미 가입된 멤버입니다.");
+
+        } else {
+            // 4-C. LEFT/KICKED/REJECTED/WAIT 등 JOINED가 아닌 상태 → 재가입 복구 (UPDATE)
+            int updatedRows = bookClubMapper.restoreMemberToJoined(bookClubSeq, memberSeq);
+            if (updatedRows == 0) {
+                log.warn("승인 처리 실패: 재가입 복구 UPDATE 실패 - bookClubSeq={}, memberSeq={}, joinSt={}",
+                        bookClubSeq, memberSeq, joinSt);
+                throw new IllegalStateException("승인 처리에 실패했습니다.");
+            }
+            log.info("재가입 멤버 복구 완료: bookClubSeq={}, memberSeq={}, oldJoinSt={} -> JOINED",
+                    bookClubSeq, memberSeq, joinSt);
         }
 
-        // 5. book_club_member INSERT
-        bookClubMapper.insertMember(bookClubSeq, request.getRequestMemberSeq());
-        log.info("멤버 등록 완료: bookClubSeq={}, memberSeq={}", bookClubSeq, request.getRequestMemberSeq());
-
-        // 6. book_club_request UPDATE
+        // 5. book_club_request UPDATE
         bookClubMapper.updateRequestStatus(requestSeq, "APPROVED");
         log.info("가입 신청 승인 완료: requestSeq={}", requestSeq);
     }

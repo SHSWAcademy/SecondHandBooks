@@ -569,6 +569,14 @@
         AND member_seq = #{memberSeq}
     </select>
 
+    <!-- join_st 상태만 조회 (재가입 승인 로직용 - 키 문제 방지) -->
+    <select id="selectMemberJoinSt" resultType="string">
+        SELECT join_st
+        FROM book_club_member
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+    </select>
+
     <!-- book_club_member INSERT (승인 시 사용, leader_yn=false, join_st='JOINED') -->
     <insert id="insertMember">
         INSERT INTO book_club_member (
@@ -585,6 +593,17 @@
         CURRENT_TIMESTAMP
         )
     </insert>
+
+    <!-- book_club_member UPDATE (재가입 승인 시 LEFT/KICKED/REJECTED -> JOINED로 복구) -->
+    <update id="restoreMemberToJoined">
+        UPDATE book_club_member
+        SET join_st = 'JOINED',
+            join_st_update_dtm = CURRENT_TIMESTAMP,
+            leader_yn = false
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+          AND join_st != 'JOINED'
+    </update>
 
     <!-- book_club_request 상태 업데이트 (APPROVED 또는 REJECTED) -->
     <update id="updateRequestStatus">
