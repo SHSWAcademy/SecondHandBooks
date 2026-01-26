@@ -18,6 +18,7 @@ public class TradeVO {
     private long category_seq;      // 추가
     private long book_info_seq;     // 추가
     private long settlement_seq;    // 추가
+    private Long pending_buyer_seq; // 추가
 
     private String sale_title;      //책 제목
     private BookStatus book_st;     // DB: book_st_enum 매핑

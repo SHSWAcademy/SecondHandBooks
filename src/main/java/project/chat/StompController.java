@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import project.chat.chatroom.ChatroomService;
+import project.chat.chatroom.ChatroomVO;
 import project.chat.message.MessageService;
 import project.chat.message.MessageVO;
 import project.member.MemberVO;
@@ -102,8 +103,9 @@ public class StompController {
                 return false;
             }
 
-            // 안전 결제 요청 : 내부적으로 안전 결제 상태 확인
-            boolean canRequest = tradeService.requestSafePayment(trade_seq);
+            // 안전 결제 요청 : 현재 채팅방의 구매자를 대상으로 지정
+            ChatroomVO chatroom = chatroomService.findByChatRoomSeq(chat_room_seq);
+            boolean canRequest = tradeService.requestSafePayment(trade_seq, chatroom.getMember_buyer_seq());
             if (!canRequest) { // 안전 결제 불가능할 경우 (다른 트랜잭션이 안전 결제를 진행하는 중일 경우)
                 // 이미 진행 중이면 에러 메시지 전송 (에러 메시지는 DB에 저장하지 않음)
                 MessageVO errorMsg = new MessageVO();

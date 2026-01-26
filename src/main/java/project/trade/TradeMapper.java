@@ -44,8 +44,13 @@ public interface TradeMapper {
 
     // 안전결제 만료 시간 관련
     int updateSafePaymentWithExpire(@Param("trade_seq") long trade_seq,
-                                    @Param("status") String status,
-                                    @Param("expire_minutes") int expire_minutes); // 상태 + 만료시간 업데이트
+                                    @Param("status") String status, // 상태
+                                    @Param("expire_minutes") int expire_minutes, // 만료시간
+                                    @Param("pending_buyer_seq") long pending_buyer_seq); // 구매 진행 중인 구매자 seq
 
     Long findSafePaymentExpireSeconds(@Param("trade_seq") long trade_seq); // 만료까지 남은 초 조회
+
+    Long findPendingBuyerSeq(@Param("trade_seq") long trade_seq);
+
+    int resetExpiredSafePayments();
 }

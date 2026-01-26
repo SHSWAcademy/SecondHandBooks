@@ -43,22 +43,29 @@ public class PaymentController {
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
         TradeVO trade = tradeService.search(trade_seq);
 
-        // trade.getMember_buyer_seq()는 현재 시점에서는 null
+        // 검증 : trade.getMember_buyer_seq()는 현재 시점에서는 null
         if (sessionMember == null || trade.getMember_seller_seq() == sessionMember.getMember_seq()) {return "redirect:/";} // 검증 : 구매자 seq !=  세션 seq일 경우 홈으로 리다이렉트
 
-        // 이미 판매 완료된 상품인지 체크
+        // 검증 : 이미 판매 완료된 상품인지 체크
         if (trade.getSale_st() == SaleStatus.SOLD) {
             log.error("이미 판매 완료된 상품: trade_seq={}", trade_seq);
             model.addAttribute("errorMessage", "이미 판매 완료된 상품입니다.");
             return "payment/fail";
         }
 
-        // 안전결제 상태 확인 (직접 url 접근 시 체크)
+        // 검증 : 안전결제 상태 확인 (직접 url 접근 시 체크)
         String safePaymentStatus = tradeService.getSafePaymentStatus(trade_seq);
         if (!"PENDING".equals(safePaymentStatus)) {
             return "redirect:/";  // 안전결제 요청이 없으면 접근 불가
         }
 
+        // 검증 : 안전결제 대상 구매자인지 확인
+        Long pendingBuyerSeq = tradeService.getPendingBuyerSeq(trade_seq);
+        if (pendingBuyerSeq == null || pendingBuyerSeq != sessionMember.getMember_seq()) {
+            return "redirect:/";  // 안전결제 대상 구매자가 아니면 접근 불가
+        }
+
+        // 정상 로직
         long remainingSeconds = tradeService.getSafePaymentExpireSeconds(trade_seq); // 남은 결제 시간 (초) DB 에서 조회 후 전달
         List<AddressVO> address = paymentService.findAddress(sessionMember.getMember_seq()); // 구매자 주소 DB 에서 조회 후 전달
 
@@ -79,12 +86,19 @@ public class PaymentController {
                           HttpSession session,
                           Model model) {
 
-        // 결제 금액 검증: DB의 실제 가격과 비교 먼저 하기
+        // 검증 - 결제 금액 : DB의 실제 가격과 비교 먼저 하기
         TradeVO trade = tradeService.search(trade_seq);
         if (trade == null || trade.getSale_price() + trade.getDelivery_cost() != amount) {
             log.error("결제 금액 불일치: trade_seq={}, 요청금액={}, 실제가격={}", trade_seq, amount, trade != null ? trade.getSale_price() : "null");
             tradeService.cancelSafePayment(trade_seq); // DB 실제 가격과 다를 경우 결제 취소 쳐리
             model.addAttribute("errorMessage", "결제 금액이 일치하지 않습니다.");
+            return "payment/fail";
+        }
+
+        // 검증 - 판매 상태
+        if (trade.getSale_st() == SaleStatus.SOLD) {
+            tradeService.cancelSafePayment(trade_seq);
+            model.addAttribute("errorMessage", "이미 판매 완료된 상품입니다.");
             return "payment/fail";
         }
 
