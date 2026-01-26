@@ -131,9 +131,15 @@ public class TradeController {
     public String modifyUpload(@PathVariable Long tradeSeq, TradeVO updateTrade,
                                RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
 
-        // 기존 게시글 조회
+        // 검증 - 기존 게시글 조회
         TradeVO existingTrade = tradeService.search(tradeSeq);
         if (existingTrade == null) {
+            return "redirect:/";
+        }
+
+        // 검증 - PENDING 상태일 때는 수정 불가
+        String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
+        if ("PENDING".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
@@ -193,6 +199,7 @@ public class TradeController {
 
         // 세션 검증
         TradeVO trade = tradeService.search(tradeSeq);
+
         // 세션 검증
         try {
             checkSessionAndTrade(session, trade);
@@ -201,9 +208,15 @@ public class TradeController {
         } catch (Exception e) {
             return "redirect:/";
         }
-        // 삭제하려는 사람의 pk가 게시글의 작성자 pk와 동일한지 검증
+        // 검증 : 삭제하려는 사람의 pk가 게시글의 작성자 pk와 동일한지
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
         if (trade.getMember_seller_seq() != sessionMember.getMember_seq()) {
+            return "redirect:/";
+        }
+
+        // 검증 - PENDING 상태일 때는 삭제 불가
+        String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
+        if ("PENDING".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 

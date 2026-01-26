@@ -100,6 +100,11 @@
         WHERE trade_seq = #{trade_seq}
           AND member_buyer_seq = #{member_seq}
     </select>
+
+    <!-- 채팅방 seq로 채팅방 조회 -->
+    <select id="findByChatRoomSeq" resultType="project.chat.chatroom.ChatroomVO">
+        SELECT * FROM chatroom WHERE chat_room_seq = #{chat_room_seq}
+    </select>
     <!--
     <select id="findAllByChatRoomSeq" resultType="project.chat.message.MessageVO">
         SELECT * FROM chat_msg WHERE chat_room_seq = #{chat_room_seq}

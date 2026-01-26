@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+
 <mapper namespace="project.trade.TradeMapper">
 
     <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
@@ -85,6 +86,13 @@
         )
     </insert>
 
+    <!-- pending_buyer_seq 조회 -->
+    <select id="findPendingBuyerSeq" resultType="Long">
+        SELECT pending_buyer_seq
+        FROM sb_trade_info
+        WHERE trade_seq = #{trade_seq}
+    </select>
+
     <!-- 찜하기 추가 -->
     <insert id="saveLike">
         INSERT INTO trade_wish (
@@ -129,7 +137,8 @@
         SET
             sale_st = #{sold}::sale_st_enum,
             sale_st_dtm = now(),
-            book_sale_dtm = now()
+            book_sale_dtm = now(),
+            member_buyer_seq = #{member_buyer_seq}
         WHERE trade_seq = #{trade_seq}
     </update>
     <select id="findAll" resultType="project.trade.TradeVO">
@@ -359,6 +368,7 @@
         UPDATE sb_trade_info
         SET safe_payment_st = #{status},
             safe_payment_expire_dtm = NULL,
+            pending_buyer_seq = NULL,
             upd_dtm = now()
         WHERE trade_seq = #{trade_seq}
     </update>
@@ -368,22 +378,34 @@
         UPDATE sb_trade_info
         SET safe_payment_st = #{status},
             safe_payment_expire_dtm = now() + (#{expire_minutes} || ' minutes')::interval,
+            pending_buyer_seq = #{pending_buyer_seq},
             upd_dtm = now()
         WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 만료된 안전결제 자동 초기화 -->
+    <update id="resetExpiredSafePayments">
+        UPDATE sb_trade_info
+        SET safe_payment_st = 'NONE',
+        safe_payment_expire_dtm = NULL,
+        pending_buyer_seq = NULL,
+        upd_dtm = now()
+        WHERE safe_payment_st = 'PENDING'
+        AND safe_payment_expire_dtm IS NOT NULL
+        AND safe_payment_expire_dtm &lt; now()
     </update>
 
     <!-- 안전결제 만료까지 남은 초 조회 -->
     <select id="findSafePaymentExpireSeconds" resultType="Long">
         SELECT
         CASE
-        WHEN safe_payment_st = 'PENDING' AND safe_payment_expire_dtm IS
-        NOT NULL
-        THEN GREATEST(0, EXTRACT(EPOCH FROM (safe_payment_expire_dtm -
-        now()))::bigint)
+        WHEN safe_payment_st = 'PENDING' AND safe_payment_expire_dtm IS NOT NULL
+        THEN GREATEST(0, CEIL(EXTRACT(EPOCH FROM (safe_payment_expire_dtm - now()))))::bigint
         ELSE 0
         END
         FROM sb_trade_info
         WHERE trade_seq = #{trade_seq}
     </select>
+
 
 </mapper>
