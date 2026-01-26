@@ -45,10 +45,20 @@ public class PaymentController {
 
         // trade.getMember_buyer_seq()는 현재 시점에서는 null
         if (sessionMember == null || trade.getMember_seller_seq() == sessionMember.getMember_seq()) {return "redirect:/";} // 검증 : 구매자 seq !=  세션 seq일 경우 홈으로 리다이렉트
-        if (trade.getSale_st() == SaleStatus.SOLD) {return "redirect:/";} // 검증 : 이미 판매된 상품인지 체크
+
+        // 이미 판매 완료된 상품인지 체크
+        if (trade.getSale_st() == SaleStatus.SOLD) {
+            log.error("이미 판매 완료된 상품: trade_seq={}", trade_seq);
+            model.addAttribute("errorMessage", "이미 판매 완료된 상품입니다.");
+            return "payment/fail";
+        }
+        // 안전결제 상태 확인 (직접 url 접근 시 체크)
+        String safePaymentStatus = tradeService.getSafePaymentStatus(trade_seq);
+        if (!"PENDING".equals(safePaymentStatus)) {
+            return "redirect:/";  // 안전결제 요청이 없으면 접근 불가
+        }
 
         model.addAttribute("trade", trade);
-
 
         List<AddressVO> address = paymentService.findAddress(sessionMember.getMember_seq());
         model.addAttribute("addressList", address);
