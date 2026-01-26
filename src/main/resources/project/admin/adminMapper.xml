@@ -41,7 +41,7 @@
         LIMIT #{size} OFFSET #{offset}
     </select>
 
-    <select id="countAllMemberBySearch" parameterType="project.util.paging.SearchVO" resultType="int">
+    <select id="countAllMembersBySearch" parameterType="project.util.paging.SearchVO" resultType="int">
         SELECT COUNT(*)
           FROM MEMBER_INFO
          WHERE MEMBER_DELETED_DTM IS NULL
@@ -63,18 +63,62 @@
         </if>
     </select>
 
-    <select id="searchTrades" resultType="project.trade.TradeVO">
-        SELECT trade_seq, sale_title, sale_price, sale_rg, sale_st, book_title, crt_dtm
-        FROM SB_TRADE_INFO
-        WHERE DEL_DTM IS NULL
-        <if test="status != null and status != '' and status != 'ALL'">
+    <select id="searchTrades" parameterType="project.util.paging.SearchVO" resultType="project.trade.TradeVO">
+        SELECT TRADE_SEQ
+             , SALE_TITLE
+             , SALE_PRICE
+             , SALE_RG
+             , SALE_ST
+             , BOOK_TITLE
+             , CRT_DTM
+          FROM SB_TRADE_INFO
+         WHERE DEL_DTM IS NULL
+        <if test="status != null and status != '' and status != 'all' and status != 'ALL'">
             AND SALE_ST = #{status}::sale_st_enum
         </if>
         <if test="keyword != null and keyword != ''">
-            AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+            <choose>
+                <when test="searchType == 'sale_title'">
+                    AND SALE_TITLE LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'bookName'">
+                    AND BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'region'">
+                    AND SALE_RG LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
         </if>
         ORDER BY CRT_DTM DESC
-        LIMIT 50
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAllTradesBySearch" parameterType="project.util.paging.SearchVO" resultType="int">
+        SELECT COUNT(*)
+          FROM SB_TRADE_INFO
+         WHERE DEL_DTM IS NULL
+        <if test="status != null and status != '' and status != 'all' and status != 'ALL'">
+            AND SALE_ST = #{status}::sale_st_enum
+        </if>
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'sale_title'">
+                    AND SALE_TITLE LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'bookName'">
+                    AND BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'region'">
+                    AND SALE_RG LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
     </select>
 
     <select id="searchBookClubs" resultType="project.bookclub.vo.BookClubVO">

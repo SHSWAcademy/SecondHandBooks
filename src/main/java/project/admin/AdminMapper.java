@@ -22,9 +22,11 @@ public interface AdminMapper {
 
     // 검색 (리스트)
     List<MemberVO> searchMembers(SearchVO searchVO);
-    int countAllMemberBySearch(SearchVO searchVO);
+    int countAllMembersBySearch(SearchVO searchVO);
 
-    List<TradeVO> searchTrades(@Param("status") String status, @Param("keyword") String keyword);
+    List<TradeVO> searchTrades(SearchVO searchVO);
+    int countAllTradesBySearch(SearchVO searchVO);
+
     List<BookClubVO> searchBookClubs(@Param("keyword") String keyword);
 
     // 관리 (액션)

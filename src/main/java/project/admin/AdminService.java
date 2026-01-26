@@ -33,8 +33,8 @@ public class AdminService {
         return adminMapper.searchMembers(searchVO);
     }
 
-    public List<TradeVO> searchTrades(String status, String keyword) {
-        return adminMapper.searchTrades(status, keyword);
+    public List<TradeVO> searchTrades(SearchVO searchVO) {
+        return adminMapper.searchTrades(searchVO);
     }
 
     public List<BookClubVO> searchBookClubs(String keyword) {
@@ -158,6 +158,10 @@ public class AdminService {
     }
 
     public int countAllMembersBySearch(SearchVO searchVO) {
-        return adminMapper.countAllMemberBySearch(searchVO);
+        return adminMapper.countAllMembersBySearch(searchVO);
+    }
+
+    public int countAllTradesBySearch(SearchVO searchVO) {
+        return adminMapper.countAllTradesBySearch(searchVO);
     }
 }
