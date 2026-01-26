@@ -160,6 +160,34 @@ public class BookClubService {
         return bookClubMapper.selectWishCount(bookClubSeq);
     }
 
+    // #2-7. 특정 멤버의 찜 여부 확인
+    public boolean isWished(Long bookClubSeq, Long memberSeq) {
+        if (bookClubSeq == null || memberSeq == null) {
+            return false;
+        }
+        return bookClubMapper.selectWishExists(bookClubSeq, memberSeq) > 0;
+    }
+
+    // #2-8. 찜 토글 (찜 추가/취소)
+    @Transactional
+    public boolean toggleWish(Long bookClubSeq, Long memberSeq) {
+        if (bookClubSeq == null || memberSeq == null) {
+            return false;
+        }
+
+        boolean currentlyWished = isWished(bookClubSeq, memberSeq);
+
+        if (currentlyWished) {
+            // 이미 찜한 상태 → 찜 취소
+            bookClubMapper.deleteWish(bookClubSeq, memberSeq);
+            return false; // 찜 해제됨
+        } else {
+            // 찜 안한 상태 → 찜 추가
+            bookClubMapper.insertWish(bookClubSeq, memberSeq);
+            return true; // 찜됨
+        }
+    }
+
     /*
      * #3. 독서모임 게시판
      */

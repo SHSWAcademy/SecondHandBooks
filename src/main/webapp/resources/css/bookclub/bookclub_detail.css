@@ -84,6 +84,15 @@
     height: 20px;
 }
 
+.bc-wish-btn svg {
+    color: #ff5a5f;
+    transition: transform 0.2s;
+}
+
+.bc-wish-btn.wished svg {
+    transform: scale(1.1);
+}
+
 /* 배너 하단 정보 */
 .bc-hero-bottom {
     display: flex;

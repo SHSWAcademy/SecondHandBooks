@@ -423,8 +423,12 @@
 }
 
 .btn-wish .wish-icon {
-    font-size: 16px;
     color: #ff5a5f;
+    transition: transform 0.2s;
+}
+
+.btn-wish.wished .wish-icon {
+    transform: scale(1.05);
 }
 
 /* 카드 본문 */

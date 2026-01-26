@@ -205,6 +205,34 @@
         WHERE book_club_seq = #{bookClubSeq}
     </select>
 
+    <!-- 특정 멤버의 찜 여부 확인 -->
+    <select id="selectWishExists" resultType="int">
+        SELECT COUNT(*)
+        FROM book_club_wish
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+    </select>
+
+    <!-- 찜하기 추가 -->
+    <insert id="insertWish">
+        INSERT INTO book_club_wish (
+            book_club_seq,
+            member_seq,
+            crt_dtm
+        ) VALUES (
+            #{bookClubSeq},
+            #{memberSeq},
+            NOW()
+        )
+    </insert>
+
+    <!-- 찜하기 취소 -->
+    <delete id="deleteWish">
+        DELETE FROM book_club_wish
+        WHERE book_club_seq = #{bookClubSeq}
+          AND member_seq = #{memberSeq}
+    </delete>
+
     <!-- ===================================== -->
     <!-- 게시판 관련 -->
     <!-- ===================================== -->
