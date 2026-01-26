@@ -184,7 +184,21 @@ public class BookClubController {
     public String getBookClubDetail(
             @PathVariable("bookClubId") Long bookClubId,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        // 종료된 모임 가드
+        BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
+        if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
+            MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+            Long memberSeq = (loginMember != null ? loginMember.getMember_seq() : null);
+
+            log.warn("종료된 모임 상세 GET 접근: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
+
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
+        }
+
         // 공통 model 세팅 메서드 호출
         loadBookClubDetailModel(bookClubId, session, model);
         return "bookclub/bookclub_detail";
@@ -250,9 +264,9 @@ public class BookClubController {
     /**
      * 권한 검증 공통 메서드
      *
-     * @return 권한 있으면 null, 없으면 forbidden view 이름
+     * @return 권한 있으면 null, 없으면 forbidden view 이름 또는 redirect
      */
-    private String checkBoardAccessPermission(Long bookClubId, HttpSession session, Model model) {
+    private String checkBoardAccessPermission(Long bookClubId, Long postId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         model.addAttribute("bookClubId", bookClubId);
 
         // 1. 로그인 여부 확인
@@ -266,8 +280,9 @@ public class BookClubController {
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
         if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
-            model.addAttribute("errorMessage", "존재하지 않거나 삭제된 모임입니다.");
-            return "bookclub/bookclub_post_forbidden";
+            log.warn("종료된 모임 게시글 GET 접근: bookClubId={}, postId={}, memberSeq={}", bookClubId, postId, loginMemberSeq);
+            redirectAttributes.addFlashAttribute("errorMessage", "존재하지 않거나 종료된 모임입니다.");
+            return "redirect:/bookclubs";
         }
 
         // 3. 권한 판정
@@ -303,10 +318,11 @@ public class BookClubController {
             @PathVariable("bookClubId") Long bookClubId,
             @PathVariable("postId") Long postId,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
         // 권한 검증 (공통 메서드 재사용)
-        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, postId, session, model, redirectAttributes);
         if (permissionCheckResult != null) {
             return permissionCheckResult;
         }
@@ -679,10 +695,11 @@ public class BookClubController {
     public String createPostForm(
             @PathVariable("bookClubId") Long bookClubId,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
         // 권한 검증
-        String permissionCheckResult = checkBoardAccessPermission(bookClubId, session, model);
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, null, session, model, redirectAttributes);
         if (permissionCheckResult != null) {
             return permissionCheckResult;
         }
