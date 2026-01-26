@@ -7,6 +7,7 @@ import project.admin.notice.NoticeVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
+import project.util.paging.SearchVO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,8 +29,8 @@ public class AdminService {
     public int countAllBookClubs() { return adminMapper.countAllBookClubs(); }
 
     // --- 검색 (API) ---
-    public List<MemberVO> searchMembers(String status, String keyword, String searchType) {
-        return adminMapper.searchMembers(status, keyword, searchType);
+    public List<MemberVO> searchMembers(SearchVO searchVO) {
+        return adminMapper.searchMembers(searchVO);
     }
 
     public List<TradeVO> searchTrades(String status, String keyword) {
@@ -156,4 +157,7 @@ public class AdminService {
         adminMapper.deleteNotice(notice_seq);
     }
 
+    public int countAllMembersBySearch(SearchVO searchVO) {
+        return adminMapper.countAllMemberBySearch(searchVO);
+    }
 }

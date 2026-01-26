@@ -6,6 +6,7 @@ import project.admin.notice.NoticeVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.trade.TradeVO;
+import project.util.paging.SearchVO;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,9 @@ public interface AdminMapper {
     int countAllBookClubs();
 
     // 검색 (리스트)
-    List<MemberVO> searchMembers(@Param("status") String status, @Param("keyword") String keyword, @Param("searchType") String searchType);
+    List<MemberVO> searchMembers(SearchVO searchVO);
+    int countAllMemberBySearch(SearchVO searchVO);
+
     List<TradeVO> searchTrades(@Param("status") String status, @Param("keyword") String keyword);
     List<BookClubVO> searchBookClubs(@Param("keyword") String keyword);
 
@@ -69,4 +72,6 @@ public interface AdminMapper {
 
     List<NoticeVO> selectNotices();
     NoticeVO selectNotice(@Param("notice_seq") Long notice_seq);
+
+
 }
