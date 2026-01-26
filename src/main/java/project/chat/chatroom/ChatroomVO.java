@@ -21,6 +21,10 @@ public class ChatroomVO {
     private long member_seller_seq;
     private SaleStatus sale_st; // 각 채팅방들의 거래 판매 상태
 
+    //판매자 / 구매자 닉네임 출력용
+    private String member_seller_nicknm;
+    private String member_buyer_nicknm;
+
     public ChatroomVO(long trade_seq, long member_buyer_seq, long member_seller_seq, String sale_title) {
         this.trade_seq = trade_seq;
         this.member_buyer_seq = member_buyer_seq;

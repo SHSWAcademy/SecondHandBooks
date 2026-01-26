@@ -142,7 +142,7 @@ public class ChatroomController {
     // 채팅 메시지 조회 api
     @GetMapping("/chat/messages")
     @ResponseBody
-    public Object[] getMessages(@RequestParam("chat_room_seq") long chat_room_seq,  HttpSession session) {
+    public Object[] getMessages(@RequestParam("chat_room_seq") long chat_room_seq,  HttpSession session, Model model) {
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION); // 메시지 읽음 처리할 회원
 
         // 권한 체크 추가
@@ -159,7 +159,6 @@ public class ChatroomController {
 
         returns[0] = messages;
         returns[1] = findTrade;
-
 
         // 상대방에게 읽음 이벤트 전송
         messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq + "/read", sessionMember.getMember_seq());

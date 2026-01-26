@@ -342,47 +342,97 @@
         <div id="chatArea" class="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
             <!-- 채팅 헤더 -->
             <div id="chatHeader" class="px-6 py-4 border-b border-gray-100 bg-white">
-                <c:choose>
-                    <c:when test="${not empty trade_chat_room}">
-                        <c:forEach var="room" items="${chatrooms}">
-                            <c:if test="${room.chat_room_seq == trade_chat_room.chat_room_seq}">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-gray-900">${room.sale_title}</h4>
-                                        <p class="text-xs text-gray-500">거래 채팅</p>
-                                    </div>
-                                </div>
-                            </c:if>
-                        </c:forEach>
-                    </c:when>
-                    <c:otherwise>
-                        <div id="chatEmpty" class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            </div>
-                            <h4 class="font-medium text-gray-500">채팅방을 선택해주세요</h4>
-                        </div>
-                    </c:otherwise>
-                </c:choose>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="text-primary-500">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 id="chatHeaderTitle" class="font-bold text-gray-900">
+                            <c:choose>
+                                <c:when test="${not empty trade_info}">
+                                    ${trade_info.sale_title}
+                                </c:when>
+                                <c:otherwise>
+                                    채팅방을 선택해주세요
+                                </c:otherwise>
+                            </c:choose>
+                        </h4>
+                        <p id="chatHeaderSub" class="text-xs text-gray-500">
+                                <c:if test="${not empty trade_chat_room}">
+                                    <c:choose>
+                                        <c:when test="${sessionScope.loginSess.member_seq == trade_chat_room.member_seller_seq}">
+                                             ${trade_chat_room.member_buyer_nicknm} 님과의 채팅
+                                        </c:when>
+                                        <c:otherwise>
+                                             ${trade_chat_room.member_seller_nicknm} 님과의 채팅
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:if>
+                           </p>
+                    </div>
+                </div>
             </div>
             <!-- 채팅 헤더 아래에 책 정보 표시 -->
-            <div id="chatBookInfo" class="hidden px-6 py-3 border-b border-gray-100 bg-white-50 flex items-center gap-4">
-                <!-- 책 이미지 -->
-                <img id="chatBookImg" src="" alt="책 이미지" class="w-12 h-16 object-cover rounded-lg">
+            <div id="chatBookInfo"
+                 class="px-6 py-3 border-b border-gray-100 bg-white-50 flex items-center gap-4"
+                 <c:if test="${empty trade_info}">style="display:none"</c:if>>
 
-                <!-- 책 상세 정보 -->
+                <img id="chatBookImg"
+                     src="<c:out value='${trade_info.book_img}'/>"
+                     alt="책 이미지"
+                     class="w-12 h-16 object-cover rounded-lg">
+
                 <div class="flex flex-col">
-                    <div id="chatBookTitle" class="font-semibold text-gray-900 text-sm"></div>
-                    <div id="chatBookStatus" class="text-xs text-gray-500"></div>
-                    <div id="chatBookPrice" class="font-semibold text-red-900 text-sm"></div>
+                    <div id="chatBookTitle" class="font-semibold text-gray-900 text-sm">
+                        <c:out value="${trade_info.book_title}"/>
+                    </div>
+
+                    <div id="chatBookStatus" class="text-xs
+                        <c:choose>
+                            <c:when test="${trade_info.book_st eq 'USED'}">text-gray-400</c:when>
+                            <c:otherwise>text-gray-500</c:otherwise>
+                        </c:choose>">
+
+                        <c:choose>
+                            <c:when test="${trade_info.book_st eq 'LIKE_NEW'}">
+                                거의 새책
+                            </c:when>
+                            <c:when test="${trade_info.book_st eq 'GOOD'}">
+                                좋음
+                            </c:when>
+                            <c:when test="${trade_info.book_st eq 'USED'}">
+                                사용됨
+                            </c:when>
+                            <c:when test="${trade_info.book_st eq 'NEW'}">
+                                새책
+                            </c:when>
+                        </c:choose>
+                    </div>
+
+                    <div id="chatBookPrice" class="font-semibold text-red-900 text-sm">
+                        <c:set var="totalPrice" value="${trade_info.sale_price + trade_info.delivery_cost}" />
+                        <fmt:formatNumber value="${totalPrice}" pattern="#,###"/>원
+                    </div>
                 </div>
 
-                <!-- 오른쪽 가운데 정렬 텍스트 -->
                 <div class="ml-auto text-right">
-                    <h4 id="chatSale_st" class="font-bold text-gray-700 text-sm">거래 제목</h4>
+                    <c:choose>
+                        <c:when test="${trade_info.sale_st eq 'SALE'}">
+                            <h4 id="chatSale_st" class="font-bold text-sm text-gray-700">
+                                판매중
+                            </h4>
+                        </c:when>
+                        <c:when test="${trade_info.sale_st eq 'SOLD'}">
+                            <h4 id="chatSale_st" class="font-bold text-sm text-red-500">
+                                판매완료
+                            </h4>
+                        </c:when>
+                    </c:choose>
                 </div>
 
             </div>
@@ -1433,7 +1483,10 @@ fetchMessages = function(roomSeq) {
             const tradeInfo = data[1];
 
             console.log('tradeInfo:', tradeInfo);
+            currentTradeInfo = tradeInfo || {};
 
+            // 모델이 없을 경우 JS로 DOM 채우기
+            renderChatBookInfo(tradeInfo);
             // trade 정보 업데이트
             if (tradeInfo) {
                 currentTradeInfo = {
@@ -1460,61 +1513,13 @@ fetchMessages = function(roomSeq) {
                     console.log('isSeller 업데이트:', isSeller, 'loginMemberSeq:', loginMemberSeq, 'member_seller_seq:', member_seller_seq);
                     updatePlusButtonVisibility();
                 }
-
-                // DOM 업데이트 (책 정보)
-                    const bookInfoEl = document.getElementById('chatBookInfo');
-                    const bookImgEl = document.getElementById('chatBookImg');
-                    const bookTitleEl = document.getElementById('chatBookTitle');
-                    const bookStatusEl = document.getElementById('chatBookStatus');
-                    const bookPriceEl = document.getElementById('chatBookPrice');
-                    const bookSale_stEl = document.getElementById('chatSale_st');
-                    if (bookImgEl) bookImgEl.src = tradeInfo.book_img || '/img/no-image.png';
-                    if (bookTitleEl) bookTitleEl.textContent = tradeInfo.book_title || '';
-                    if (bookPriceEl) {
-                        const totalPrice = (tradeInfo.sale_price || 0) + (tradeInfo.delivery_cost || 0);
-                        const formattedPrice = totalPrice.toLocaleString(); // 천 단위 콤마 적용
-                        bookPriceEl.textContent = formattedPrice + '원';
-                    }
-                    if (bookStatusEl) {
-                        switch (tradeInfo.book_st) {
-                            case 'LIKE_NEW':
-                                bookStatusEl.textContent = '거의 새책';
-                                break;
-                            case 'GOOD':
-                                bookStatusEl.textContent = '좋음';
-                                break;
-                            case 'USED':
-                                bookStatusEl.textContent = '사용됨';
-                                break;
-                            case 'NEW':
-                                bookStatusEl.textContent = '새책';
-                                break;
-                            default:
-                                bookStatusEl.textContent = ''; // 값이 없거나 알 수 없는 경우
-                                break;
-                        }
-                    }
-                    // 책 정보 영역 보이게
-                    if (bookInfoEl) {
-                        bookInfoEl.classList.remove('hidden'); // Tailwind hidden 제거
-                    }
-
-                    if  (bookSale_stEl) {
-                        switch (tradeInfo.sale_st) {
-                            case 'SALE':
-                                bookSale_stEl.textContent = '판매중';
-                                break;
-                            case 'SOLD':
-                                bookSale_stEl.textContent = '판매완료';
-                                bookSale_stEl.classList.add('text-red-500');
-                                break;
-                        }
-                    }
             }
 
             // 메시지 렌더링
             if (Array.isArray(messages)) {
                 messages.forEach(msg => showMessage(msg));
+            // 상대방 닉네임 헤더 갱신
+            renderChatHeaderWithMessages(messages);
             }
         } else if (Array.isArray(data)) {
             // 기존 형식 호환 (단일 배열)
@@ -1524,6 +1529,79 @@ fetchMessages = function(roomSeq) {
     })
     .catch(err => console.error('채팅 메시지 로드 실패:', err));
 };
+
+function renderChatBookInfo(tradeInfo) {
+    if (!tradeInfo) return;
+
+    const bookInfoEl = document.getElementById('chatBookInfo');
+    const bookImgEl = document.getElementById('chatBookImg');
+    const bookTitleEl = document.getElementById('chatBookTitle');
+    const bookStatusEl = document.getElementById('chatBookStatus');
+    const bookPriceEl = document.getElementById('chatBookPrice');
+    const bookSale_stEl = document.getElementById('chatSale_st');
+    const headerTitleEl = document.getElementById('chatHeaderTitle');
+    const headerSubEl = document.getElementById('chatHeaderSub');
+
+    // 채팅 헤더 제목
+    if (headerTitleEl) {
+        headerTitleEl.textContent = tradeInfo.sale_title || '거래 제목';
+    }
+    // 책 이미지
+    if (bookImgEl) bookImgEl.src = tradeInfo.book_img || '/img/no-image.png';
+    // 책 제목
+    if (bookTitleEl) bookTitleEl.textContent = tradeInfo.book_title || '';
+    // 책 가격
+    if (bookPriceEl) {
+        const totalPrice = (tradeInfo.sale_price || 0) + (tradeInfo.delivery_cost || 0);
+        bookPriceEl.textContent = totalPrice.toLocaleString() + '원';
+    }
+    // 책 상태
+    if (bookStatusEl) {
+        switch (tradeInfo.book_st) {
+            case 'LIKE_NEW': bookStatusEl.textContent = '거의 새책'; break;
+            case 'GOOD': bookStatusEl.textContent = '좋음'; break;
+            case 'USED': bookStatusEl.textContent = '사용됨'; break;
+            case 'NEW': bookStatusEl.textContent = '새책'; break;
+            default: bookStatusEl.textContent = ''; break;
+        }
+    }
+    // 거래 상태
+    if (bookSale_stEl) {
+        switch (tradeInfo.sale_st) {
+            case 'SALE': bookSale_stEl.textContent = '판매중'; break;
+            case 'SOLD':
+                bookSale_stEl.textContent = '판매완료';
+                bookSale_stEl.classList.add('text-red-500');
+                break;
+            default: bookSale_stEl.textContent = ''; break;
+        }
+    }
+
+    // 책 정보 영역 보이게
+    if (bookInfoEl) bookInfoEl.style.display = 'flex';
+}
+
+// 상대방 닉네임 표시 (messages 기준, 모델이 없을 경우만)
+function renderChatHeaderWithMessages(messages) {
+    const headerSubEl = document.getElementById('chatHeaderSub');
+    if (!headerSubEl || !Array.isArray(messages) || messages.length === 0) return;
+
+    // 모델에서 이미 값이 들어있는지 체크
+    if (headerSubEl.textContent && headerSubEl.textContent.trim() !== '') return;
+
+    // 첫 메시지 기준으로 상대방 닉네임 가져오기
+    const firstMsg = messages[0];
+    console.log('상대방 닉네임 출력' , firstMsg);
+    let otherNick = '';
+    if (loginMemberSeq === firstMsg.member_seller_seq) {
+        otherNick = firstMsg.member_buyer_nicknm || '';
+    } else {
+        otherNick = firstMsg.member_seller_nicknm || '';
+    }
+
+    headerSubEl.textContent = otherNick ? `${otherNick}님과의 채팅` : '';
+}
+
 
 // =====================================================
 // 이미지 전송 기능

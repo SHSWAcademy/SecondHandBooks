@@ -40,6 +40,5 @@ public interface ChatroomMapper {
     void updateLastMessage(@Param("chat_room_seq") long chat_room_seq,
                            @Param("last_msg") String last_msg);
 
-
     // public List<MessageVO> findAllByChatRoomSeq(long chat_room_seq); -> message mapper 에서 처리
 }
