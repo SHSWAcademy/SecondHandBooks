@@ -43,20 +43,23 @@
                         </div>
 
                         <div class="search-bar">
+                            <%--
                             <form action="/bookclub/search" method="get">
+                            --%>
+                            <form onsubmit="return false;">
                                 <input type="text" id="keyword" placeholder="지역, 모임명으로 검색해 보세요." />
                             </form>
                         </div>
 
-                        <!-- 결과 정보 -->
+                        <!-- 결과 정보 및 정렬 -->
                         <div class="result-info">
-                            <p>
-                                모임 개수 출력할 예정
-                                <c:if test="${not empty keyword}">
-                                    - "
-                                    <c:out value='${keyword}' />" 검색 결과
-                                </c:if>
+                            <p id="resultCount">
+                                모임 <span id="clubCount">0</span>개
                             </p>
+                            <div class="sort-toggle">
+                                <button type="button" class="sort-btn active" data-sort="latest">최신순</button>
+                                <button type="button" class="sort-btn" data-sort="activity">최근 활동순</button>
+                            </div>
                         </div>
 
                         <!-- 모임 카드 목록 -->

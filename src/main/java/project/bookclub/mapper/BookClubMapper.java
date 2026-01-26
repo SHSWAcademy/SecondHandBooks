@@ -14,6 +14,11 @@ public interface BookClubMapper {
 
     List<BookClubVO> searchByKeyword(@Param("tokens") List<String> tokens);
 
+    // 독서모임 검색 (정렬 옵션 포함)
+    List<BookClubVO> searchAllWithSort(@Param("sort") String sort);
+
+    List<BookClubVO> searchByKeywordWithSort(@Param("tokens") List<String> tokens, @Param("sort") String sort);
+
     // 독서모임 상세 조회 (1건)
     BookClubVO selectById(@Param("bookClubSeq") Long bookClubSeq);
 

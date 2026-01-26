@@ -154,8 +154,9 @@ public class BookClubController {
     @ResponseBody
     public List<BookClubVO> searchBookClubs(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "latest") String sort,
             HttpSession session) {
-        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword);
+        List<BookClubVO> bookClubs = bookClubService.searchBookClubs(keyword, sort);
 
         // 로그인 사용자의 찜 여부 설정
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
