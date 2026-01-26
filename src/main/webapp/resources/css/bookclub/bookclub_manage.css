@@ -217,6 +217,7 @@
 
 .panel-header {
     margin-bottom: 24px;
+    padding: 0;
 }
 
 .panel-header h2 {
@@ -377,6 +378,7 @@
 /* 정보 수정 탭 */
 .settings-section {
     max-width: 800px;
+    margin: 0 auto;
 }
 
 .form-section {
@@ -392,33 +394,62 @@
 
 .banner-upload-section {
     margin-bottom: 32px;
+    text-align: center;
 }
 
-.banner-preview {
+/* 배너 업로드 라벨 (클릭 가능 영역) */
+.banner-upload-label {
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.banner-upload-label:hover .banner-preview-wrapper {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.banner-preview-wrapper {
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .banner-image {
-    width: 200px;
-    height: 140px;
-    border-radius: 8px;
+    width: 180px;
+    height: 180px;
+    border-radius: 12px;
     object-fit: cover;
-    border: 1px solid #e5e7eb;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
 }
 
 .banner-placeholder {
-    width: 200px;
-    height: 140px;
-    border-radius: 8px;
+    width: 180px;
+    height: 180px;
+    border-radius: 12px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 48px;
-    border: 1px solid #e5e7eb;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+/* 배너 업로드 안내 텍스트 */
+.banner-upload-hint {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #6b7280;
+    text-align: center;
+}
+
+/* 파일 input 숨김 */
+.banner-file-input {
+    display: none;
 }
 
 .form-group {
