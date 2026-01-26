@@ -10,6 +10,8 @@ import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 
+import project.bookclub.dto.BookClubPageResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -24,38 +26,63 @@ public class BookClubService {
 
     private final BookClubMapper bookClubMapper;
 
+    private static final int DEFAULT_PAGE_SIZE = 20; // 5개 x 4줄
+
     /*
      * #1. 독서모임 메인 페이지
      */
-    // #1-1. 전체 독서모임 리스트 조회
+    // #1-1. 전체 독서모임 리스트 조회 (최신순 정렬, 첫 페이지)
     public List<BookClubVO> getBookClubList() {
-        return bookClubMapper.searchAll();
+        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
     }
 
-    // #1-2. 독서모임 검색 (정렬 옵션 포함)
-    public List<BookClubVO> searchBookClubs(String keyword, String sort) {
+    // #1-2. 독서모임 검색 (정렬 + 페이징)
+    public BookClubPageResponse searchBookClubs(String keyword, String sort, int page) {
         // 정렬 옵션 검증 (기본값: latest)
         if (sort == null || (!sort.equals("latest") && !sort.equals("activity"))) {
             sort = "latest";
         }
 
+        // 페이지 검증 (0부터 시작)
+        if (page < 0) {
+            page = 0;
+        }
+
+        int offset = page * DEFAULT_PAGE_SIZE;
+        List<BookClubVO> content;
+        long totalElements;
+
         // 키워드 없으면 전체 검색
         if (keyword == null || keyword.isBlank()) {
-            return bookClubMapper.searchAllWithSort(sort);
+            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+            totalElements = bookClubMapper.countAll();
+        } else {
+            List<String> tokens = new ArrayList<>();
+            StringTokenizer st = new StringTokenizer(keyword);
+            while (st.hasMoreTokens()) {
+                tokens.add(st.nextToken());
+            }
+
+            if (tokens.isEmpty()) {
+                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+                totalElements = bookClubMapper.countAll();
+            } else {
+                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset);
+                totalElements = bookClubMapper.countByKeyword(tokens);
+            }
         }
 
-        List<String> tokens = new ArrayList<>();
-        StringTokenizer st = new StringTokenizer(keyword);
-        while (st.hasMoreTokens()) {
-            tokens.add(st.nextToken());
-        }
+        int totalPages = (int) Math.ceil((double) totalElements / DEFAULT_PAGE_SIZE);
 
-        if (tokens.isEmpty()) {
-            return bookClubMapper.searchAllWithSort(sort);
-        }
-
-        // 키워드 검색 SQL (정렬 옵션 포함)
-        return bookClubMapper.searchByKeywordWithSort(tokens, sort);
+        return BookClubPageResponse.builder()
+                .content(content)
+                .page(page)
+                .size(DEFAULT_PAGE_SIZE)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .first(page == 0)
+                .last(page >= totalPages - 1 || totalPages == 0)
+                .build();
     }
 
     // #1-3. 독서모임 생성 가능 여부 : 로그인 여부, (추후) 생성 개수 제한, 권한
