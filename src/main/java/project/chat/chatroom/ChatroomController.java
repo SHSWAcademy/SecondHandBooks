@@ -92,7 +92,6 @@ public class ChatroomController {
             TradeVO findTrade = tradeService.search(trade_seq);
             List<MessageVO> messages = messageService.getAllMessages(tradeChatroom.getChat_room_seq(), sessionMember.getMember_seq());
             // sessionMember.getMember_seq() : 메시지 읽음 처리하는 사람의 seq, member_buyer_seq 로 넣어도 되지만 직관성을 위해 session 에서 조회한 값을 넣음
-            System.out.println("여기로 들어옴!!!!!!!");
             model.addAttribute("trade_chat_room", tradeChatroom); // 현재 채팅방 전달
             model.addAttribute("trade_info", findTrade); // 현재 채팅방이 다루는 trade 전달
             model.addAttribute("messages", messages); // 현재 채팅방의 전체 메시지 전달 (이후 페이징 처리 필요)

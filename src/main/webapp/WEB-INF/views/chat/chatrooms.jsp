@@ -96,9 +96,9 @@
         gap: 4px;
     }
 
-    .msg-nickName {
-        font-size: 15px;
-        color: #868e96;
+    .msg-nicknm {
+        font-size: 12px;
+        color: blue;
         margin-top: 4px;
         display: flex;
         align-items: center;
@@ -392,7 +392,11 @@
                     <c:when test="${not empty messages}">
                         <c:forEach var="msg" items="${messages}">
                             <div class="${msg.sender_seq == sessionScope.loginSess.member_seq ? 'msg-right' : 'msg-left'}">
-                                <div class="msg-time" style="color:red;">${msg.sender_seq}</div>
+                                <c:if test="${msg.sender_seq != sessionScope.loginSess.member_seq}">
+                                    <div class="msg-nicknm">
+                                        <b>${msg.member_seller_nicknm}</b>
+                                    </div>
+                                </c:if>
                                 <div class="content">${msg.chat_cont}</div>
                                 <div class="msg-time">
                                     <%
@@ -941,7 +945,7 @@ function showSafePaymentAccept(msg) {
     const trade = currentTradeInfo;
     const bookStatusText = getBookStatusText(trade.book_st);
     const totalPrice = trade.sale_price + trade.delivery_cost;
-    const bookImg = trade.book_img || '/resources/img/no-image.png';
+    const bookImg = trade.book_img;
 
     if (isMyMessage) {
         // 구매자 본인이 보낸 경우 - 결제하기 버튼 표시
