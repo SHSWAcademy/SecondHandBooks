@@ -206,7 +206,7 @@
                 ORDER BY crt_dtm DESC
             </otherwise>
         </choose>
-        LIMIT #{limit}
+        LIMIT #{size}
         OFFSET #{offset}
     </select>
 
