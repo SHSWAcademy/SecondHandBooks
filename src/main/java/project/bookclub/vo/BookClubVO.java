@@ -18,4 +18,8 @@ public class BookClubVO {
     private LocalDateTime crt_dtm; // 독서모임 생성 일시
     private LocalDateTime upd_dtm; // 독서모임의 내용 수정 일시
     private Integer joined_member_count; // 독서모임의 가입 회원 수
+
+    // 찜 관련 (DB 매핑 아님, Controller에서 설정)
+    private boolean wished; // 현재 로그인 사용자의 찜 여부
+    private Integer wish_count; // 찜 개수
 }

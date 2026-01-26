@@ -48,6 +48,18 @@ public interface BookClubMapper {
     // 독서모임의 찜 개수 조회
     int selectWishCount(@Param("bookClubSeq") Long bookClubSeq);
 
+    // 특정 멤버의 찜 여부 확인
+    int selectWishExists(@Param("bookClubSeq") Long bookClubSeq,
+            @Param("memberSeq") Long memberSeq);
+
+    // 찜하기 추가
+    int insertWish(@Param("bookClubSeq") Long bookClubSeq,
+            @Param("memberSeq") Long memberSeq);
+
+    // 찜하기 취소
+    int deleteWish(@Param("bookClubSeq") Long bookClubSeq,
+            @Param("memberSeq") Long memberSeq);
+
     // 게시판 관련
     // 독서모임 게시판 - 최근 원글 10개 조회 (member_info 조인)
     List<project.bookclub.vo.BookClubBoardVO> selectRecentRootBoardsByClub(@Param("bookClubSeq") Long bookClubSeq);
