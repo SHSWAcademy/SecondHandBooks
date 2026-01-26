@@ -9,34 +9,34 @@
       <div class="flex items-center gap-3">
         <!-- 검색 타입 -->
         <select
-          id="searchType"
+          id="groupSearchType"
           class="px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
           <option value="all">전체</option>
-          <option value="nickname">모임명</option>
-          <option value="email">지역</option>
+          <option value="groupName">모임명</option>
+          <option value="region">지역</option>
         </select>
 
         <!-- 검색 입력창 -->
         <div class="flex-1 relative">
           <input
             type="text"
-            id="searchKeyword"
+            id="groupSearchKeyword"
             placeholder="검색어를 입력하세요..."
             class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition pl-10"
-            onkeypress="if(event.keyCode === 13) searchMembers()">
+            onkeypress="if(event.keyCode === 13) searchGroups()">
           <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
         </div>
 
         <!-- 버튼 그룹 -->
         <div class="flex gap-2">
           <button
-            onclick="searchMembers()"
+            onclick="searchGroups()"
             class="px-5 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-all flex items-center gap-2 shadow-sm hover:shadow">
             <i data-lucide="search" class="w-4 h-4"></i>
             검색
           </button>
           <button
-            onclick="resetSearch()"
+            onclick="groups_resetSearch()"
             class="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2">
             <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
             초기화
@@ -48,7 +48,7 @@
     <thead class="bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
     <tr><th class="px-6 py-4 text-left">모임명</th><th class="px-6 py-4 text-left">지역</th><th class="px-6 py-4 text-left">정원</th><th class="px-6 py-4 text-left">일정</th><th class="px-6 py-4 text-left">생성일</th></tr>
     </thead>
-    <tbody class="divide-y divide-gray-50">
+    <tbody id="groupTableBody" class="divide-y divide-gray-50">
     <c:forEach var="g" items="${clubs}">
       <tr class="hover:bg-gray-50/50 transition-colors">
         <td class="px-6 py-4"><p class="text-sm font-bold text-gray-900">${g.book_club_name}</p></td>
@@ -60,4 +60,124 @@
     </c:forEach>
     </tbody>
   </table>
+  <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-center">
+        <div id="groupPaginationInfo" class="text-sm text-gray-500">
+            </div>
+        <div id="groupPaginationButtons" class="flex gap-1">
+            </div>
+  </div>
 </div>
+
+<script>
+function searchGroups(page) {
+        const p = page || 1;
+        const searchType = document.getElementById('groupSearchType').value;
+        const keyword = document.getElementById('groupSearchKeyword').value;
+
+        const url = '/admin/api/clubs?page=' + p
+                  + '&size=10'
+                  + '&keyword=' + encodeURIComponent(keyword)
+                  + '&searchType=' + searchType;
+        fetch(url)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                renderGroupTable(data.list);
+
+                renderCommonPagination(
+                'groupPaginationButtons',
+                data.total,
+                data.curPage,
+                data.size,
+                'searchGroups'
+                );
+            })
+            .catch(function(error) {
+                console.error('검색 중 오류 발생', error);
+            });
+    }
+
+    function renderGroupTable(groups) {
+        const tbody = document.querySelector('#groupTableBody');
+        tbody.innerHTML = '';
+
+        if (!groups || groups.length === 0) {
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = 5;
+            td.className = 'px-6 py-12 text-center text-gray-500';
+            td.textContent = '검색 결과가 없습니다.';
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            return;
+        }
+
+        groups.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50/50 transition-colors';
+
+            const tdTitle = document.createElement('td');
+            tdTitle.className = 'px-6 py-4';
+
+            const mainP = document.createElement('p');
+            mainP.className = 'text-sm font-bold text-gray-900 w-64 truncate';
+            mainP.textContent = t.sale_title;
+
+            const subP = document.createElement('p');
+            subP.className = 'text-[10px] text-gray-400';
+            subP.textContent = t.book_title;
+
+            tdTitle.appendChild(mainP);
+            tdTitle.appendChild(subP);
+
+            const tdPrice = document.createElement('td');
+            tdPrice.className = 'px-6 py-4 text-sm font-black text-primary-600';
+
+            const priceText = Number(t.sale_price).toLocaleString() + '원';
+            tdPrice.textContent = priceText;
+
+            const tdRegion = document.createElement('td');
+            tdRegion.className = 'px-6 py-4 text-xs text-gray-500';
+            tdRegion.textContent = t.sale_rg || '-';
+
+            const tdStatus = document.createElement('td');
+            tdStatus.className = 'px-6 py-4';
+            const statusBadge = document.createElement('span');
+            statusBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ';
+            if (t.sale_st === 'SALE') {
+                statusBadge.className += 'bg-green-50 text-green-600';
+            } else {
+                statusBadge.className += 'bg-gray-100 text-gray-500';
+            }
+            statusBadge.textContent = t.sale_st;
+            tdStatus.appendChild(statusBadge);
+
+            const tdDate = document.createElement('td');
+            tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
+            tdDate.textContent = t.crt_dtm ? String(t.crt_dtm).substring(0,10) : '-';
+
+            tr.appendChild(tdTitle);
+            tr.appendChild(tdPrice);
+            tr.appendChild(tdRegion);
+            tr.appendChild(tdStatus);
+            tr.appendChild(tdDate);
+
+            tbody.appendChild(tr);
+        });
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
+    function groups_resetSearch() {
+        document.getElementById('groupSearchKeyword').value = '';
+        document.getElementById('groupSearchType').value = 'all';
+        searchGroups(1);
+    }
+
+    // 페이지 로드 시 자동으로 첫 페이지 데이터와 페이징 버튼을 가져옵니다.
+    document.addEventListener('DOMContentLoaded', function() {
+        searchGroups(1);
+    });
+</script>

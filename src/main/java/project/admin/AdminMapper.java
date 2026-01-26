@@ -27,7 +27,8 @@ public interface AdminMapper {
     List<TradeVO> searchTrades(SearchVO searchVO);
     int countAllTradesBySearch(SearchVO searchVO);
 
-    List<BookClubVO> searchBookClubs(@Param("keyword") String keyword);
+    List<BookClubVO> searchBookClubs(SearchVO searchVO);
+    int countAllGroupsBySearch(SearchVO searchVO);
 
     // 관리 (액션)
     void updateMemberStatus(@Param("seq") Long seq, @Param("status") String status);
