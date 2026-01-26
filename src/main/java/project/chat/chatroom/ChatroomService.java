@@ -51,16 +51,52 @@ public class ChatroomService {
         return chatroomMapper.isMemberOfChatroom(chat_room_seq, member_seq);
     }
 
-    public Long findChatRoomSeqByTradeSeq(Long trade_seq) {
-        return chatroomMapper.findChatRoomSeqByTradeSeq(trade_seq);
+    public Long findChatRoomSeqByTradeAndBuyer(Long trade_seq, Long buyer_seq) {
+        return chatroomMapper.findChatRoomSeqByTradeAndBuyer(trade_seq, buyer_seq);
     }
 
-    /*
-    채팅방 메시지 전체 조회는 messageService 에서 처리
-    public List<MessageVO> getAllMessages(long chat_room_seq) {
-        return chatroomMapper.findAllByChatRoomSeq(chat_room_seq);
-        // select * from messageVO where chatRoomSeq = chat_room_seq
+    // 해당 trade의 구매자(채팅방 참여자)인지 확인
+    public boolean isBuyerOfTrade(long trade_seq, long member_seq) {
+        return chatroomMapper.isBuyerOfTrade(trade_seq, member_seq);
     }
-     */
 
+    // 채팅방 seq로 채팅방 조회
+    public ChatroomVO findByChatRoomSeq(long chat_room_seq) {
+        return chatroomMapper.findByChatRoomSeq(chat_room_seq);
+    }
+
+
+
+    public List<ChatroomVO> searchAllWithPaging(long memberSeq, int limit, int offset, String sale_st) {
+        return chatroomMapper.findAllByMemberSeqWithPaging(memberSeq, limit, offset, sale_st);
+    }
+
+    public int countAll(long member_seq, String sale_st) {
+        return chatroomMapper.countByMemberSeq(member_seq, sale_st);
+    }
+
+    @Transactional
+    public void updateLastMessage(Long chat_room_seq, String last_msg) {
+        // null 체크
+        if (last_msg == null || last_msg.isEmpty()) {
+            return;
+        }
+
+        // 이미지 메시지일 경우 처리
+        if ("[IMAGE]".equals(last_msg) || last_msg.startsWith("[IMAGE]")) {
+            last_msg = "사진을 보냈습니다.";
+        }
+
+        // 안전결제 메시지일 경우 처리
+        if (last_msg.startsWith("[SAFE_PAYMENT")) {
+            last_msg = "안전결제 요청";
+        }
+
+        // 길이 50 초과 시 자르기
+        if (last_msg.length() > 50) {
+            last_msg = last_msg.substring(0, 50) + "...";
+        }
+
+        chatroomMapper.updateLastMessage(chat_room_seq, last_msg);
+    }
 }

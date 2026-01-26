@@ -315,7 +315,7 @@ function displaySearchResults(books) {
 
         // html데이터에 삽입
         item.innerHTML =
-            '<img src="' + (bImg ? bImg : '/resources/images/no-image.png') + '" ' +
+            '<img src="' + (bImg ? bImg : '/img/no-image.png') + '" ' +
             '     alt="' + bTitle + '" ' +
             '     class="w-12 h-16 object-cover rounded shadow-sm" />' +
             '<div class="flex-1 min-w-0">' +
@@ -347,7 +347,7 @@ function selectBook(book) {
     document.getElementById('book_img').value = book.book_img || '';
 
     // 미리보기 표시
-    document.getElementById('previewImg').src = book.book_img || '/resources/images/no-image.png';
+    document.getElementById('previewImg').src = book.book_img || '/img/no-image.png';
     document.getElementById('previewTitle').textContent = book.book_title || '';
     document.getElementById('previewAuthor').textContent = book.book_author || '';
     document.getElementById('previewPublisher').textContent = book.book_publisher || '';

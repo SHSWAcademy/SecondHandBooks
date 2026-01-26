@@ -258,7 +258,7 @@ function updateSortCss() {
     const sortLinks = [
         {id: 'sortNewest', key: null},
         {id: 'sortPrice', key: 'priceAsc'},
-        {id: 'sortLikes', key: 'likes'}
+        {id: 'sortLikes', key: 'likeDesc'}
     ];
 
     sortLinks.forEach(link => {
