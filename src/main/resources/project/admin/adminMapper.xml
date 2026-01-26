@@ -88,7 +88,7 @@
                     AND SALE_RG LIKE CONCAT('%', #{keyword}, '%')
                 </when>
                 <otherwise>
-                    AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+                    AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%') OR SALE_RG LIKE CONCAT('%', #{keyword}, '%'))
                 </otherwise>
             </choose>
         </if>
@@ -115,21 +115,55 @@
                     AND SALE_RG LIKE CONCAT('%', #{keyword}, '%')
                 </when>
                 <otherwise>
-                    AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%'))
+                AND (SALE_TITLE LIKE CONCAT('%', #{keyword}, '%') OR BOOK_TITLE LIKE CONCAT('%', #{keyword}, '%') OR SALE_RG LIKE CONCAT('%', #{keyword}, '%'))
                 </otherwise>
             </choose>
         </if>
     </select>
 
     <select id="searchBookClubs" resultType="project.bookclub.vo.BookClubVO">
-        SELECT BOOK_CLUB_SEQ, BOOK_CLUB_NAME, BOOK_CLUB_RG, BOOK_CLUB_MAX_MEMBER, BOOK_CLUB_SCHEDULE, CRT_DTM
-        FROM BOOK_CLUB
-        WHERE BOOK_CLUB_DELETED_DT IS NULL
+        SELECT BOOK_CLUB_SEQ
+             , BOOK_CLUB_NAME
+             , BOOK_CLUB_RG
+             , BOOK_CLUB_MAX_MEMBER
+             , BOOK_CLUB_SCHEDULE
+             , CRT_DTM
+          FROM BOOK_CLUB
+         WHERE BOOK_CLUB_DELETED_DT IS NULL
         <if test="keyword != null and keyword != ''">
-            AND BOOK_CLUB_NAME LIKE CONCAT('%', #{keyword}, '%')
+            <choose>
+                <when test="searchType == 'groupName'">
+                    AND BOOK_CLUB_NAME LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'region'">
+                    AND BOOK_CLUB_RG LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (BOOK_CLUB_NAME LIKE CONCAT('%', #{keyword}, '%') OR BOOK_CLUB_RG LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
         </if>
         ORDER BY CRT_DTM DESC
-        LIMIT 50
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAllGroupsBySearch" parameterType="project.util.paging.SearchVO" resultType="int">
+        SELECT COUNT(*)
+          FROM BOOK_CLUB
+         WHERE BOOK_CLUB_DELETED_DT IS NULL
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'groupName'">
+                    AND BOOK_CLUB_NAME LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'region'">
+                    AND BOOK_CLUB_RG LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (BOOK_CLUB_NAME LIKE CONCAT('%', #{keyword}, '%') OR BOOK_CLUB_RG LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
     </select>
 
     <update id="updateMemberStatus">
