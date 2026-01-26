@@ -147,8 +147,8 @@ public class BookClubManageController {
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
         if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
-            log.warn("존재하지 않는 모임 승인 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
-            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+            log.warn("종료된 모임 승인 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "존재하지 않거나 종료된 모임입니다.");
         }
 
         // 3. 모임장 권한 확인
@@ -216,8 +216,8 @@ public class BookClubManageController {
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
         if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
-            log.warn("존재하지 않는 모임 거절 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
-            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+            log.warn("종료된 모임 거절 시도: bookClubId={}, requestSeq={}", bookClubId, requestSeq);
+            return Map.of("success", false, "message", "존재하지 않거나 종료된 모임입니다.");
         }
 
         // 3. 모임장 권한 확인
@@ -284,8 +284,8 @@ public class BookClubManageController {
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
         if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
-            log.warn("존재하지 않는 모임 강퇴 시도: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
-            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+            log.warn("종료된 모임 강퇴 시도: bookClubId={}, memberSeq={}", bookClubId, memberSeq);
+            return Map.of("success", false, "message", "존재하지 않거나 종료된 모임입니다.");
         }
 
         // 3. 모임장 권한 확인
@@ -359,8 +359,8 @@ public class BookClubManageController {
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
         if (bookClub == null || bookClub.getBook_club_deleted_dt() != null) {
-            log.warn("존재하지 않는 모임 설정 업데이트 시도: bookClubId={}", bookClubId);
-            return Map.of("success", false, "message", "존재하지 않는 모임입니다.");
+            log.warn("종료된 모임 설정 업데이트 시도: bookClubId={}", bookClubId);
+            return Map.of("success", false, "message", "존재하지 않거나 종료된 모임입니다.");
         }
 
         // 3. 모임장 권한 확인
