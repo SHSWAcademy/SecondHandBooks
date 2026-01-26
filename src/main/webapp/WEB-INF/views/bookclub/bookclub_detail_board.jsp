@@ -20,49 +20,48 @@
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        gap: 0.75rem;
+                        gap: 0.5rem;
                         z-index: 10;
                         background: rgba(255, 255, 255, 0.85);
                         backdrop-filter: blur(2px);
+                        pointer-events: none;
                     }
                     .bc-board-card:hover .bc-card-actions {
                         opacity: 1;
                     }
-                    /* 모바일(터치 디바이스)에서는 오른쪽 상단에 작게 표시 */
+                    /* 모바일(터치 디바이스)에서는 항상 표시 */
                     @media (hover: none) {
                         .bc-board-card .bc-card-actions {
                             opacity: 1;
-                            top: 0.5rem;
-                            left: auto;
-                            right: 0.5rem;
-                            bottom: auto;
+                            position: static;
                             background: transparent;
                             backdrop-filter: none;
-                        }
-                        .bc-card-action-btn {
-                            width: 32px !important;
-                            height: 32px !important;
-                            font-size: 0 !important;
-                            gap: 0 !important;
-                            padding: 0 !important;
-                        }
-                        .bc-card-action-btn svg {
-                            width: 16px !important;
-                            height: 16px !important;
+                            justify-content: flex-start;
+                            padding-top: 0.75rem;
+                            border-top: 1px solid #e2e8f0;
+                            margin-top: 0.75rem;
                         }
                     }
                     .bc-card-action-btn {
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        gap: 0.5rem;
-                        padding: 0.625rem 1.25rem;
+                        gap: 0.375rem;
+                        padding: 0.5rem 1rem;
                         border: none;
                         border-radius: 0.5rem;
                         cursor: pointer;
                         transition: all 0.2s;
-                        font-size: 0.875rem;
+                        font-size: 0.8125rem;
                         font-weight: 600;
+                        pointer-events: auto;
+                    }
+                    .bc-card-action-btn.view {
+                        background: #ebf8ff;
+                        color: #3182ce;
+                    }
+                    .bc-card-action-btn.view:hover {
+                        background: #bee3f8;
                     }
                     .bc-card-action-btn.edit {
                         background: #edf2f7;
@@ -121,101 +120,116 @@
                             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                                 <c:forEach var="board" items="${boards}">
                                     <div class="bc-card bc-board-card"
-                                        style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; padding: 1rem 1.25rem;"
+                                        style="display: flex; flex-direction: column; gap: 0; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; padding: 1rem 1.25rem;"
                                         onclick="location.href='${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${board.book_club_board_seq}'"
                                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';"
                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06)';">
 
-                                        <!-- 호버 시 나타나는 액션 버튼 (정중앙) -->
-                                        <c:if test="${board.member_seq == loginMemberSeq or isLeader}">
-                                            <div class="bc-card-actions" onclick="event.stopPropagation();">
-                                                <%-- 수정 버튼: 작성자만 --%>
-                                                <c:if test="${board.member_seq == loginMemberSeq}">
-                                                    <button type="button" class="bc-card-action-btn edit"
-                                                        onclick="location.href='${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${board.book_club_board_seq}/edit'"
-                                                        title="수정">
-                                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                        </svg>
-                                                        수정
-                                                    </button>
-                                                </c:if>
-                                                <%-- 삭제 버튼: 작성자 + 모임장 --%>
+                                        <!-- 호버 시 나타나는 액션 버튼 -->
+                                        <div class="bc-card-actions">
+                                            <%-- 자세히 보기: 모든 사용자 --%>
+                                            <button type="button" class="bc-card-action-btn view"
+                                                onclick="event.stopPropagation(); location.href='${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${board.book_club_board_seq}'"
+                                                title="자세히 보기">
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                자세히
+                                            </button>
+                                            <%-- 수정 버튼: 작성자만 --%>
+                                            <c:if test="${board.member_seq == loginMemberSeq}">
+                                                <button type="button" class="bc-card-action-btn edit"
+                                                    onclick="event.stopPropagation(); location.href='${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${board.book_club_board_seq}/edit'"
+                                                    title="수정">
+                                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                    수정
+                                                </button>
+                                            </c:if>
+                                            <%-- 삭제 버튼: 작성자 + 모임장 --%>
+                                            <c:if test="${board.member_seq == loginMemberSeq or isLeader}">
                                                 <button type="button" class="bc-card-action-btn delete"
-                                                    onclick="confirmDeletePost(${bookClubId}, ${board.book_club_board_seq})"
+                                                    onclick="event.stopPropagation(); confirmDeletePost(${bookClubId}, ${board.book_club_board_seq})"
                                                     title="삭제">
-                                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
                                                     삭제
                                                 </button>
-                                            </div>
-                                        </c:if>
-
-                                        <!-- 왼쪽: 텍스트 영역 -->
-                                        <div style="flex: 1; min-width: 0;">
-                                            <!-- 제목 -->
-                                            <h3 style="font-size: 1rem; font-weight: 600; color: #2d3748; margin: 0 0 0.375rem 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                ${fn:escapeXml(board.board_title)}
-                                            </h3>
-
-                                            <!-- 본문 미리보기 -->
-                                            <c:if test="${not empty board.board_cont}">
-                                                <p style="color: #718096; font-size: 0.8125rem; line-height: 1.5; margin: 0 0 0.5rem 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;">
-                                                    ${fn:escapeXml(board.board_cont)}
-                                                </p>
                                             </c:if>
-
-                                            <!-- 메타 정보 (작성자 + 작성일 + 댓글 수) -->
-                                            <div style="display: flex; align-items: center; gap: 0.625rem; font-size: 0.75rem; color: #a0aec0;">
-                                                <span>${fn:escapeXml(board.member_nicknm)}</span>
-                                                <span>·</span>
-                                                <span>
-                                                    <c:choose>
-                                                        <c:when test="${not empty board.board_crt_dtm_text}">
-                                                            ${board.board_crt_dtm_text}
-                                                        </c:when>
-                                                        <c:otherwise>방금</c:otherwise>
-                                                    </c:choose>
-                                                </span>
-                                                <span style="display: flex; align-items: center; gap: 0.25rem; color: #4299e1;">
-                                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                    </svg>
-                                                    ${empty board.comment_count ? 0 : board.comment_count}
-                                                </span>
-                                            </div>
                                         </div>
 
-                                        <!-- 오른쪽: 썸네일 -->
-                                        <c:choose>
-                                            <%-- 1순위: 첨부 사진 --%>
-                                            <c:when test="${not empty board.board_img_url}">
-                                                <div style="flex-shrink: 0; width: 80px; height: 80px; border-radius: 0.5rem; overflow: hidden; background: #f7fafc;">
-                                                    <c:choose>
-                                                        <c:when test="${board.board_img_url.startsWith('http://') or board.board_img_url.startsWith('https://')}">
-                                                            <img src="${board.board_img_url}" alt="게시글 이미지"
-                                                                style="width: 100%; height: 100%; object-fit: cover;">
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <img src="${pageContext.request.contextPath}${board.board_img_url}" alt="게시글 이미지"
-                                                                style="width: 100%; height: 100%; object-fit: cover;">
-                                                        </c:otherwise>
-                                                    </c:choose>
+                                        <!-- 컨텐츠 영역 -->
+                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                                            <!-- 왼쪽: 텍스트 영역 -->
+                                            <div style="flex: 1; min-width: 0;">
+                                                <!-- 제목 -->
+                                                <h3 style="font-size: 1rem; font-weight: 600; color: #2d3748; margin: 0 0 0.375rem 0; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    ${fn:escapeXml(board.board_title)}
+                                                </h3>
+
+                                                <!-- 본문 미리보기 -->
+                                                <c:if test="${not empty board.board_cont}">
+                                                    <p style="color: #718096; font-size: 0.8125rem; line-height: 1.5; margin: 0 0 0.5rem 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;">
+                                                        ${fn:escapeXml(board.board_cont)}
+                                                    </p>
+                                                </c:if>
+
+                                                <!-- 메타 정보 (작성자 + 작성일 + 댓글 수) -->
+                                                <div style="display: flex; align-items: center; gap: 0.625rem; font-size: 0.75rem; color: #a0aec0;">
+                                                    <span>${fn:escapeXml(board.member_nicknm)}</span>
+                                                    <span>·</span>
+                                                    <span>
+                                                        <c:choose>
+                                                            <c:when test="${not empty board.board_crt_dtm_text}">
+                                                                ${board.board_crt_dtm_text}
+                                                            </c:when>
+                                                            <c:otherwise>방금</c:otherwise>
+                                                        </c:choose>
+                                                    </span>
+                                                    <span style="display: flex; align-items: center; gap: 0.25rem; color: #4299e1;">
+                                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                        </svg>
+                                                        ${empty board.comment_count ? 0 : board.comment_count}
+                                                    </span>
                                                 </div>
-                                            </c:when>
-                                            <%-- 2순위: 책 API 사진 --%>
-                                            <c:when test="${not empty board.book_img_url}">
-                                                <div style="flex-shrink: 0; width: 60px; height: 80px; border-radius: 0.375rem; overflow: hidden; background: #f7fafc; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                                    <img src="${board.book_img_url}" alt="책 표지"
-                                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                                </div>
-                                            </c:when>
-                                            <%-- 3순위: 없음 --%>
-                                        </c:choose>
+                                            </div>
+
+                                            <!-- 오른쪽: 썸네일 -->
+                                            <c:choose>
+                                                <%-- 1순위: 첨부 사진 --%>
+                                                <c:when test="${not empty board.board_img_url}">
+                                                    <div style="flex-shrink: 0; width: 80px; height: 80px; border-radius: 0.5rem; overflow: hidden; background: #f7fafc;">
+                                                        <c:choose>
+                                                            <c:when test="${board.board_img_url.startsWith('http://') or board.board_img_url.startsWith('https://')}">
+                                                                <img src="${board.board_img_url}" alt="게시글 이미지"
+                                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <img src="${pageContext.request.contextPath}${board.board_img_url}" alt="게시글 이미지"
+                                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+                                                </c:when>
+                                                <%-- 2순위: 책 API 사진 --%>
+                                                <c:when test="${not empty board.book_img_url}">
+                                                    <div style="flex-shrink: 0; width: 60px; height: 80px; border-radius: 0.375rem; overflow: hidden; background: #f7fafc; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                        <img src="${board.book_img_url}" alt="책 표지"
+                                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                                    </div>
+                                                </c:when>
+                                                <%-- 3순위: 없음 --%>
+                                            </c:choose>
+                                        </div>
                                     </div>
                                 </c:forEach>
                             </div>

@@ -81,6 +81,16 @@ public interface BookClubMapper {
             @Param("memberSeq") Long memberSeq,
             @Param("commentCont") String commentCont);
 
+    // 댓글 UPDATE
+    int updateBoardComment(@Param("commentId") Long commentId,
+            @Param("commentCont") String commentCont);
+
+    // 댓글 DELETE (soft delete)
+    int deleteBoardComment(@Param("commentId") Long commentId);
+
+    // 댓글 단건 조회 (권한 확인용)
+    project.bookclub.vo.BookClubBoardVO selectBoardCommentById(@Param("commentId") Long commentId);
+
     // 게시글(원글) INSERT
     void insertBoardPost(project.bookclub.vo.BookClubBoardVO boardVO);
 
