@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!-- 홈 탭 본문 (fragment) -->
 <div class="bc-content-wrapper">
@@ -36,34 +37,41 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            함께하는 멤버
+            함께하는 멤버 <span style="font-size: 0.875rem; font-weight: 400; color: #718096;">(${joinedMemberCount}명)</span>
         </h2>
 
-        <!-- TODO: 실제 멤버 리스트로 교체 (현재는 Mock 데이터) -->
-        <!-- 추후 members 리스트를 model로 받아 c:forEach로 교체 -->
-        <div class="bc-members-grid">
-            <!-- Mock 멤버 1 (모임장) -->
-            <div class="bc-member-item">
-                <div class="bc-member-avatar">
-                    👤
-                    <span class="bc-leader-badge">모임장</span>
+        <c:choose>
+            <c:when test="${empty members}">
+                <div style="text-align: center; padding: 2rem; color: #a0aec0; font-size: 0.875rem;">
+                    아직 멤버가 없습니다.
                 </div>
-                <div class="bc-member-name">우주여행자</div>
-            </div>
-
-            <!-- Mock 멤버 2 -->
-            <div class="bc-member-item">
-                <div class="bc-member-avatar">👤</div>
-                <div class="bc-member-name">모낭커피</div>
-            </div>
-
-            <!-- Mock 멤버 3 -->
-            <div class="bc-member-item">
-                <div class="bc-member-avatar">👤</div>
-                <div class="bc-member-name">외계인</div>
-            </div>
-
-            <!-- 빈 슬롯 (최대 10개 중 나머지는 비워둠) -->
-        </div>
+            </c:when>
+            <c:otherwise>
+                <div class="bc-members-grid">
+                    <c:forEach var="member" items="${members}">
+                        <div class="bc-member-item">
+                            <div class="bc-member-avatar">
+                                <c:choose>
+                                    <c:when test="${not empty member.profileImgUrl}">
+                                        <img src="${member.profileImgUrl}" alt="${member.nickname}"
+                                             style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                    </c:otherwise>
+                                </c:choose>
+                                <c:if test="${member.leaderYn == 'Y'}">
+                                    <span class="bc-leader-badge">모임장</span>
+                                </c:if>
+                            </div>
+                            <div class="bc-member-name">${fn:escapeXml(member.nickname)}</div>
+                        </div>
+                    </c:forEach>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
 </div>
