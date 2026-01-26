@@ -9,15 +9,22 @@ import project.bookclub.vo.BookClubVO;
 
 @Mapper
 public interface BookClubMapper {
-    // 독서모임 검색
-    List<BookClubVO> searchAll();
+    // 독서모임 검색 (정렬 + 페이징)
+    List<BookClubVO> searchAllWithSort(
+            @Param("sort") String sort,
+            @Param("limit") int limit,
+            @Param("offset") int offset);
 
-    List<BookClubVO> searchByKeyword(@Param("tokens") List<String> tokens);
+    List<BookClubVO> searchByKeywordWithSort(
+            @Param("tokens") List<String> tokens,
+            @Param("sort") String sort,
+            @Param("limit") int limit,
+            @Param("offset") int offset);
 
-    // 독서모임 검색 (정렬 옵션 포함)
-    List<BookClubVO> searchAllWithSort(@Param("sort") String sort);
+    // 전체 개수 조회 (페이징용)
+    long countAll();
 
-    List<BookClubVO> searchByKeywordWithSort(@Param("tokens") List<String> tokens, @Param("sort") String sort);
+    long countByKeyword(@Param("tokens") List<String> tokens);
 
     // 독서모임 상세 조회 (1건)
     BookClubVO selectById(@Param("bookClubSeq") Long bookClubSeq);

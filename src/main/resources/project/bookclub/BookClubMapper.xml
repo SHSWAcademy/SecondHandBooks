@@ -8,65 +8,7 @@
     <!-- 독서모임 검색 및 조회 -->
     <!-- ===================================== -->
 
-    <!-- 독서모임 전체 조회 -->
-    <select id="searchAll" resultType="project.bookclub.vo.BookClubVO">
-        SELECT
-            book_club_seq,
-            book_club_leader_seq,
-            book_club_name,
-            book_club_desc,
-            book_club_rg,
-            book_club_max_member,
-            book_club_deleted_dt,
-            banner_img_url,
-            book_club_schedule,
-            crt_dtm,
-            upd_dtm,
-            (
-                SELECT COUNT(*)
-                FROM book_club_member
-                WHERE book_club_member.book_club_seq = book_club.book_club_seq
-                AND join_st = 'JOINED'
-            ) AS joined_member_count
-        FROM book_club
-        WHERE book_club_deleted_dt IS NULL
-        ORDER BY book_club_seq
-    </select>
-
-    <!-- 독서모임 키워드 조회 -->
-    <select id="searchByKeyword" parameterType="list" resultType="project.bookclub.vo.BookClubVO">
-        SELECT
-            book_club_seq,
-            book_club_leader_seq,
-            book_club_name,
-            book_club_desc,
-            book_club_rg,
-            book_club_max_member,
-            book_club_deleted_dt,
-            banner_img_url,
-            book_club_schedule,
-            crt_dtm,
-            upd_dtm,
-            (
-                SELECT COUNT(*)
-                FROM book_club_member
-                WHERE book_club_member.book_club_seq = book_club.book_club_seq
-                AND join_st = 'JOINED'
-            ) AS joined_member_count
-        FROM book_club
-        WHERE book_club_deleted_dt IS NULL
-        AND
-        <foreach collection="tokens" item="token" separator="AND">
-            (
-                book_club_name LIKE CONCAT('%', #{token}, '%')
-                OR
-                book_club_rg LIKE CONCAT('%', #{token}, '%')
-            )
-        </foreach>
-        ORDER BY book_club_seq DESC
-    </select>
-
-    <!-- 독서모임 전체 조회 (정렬 옵션 포함) -->
+    <!-- 독서모임 전체 조회 (정렬 + 페이징) -->
     <select id="searchAllWithSort" resultType="project.bookclub.vo.BookClubVO">
         SELECT
             book_club_seq,
@@ -102,9 +44,10 @@
                 ORDER BY crt_dtm DESC
             </otherwise>
         </choose>
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!-- 독서모임 키워드 조회 (정렬 옵션 포함) -->
+    <!-- 독서모임 키워드 조회 (정렬 + 페이징) -->
     <select id="searchByKeywordWithSort" resultType="project.bookclub.vo.BookClubVO">
         SELECT
             book_club_seq,
@@ -148,24 +91,29 @@
                 ORDER BY crt_dtm DESC
             </otherwise>
         </choose>
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!-- 키워드 조회 개선판 : 매칭되는 토큰이 많은 게시물부터 게시 -->
-    <select id="searchByKeywordRanked" resultType="project.bookclub.vo.BookClubVO">
-        SELECT *,
-        (
-        <foreach collection="tokens" item="token" separator="+">
-            CASE WHEN book_club_name LIKE '%' || #{token} || '%' THEN 1 ELSE 0 END
-        </foreach>
-        ) AS match_count
+    <!-- 전체 모임 개수 조회 -->
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*)
         FROM book_club
         WHERE book_club_deleted_dt IS NULL
-        AND (
-        <foreach collection="tokens" item="token" separator="OR">
-            book_club_name LIKE '%' || #{token} || '%'
+    </select>
+
+    <!-- 키워드 검색 모임 개수 조회 -->
+    <select id="countByKeyword" resultType="long">
+        SELECT COUNT(*)
+        FROM book_club
+        WHERE book_club_deleted_dt IS NULL
+        AND
+        <foreach collection="tokens" item="token" separator="AND">
+            (
+                book_club_name LIKE CONCAT('%', #{token}, '%')
+                OR
+                book_club_rg LIKE CONCAT('%', #{token}, '%')
+            )
         </foreach>
-        )
-        ORDER BY match_count DESC
     </select>
 
     <!-- 독서모임 1건 조회 (상세 페이지용) -->

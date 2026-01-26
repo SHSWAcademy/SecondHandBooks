@@ -2,6 +2,8 @@ const BookClub = (() => {
 
     let debounceTimer = null;
     let currentSort = "latest"; // 기본 정렬: 최신순
+    let currentPage = 0;        // 현재 페이지 (0부터 시작)
+    let pageData = null;        // 현재 페이지 데이터
 
     /** 초기화 */
     function initList() {
@@ -12,8 +14,9 @@ const BookClub = (() => {
             clearTimeout(debounceTimer);
 
             debounceTimer = setTimeout(() => {
+                currentPage = 0; // 검색 시 첫 페이지로 리셋
                 const keyword = keywordInput.value.trim();
-                search(keyword, currentSort);
+                search(keyword, currentSort, currentPage);
             }, 300); // 입력 멈춘 후 300ms
         });
 
@@ -30,21 +33,22 @@ const BookClub = (() => {
                 sortBtns.forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
 
-                // 정렬 값 변경 및 재검색
+                // 정렬 값 변경 및 재검색 (첫 페이지부터)
                 currentSort = btn.dataset.sort;
+                currentPage = 0;
                 const keywordInput = document.getElementById("keyword");
                 const keyword = keywordInput ? keywordInput.value.trim() : "";
-                search(keyword, currentSort);
+                search(keyword, currentSort, currentPage);
             });
         });
     }
 
     // 초기 전체 조회
-    search("", "latest");
+    search("", "latest", 0);
 
     /** 서버 검색 요청 */
-    function search(keyword, sort) {
-        let url = `/bookclubs/search?sort=${sort || "latest"}`;
+    function search(keyword, sort, page) {
+        let url = `/bookclubs/search?sort=${sort || "latest"}&page=${page || 0}`;
         if (keyword) {
             url += `&keyword=${encodeURIComponent(keyword)}`;
         }
@@ -57,7 +61,10 @@ const BookClub = (() => {
         })
             .then(res => res.json())
             .then(data => {
+                pageData = data;
+                currentPage = data.page;
                 renderList(data);
+                renderPagination(data);
             })
             .catch(err => {
                 console.error("검색 실패", err);
@@ -65,14 +72,16 @@ const BookClub = (() => {
     }
 
     /** 결과 렌더링 */
-    function renderList(list) {
+    function renderList(data) {
         const grid = document.getElementById("bookclubGrid");
         grid.innerHTML = "";
 
-        // 모임 개수 업데이트
+        const list = data.content;
+
+        // 모임 개수 업데이트 (전체 개수)
         const clubCountEl = document.getElementById("clubCount");
         if (clubCountEl) {
-            clubCountEl.textContent = list ? list.length : 0;
+            clubCountEl.textContent = data.totalElements || 0;
         }
 
         if (!list || list.length === 0) {
@@ -123,11 +132,76 @@ const BookClub = (() => {
             `);
         });
     }
+
+    /** 페이지네이션 렌더링 */
+    function renderPagination(data) {
+        let paginationContainer = document.getElementById("pagination");
+
+        // 페이지네이션 컨테이너가 없으면 생성
+        if (!paginationContainer) {
+            const grid = document.getElementById("bookclubGrid");
+            paginationContainer = document.createElement("div");
+            paginationContainer.id = "pagination";
+            paginationContainer.className = "pagination";
+            grid.parentNode.insertBefore(paginationContainer, grid.nextSibling);
+        }
+
+        paginationContainer.innerHTML = "";
+
+        // 페이지가 1개 이하면 페이지네이션 숨김
+        if (data.totalPages <= 1) {
+            paginationContainer.style.display = "none";
+            return;
+        }
+
+        paginationContainer.style.display = "flex";
+
+        const currentPage = data.page;
+        const totalPages = data.totalPages;
+
+        // 이전 버튼
+        const prevBtn = document.createElement("button");
+        prevBtn.className = "page-btn prev-btn";
+        prevBtn.textContent = "이전";
+        prevBtn.disabled = data.first;
+        prevBtn.addEventListener("click", () => goToPage(currentPage - 1));
+        paginationContainer.appendChild(prevBtn);
+
+        // 페이지 번호 버튼 (최대 5개 표시)
+        const startPage = Math.max(0, currentPage - 2);
+        const endPage = Math.min(totalPages - 1, startPage + 4);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement("button");
+            pageBtn.className = "page-btn" + (i === currentPage ? " active" : "");
+            pageBtn.textContent = i + 1;
+            pageBtn.addEventListener("click", () => goToPage(i));
+            paginationContainer.appendChild(pageBtn);
+        }
+
+        // 다음 버튼
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "page-btn next-btn";
+        nextBtn.textContent = "다음";
+        nextBtn.disabled = data.last;
+        nextBtn.addEventListener("click", () => goToPage(currentPage + 1));
+        paginationContainer.appendChild(nextBtn);
+    }
+
+    /** 페이지 이동 */
+    function goToPage(page) {
+        const keywordInput = document.getElementById("keyword");
+        const keyword = keywordInput ? keywordInput.value.trim() : "";
+        search(keyword, currentSort, page);
+        // 페이지 상단으로 스크롤
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     // 외부에서 호출 가능한 메서드
     function reload() {
         const keywordInput = document.getElementById("keyword");
         const keyword = keywordInput ? keywordInput.value.trim() : "";
-        search(keyword, currentSort);
+        search(keyword, currentSort, currentPage);
     }
 
     return {
