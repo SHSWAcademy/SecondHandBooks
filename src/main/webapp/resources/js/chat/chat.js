@@ -21,9 +21,48 @@ function connect() {
 function subscribeCurrentRoom() {
     if (!stompClient) return;
 
+    // 메시지 수신 구독
     stompClient.subscribe('/chatroom/' + chat_room_seq, function (message) {
         const msg = JSON.parse(message.body);
         showMessage(msg);
+
+        // 상대방이 보낸 메시지를 실시간으로 받으면 읽음 처리 요청
+        if (Number(msg.sender_seq) !== loginMemberSeq) {
+            sendReadEvent();
+        }
+    });
+
+    // 읽음 이벤트 구독 (상대방이 내 메시지를 읽었을 때)
+    stompClient.subscribe('/chatroom/' + chat_room_seq + '/read', function (message) {
+        const readerSeq = JSON.parse(message.body);
+        // 상대방이 읽었으면 내가 보낸 메시지들에 체크 표시
+        if (Number(readerSeq) !== loginMemberSeq) {
+            updateReadStatus();
+        }
+    });
+}
+
+// 읽음 이벤트 전송 (내가 상대방 메시지를 읽었음을 알림)
+function sendReadEvent() {
+    if (!stompClient || !stompClient.connected) return;
+
+    stompClient.send(
+        "/sendMessage/chat/" + chat_room_seq + "/read",
+        {},
+        JSON.stringify({
+            chat_room_seq: chat_room_seq,
+            reader_seq: loginMemberSeq
+        })
+    );
+}
+
+// 내가 보낸 메시지들의 읽음 상태 업데이트
+function updateReadStatus() {
+    const myMessages = document.querySelectorAll('.msg-right .msg-time');
+    myMessages.forEach(function(timeEl) {
+        if (!timeEl.textContent.includes('✔')) {
+            timeEl.textContent = timeEl.textContent + ' ✔';
+        }
     });
 }
 
@@ -90,7 +129,11 @@ function showMessage(msg) {
 
     const msgTime = document.createElement('div');
     msgTime.className = 'msg-time';
-    msgTime.textContent = timeStr + (msg.read_yn ? " ✔" : "");
+
+    // 내가 보낸 메시지인 경우에만 읽음 표시
+    const isMyMessage = Number(msg.sender_seq) === loginMemberSeq;
+    const readMark = isMyMessage && msg.read_yn ? ' ✔' : '';
+    msgTime.textContent = timeStr + readMark;
 
     msgWrapper.appendChild(msgContent);
     msgWrapper.appendChild(msgTime);
