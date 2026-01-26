@@ -60,6 +60,11 @@ public class ChatroomService {
         return chatroomMapper.isBuyerOfTrade(trade_seq, member_seq);
     }
 
+    // 채팅방 seq로 채팅방 조회
+    public ChatroomVO findByChatRoomSeq(long chat_room_seq) {
+        return chatroomMapper.findByChatRoomSeq(chat_room_seq);
+    }
+
 
 
     public List<ChatroomVO> searchAllWithPaging(long memberSeq, int limit, int offset, String sale_st) {
