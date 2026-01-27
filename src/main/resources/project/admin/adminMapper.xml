@@ -216,7 +216,7 @@
                     AND L.LOGIN_DTM::text LIKE CONCAT('%', #{keyword}, '%')
                 </when>
                 <otherwise>
-                    AND (A.ADMIN_LOGIN_ID LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_IP LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_DTM LIKE CONCAT('%', #{keyword}, '%'))
+                    AND (A.ADMIN_LOGIN_ID LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_IP LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_DTM::text LIKE CONCAT('%', #{keyword}, '%'))
                 </otherwise>
             </choose>
         </if>
