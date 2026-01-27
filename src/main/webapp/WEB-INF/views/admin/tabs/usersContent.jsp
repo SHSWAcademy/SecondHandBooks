@@ -1,7 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-    <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-      <script src="/resources/js/paging/paging.js"></script>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<script src="/resources/js/paging/paging.js"></script>
 
 <div id="userActionMenu" class="hidden fixed z-[9999] bg-white rounded-lg shadow-xl border border-gray-200 w-32 py-1 overflow-hidden">
   <button id="btnActionBan" class="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600 flex items-center gap-2">
@@ -60,23 +60,9 @@
     // 2. 디버깅용 로그 (콘솔 확인용)
     console.log("🔥 버튼 클릭 성공! SEQ:", seq);
 
-<<<<<<< HEAD
     // 3. 메뉴 열기 로직
     const menu = document.getElementById('userActionMenu');
     menu.classList.remove('hidden');
-=======
-      <script>
-        console.log('🔥 usersContent.jsp script loaded');
-        // [1] 메뉴 초기화 (body로 이동)
-        document.addEventListener('DOMContentLoaded', function () {
-          const menu = document.getElementById('userActionMenu');
-          if (menu && menu.parentElement !== document.body) {
-            document.body.appendChild(menu);
-          }
-          // 초기 로드
-          searchMembers(1);
-        });
->>>>>>> 65ddf49 (dom)
 
     // 버튼 위치 찾기 (event.target이 아이콘일 수 있으므로 button 태그 찾기)
     // 만약 event.target이 button이 아니면 closest로 찾음
@@ -171,23 +157,13 @@
     });
   };
 
-<<<<<<< HEAD
   window.users_resetSearch = function() {
     document.getElementById('userSearchKeyword').value = '';
     searchMembers(1);
   }
-=======
-            // ✅ [핵심 수정] addEventListener만 사용, stopPropagation으로 전역 click 차단
-            btn.addEventListener('click', function (e) {
-              console.log('🔴 버튼 클릭됨!', e.target, '버튼:', btn, 'seq:', m.member_seq);
-              e.stopPropagation(); // 94번 라인 전역 클릭 이벤트 차단
-              window.openUserActionMenu(btn, m.member_seq, status); // 버튼 엘리먼트 직접 전달
-            });
->>>>>>> 65ddf49 (dom)
 
   window.fetchUsers = function() { searchMembers(1); }
 
-<<<<<<< HEAD
   window.updateUserStatus = function(seq, action) {
     if(!confirm(action + ' 하시겠습니까?')) return;
     fetch('/admin/api/users', {
@@ -202,80 +178,3 @@
     });
   }
 </script>
-=======
-          // 5. 아이콘 렌더링
-          if (window.lucide) lucide.createIcons();
-        };
-
-        // [6] 메뉴 열기 로직
-        window.openUserActionMenu = function (btnElement, memberSeq, currentStatus) {
-          console.log('🔵 openUserActionMenu 호출됨, seq:', memberSeq, 'status:', currentStatus);
-          const menu = document.getElementById('userActionMenu');
-          console.log('🟢 menu 엘리먼트:', menu);
-          menu.classList.remove('hidden');
-
-          // ✅ 버튼 엘리먼트 기준으로 위치 계산 (lucide svg와 무관하게 항상 버튼 좌표)
-          const rect = btnElement.getBoundingClientRect();
-          console.log('🟡 버튼 좌표:', rect, 'viewport 높이:', window.innerHeight);
-          const spaceBelow = window.innerHeight - rect.bottom;
-          const menuHeight = 120; // 메뉴 예상 높이
-          const menuWidth = 128; // w-32 = 128px
-
-          // ✅ 세로 위치: 아래 공간 부족 시 위로
-          let menuTop = (spaceBelow < menuHeight)
-            ? Math.max(10, rect.top - menuHeight) // 화면 위쪽 10px 최소 여백
-            : rect.bottom + 5;
-
-          // ✅ 가로 위치: 버튼 오른쪽 정렬, 화면 밖 튀지 않게
-          let menuLeft = rect.right - menuWidth;
-          if (menuLeft < 10) menuLeft = 10; // 왼쪽 여백 최소 10px
-          if (menuLeft + menuWidth > window.innerWidth - 10) {
-            menuLeft = window.innerWidth - menuWidth - 10; // 오른쪽 여백 최소 10px
-          }
-
-          menu.style.top = menuTop + 'px';
-          menu.style.left = menuLeft + 'px';
-          console.log('🟣 메뉴 최종 위치:', { top: menu.style.top, left: menu.style.left, hidden: menu.classList.contains('hidden') });
-
-          // ✅ 버튼 상태 제어
-          const btnBan = document.getElementById('btnActionBan');
-          const btnActive = document.getElementById('btnActionActive');
-          const btnDelete = document.getElementById('btnActionDelete');
-
-          if (currentStatus === 'BAN') {
-            btnBan.style.display = 'none';
-            btnActive.style.display = 'flex';
-          } else {
-            btnBan.style.display = 'flex';
-            btnActive.style.display = 'none';
-          }
-
-          // ✅ 기능 연결 (기존 로직 유지)
-          btnBan.onclick = () => window.updateUserStatus(memberSeq, 'BAN');
-          btnActive.onclick = () => window.updateUserStatus(memberSeq, 'ACTIVE');
-          btnDelete.onclick = () => window.updateUserStatus(memberSeq, 'DELETE');
-        };
-
-        // [7] 상태 변경 API
-        window.updateUserStatus = function (seq, action) {
-          let msg = action === 'DELETE' ? '강제 탈퇴' : (action === 'BAN' ? '정지' : '해제');
-          if (!confirm(msg + ' 처리 하시겠습니까?')) return;
-
-          fetch('/admin/api/users', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ seq: seq, action: action })
-          })
-            .then(res => {
-              if (res.ok) {
-                document.getElementById('userActionMenu').classList.add('hidden');
-                searchMembers(1); // 새로고침
-              } else {
-                alert('실패했습니다.');
-              }
-            })
-            .catch(err => alert('오류: ' + err));
-        };
-
-      </script>
->>>>>>> 65ddf49 (dom)
