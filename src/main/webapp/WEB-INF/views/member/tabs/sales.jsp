@@ -54,10 +54,17 @@
                     <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" />원
                 </p>
             </div>
-
+            <c:if test="${trade.sale_st == 'SALE'}">
+                <button type="button"
+                        class="text-xs bg-primary-600 text-white px-3 py-2 rounded font-bold hover:bg-primary-700"
+                        data-trade-seq="${trade.trade_seq}"
+                        onclick="postTrade(${trade.trade_seq})">
+                    판매처리
+                </button>
+            </c:if>
             <button onclick="location.href='/trade/${trade.trade_seq}'"
                     class="text-xs bg-primary-600 text-white px-3 py-2 rounded font-bold hover:bg-primary-700">상세보기</button>
-        </div>
+            </div>
     </c:forEach>
 </div>
 
@@ -71,4 +78,27 @@
         }
     });
     lucide.createIcons();
+
+    //판매상태 없데이트
+    function postTrade(trade_seq) {
+        // 사용자 확인 메시지
+        const confirmed = confirm('정말 판매처리 하시겠습니까? 이후로는 상태 변경 불가합니다.');
+        if (!confirmed) return; // 취소 누르면 종료
+
+        fetch('/trade/statusUpdate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'trade_seq=' + encodeURIComponent(trade_seq)
+        })
+        .then(res => {
+            if (res.ok) {
+                const salesTab = document.querySelector('a[data-tab="sales"]');
+                if (salesTab) salesTab.click();
+            } else {
+                console.error('상태 업데이트 실패', res.status);
+            }
+        })
+        .catch(err => console.error('네트워크 오류', err));
+    }
+
 </script>

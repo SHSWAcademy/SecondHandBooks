@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import project.member.MemberService;
 import project.member.MemberVO;
+import project.trade.ENUM.SaleStatus;
 import project.util.Const;
 import project.util.book.BookApiService;
 import project.util.book.BookVO;
@@ -129,10 +130,33 @@ public class TradeController {
     // 판매글 update 등록
     @PostMapping("/trade/modify/{tradeSeq}")
     public String modifyUpload(@PathVariable Long tradeSeq, TradeVO updateTrade,
-                               RedirectAttributes redirectAttributes) throws Exception {
+                               RedirectAttributes redirectAttributes, HttpSession session) throws Exception {
 
-        //checkSessionAndTrade(session, updateTrade);
-        // if (updateTrade.getMember_seller_seq() != (MemberVO)session.getAttribute(Const.SESSION).getMember_seq())
+        // 검증 - 기존 게시글 조회
+        TradeVO existingTrade = tradeService.search(tradeSeq);
+        if (existingTrade == null) {
+            return "redirect:/";
+        }
+
+        // 검증 - PENDING 상태일 때는 수정 불가
+        String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
+        if ("PENDING".equals(safePaymentStatus)) {
+            return "redirect:/";
+        }
+
+        // 세션 검증
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+        if (sessionMember == null) {
+            return "redirect:/";
+        }
+
+        // 수정하려는 사람의 pk가 게시글의 작성자 pk와 동일한지 검증
+        if (existingTrade.getMember_seller_seq() != sessionMember.getMember_seq()) {
+            return "redirect:/";
+        }
+
+        // updateTrade에 seller seq 할당
+        updateTrade.setMember_seller_seq(sessionMember.getMember_seq());
 
 
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
@@ -176,6 +200,7 @@ public class TradeController {
 
         // 세션 검증
         TradeVO trade = tradeService.search(tradeSeq);
+
         // 세션 검증
         try {
             checkSessionAndTrade(session, trade);
@@ -184,9 +209,15 @@ public class TradeController {
         } catch (Exception e) {
             return "redirect:/";
         }
-        // 삭제하려는 사람의 pk가 게시글의 작성자 pk와 동일한지 검증
+        // 검증 : 삭제하려는 사람의 pk가 게시글의 작성자 pk와 동일한지
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
         if (trade.getMember_seller_seq() != sessionMember.getMember_seq()) {
+            return "redirect:/";
+        }
+
+        // 검증 - PENDING 상태일 때는 삭제 불가
+        String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
+        if ("PENDING".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
@@ -233,7 +264,7 @@ public class TradeController {
         // 비동기처리를 위해 map을 json으로 변환하여 전달
         Map<String, Object> result = new HashMap<>();
 
-        if (memberVO.getMember_seq() == 0) {
+        if (memberVO == null || memberVO.getMember_seq() == 0) {
             result.put("success", false);
             result.put("message", "로그인이 필요합니다.");
             return result;
@@ -244,6 +275,65 @@ public class TradeController {
         result.put("wished", wished);
 
         return result;
+    }
+
+    // 판매자 수동 sold 변경 API, 새로 추가
+    @PostMapping("/trade/sold/{trade_seq}")
+    @ResponseBody
+    public Map<String, Object> updateToSold(
+            @PathVariable long trade_seq,
+            HttpSession session
+    ) {
+        MemberVO member = (MemberVO) session.getAttribute(Const.SESSION);
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        boolean success = tradeService.updateToSoldManually(
+                trade_seq, member.getMember_seq()
+        );
+
+        result.put("success", success);
+        return result;
+    }
+
+
+    // 구매 확정 api
+    @PostMapping("/trade/confirm/{trade_seq}")
+    @ResponseBody
+    public Map<String, Object> confirmPurchase(
+            @PathVariable long trade_seq,
+            HttpSession session
+    ) {
+        MemberVO member = (MemberVO) session.getAttribute(Const.SESSION);
+
+        Map<String, Object> result = new HashMap<>();
+
+        if (member == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        boolean success = tradeService.confirmPurchase(
+                trade_seq, member.getMember_seq()
+        );
+
+        result.put("success", success);
+        return result;
+    }
+
+
+    // 판매상태 수동처리, 범근님 추가
+    @PostMapping("/trade/statusUpdate")
+    @ResponseBody
+    public boolean statusUpdate (@RequestParam long trade_seq) {
+        return tradeService.statusUpdate(trade_seq);
     }
 
 }

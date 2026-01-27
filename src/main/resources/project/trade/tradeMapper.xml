@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+
 <mapper namespace="project.trade.TradeMapper">
 
     <select id="findBySeq" parameterType="long" resultType="project.trade.TradeVO">
@@ -85,6 +86,13 @@
         )
     </insert>
 
+    <!-- pending_buyer_seq 조회 -->
+    <select id="findPendingBuyerSeq" resultType="Long">
+        SELECT pending_buyer_seq
+        FROM sb_trade_info
+        WHERE trade_seq = #{trade_seq}
+    </select>
+
     <!-- 찜하기 추가 -->
     <insert id="saveLike">
         INSERT INTO trade_wish (
@@ -124,14 +132,7 @@
         SET del_dtm = now()
         WHERE trade_seq = #{trade_seq}
     </update>
-    <update id="updateStatus">
-        UPDATE sb_trade_info
-        SET
-            sale_st = #{sold}::sale_st_enum,
-            sale_st_dtm = now(),
-            book_sale_dtm = now()
-        WHERE trade_seq = #{trade_seq}
-    </update>
+
     <select id="findAll" resultType="project.trade.TradeVO">
         SELECT
         trade_seq,
@@ -206,7 +207,7 @@
                 ORDER BY crt_dtm DESC
             </otherwise>
         </choose>
-        LIMIT #{limit}
+        LIMIT #{size}
         OFFSET #{offset}
     </select>
 
@@ -265,6 +266,8 @@
             book_img,
             book_title,
             sale_price,
+            sale_title,
+            sale_st,
             delivery_cost,
             book_st,
             member_seller_seq
@@ -318,6 +321,7 @@
         , T.SALE_RG
         , T.SALE_ST_DTM
         , T.BOOK_IMG
+        , T.CONFIRM_PURCHASE
         FROM SB_TRADE_INFO T
         WHERE T.MEMBER_BUYER_SEQ = #{member_seq}
         AND T.DEL_DTM IS NULL
@@ -335,13 +339,135 @@
         , T.SALE_ST_DTM
         , T.CRT_DTM
         , T.BOOK_IMG
+        , T.SAFE_PAYMENT_ST
         FROM SB_TRADE_INFO T
         WHERE T.MEMBER_SELLER_SEQ = #{member_seq}
         AND T.DEL_DTM IS NULL
         <if test="status != null and status !='all'">
             AND T.SALE_ST = #{status}::sale_st_enum
         </if>
-        ORDER BY T.SALE_ST_DTM DESC
+        ORDER BY T.CRT_DTM DESC
+    </select>
+
+    <!-- 안전결제 상태 조회 (비관적 락) -->
+    <select id="findSafePaymentStatus" resultType="String">
+        SELECT COALESCE(safe_payment_st, 'NONE')
+        FROM sb_trade_info
+        WHERE trade_seq = #{trade_seq}
+        FOR UPDATE <!-- DB 입장에서는 조회가 아닌 쓰기-->
+    </select>
+
+    <!-- 안전결제 상태 업데이트 -->
+    <update id="updateSafePaymentStatus">
+        UPDATE sb_trade_info
+        SET safe_payment_st = #{status},
+            safe_payment_expire_dtm = NULL,
+            pending_buyer_seq = NULL,
+            upd_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 안전결제 상태 + 만료시간 업데이트 -->
+    <update id="updateSafePaymentWithExpire">
+        UPDATE sb_trade_info
+        SET safe_payment_st = #{status},
+            safe_payment_expire_dtm = now() + (#{expire_minutes} || ' minutes')::interval,
+            pending_buyer_seq = #{pending_buyer_seq},
+            upd_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 만료된 안전결제 자동 초기화 -->
+    <update id="resetExpiredSafePayments">
+        UPDATE sb_trade_info
+        SET safe_payment_st = 'NONE',
+        safe_payment_expire_dtm = NULL,
+        pending_buyer_seq = NULL,
+        upd_dtm = now()
+        WHERE safe_payment_st = 'PENDING'
+        AND safe_payment_expire_dtm IS NOT NULL
+        AND safe_payment_expire_dtm &lt; now()
+    </update>
+
+    <update id="statusUpdate">
+        UPDATE sb_trade_info
+        SET SALE_ST = #{saleStatus}::sale_st_enum
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 안전결제 만료까지 남은 초 조회 -->
+    <select id="findSafePaymentExpireSeconds" resultType="Long">
+        SELECT
+        CASE
+        WHEN safe_payment_st = 'PENDING' AND safe_payment_expire_dtm IS NOT NULL
+        THEN GREATEST(0, CEIL(EXTRACT(EPOCH FROM (safe_payment_expire_dtm - now()))))::bigint
+        ELSE 0
+        END
+        FROM sb_trade_info
+        WHERE trade_seq = #{trade_seq}
+    </select>
+
+
+    <!-- 판매자 수동 sold 변경 (sale일 때만 가능, safe_payment_st가 NONE일 때만)
+  -->
+    <update id="updateToSoldManually">
+        UPDATE sb_trade_info
+        SET sale_st = 'sold'::sale_st_enum,
+        sale_st_dtm = now()
+        WHERE trade_seq = #{trade_seq}
+        AND member_seller_seq = #{member_seq}
+        AND sale_st = 'sale'::sale_st_enum
+        AND (safe_payment_st IS NULL OR safe_payment_st = 'NONE')
+    </update>
+
+    <!-- 안전결제 완료 시 (기존 updateStatus 수정) -->
+    <!--
+    <update id="updateStatus">
+        UPDATE sb_trade_info
+        SET
+            sale_st = #{sold}::sale_st_enum,
+            sale_st_dtm = now(),
+            book_sale_dtm = now(),
+            member_buyer_seq = #{member_buyer_seq}
+        WHERE trade_seq = #{trade_seq}
+    </update>
+    -->
+    <update id="updateStatus">
+        UPDATE sb_trade_info
+        SET sale_st = #{sold}::sale_st_enum,
+        sale_st_dtm = now(),
+        book_sale_dtm = now(),
+        member_buyer_seq = #{member_buyer_seq},
+        confirm_purchase = false   <!-- 안전결제 완료 시 false로 설정 -->
+        WHERE trade_seq = #{trade_seq}
+    </update>
+
+    <!-- 구매 확정 -->
+    <update id="confirmPurchase">
+        UPDATE sb_trade_info
+        SET confirm_purchase = true
+        WHERE trade_seq = #{trade_seq}
+        AND member_buyer_seq = #{member_seq}
+        AND confirm_purchase = false
+    </update>
+
+    <!-- 15일 지난 미확정 건 자동 확정 (스케줄러용) -->
+    <update id="autoConfirmExpiredPurchases">
+        <![CDATA[
+            UPDATE sb_trade_info
+            SET confirm_purchase = true
+            WHERE confirm_purchase = false
+            AND sale_st_dtm < now() - INTERVAL '15 days'
+            ]]>
+    </update>
+
+    <!-- 구매자의 안전결제 구매 내역 조회 -->
+    <select id="findPurchasesByBuyer" resultType="project.trade.TradeVO">
+        SELECT *
+        FROM sb_trade_info
+        WHERE member_buyer_seq = #{member_seq}
+        AND confirm_purchase IS NOT NULL
+        ORDER BY sale_st_dtm DESC
     </select>
 
 </mapper>

@@ -33,4 +33,9 @@ public class MessageService {
     public boolean isUnreadMessage() {
         return messageMapper.isUnreadMessage();
     }
+
+    // 세션값 기준 닉네임 조회
+    public String findBySellerNicknm (long member_seq) {
+        return messageMapper.findBySellerNicknm(member_seq);
+    }
 }

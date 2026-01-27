@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.member.MemberVO;
+import project.trade.ENUM.SaleStatus;
 import project.util.exception.TradeNotFoundException;
 
 import java.io.File;
@@ -115,15 +116,25 @@ public class TradeService {
         return result > 0;
     }
 
-    // 카테고리조회
+    // 카테고리 조회
     public List<TradeVO> selectCategory() {
         return tradeMapper.selectCategory();
     }
-    public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
+    //public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
 
+    // 판매글 sale status를 sold로 업데이트
     @Transactional
-    public void updateStatus(Long trade_seq, String sold, Long member_buyer_seq) {
+    public void updateStatusToSold(Long trade_seq, String sold, Long member_buyer_seq) {
         tradeMapper.updateStatus(trade_seq, sold, member_buyer_seq);
+    }
+
+    // 안전 결제 상태 업데이트
+    // 안전 결제 접근 시 인증 후 safe_payment_st를 PENDING으로 업데이트
+    // 안전 결제로 판매 완료 시 sale_st를 sold로, safe_payment_st를 COMPLETED로 업데이트
+    // 안전 결제로 결제 실패 시 safe_payment_st를 PENDING -> NONE으로 업데이트
+    @Transactional
+    public void updateSafePaymentStatus(long trade_seq, String status) {
+        tradeMapper.updateSafePaymentStatus(trade_seq, status);
     }
 
     // 찜하기 insert
@@ -150,6 +161,7 @@ public class TradeService {
         return tradeMapper.countLikeAll(trade_seq);
     }
 
+    // chat_room_seq 으로 trade 찾기
     public TradeVO findByChatRoomSeq(long chat_room_seq) {
         return tradeMapper.findByChatRoomSeq(chat_room_seq);
     }
@@ -185,5 +197,122 @@ public class TradeService {
         }
 
         return trades;
+    }
+
+    // 안전 결제 상태 조회
+    @Transactional
+    public String getSafePaymentStatus(long trade_seq) {
+        String status = tradeMapper.findSafePaymentStatus(trade_seq);
+        return status;
+    }
+
+    // 안전 결제 요청 처리 (트랜잭션으로 상태 체크, 업데이트 원자적 처리), 5분 만료 시간 설정
+    // return true : 안전 결제 요청 성공, false : 이미 안전 결제 요청 처리
+    @Transactional
+    public boolean requestSafePayment(long trade_seq, long pending_buyer_seq) {
+        // 1. 현재 판매 게시글의 안전 결제 상태 조회
+        String currentStatus = tradeMapper.findSafePaymentStatus(trade_seq);
+
+        // 2-1. DB에서 조회한 안전 결제 상태가 PENDING일 경우 false
+        if ("PENDING".equals(currentStatus)) {
+            return false; // 이미 안전결제 진행 중
+        }
+
+        // 2-2. DB에서 조회한 안전 결제 상태가 COMPLETED일 경우 false
+        if ("COMPLETED".equals(currentStatus)) {
+            // sale_st = sold 처리 필요 ? => 노노 이미 결제 완료 시 sold 처리됨
+            return false; // 이미 완료된 거래
+        }
+
+        // PENDING, COMPLETED도 아니면 NONE 상태이다. (DB에 default로 NONE이 들어간다)
+        // 3. PENDING, COMPLETED가 아닌 NONE 상태라면 : 안전 결제 진행 중이 아닌 상태라면 PENDING(안전 결제 시작) 으로 변경 + 5분 만료 시간 설정
+        tradeMapper.updateSafePaymentWithExpire(trade_seq, "PENDING", 5, pending_buyer_seq);
+        return true; // 안전 결제 시작
+    }
+
+    public Long getPendingBuyerSeq(long trade_seq) {
+        return tradeMapper.findPendingBuyerSeq(trade_seq);
+    }
+
+
+    // 안전 결제 상태를 COMPLETED 로 변경
+    @Transactional
+    public void completeSafePayment(long trade_seq) {
+        tradeMapper.updateSafePaymentStatus(trade_seq, "COMPLETED");
+    }
+
+
+    // 안전 결제 실패, NONE 으로 update,  채팅방으로 다시 돌아가도록 하기
+    @Transactional
+    public void cancelSafePayment(long trade_seq) {
+        tradeMapper.updateSafePaymentStatus(trade_seq, "NONE");
+    }
+
+
+    public long getSafePaymentExpireSeconds(long trade_seq) {
+        Long seconds = tradeMapper.findSafePaymentExpireSeconds(trade_seq); // trade의 안전 결제 만료 시간이 몇 초 남았는지 조회
+        return seconds != null ? seconds : 0; // seconds가 null이라면 0 리턴
+    }
+
+    @Transactional
+    public int resetExpiredSafePayments() {
+        return tradeMapper.resetExpiredSafePayments();
+    }
+
+
+    // 판매자 수동 sold 변경
+    @Transactional
+    public boolean updateToSoldManually(long trade_seq, long member_seq) {
+        return tradeMapper.updateToSoldManually(trade_seq, member_seq) > 0;
+    }
+
+    // 구매 확정
+    @Transactional
+    public boolean confirmPurchase(long trade_seq, long member_seq) {
+        return tradeMapper.confirmPurchase(trade_seq, member_seq) > 0;
+    }
+
+    // 15일 지난 미확정 건 자동 확정
+    @Transactional
+    public int autoConfirmExpiredPurchases() {
+        return tradeMapper.autoConfirmExpiredPurchases();
+    }
+
+    // 구매자의 안전결제 구매 내역 조회
+    public List<TradeVO> findPurchasesByBuyer(long member_seq) {
+        return tradeMapper.findPurchasesByBuyer(member_seq);
+    }
+
+
+
+
+    // 수정 가능 여부 체크
+    public boolean canEdit(TradeVO trade, long member_seq) {
+        // 본인 글이 아니면 불가
+        if (trade.getMember_seller_seq() != member_seq) return false;
+        // sold면 불가
+        if ("sold".equals(trade.getSale_st())) return false;
+        // 안전결제 진행중(PENDING)이면 불가
+        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
+        return true;
+    }
+
+    // 삭제 가능 여부 체크
+    public boolean canDelete(TradeVO trade, long member_seq) {
+        // 본인 글이 아니면 불가
+        if (trade.getMember_seller_seq() != member_seq) return false;
+        // 안전결제 완료(COMPLETED)면 불가
+        if ("COMPLETED".equals(trade.getSafe_payment_st())) return false;
+        // 안전결제 진행중(PENDING)이면 불가
+        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
+        // 수동 sold(confirm_purchase가 null)면 삭제 가능
+        return true;
+    }
+
+
+    // 판매상태 수동 업데이트
+    @Transactional
+    public boolean statusUpdate(long trade_seq) {
+        return tradeMapper.statusUpdate(trade_seq, SaleStatus.SOLD) > 0;
     }
 }

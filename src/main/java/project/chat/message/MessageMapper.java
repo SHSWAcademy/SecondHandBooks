@@ -14,4 +14,6 @@ public interface MessageMapper {
     );
 
     boolean isUnreadMessage();
+
+    String findBySellerNicknm(@Param("member_seq") long member_seq);
 }

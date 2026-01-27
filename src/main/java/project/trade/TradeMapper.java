@@ -3,6 +3,7 @@ package project.trade;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import project.member.MemberVO;
+import project.trade.ENUM.SaleStatus;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public interface TradeMapper {
 
     List<TradeVO> findAll(); // 전체조회
-    List<TradeVO> findAllWithPaging(@Param("limit") int limit, @Param("offset") int offset, @Param("searchVO") TradeVO searchVO);
+    List<TradeVO> findAllWithPaging(@Param("size") int size, @Param("offset") int offset, @Param("searchVO") TradeVO searchVO);
     int countAll(@Param("searchVO") TradeVO searchVO);
 
     TradeVO findBySeq(long trade_seq);  // 상세조회
@@ -28,7 +29,7 @@ public interface TradeMapper {
     TradeVO findByChatRoomSeq(@Param("chat_room_seq") long chat_room_seq);
 
     List<TradeVO> selectCategory(); // 카테고리 조회
-    List<TradeVO> findBookState();
+    // List<TradeVO> findBookState();
 
     MemberVO findSellerInfo(@Param("trade_seq") long trade_seq);    // 판매자 정보조회
     List<TradeVO> selectWishTrades(long member_seq); // 프로필 찜 목록 조회
@@ -37,4 +38,38 @@ public interface TradeMapper {
 
     List<TradeVO> selectSaleTrades(@Param("member_seq") long member_seq,
                                    @Param("status") String status); // 판매내역 조회
+
+    String findSafePaymentStatus(@Param("trade_seq") long trade_seq); // 안전 결제 상태 조회 (FOR UPDATE로 락 획득)
+    int updateSafePaymentStatus(@Param("trade_seq") long trade_seq,
+                                @Param("status") String status); // 안전 결제 상태 업데이트
+
+    // 안전결제 만료 시간 관련
+    int updateSafePaymentWithExpire(@Param("trade_seq") long trade_seq,
+                                    @Param("status") String status, // 상태
+                                    @Param("expire_minutes") int expire_minutes, // 만료시간
+                                    @Param("pending_buyer_seq") long pending_buyer_seq); // 구매 진행 중인 구매자 seq
+
+    Long findSafePaymentExpireSeconds(@Param("trade_seq") long trade_seq); // 만료까지 남은 초 조회
+
+    Long findPendingBuyerSeq(@Param("trade_seq") long trade_seq);
+
+    int resetExpiredSafePayments();
+
+
+    // 판매자 수동 sold 변경 (계좌 거래용)
+    int updateToSoldManually(@Param("trade_seq") long trade_seq,
+                             @Param("member_seq") long member_seq);
+
+    // 구매 확정 처리
+    int confirmPurchase(@Param("trade_seq") long trade_seq,
+                        @Param("member_seq") long member_seq);
+
+    // 15일 지난 미확정 건 자동 확정 (스케줄러용)
+    int autoConfirmExpiredPurchases();
+
+    // 구매자의 안전결제 구매 내역 조회
+    List<TradeVO> findPurchasesByBuyer(@Param("member_seq") long member_seq);
+
+    // 범근님 추가
+    int statusUpdate(@Param("trade_seq") long trade_seq, @Param("saleStatus") SaleStatus saleStatus);
 }

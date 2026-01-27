@@ -36,6 +36,21 @@ public class MypageController {
         return "member/mypage";
     }
 
+    @GetMapping("/mypage/{tab}")
+    public String mypageWithTab(@PathVariable String tab,
+                                @RequestParam(required = false) String status,
+                                HttpSession sess,
+                                Model model) {
+        MemberVO loginSess = (MemberVO) sess.getAttribute(Const.SESSION);
+        if (loginSess == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("currentTab", tab);
+        model.addAttribute("status", status);
+        return "member/mypage";
+    }
+
     @GetMapping("/mypage/tab/{tab}")
     public String loadTab(@PathVariable String tab,
                           @RequestParam(required = false) String status,

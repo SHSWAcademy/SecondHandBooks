@@ -72,12 +72,9 @@
             </div>
 
             <!-- 버튼 영역 -->
-            <div class="px-6 pb-6 flex gap-3">
-                <a href="/" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold text-sm text-center transition-all">
+            <div class="px-6 pb-6">
+                <a href="/" class="block w-full py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm text-center transition-all shadow-sm hover:shadow-md">
                     홈으로
-                </a>
-                <a href="javascript:history.back()" class="flex-1 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm text-center transition-all shadow-sm hover:shadow-md">
-                    다시 시도하기
                 </a>
             </div>
         </div>
