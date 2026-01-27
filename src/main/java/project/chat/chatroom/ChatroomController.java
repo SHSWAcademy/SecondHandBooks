@@ -217,7 +217,11 @@ public class ChatroomController {
      7. 상대방에게 브로드캐스트
      */
 
-
-
+    // 채팅방 클릭시 닉네임 조회
+    @GetMapping("/chat/memberInfo")
+    @ResponseBody
+    public ChatroomVO findMemberInfo (@RequestParam long chat_room_seq) {
+        return chatroomService.findByChatRoomSeq(chat_room_seq);
+    }
 
 }
