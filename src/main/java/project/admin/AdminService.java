@@ -45,6 +45,10 @@ public class AdminService {
         return adminMapper.searchAdminLoginLogs(searchVO);
     }
 
+    public List<LoginInfoVO> searchUsersLoginLogs(SearchVO searchVO) {
+        return adminMapper.searchUsersLoginLogs(searchVO);
+    }
+
     // --- 관리 액션 (API) ---
 //    @Transactional
 //    public void handleMemberAction(Long seq, String action) {
@@ -199,5 +203,9 @@ public class AdminService {
 
     public int countAdminLoginLogsBySearch(SearchVO searchVO) {
         return adminMapper.countAdminLoginLogsBySearch(searchVO);
+    }
+
+    public int countUsersLoginLogsBySearch(SearchVO searchVO) {
+        return adminMapper.countUsersLoginLogsBySearch(searchVO);
     }
 }

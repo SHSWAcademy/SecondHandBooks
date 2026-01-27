@@ -33,6 +33,9 @@ public interface AdminMapper {
     List<LoginInfoVO> searchAdminLoginLogs(SearchVO searchVO);
     int countAdminLoginLogsBySearch(SearchVO searchVO);
 
+    List<LoginInfoVO> searchUsersLoginLogs(SearchVO searchVO);
+    int countUsersLoginLogsBySearch(SearchVO searchVO);
+
     // 관리 (액션)
     void updateMemberStatus(@Param("seq") Long seq, @Param("status") String status);
 

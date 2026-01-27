@@ -190,6 +190,17 @@ public class AdminController {
 
         return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
     }
+
+    //사용자 로그인 로그목록
+    @GetMapping("/api/userLogs")
+    @ResponseBody
+    public PageResult<LoginInfoVO> getUserLogs(SearchVO searchVO) {
+        List<LoginInfoVO> list = adminService.searchUsersLoginLogs(searchVO);
+
+        int total = adminService.countUsersLoginLogsBySearch(searchVO);
+
+        return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
+    }
     // 공지사항 폼 이동
     @GetMapping("notice/create")
     public String noticeWriteForm(HttpSession sess, Model model) {

@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<script src="/resources/js/paging/paging.js"></script>
 
 <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
   <div class="p-6 border-b border-gray-100 bg-gray-50/50">
@@ -59,7 +60,7 @@
       <th class="px-6 py-4 text-left">접속 종료시간</th>
     </tr>
     </thead>
-    <tbody id="usersLog"class="divide-y divide-gray-50">
+    <tbody id="usersLogTableBody"class="divide-y divide-gray-50">
     <c:choose>
       <c:when test="${not empty userLogs}">
         <c:forEach var="log" items="${userLogs}">
@@ -84,6 +85,12 @@
     </c:choose>
     </tbody>
   </table>
+  <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-center">
+      <div id="usersLogPaginationInfo" class="text-sm text-gray-500">
+      </div>
+      <div id="usersLogPaginationButtons" class="flex gap-1">
+      </div>
+   </div>
 </div>
 
 <script>
@@ -91,24 +98,23 @@
         const p = page || 1;
         const searchType = document.getElementById('usersLogSearchType').value;
         const keyword = document.getElementById('usersLogSearchKeyword').value;
-        const url = '/admin/api/users?page=' + p
+        const url = '/admin/api/userLogs?page=' + p
                   + '&size=10'
                   + '&keyword=' + encodeURIComponent(keyword)
-                  + '&searchType=' + searchType
-                  + '&status=all';
+                  + '&searchType=' + searchType;
         fetch(url)
             .then(function(response) {
                 return response.json();
             })
             .then(function(data) {
-                renderMemberTable(data.list);
+                renderUsersLogTable(data.list);
 
                 renderCommonPagination(
-                    'userPaginationButtons',
+                    'usersLogPaginationButtons',
                     data.total,
                     data.curPage,
                     data.size,
-                    'searchMembers'
+                    'searchUsersLog'
                 );
             })
             .catch(function(error) {
@@ -116,11 +122,11 @@
             });
     }
 
-    function renderMemberTable(members) {
-        const tbody = document.querySelector('#userTableBody');
+    function renderUsersLogTable(userLogs) {
+        const tbody = document.querySelector('#usersLogTableBody');
         tbody.innerHTML = ''; // 기존 내용 삭제
 
-        if (!members || members.length === 0) {
+        if (!userLogs || userLogs.length === 0) {
             const tr = document.createElement('tr');
             const td = document.createElement('td');
             td.colSpan = 4;
@@ -131,65 +137,36 @@
             return;
         }
 
-        members.forEach(m => {
+        userLogs.forEach(log => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50/50 transition-colors';
 
-            const tdInfo = document.createElement('td');
-            tdInfo.className = 'px-6 py-4';
+            const tdUser = document.createElement('td');
+            tdUser.className = 'px-6 py-4';
 
-            const flexDiv = document.createElement('div');
-            flexDiv.className = 'flex items-center gap-3';
+            const userP = document.createElement('p');
+            userP.className = 'text-sm font-bold text-gray-900';
+            userP.textContent = log.member_nicknm || '이름 없음';
+            tdUser.appendChild(userP);
 
-            const avatar = document.createElement('div');
-            avatar.className = 'w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center font-bold text-primary-600 border border-blue-100';
-            avatar.textContent = m.member_nicknm ? m.member_nicknm.substring(0,1) : '?';
+            const tdIP = document.createElement('td');
+            tdIP.className = 'px-6 py-4 text-xs text-gray-500';
+            tdIP.textContent = log.login_ip || '-';
 
-            const textDiv = document.createElement('div');
-            const nameP = document.createElement('p');
-            nameP.className = 'text-sm font-bold text-gray-900';
-            nameP.textContent = m.member_nicknm;
-            const emailP = document.createElement('p');
-            emailP.className = 'text-[11px] text-gray-400';
-            emailP.textContent = m.member_email;
+            const tdLoginTime = document.createElement('td');
+            tdLoginTime.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
+            tdLoginTime.textContent = log.formattedLoginDtm || (log.login_dtm ? String(log.login_dtm).replace('T', ' ') : '-');
 
-            textDiv.appendChild(nameP);
-            textDiv.appendChild(emailP);
-            flexDiv.appendChild(avatar);
-            flexDiv.appendChild(textDiv);
-            tdInfo.appendChild(flexDiv);
+            const tdLogoutTime = document.createElement('td');
+            tdLogoutTime.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
+            tdLogoutTime.textContent = log.formattedLogoutDtm || (log.logout_dtm ? String(log.logout_dtm).replace('T', ' ') : '-');
 
-            const tdStatus = document.createElement('td');
-            tdStatus.className = 'px-6 py-4';
-            const statusBadge = document.createElement('span');
+            tr.appendChild(tdUser);
+            tr.appendChild(tdIP);
+            tr.appendChild(tdLoginTime);
+            tr.appendChild(tdLogoutTime);
 
-            if (m.member_st === 'JOIN') {
-                statusBadge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100';
-                statusBadge.textContent = 'Active';
-            } else {
-                statusBadge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-50 text-gray-600 border border-gray-100';
-                statusBadge.textContent = 'Inactive';
-            }
-            tdStatus.appendChild(statusBadge);
-
-            const tdDate = document.createElement('td');
-            tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
-            tdDate.textContent = m.crt_dtm ? String(m.crt_dtm) : '-';
-
-            const tdAction = document.createElement('td');
-            tdAction.className = 'px-6 py-4 text-right';
-            const btn = document.createElement('button');
-                    btn.className = 'text-gray-400 hover:text-gray-600';
-                    btn.innerHTML = '<i data-lucide="more-horizontal" class="w-4 h-4"></i>';
-                    tdAction.appendChild(btn);
-
-                    // 행에 모든 열 추가
-                    tr.appendChild(tdInfo);
-                    tr.appendChild(tdStatus);
-                    tr.appendChild(tdDate);
-                    tr.appendChild(tdAction);
-
-                    tbody.appendChild(tr);
+            tbody.appendChild(tr);
         });
 
         if (window.lucide) {
@@ -197,9 +174,9 @@
         }
     }
 
-    function users_resetSearch() {
+    function usersLog_resetSearch() {
         document.getElementById('usersLogSearchKeyword').value = '';
-        document.getElementById('usersLogSearchType').value = 'all';
+        document.getElementById('usersLogLogSearchType').value = 'all';
         searchUsersLog(1);
     }
 
