@@ -369,7 +369,11 @@ const BookClubManage = (() => {
                         document.getElementById('clubDescription').value = result.updated.description;
                         document.getElementById('clubRegion').value = result.updated.region || '';
                         document.getElementById('clubSchedule').value = result.updated.schedule || '';
-                        document.getElementById('bannerImgUrl').value = result.updated.bannerImgUrl || '';
+
+                        const bannerImgUrlInput = document.getElementById('bannerImgUrl');
+                        if (bannerImgUrlInput) {
+                            bannerImgUrlInput.value = result.updated.bannerImgUrl || '';
+                        }
 
                         // 배너 이미지 미리보기 갱신
                         updateBannerPreview(result.updated.bannerImgUrl);
