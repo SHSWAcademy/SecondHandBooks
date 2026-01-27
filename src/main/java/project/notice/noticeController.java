@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import project.admin.AdminService;
 import project.admin.notice.NoticeVO;
+import project.util.paging.PageResult;
+import project.util.paging.SearchVO;
 
 import java.util.List;
 
@@ -18,13 +20,21 @@ public class noticeController {
 
     private final AdminService adminService;
 
+
     @GetMapping("/notice")
-    public String userNoticeList(Model model) {
+    public String userNoticeList(SearchVO searchVO, Model model) {
 
-        List<NoticeVO> list = adminService.selectActiveNotices();
-        log.info("리스트 사이즈: {}", list.size());
+        searchVO.setStatus("true");
 
-        model.addAttribute("notices", adminService.selectActiveNotices());
+        List<NoticeVO> list = adminService.selectActiveNotices(searchVO);
+
+        // 2. 전체 개수를 가져옵니다. (페이징 계산용 메서드가 필요함)
+        int totalCount = adminService.countActiveNotices(searchVO);
+
+        // 3. PageResult 바구니에 담습니다.
+        PageResult<NoticeVO> result = new PageResult<>(list, totalCount, searchVO.getPage(), searchVO.getSize());
+
+        model.addAttribute("result", result);
         return "userNotice/userNoticeList";
     }
 
