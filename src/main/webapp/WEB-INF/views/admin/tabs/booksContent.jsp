@@ -163,6 +163,8 @@
             tdDate.className = 'px-6 py-4 text-xs text-gray-500 font-mono';
             tdDate.textContent = t.crt_dtm ? String(t.crt_dtm) : '-';
 
+            const tdAction = document.createElement('td');
+
             tr.appendChild(tdTitle);
             tr.appendChild(tdPrice);
             tr.appendChild(tdRegion);
