@@ -150,6 +150,15 @@ public class AdminService {
     }
 
     // 공지사항 목록 조회
+
+    public List<NoticeVO> searchNotices(SearchVO searchVO) {
+        return adminMapper.searchNotices(searchVO);
+    }
+
+    public int countAllNoticesBySearch(SearchVO searchVO) {
+        return adminMapper.countAllNoticesBySearch(searchVO);
+    }
+
     public List<NoticeVO> selectNotices() {
         return adminMapper.selectNotices();
     }
@@ -157,10 +166,13 @@ public class AdminService {
     public NoticeVO selectNotice(Long notice_seq) {
         return adminMapper.selectNotice(notice_seq);
     }
+
+    @Transactional
     public void increaseViewCount(Long notice_seq) {
         adminMapper.increaseViewCount(notice_seq);
     }
 
+    @Transactional
     public void deleteNotice(Long notice_seq) {
         adminMapper.deleteNotice(notice_seq);
     }

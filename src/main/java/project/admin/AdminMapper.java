@@ -74,7 +74,11 @@ public interface AdminMapper {
     void insertTempPage(TempPageVO vo);
 
     TempPageVO selectTempPage(@Param("pageSeq") Long seq);
+
     // 공지사항 추가
+    List<NoticeVO> searchNotices(SearchVO searchVO);
+    int countAllNoticesBySearch(SearchVO searchVO);
+
     void insertNotice(NoticeVO noticeVO);
     void increaseViewCount(@Param("notice_seq") Long notice_seq);
 
