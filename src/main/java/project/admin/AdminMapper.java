@@ -33,6 +33,9 @@ public interface AdminMapper {
     List<LoginInfoVO> searchAdminLoginLogs(SearchVO searchVO);
     int countAdminLoginLogsBySearch(SearchVO searchVO);
 
+    List<LoginInfoVO> searchUsersLoginLogs(SearchVO searchVO);
+    int countUsersLoginLogsBySearch(SearchVO searchVO);
+
     // 관리 (액션)
     void updateMemberStatus(@Param("seq") Long seq, @Param("status") String status);
 
@@ -71,14 +74,21 @@ public interface AdminMapper {
     void insertTempPage(TempPageVO vo);
 
     TempPageVO selectTempPage(@Param("pageSeq") Long seq);
+
     // 공지사항 추가
+    List<NoticeVO> searchNotices(SearchVO searchVO);
+    int countAllNoticesBySearch(SearchVO searchVO);
+
     void insertNotice(NoticeVO noticeVO);
     void increaseViewCount(@Param("notice_seq") Long notice_seq);
 
     void deleteNotice(@Param("notice_seq") Long notice_seq);
+    void updateNotice(NoticeVO noticeVO);
     List<NoticeVO> selectNotices();
 
     NoticeVO selectNotice(@Param("notice_seq") Long notice_seq);
+    List<NoticeVO> selectActiveNotices(SearchVO searchVO);
+    int countActiveNotices(SearchVO searchVO);
 
 
 

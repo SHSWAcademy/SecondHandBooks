@@ -124,6 +124,10 @@
       <%@ include file="tabs/noticeWriteForm.jsp" %>
     </div>
 
+     <div id="view-notice-edit" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
+          <%@ include file="tabs/noticeEditForm.jsp" %>
+        </div>
+
     <div id="view-banner" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/bannerContent.jsp" %>
     </div>
@@ -181,7 +185,17 @@
 
   // 페이지 로드 시 초기화
   document.addEventListener("DOMContentLoaded", function() {
-    // 필요한 경우 초기 데이터 로드 (dashboardContent 내 스크립트 등)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabName = urlParams.get('tab');
+
+    if (tabName) {
+        var selector = "button[onclick*='" + tabName +"']";
+        var targetBtn = document.querySelector(selector);
+
+        if (targetBtn) {
+            switchView(tabName, targetBtn);
+        }
+    }
   });
 </script>
 
