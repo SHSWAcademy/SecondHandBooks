@@ -1,18 +1,22 @@
 package project.bookclub.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -23,6 +27,7 @@ import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
+import project.util.imgUpload.FileStore;
 
 @Controller
 @Slf4j
@@ -31,9 +36,7 @@ import project.member.MemberVO;
 public class BookClubController {
 
     private final BookClubService bookClubService;
-
-    @Value("${file.dir}")
-    private String uploadPath;
+    private final FileStore fileStore;
 
     /**
      * 독서모임 상세 페이지 공통 model 세팅 (조회 로직 재사용)
@@ -305,7 +308,8 @@ public class BookClubController {
      *
      * @return 권한 있으면 null, 없으면 forbidden view 이름 또는 redirect
      */
-    private String checkBoardAccessPermission(Long bookClubId, Long postId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    private String checkBoardAccessPermission(Long bookClubId, Long postId, HttpSession session, Model model,
+            RedirectAttributes redirectAttributes) {
         model.addAttribute("bookClubId", bookClubId);
 
         // 1. 로그인 여부 확인
@@ -361,7 +365,8 @@ public class BookClubController {
             RedirectAttributes redirectAttributes) {
 
         // 권한 검증 (공통 메서드 재사용)
-        String permissionCheckResult = checkBoardAccessPermission(bookClubId, postId, session, model, redirectAttributes);
+        String permissionCheckResult = checkBoardAccessPermission(bookClubId, postId, session, model,
+                redirectAttributes);
         if (permissionCheckResult != null) {
             return permissionCheckResult;
         }
@@ -684,8 +689,7 @@ public class BookClubController {
                 "status", "ok",
                 "wished", isWished,
                 "wishCount", wishCount,
-                "message", isWished ? "찜 목록에 추가되었습니다." : "찜 목록에서 제거되었습니다."
-        );
+                "message", isWished ? "찜 목록에 추가되었습니다." : "찜 목록에서 제거되었습니다.");
     }
 
     /**
@@ -784,35 +788,15 @@ public class BookClubController {
                 "status", "ok",
                 "liked", isLiked,
                 "likeCount", likeCount,
-                "message", isLiked ? "좋아요를 눌렀습니다." : "좋아요를 취소했습니다."
-        );
+                "message", isLiked ? "좋아요를 눌렀습니다." : "좋아요를 취소했습니다.");
     }
 
     /**
-     * 파일 저장 (설정된 uploadPath에 저장)
+     * 파일 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
      */
     private String saveFile(MultipartFile file) throws IOException {
-        // 폴더가 없으면 생성
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-            log.info("Upload directory created: {}", uploadPath);
-        }
-
-        // 고유한 파일명 생성 (UUID + 원본 확장자)
-        String originalFileName = file.getOriginalFilename();
-        String extension = "";
-        if (originalFileName != null && originalFileName.contains(".")) {
-            extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        }
-        String savedFileName = UUID.randomUUID().toString() + extension;
-
-        // 파일 저장
-        File destFile = new File(uploadPath + savedFileName);
-        file.transferTo(destFile);
-
-        log.info("File saved to: {}", destFile.getAbsolutePath());
-        return savedFileName;
+        var uploadFile = fileStore.storeFile(file);
+        return uploadFile.getStoreFileName();
     }
 
     /**
