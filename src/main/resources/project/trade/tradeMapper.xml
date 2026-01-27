@@ -63,7 +63,9 @@
             sale_cont,
             sale_price,
             delivery_cost,
-            sale_rg,
+            <if test="sale_rg != null and sale_rg != ''">
+                , sale_rg
+            </if>
             crt_dtm
         ) VALUES (
             #{member_seller_seq},
@@ -81,7 +83,9 @@
             #{sale_cont},
             #{sale_price},
             #{delivery_cost},
-            #{sale_rg},
+            <if test="sale_rg != null and sale_rg != ''">
+                , #{sale_rg}
+            </if>
             now()
         )
     </insert>
@@ -122,7 +126,14 @@
                 sale_cont         = #{sale_cont},
                 sale_price        = #{sale_price},
                 delivery_cost     = #{delivery_cost},
-                sale_rg           = #{sale_rg},
+                <choose>
+                    <when test="sale_rg != null and sale_rg != ''">
+                        sale_rg = #{sale_rg},
+                    </when>
+                    <otherwise>
+                        sale_rg = DEFAULT,
+                    </otherwise>
+                </choose>
                 upd_dtm           = now()
                 WHERE trade_seq   = #{trade_seq}
     </update>
