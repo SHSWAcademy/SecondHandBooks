@@ -63,7 +63,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <i data-lucide="calendar" class="w-4 h-4"></i>
-                    <span>${notice.formattedCrtDtm}</span>
+                    <span>${notice.crtDtmFormatted}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <i data-lucide="eye" class="w-4 h-4"></i>
