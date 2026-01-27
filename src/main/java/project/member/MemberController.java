@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import project.admin.AdminService;
 import project.bookclub.vo.BookClubVO;
 import project.bookclub.service.BookClubService;
@@ -38,6 +40,12 @@ public class MemberController {
     private final MailService mailService;
     private final AdminService adminService;
     private final BookClubService bookClubService;
+
+    // WebClient Bean 주입
+    private final WebClient kakaoAuthWebClient; // 토큰 발급용
+    private final WebClient kakaoApiWebClient;  // 유저 정보용
+    private final WebClient naverAuthWebClient; // 토큰 발급용
+    private final WebClient naverApiWebClient;  // 유저 정보용
     // ----------------------------------
     // 카카오 로그인
     // ----------------------------------
@@ -150,134 +158,93 @@ public class MemberController {
         return "common/return";
     }
 
-    // --- 카카오 로그인 콜백 ---
+    // --- 카카오 로그인 콜백 (WebClient 적용) ---
     @GetMapping("/auth/kakao/callback")
     public String kakaoCallBack(@RequestParam String code, HttpSession sess,
                                 Model model, HttpServletRequest request) {
-        log.info("Kakao Login Code: {}", code); // 1. 코드 수신 확인
+        log.info("Kakao Login Code: {}", code);
 
-        // 1. 엑세스 토큰 받기
-        String accessToken = getKakaoAccessToken(code);
+        // 1. 액세스 토큰 받기 (WebClient)
+        String accessToken = getKakaoAccessTokenWebClient(code);
 
         if (accessToken == null || accessToken.isEmpty()) {
-            log.error("Failed to get Kakao Access Token"); // 에러 로그
-            model.addAttribute("msg", "카카오 토큰 발급에 실패했습니다.");
+            model.addAttribute("msg", "카카오 토큰 발급 실패");
             model.addAttribute("cmd", "back");
             return "common/return";
         }
 
-        // 2. 사용자 정보 받기
-        Map<String, Object> kakaoUserInfo = getKakaoUserInfo(accessToken);
-        if (kakaoUserInfo == null || kakaoUserInfo.isEmpty()) {
-            log.error("Failed to get Kakao User Info"); // 에러 로그
-            model.addAttribute("msg", "카카오 사용자 정보를 가져오지 못했습니다.");
+        // 2. 사용자 정보 받기 (WebClient)
+        Map<String, Object> kakaoUserInfo = getKakaoUserInfoWebClient(accessToken);
+        if (kakaoUserInfo == null) {
+            model.addAttribute("msg", "카카오 사용자 정보 조회 실패");
             model.addAttribute("cmd", "back");
             return "common/return";
         }
 
-        // 3. 서비스 호출
-        try {
-            MemberVO memberVO = memberService.processSocialLogin(kakaoUserInfo);
-            if (memberVO == null) {
-                log.warn("Withdrawal Kakao User attempted login.");
-                model.addAttribute("msg", "탈퇴한 카카오 유저입니다. 재가입이 불가능합니다.");
-                model.addAttribute("url", "/login"); // 로그인 페이지로 이동
-                model.addAttribute("cmd", "move");
-                return "common/return";
-            }
-            sess.setAttribute("loginSess", memberVO);
-            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
-
-            // admin 로그 기록
-            String loginIp = getClientIP(request);
-            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
-            if (logUpdate) {
-                System.out.println("로그 찍기 성공");
-            } else {
-                System.out.println("로그 찍기 실패");
-            }
-            return "redirect:/";
-        } catch (Exception e) {
-            log.error("Kakao Login Error", e); // 스택트레이스 출력
-            return "error/500"; // 에러 페이지로 이동
-        }
+        // 3. 서비스 처리 (공통)
+        return processSocialLoginCommon(kakaoUserInfo, sess, model, request);
     }
 
-    // [Helper] 카카오 토큰 발급 (디버깅 강화)
-    private String getKakaoAccessToken(String code) {
-        String tokenUrl = "https://kauth.kakao.com/oauth/token";
-        RestTemplate rt = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", kakaoClientId);
-        params.add("redirect_uri", kakaoRedirectUri);
-        params.add("code", code);
-        params.add("client_secret", kakaoSecretCode);
-
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
-
+    // [Helper] 카카오 토큰 발급 (WebClient)
+    private String getKakaoAccessTokenWebClient(String code) {
         try {
-            // 요청 전송
-            ResponseEntity<String> response = rt.exchange(tokenUrl, HttpMethod.POST, kakaoTokenRequest, String.class);
+            // WebClient는 불변 객체이므로 mutate()나 기존 설정을 활용
+            // kakaoAuthWebClient는 baseUrl이 https://kauth.kakao.com 으로 설정됨
+            String responseBody = kakaoAuthWebClient.post()
+                    .uri("/oauth/token")
+                    .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                            .with("client_id", kakaoClientId)
+                            .with("redirect_uri", kakaoRedirectUri)
+                            .with("code", code)
+                            .with("client_secret", kakaoSecretCode))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block(); // 동기 처리
 
-            // 성공 시 토큰 파싱
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
             return jsonNode.get("access_token").asText();
 
-        } catch (org.springframework.web.client.HttpClientErrorException e) {
-            // 카카오가 400/401 에러를 냈을 때 이유를 로그로 출력합니다.
-            log.error("Kakao Token Error: {}", e.getResponseBodyAsString());
-            e.printStackTrace();
-            return null;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Kakao Token WebClient Error", e);
             return null;
         }
     }
 
-    // [Helper] 사용자 정보 조회 (Map 반환)
-    private Map<String, Object> getKakaoUserInfo(String accessToken) {
-        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
-        RestTemplate rt = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        HttpEntity<MultiValueMap<String, String>> kakaoProfileRequest = new HttpEntity<>(headers);
-        ResponseEntity<String> response = rt.exchange(userInfoUrl, HttpMethod.POST, kakaoProfileRequest, String.class);
-
-        // 결과 담을 Map
-        Map<String, Object> userInfo = new HashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-
+    // [Helper] 카카오 유저 정보 (WebClient)
+    private Map<String, Object> getKakaoUserInfoWebClient(String accessToken) {
         try {
-            JsonNode root = objectMapper.readTree(response.getBody());
+            // kakaoApiWebClient는 baseUrl이 https://kapi.kakao.com 으로 설정됨
+            String responseBody = kakaoApiWebClient.post()
+                    .uri("/v2/user/me")
+                    .header("Authorization", "Bearer " + accessToken)
+                    // Content-Type은 Config에서 defaultHeader로 설정됨
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
 
-            // 고유 ID (provider_id)
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(responseBody);
+
             String id = root.get("id").asText();
-
-            // 닉네임, 이메일
             String nickname = root.path("kakao_account").path("profile").path("nickname").asText();
             String email = root.path("kakao_account").path("email").asText();
 
+            Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("provider_id", id);
-            userInfo.put("provider", "KAKAO"); // 고정값
+            userInfo.put("provider", "KAKAO");
             userInfo.put("nickname", nickname);
             userInfo.put("email", email);
 
+            return userInfo;
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Kakao UserInfo WebClient Error", e);
+            return null;
         }
-        return userInfo;
     }
 
-    // --- 네이버 로그인 콜백 ---
+    // --- 네이버 로그인 콜백 (WebClient 적용) ---
     @GetMapping("/auth/naver/callback")
     public String naverCallBack(
             @RequestParam(required = false) String code,
@@ -286,102 +253,119 @@ public class MemberController {
             @RequestParam(required = false) String error_description,
             HttpSession sess, Model model, HttpServletRequest request) {
 
-        // 1. 사용자가 로그인을 취소한 경우 처리
         if ("access_denied".equals(error)) {
-            log.info("Naver login canceled by user: {}", error_description);
-            model.addAttribute("msg", "네이버 로그인을 취소하셨습니다.");
+            model.addAttribute("msg", "네이버 로그인 취소");
             model.addAttribute("url", "/login");
             model.addAttribute("cmd", "move");
             return "common/return";
         }
 
-        // 2. 코드가 없는 비정상 접근 처리
-        if (code == null) {
-            model.addAttribute("msg", "잘못된 접근입니다.");
-            model.addAttribute("cmd", "back");
-            return "common/return";
-        }
-
-        // 3. 액세스 토큰 받기 (기존 로직 유지)
-        String accessToken = getNaverAccessToken(code, state);
+        // 1. 액세스 토큰 받기 (WebClient)
+        String accessToken = getNaverAccessTokenWebClient(code, state);
         if (accessToken == null) {
             model.addAttribute("msg", "네이버 토큰 발급 실패");
             model.addAttribute("cmd", "back");
             return "common/return";
         }
 
-        // 4. 사용자 정보 받기 (기존 로직 유지)
-        Map<String, Object> naverUserInfo = getNaverUserInfo(accessToken);
-
-        // 5. 서비스 호출 (기존 로직 유지)
-        try {
-            MemberVO memberVO = memberService.processSocialLogin(naverUserInfo);
-            if (memberVO == null) {
-                log.warn("Withdrawal Naver User attempted login.");
-                model.addAttribute("msg", "탈퇴한 네이버 유저입니다. 재가입이 불가능합니다.");
-                model.addAttribute("url", "/login");
-                model.addAttribute("cmd", "move");
-                return "common/return";
-            }
-            sess.setAttribute("loginSess", memberVO);
-            boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
-
-            // admin 로그 기록
-            String loginIp = getClientIP(request);
-            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
-            if (logUpdate) {
-                System.out.println("로그 찍기 성공");
-            } else {
-                System.out.println("로그 찍기 실패");
-            }
-            return "redirect:/";
-        } catch (Exception e) {
-            log.error("Naver Login Error", e);
-            return "error/500";
+        // 2. 사용자 정보 받기 (WebClient)
+        Map<String, Object> naverUserInfo = getNaverUserInfoWebClient(accessToken);
+        if (naverUserInfo == null) {
+            model.addAttribute("msg", "네이버 사용자 정보 조회 실패");
+            model.addAttribute("cmd", "back");
+            return "common/return";
         }
+
+        // 3. 서비스 처리 (공통)
+        return processSocialLoginCommon(naverUserInfo, sess, model, request);
     }
 
-    // [Helper] 네이버 토큰 발급
-    private String getNaverAccessToken(String code, String state) {
-        String tokenUrl = "https://nid.naver.com/oauth2.0/token";
-        RestTemplate rt = new RestTemplate();
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", naverClientId);
-        params.add("client_secret", naverClientSecret);
-        params.add("code", code);
-
+    // [Helper] 네이버 토큰 발급 (WebClient)
+    private String getNaverAccessTokenWebClient(String code, String state) {
         try {
-            ResponseEntity<Map> response = rt.postForEntity(tokenUrl, params, Map.class);
-            return (String) response.getBody().get("access_token");
+            // naverAuthWebClient는 baseUrl이 https://nid.naver.com 으로 설정됨
+            // 네이버 토큰 발급은 GET 방식도 가능하지만 POST 권장 시 폼 데이터 사용 가능.
+            // 여기서는 쿼리 파라미터로 전송 (네이버 가이드 기준)
+
+            String responseBody = naverAuthWebClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/oauth2.0/token")
+                            .queryParam("grant_type", "authorization_code")
+                            .queryParam("client_id", naverClientId)
+                            .queryParam("client_secret", naverClientSecret)
+                            .queryParam("code", code)
+                            .queryParam("state", state)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            return jsonNode.get("access_token").asText();
+
         } catch (Exception e) {
-            log.error("Naver Token Error", e);
+            log.error("Naver Token WebClient Error", e);
             return null;
         }
     }
 
-    // [Helper] 네이버 정보 가져오기
-    private Map<String, Object> getNaverUserInfo(String accessToken) {
-        String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
-        RestTemplate rt = new RestTemplate();
+    // [Helper] 네이버 유저 정보 (WebClient)
+    private Map<String, Object> getNaverUserInfoWebClient(String accessToken) {
+        try {
+            // naverApiWebClient는 baseUrl이 https://openapi.naver.com 으로 설정됨
+            String responseBody = naverApiWebClient.get()
+                    .uri("/v1/nid/me")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(responseBody);
+            JsonNode responseNode = root.get("response");
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
-        ResponseEntity<Map> response = rt.exchange(userInfoUrl, HttpMethod.GET, request, Map.class);
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("provider_id", responseNode.get("id").asText());
+            userInfo.put("provider", "NAVER");
+            userInfo.put("nickname", responseNode.get("nickname").asText());
+            userInfo.put("email", responseNode.get("email").asText());
 
-        // 네이버는 응답 구조가 "response" 안에 데이터가 있음
-        Map<String, Object> responseBody = (Map<String, Object>) response.getBody().get("response");
+            return userInfo;
 
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("provider_id", responseBody.get("id"));
-        userInfo.put("provider", "NAVER");
-        userInfo.put("nickname", responseBody.get("nickname"));
-        userInfo.put("email", responseBody.get("email"));
+        } catch (Exception e) {
+            log.error("Naver UserInfo WebClient Error", e);
+            return null;
+        }
+    }
 
-        return userInfo;
+    // [Common] 소셜 로그인 후처리 로직 공통화
+    private String processSocialLoginCommon(Map<String, Object> userInfo, HttpSession sess, Model model, HttpServletRequest request) {
+        try {
+            MemberVO memberVO = memberService.processSocialLogin(userInfo);
+
+            if (memberVO == null) {
+                // 탈퇴 회원인 경우 (서비스 로직에 따라 null 반환 시)
+                model.addAttribute("msg", "탈퇴한 유저입니다. 재가입이 불가능합니다.");
+                model.addAttribute("url", "/login");
+                model.addAttribute("cmd", "move");
+                return "common/return";
+            }
+
+            // 로그인 성공 처리
+            sess.setAttribute("loginSess", memberVO);
+            memberService.loginLogUpdate(memberVO.getMember_seq());
+
+            // 관리자 로그 기록
+            String loginIp = getClientIP(request);
+            adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
+
+            return "redirect:/";
+
+        } catch (Exception e) {
+            log.error("Social Login Process Error", e);
+            return "error/500";
+        }
     }
 
     @GetMapping("/auth/ajax/sendEmail")
@@ -500,4 +484,50 @@ public class MemberController {
         }
         return ip;
     }
+
+    @GetMapping("/findAccount")
+    public String findAccountPage() {
+        return "member/findAccount";
+    }
+
+    // [AJAX] 아이디 찾기 (전화번호 이용)
+    @PostMapping("/auth/ajax/findId")
+    @ResponseBody
+    public String findId(@RequestParam String member_tel_no) {
+        String foundId = memberService.findIdByTel(member_tel_no);
+        return (foundId != null) ? foundId : "fail";
+    }
+
+    // [AJAX] 비밀번호 찾기 - 인증번호 전송
+    @PostMapping("/auth/ajax/sendPwdAuth")
+    @ResponseBody
+    public String sendPwdAuth(@RequestParam String login_id, @RequestParam String member_email) {
+        // 1. 해당 아이디와 이메일이 일치하는 회원이 있는지 확인
+        boolean exists = memberService.checkUserByIdAndEmail(login_id, member_email);
+
+        if (exists) {
+            // 2. 존재하면 메일 전송
+            boolean sent = mailService.sendPwdResetEmail(member_email);
+            return sent ? "success" : "fail";
+        } else {
+            return "fail";
+        }
+    }
+
+    // [AJAX] 비밀번호 찾기 - 인증번호 검증
+    @PostMapping("/auth/ajax/verifyPwdAuth")
+    @ResponseBody
+    public boolean verifyPwdAuth(@RequestParam String member_email, @RequestParam String auth_code) {
+        return mailService.verifyEmailCode(member_email, auth_code);
+    }
+
+    // [AJAX] 비밀번호 재설정
+    @PostMapping("/auth/ajax/resetPassword")
+    @ResponseBody
+    public String resetPassword(@RequestParam String login_id, @RequestParam String new_pwd) {
+        boolean result = memberService.resetPassword(login_id, new_pwd);
+        return result ? "success" : "fail";
+    }
+
 }
+

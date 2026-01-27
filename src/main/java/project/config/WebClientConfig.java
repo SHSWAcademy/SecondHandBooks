@@ -26,6 +26,29 @@ public class WebClientConfig {
     @Value("${api.toss.base-url}")
     private String tossBaseUrl;
 
+    // 카카오 설정 (application.properties에 있는지 확인 필요)
+    @Value("${api.kakao.rest-api-key}")
+    private String kakaoRestApiKey; // REST API 키 (Client ID)
+
+    @Value("${api.kakao.login-url}") // https://kauth.kakao.com
+    private String kakaoLoginUrl;
+
+    @Value("${api.kakao.api-url}") // https://kapi.kakao.com (사용자 정보 조회용)
+    private String kakaoApiUrl;
+
+    // 네이버 설정
+    @Value("${api.naver.client-id}")
+    private String naverClientId;
+
+    @Value("${api.naver.client-secret}")
+    private String naverClientSecret;
+
+    @Value("${api.naver.login-url}") // https://nid.naver.com
+    private String naverLoginUrl;
+
+    @Value("${api.naver.api-url}") // https://openapi.naver.com (사용자 정보 조회용)
+    private String naverApiUrl;
+
     /*
     @Value("${api.kakao.rest-api-key}")
     private String kakaoRestApiKey;
@@ -68,6 +91,64 @@ public class WebClientConfig {
                 .baseUrl(tossBaseUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+    }
+
+    // 2. 카카오 로그인 (토큰 발급용)
+    @Bean
+    public WebClient kakaoAuthWebClient() {
+        ConnectionProvider provider = ConnectionProvider.builder("kakao-auth")
+                .maxConnections(50)
+                .build();
+        HttpClient httpClient = HttpClient.create(provider);
+
+        return WebClient.builder()
+                .baseUrl(kakaoLoginUrl) // https://kauth.kakao.com
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+    }
+
+    // 3. 카카오 API (사용자 정보 조회용)
+    @Bean
+    public WebClient kakaoApiWebClient() {
+        ConnectionProvider provider = ConnectionProvider.builder("kakao-api")
+                .maxConnections(50)
+                .build();
+        HttpClient httpClient = HttpClient.create(provider);
+
+        return WebClient.builder()
+                .baseUrl(kakaoApiUrl) // https://kapi.kakao.com
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+    }
+
+    // 4. 네이버 로그인 (토큰 발급용)
+    @Bean
+    public WebClient naverAuthWebClient() {
+        ConnectionProvider provider = ConnectionProvider.builder("naver-auth")
+                .maxConnections(50)
+                .build();
+        HttpClient httpClient = HttpClient.create(provider);
+
+        return WebClient.builder()
+                .baseUrl(naverLoginUrl) // https://nid.naver.com
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+    }
+
+    // 5. 네이버 API (사용자 정보 조회용)
+    @Bean
+    public WebClient naverApiWebClient() {
+        ConnectionProvider provider = ConnectionProvider.builder("naver-api")
+                .maxConnections(50)
+                .build();
+        HttpClient httpClient = HttpClient.create(provider);
+
+        return WebClient.builder()
+                .baseUrl(naverApiUrl) // https://openapi.naver.com
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
     }

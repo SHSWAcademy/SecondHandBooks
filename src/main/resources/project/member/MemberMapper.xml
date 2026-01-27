@@ -96,4 +96,27 @@
            SET MEMBER_DELETED_DTM = NOW()
          WHERE MEMBER_SEQ = #{member_seq}
     </update>
+
+    <select id="findIdByTel" parameterType="string" resultType="string">
+        SELECT LOGIN_ID
+        FROM MEMBER_INFO
+        WHERE MEMBER_TEL_NO = #{member_tel_no}
+          AND MEMBER_DELETED_DTM IS NULL
+            LIMIT 1
+    </select>
+
+    <select id="checkUserByIdAndEmail" resultType="int">
+        SELECT COUNT(*)
+        FROM MEMBER_INFO
+        WHERE LOGIN_ID = #{login_id}
+          AND MEMBER_EMAIL = #{member_email}
+          AND MEMBER_DELETED_DTM IS NULL
+    </select>
+
+    <update id="updatePassword">
+        UPDATE MEMBER_INFO
+        SET MEMBER_PWD = #{member_pwd},
+            UPD_DTM = NOW()
+        WHERE LOGIN_ID = #{login_id}
+    </update>
 </mapper>
