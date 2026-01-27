@@ -582,4 +582,14 @@
         DELETE FROM NOTICE
          WHERE NOTICE_SEQ = #{notice_seq}
     </delete>
+
+    <update id="updateNotice" parameterType="project.admin.notice.NoticeVO">
+        UPDATE NOTICE
+           SET NOTICE_TITLE = #{notice_title}
+             , NOTICE_CONT = #{notice_cont}
+             , NOTICE_PRIORITY = #{notice_priority}
+             , ACTIVE = #{active}
+             , UPD_DTM = NOW()
+         WHERE NOTICE_SEQ = #{notice_seq}
+    </update>
 </mapper>

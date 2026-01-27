@@ -337,5 +337,59 @@ public class AdminController {
         return response;
     }
 
+    @GetMapping("/notices/edit")
+    public String noticeEditForm(@RequestParam Long notice_seq, Model model, HttpSession sess) {
 
+        NoticeVO noticeVO = adminService.selectNotice(notice_seq);
+        model.addAttribute("notice", noticeVO);
+        return "admin/tabs/noticeEditForm";
+    }
+
+    // 공지사항 수정 API
+    @PostMapping("/notices/{notice_seq}")
+    @ResponseBody
+    public Map<String, Object> updateNotice(
+            @PathVariable Long notice_seq,
+            @RequestParam String notice_title,
+            @RequestParam(required = false) String is_important,
+            @RequestParam String active,
+            @RequestParam String notice_cont,
+            HttpSession sess
+    ) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            log.info("=== 공지사항 수정 시작 ===");
+            log.info("notice_seq: " + notice_seq);
+            log.info("제목: " + notice_title);
+
+            AdminVO admin = (AdminVO) sess.getAttribute("adminSess");
+            if (admin == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            NoticeVO noticeVO = new NoticeVO();
+            noticeVO.setNotice_seq(notice_seq);
+            noticeVO.setNotice_title(notice_title);
+            noticeVO.setNotice_cont(notice_cont);
+            noticeVO.setNotice_priority("true".equals(is_important) ? 1 : 0);
+            noticeVO.setActive("true".equals(active));
+
+            adminService.updateNotice(noticeVO);
+
+            response.put("success", true);
+            response.put("message", "공지사항이 수정되었습니다.");
+
+            log.info("=== 공지사항 수정 성공 ===");
+
+        } catch (Exception e) {
+            log.error("공지사항 수정 실패", e);
+            response.put("success", false);
+            response.put("message", "수정 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return response;
+    }
 }

@@ -177,6 +177,11 @@ public class AdminService {
         adminMapper.deleteNotice(notice_seq);
     }
 
+    @Transactional
+    public void updateNotice(NoticeVO noticeVO) {
+        adminMapper.updateNotice(noticeVO);
+    }
+
     public int countAllMembersBySearch(SearchVO searchVO) {
         return adminMapper.countAllMembersBySearch(searchVO);
     }

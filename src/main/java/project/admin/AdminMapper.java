@@ -83,6 +83,7 @@ public interface AdminMapper {
     void increaseViewCount(@Param("notice_seq") Long notice_seq);
 
     void deleteNotice(@Param("notice_seq") Long notice_seq);
+    void updateNotice(NoticeVO noticeVO);
     List<NoticeVO> selectNotices();
 
     NoticeVO selectNotice(@Param("notice_seq") Long notice_seq);
