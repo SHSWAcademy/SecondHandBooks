@@ -149,10 +149,10 @@
                                         <c:choose>
                                             <%-- 비로그인: 로그인 후 이용 버튼 --%>
                                                 <c:when test="${not isLogin}">
-                                                    <a href="${pageContext.request.contextPath}/login"
+                                                    <button type="button" onclick="redirectToLogin()"
                                                         class="bc-btn bc-btn-secondary">
                                                         로그인 후 이용
-                                                    </a>
+                                                    </button>
                                                 </c:when>
 
                                                 <%-- 로그인 상태: ctaStatus에 따라 분기 --%>
@@ -257,7 +257,7 @@
                     .then(function(data) {
                         if (data.needLogin) {
                             alert('로그인이 필요합니다.');
-                            location.href = window.__CTX + '/login';
+                            redirectToLogin();
                             return;
                         }
                         if (data.status === 'ok') {

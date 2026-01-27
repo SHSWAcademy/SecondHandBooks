@@ -23,6 +23,7 @@ import project.admin.AdminService;
 import project.bookclub.vo.BookClubVO;
 import project.bookclub.service.BookClubService;
 import project.util.Const;
+import project.util.LoginUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -65,7 +66,8 @@ public class MemberController {
     // -----------------------------------
 
     @GetMapping("/login")
-    public String login(Model model) {
+    public String login(@RequestParam(required = false) String redirect,
+                        Model model, HttpSession session) {
         // JSP의 ${kakaoClientId} 등에 전달할 값 설정
         model.addAttribute("kakaoClientId", kakaoClientId);
         model.addAttribute("kakaoRedirectUri", kakaoRedirectUri);
@@ -74,11 +76,19 @@ public class MemberController {
         model.addAttribute("naverClientId", naverClientId);
         model.addAttribute("naverRedirectUri", naverRedirectUri);
 
+        // 로그인 후 리다이렉트할 URL 전달 (일반 로그인용)
+        if (redirect != null && LoginUtil.isValidRedirectUrl(redirect)) {
+            model.addAttribute("redirect", redirect);
+            // OAuth 로그인용으로 세션에도 저장
+            session.setAttribute(LoginUtil.REDIRECT_SESSION_KEY, redirect);
+        }
+
         return "member/login";
     }
 
     @PostMapping("/login")
     public String login(MemberVO vo, Model model,
+                        @RequestParam(required = false) String redirect,
                         HttpSession sess, HttpServletRequest request) {
         MemberVO memberVO = memberService.login(vo);
         if (memberVO == null) {
@@ -98,7 +108,13 @@ public class MemberController {
             } else {
                 System.out.println("로그 찍기 실패");
             }
-            return "redirect:/";
+
+            // 세션에 저장된 redirect URL 제거
+            sess.removeAttribute(LoginUtil.REDIRECT_SESSION_KEY);
+
+            // 로그인 후 원래 페이지로 리다이렉트
+            String redirectUrl = LoginUtil.getRedirectUrl(redirect, "/");
+            return "redirect:" + redirectUrl;
         }
     }
 //    @GetMapping("/logout")
@@ -196,7 +212,12 @@ public class MemberController {
             } else {
                 System.out.println("로그 찍기 실패");
             }
-            return "redirect:/";
+
+            // 세션에 저장된 redirect URL로 리다이렉트
+            String redirect = (String) sess.getAttribute(LoginUtil.REDIRECT_SESSION_KEY);
+            sess.removeAttribute(LoginUtil.REDIRECT_SESSION_KEY);
+            String redirectUrl = LoginUtil.getRedirectUrl(redirect, "/");
+            return "redirect:" + redirectUrl;
         } catch (Exception e) {
             log.error("Kakao Login Error", e); // 스택트레이스 출력
             return "error/500"; // 에러 페이지로 이동
@@ -334,7 +355,12 @@ public class MemberController {
             } else {
                 System.out.println("로그 찍기 실패");
             }
-            return "redirect:/";
+
+            // 세션에 저장된 redirect URL로 리다이렉트
+            String redirect = (String) sess.getAttribute(LoginUtil.REDIRECT_SESSION_KEY);
+            sess.removeAttribute(LoginUtil.REDIRECT_SESSION_KEY);
+            String redirectUrl = LoginUtil.getRedirectUrl(redirect, "/");
+            return "redirect:" + redirectUrl;
         } catch (Exception e) {
             log.error("Naver Login Error", e);
             return "error/500";
@@ -423,7 +449,7 @@ public class MemberController {
         MemberVO loginUser = (MemberVO) sess.getAttribute("loginSess");
 
         if (loginUser == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         // 2. pk(seq) 설정
@@ -454,7 +480,7 @@ public class MemberController {
         MemberVO loginUser = (MemberVO) sess.getAttribute("loginSess");
 
         if (loginUser == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         // SOFT DELETE 수행

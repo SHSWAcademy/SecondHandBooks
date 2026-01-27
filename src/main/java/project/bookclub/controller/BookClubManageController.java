@@ -18,6 +18,7 @@ import project.bookclub.dto.BookClubUpdateSettingsDTO;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
+import project.util.LoginUtil;
 import project.util.imgUpload.FileStore;
 
 /**
@@ -60,7 +61,7 @@ public class BookClubManageController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
             log.warn("비로그인 상태에서 관리 페이지 접근 시도: bookClubId={}", bookClubId);
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long loginMemberSeq = loginMember.getMember_seq();
