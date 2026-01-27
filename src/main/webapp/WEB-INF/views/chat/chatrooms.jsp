@@ -1761,13 +1761,23 @@ function showImageMessage(msg) {
     var timeDiv = document.createElement('div');
     timeDiv.className = 'msg-time';
     if (msg.sent_dtm) {
-        var date = new Date(msg.sent_dtm);
-        var timeStr = date.getFullYear() + '/' +
-            String(date.getMonth() + 1).padStart(2, '0') + '/' +
-            String(date.getDate()).padStart(2, '0') + ' ' +
-            String(date.getHours()).padStart(2, '0') + ':' +
-            String(date.getMinutes()).padStart(2, '0');
-        timeDiv.textContent = timeStr;
+        var date;
+        // 배열 형식인 경우 (예: [2024, 1, 15, 10, 30, 0])
+        if (Array.isArray(msg.sent_dtm)) {
+            date = new Date(msg.sent_dtm[0], msg.sent_dtm[1] - 1, msg.sent_dtm[2],
+                           msg.sent_dtm[3] || 0, msg.sent_dtm[4] || 0, msg.sent_dtm[5] || 0);
+        } else {
+            date = new Date(msg.sent_dtm);
+        }
+
+        if (!isNaN(date.getTime())) {
+            var timeStr = date.getFullYear() + '/' +
+                String(date.getMonth() + 1).padStart(2, '0') + '/' +
+                String(date.getDate()).padStart(2, '0') + ' ' +
+                String(date.getHours()).padStart(2, '0') + ':' +
+                String(date.getMinutes()).padStart(2, '0');
+            timeDiv.textContent = timeStr;
+        }
     }
     msgWrapper.appendChild(timeDiv);
 

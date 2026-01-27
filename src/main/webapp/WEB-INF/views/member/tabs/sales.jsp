@@ -27,17 +27,12 @@
         <div class="bg-white p-5 rounded-lg border border-gray-200 flex gap-4 items-center">
             <div class="w-16 h-20 bg-gray-100 rounded border border-gray-100 flex items-center justify-center text-gray-400">
                 <c:choose>
-                    <%-- 업로드한 이미지 우선 --%>
-                    <c:when test="${not empty trade.trade_img and not empty trade.trade_img[0].img_url}">
-                        <img src="${trade.trade_img[0].img_url}" alt="${trade.sale_title}"
-                             class="w-full h-full object-cover rounded" />
-                    </c:when>
-                    <%-- 없으면 책 표지 이미지 --%>
+                    <%-- 책 API 이미지 우선 --%>
                     <c:when test="${not empty trade.book_img}">
                         <img src="${trade.book_img}" alt="${trade.sale_title}"
                              class="w-full h-full object-cover rounded" />
                     </c:when>
-                    <%-- 둘 다 없으면 아이콘 --%>
+                    <%-- 없으면 아이콘 --%>
                     <c:otherwise>
                         <i data-lucide="book" class="w-6 h-6"></i>
                     </c:otherwise>
