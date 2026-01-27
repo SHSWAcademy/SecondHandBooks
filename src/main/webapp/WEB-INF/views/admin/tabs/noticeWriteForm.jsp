@@ -321,7 +321,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
             switchView('notice', null);
 
             // 목록 새로고침 (선택사항)
-            loadNoticeList();
+            searchNotices(1);
         } else {
             alert('등록 중 오류가 발생했습니다.: ' + data.message);
         }
