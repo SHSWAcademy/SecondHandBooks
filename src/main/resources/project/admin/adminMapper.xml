@@ -581,8 +581,23 @@
              , NOTICE_PRIORITY
              , VIEW_COUNT
           FROM NOTICE
-         WHERE ACTIVE IS TRUE
-         ORDER BY NOTICE_PRIORITY DESC, CRT_DTM DESC
+        WHERE 1=1
+        <if test="status != null and status != ''">
+            AND ACTIVE = CAST(#{status} AS BOOLEAN)  </if>
+        <if test="keyword != null and keyword != ''">
+            AND NOTICE_TITLE LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY NOTICE_PRIORITY DESC, CRT_DTM DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countActiveNotices" resultType="int">
+        SELECT COUNT(*)
+          FROM NOTICE
+          WHERE ACTIVE IS TRUE
+        <if test="keyword != null and keyword != ''">
+            AND NOTICE_TITLE LIKE CONCAT('%', #{keyword}, '%')
+        </if>
     </select>
 
     <update id="increaseViewCount">
