@@ -47,7 +47,16 @@
     <!-- 페이징 채팅방 목록 조회 (수정) -->
     <select id="findAllByMemberSeqWithPaging"
             resultType="project.chat.chatroom.ChatroomVO">
-        SELECT c.*, t.sale_st
+        SELECT
+            c.*,
+            t.sale_st,
+            EXISTS (
+                SELECT 1
+                FROM chat_msg m
+                WHERE m.chat_room_seq = c.chat_room_seq
+                AND m.read_yn = false
+                AND m.sender_seq != #{member_seq}
+            ) AS msg_unread
         FROM chatroom c
         LEFT JOIN sb_trade_info t ON c.trade_seq = t.trade_seq
         WHERE (c.member_seller_seq = #{member_seq}
@@ -103,7 +112,12 @@
 
     <!-- 채팅방 seq로 채팅방 조회 -->
     <select id="findByChatRoomSeq" resultType="project.chat.chatroom.ChatroomVO">
-        SELECT * FROM chatroom WHERE chat_room_seq = #{chat_room_seq}
+        SELECT
+            *,
+            (SELECT member_nicknm FROM member_info WHERE chatroom.member_seller_seq = member_seq) AS member_seller_nicknm,
+            (SELECT member_nicknm FROM member_info WHERE chatroom.member_buyer_seq = member_seq) AS member_buyer_nicknm
+        FROM chatroom
+        WHERE chat_room_seq = #{chat_room_seq}
     </select>
     <!--
     <select id="findAllByChatRoomSeq" resultType="project.chat.message.MessageVO">
