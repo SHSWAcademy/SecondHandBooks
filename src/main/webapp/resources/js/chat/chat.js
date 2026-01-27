@@ -108,25 +108,6 @@ function showMessage(msg) {
         msgWrapper.className = 'msg-left';
     }
 
-    // 상대방 닉네임만 출력
-    if (Number(msg.sender_seq) !== loginMemberSeq) {
-        const msgNicknm = document.createElement('div');
-        msgNicknm.className = 'msg-nicknm';
-
-        const bold = document.createElement('b');
-        bold.textContent = msg.member_seller_nicknm || '';
-
-        msgNicknm.appendChild(bold);
-        msgWrapper.appendChild(msgNicknm);
-
-        // chatHeaderSub에도 닉네임 넣기
-        const headerSubEl = document.getElementById('chatHeaderSub');
-        if (headerSubEl) {
-                const otherNick = msg.member_seller_nicknm || '';
-                headerSubEl.textContent = otherNick ? `${otherNick}님과의 채팅` : '';
-            }
-    }
-
     const msgContent = document.createElement('div');
     msgContent.className = 'content';
     msgContent.textContent = msg.chat_cont || '';
@@ -175,6 +156,31 @@ function setupChatroomClick() {
             document.getElementById("chatContainer").innerHTML =
                 '<div id="emptyNotice">이전 메시지가 없습니다.</div>';
 
+            // msg_unread가 true일때 채팅방 클릭하면 css 효과 제거
+            const unreadDot = this.querySelector('.unread-dot');
+            if (unreadDot) {
+                unreadDot.remove(); // 완전 제거
+                // unreadDot.style.display = 'none'; // ← 숨김 처리 원하면 이거
+            }
+            // 닉네임 조회
+            fetchChatRoomUserInfo(chat_room_seq).then(data => {
+                let otherNick = '';
+                if (data.member_seller_seq === loginMemberSeq) {
+                    otherNick = data.member_buyer_nicknm;
+                } else if (data.member_buyer_seq === loginMemberSeq) {
+                    otherNick = data.member_seller_nicknm;
+                }
+
+                const headerTitleEl = document.getElementById('chatHeaderTitle');
+                const headerSubEl = document.getElementById('chatHeaderSub');
+
+                if (headerTitleEl) headerTitleEl.textContent = otherNick || '';
+                if (headerSubEl) {
+                    headerSubEl.textContent =
+                        otherNick ? `${otherNick}님과의 채팅` : '';
+                }
+            });
+
             const titleEl = this.querySelector('.room-title');
             const headerTitleEl = document.getElementById('chatHeaderTitle');
 
@@ -191,7 +197,11 @@ function setupChatroomClick() {
     });
 }
 
-
+// 닉네임 조회
+function fetchChatRoomUserInfo(roomSeq) {
+    return fetch(`/chat/memberInfo?chat_room_seq=${roomSeq}`)
+        .then(res => res.json());
+}
 /* -------------------------------
    메시지 AJAX 조회
 -------------------------------- */
