@@ -352,6 +352,9 @@
         , T.CRT_DTM
         , T.BOOK_IMG
         , T.SAFE_PAYMENT_ST
+        , T.CONFIRM_PURCHASE
+        , T.IS_SETTLED
+        , T.DELIVERY_COST
         FROM SB_TRADE_INFO T
         WHERE T.MEMBER_SELLER_SEQ = #{member_seq}
         AND T.DEL_DTM IS NULL
@@ -471,6 +474,14 @@
             WHERE confirm_purchase = false
             AND sale_st_dtm < now() - INTERVAL '15 days'
             ]]>
+    </update>
+
+    <!-- 구매확정이후 정산처리 -->
+    <update id="isSettled">
+        UPDATE sb_trade_info
+        SET is_settled = true,
+        sale_st_dtm = now()
+        WHERE trade_seq = #{trade_seq}
     </update>
 
     <!-- 구매자의 안전결제 구매 내역 조회 -->

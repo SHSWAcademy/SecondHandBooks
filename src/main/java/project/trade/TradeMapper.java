@@ -72,4 +72,6 @@ public interface TradeMapper {
 
     // 범근님 추가
     int statusUpdate(@Param("trade_seq") long trade_seq, @Param("saleStatus") SaleStatus saleStatus);
+
+    int isSettled(@Param("trade_seq") long trade_seq);
 }

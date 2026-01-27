@@ -65,6 +65,7 @@ public class TradeVO {
     private LocalDateTime safe_payment_expire_dtm; // 안전결제 만료 시간
 
     private Boolean confirm_purchase;
+    private Boolean is_settled;
 
     public boolean checkTradeVO() {
         return sale_title != null && !sale_title.equals("") &&

@@ -315,4 +315,10 @@ public class TradeService {
     public boolean statusUpdate(long trade_seq) {
         return tradeMapper.statusUpdate(trade_seq, SaleStatus.SOLD) > 0;
     }
+
+    @Transactional
+    // 구매확정 처리 이후 정산처리
+    public boolean isSettled (long trade_seq) {
+        return tradeMapper.isSettled(trade_seq) > 0;
+    }
 }

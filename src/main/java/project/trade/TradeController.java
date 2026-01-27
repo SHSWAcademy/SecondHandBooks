@@ -333,6 +333,9 @@ public class TradeController {
                 trade_seq, member.getMember_seq()
         );
 
+        // 정산 처리
+        tradeService.isSettled(trade_seq);
+
         result.put("success", success);
         return result;
     }
