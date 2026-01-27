@@ -540,7 +540,7 @@
         <!-- 게시글 상세 -->
         <div class="bc-post-detail-wrapper">
             <!-- 뒤로가기 링크 -->
-            <a href="${pageContext.request.contextPath}/bookclubs/${bookClubId}" class="bc-back-link">
+            <a href="${pageContext.request.contextPath}/bookclubs/${bookClubId}?tab=board" class="bc-back-link">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
