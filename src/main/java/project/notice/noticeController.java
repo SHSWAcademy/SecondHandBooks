@@ -22,7 +22,9 @@ public class noticeController {
     public String userNoticeList(Model model) {
 
         List<NoticeVO> list = adminService.selectActiveNotices();
-        model.addAttribute("notices", adminService.selectNotices());
+        log.info("리스트 사이즈: {}", list.size());
+
+        model.addAttribute("notices", adminService.selectActiveNotices());
         return "userNotice/userNoticeList";
     }
 
