@@ -64,7 +64,7 @@
                 <a href="/" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold text-sm text-center transition-all">
                     홈으로
                 </a>
-                <a href="/mypage/orders" class="flex-1 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm text-center transition-all shadow-sm hover:shadow-md">
+                <a href="/mypage/purchases" class="flex-1 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm text-center transition-all shadow-sm hover:shadow-md">
                     주문내역 보기
                 </a>
             </div>

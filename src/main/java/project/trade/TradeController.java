@@ -115,6 +115,13 @@ public class TradeController {
         } catch (Exception e) {
             return "redirect:/";
         }
+
+        // safe_payment_st 가 PENDING/COMPLETED 상태일 때는 수정 페이지에 접근 불가
+        String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
+        if ("PENDING".equals(safePaymentStatus) || "COMPLETED".equals(safePaymentStatus)) {
+            return "redirect:/trade/" + tradeSeq;  // 상세페이지로 리다이렉트
+        }
+
         // 수정하려는 사람의 pk가 게시글의 작성자 pk와 동일한지 검증
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
         if (trade.getMember_seller_seq() != sessionMember.getMember_seq()) {
@@ -140,7 +147,8 @@ public class TradeController {
 
         // 검증 - PENDING 상태일 때는 수정 불가
         String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
-        if ("PENDING".equals(safePaymentStatus)) {
+        if ("PENDING".equals(safePaymentStatus) ||
+            "COMPLETED".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
@@ -217,7 +225,8 @@ public class TradeController {
 
         // 검증 - PENDING 상태일 때는 삭제 불가
         String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
-        if ("PENDING".equals(safePaymentStatus)) {
+        if ("PENDING".equals(safePaymentStatus) ||
+            "COMPLETED".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
