@@ -87,6 +87,7 @@ public interface AdminMapper {
     List<NoticeVO> selectNotices();
 
     NoticeVO selectNotice(@Param("notice_seq") Long notice_seq);
+    List<NoticeVO> selectActiveNotices();
 
 
 

@@ -572,6 +572,19 @@
          WHERE N.NOTICE_SEQ = #{notice_seq}
     </select>
 
+    <select id="selectActiveNotices" resultType="project.admin.notice.NoticeVO">
+        SELECT NOTICE_SEQ
+             , NOTICE_TITLE
+             , NOTICE_CONT
+             , CRT_DTM
+             , ACTIVE
+             , NOTICE_PRIORITY
+             , VIEW_COUNT
+          FROM NOTICE
+         WHERE ACTIVE = 'true'
+         ORDER BY NOTICE_PRIORITY DESC, CRT_DTM DESC
+    </select>
+
     <update id="increaseViewCount">
         UPDATE NOTICE
            SET VIEW_COUNT = VIEW_COUNT + 1
