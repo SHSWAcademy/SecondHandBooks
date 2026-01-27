@@ -318,8 +318,11 @@ public class AdminController {
     // 공지사항 목록 조회
     @GetMapping("/api/notices")
     @ResponseBody
-    public List<NoticeVO> selectNotices() {
-        return adminService.selectNotices();
+    public PageResult<NoticeVO> getNotices(SearchVO searchVO) {
+        List<NoticeVO> list = adminService.searchNotices(searchVO);
+
+        int total = adminService.countAllNoticesBySearch(searchVO);
+        return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
     }
 
     @GetMapping("/notices/view")
