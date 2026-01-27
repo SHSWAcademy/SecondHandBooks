@@ -83,7 +83,7 @@
             #{payment_type}::payment_type_enum,
             #{sale_cont},
             #{sale_price},
-            #{delivery_cost},
+            #{delivery_cost}
             <if test="sale_rg != null and sale_rg != ''">
                 , #{sale_rg}
             </if>
