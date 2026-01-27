@@ -30,8 +30,8 @@ public class MessageService {
         return messageMapper.findByRoomSeq(chat_room_seq);
     }
 
-    public boolean isUnreadMessage() {
-        return messageMapper.isUnreadMessage();
+    public boolean isUnreadMessage(long member_seq) {
+        return messageMapper.isUnreadMessage(member_seq);
     }
 
     // 세션값 기준 닉네임 조회

@@ -1373,13 +1373,27 @@ function appendChatrooms(rooms) {
 
         // 마지막 메시지 시간 포맷팅
         var timeHtml = '';
-        if (room.last_msg_dtm) {
-            var date = new Date(room.last_msg_dtm);
+        if (room.last_msg_dtm && Array.isArray(room.last_msg_dtm)) {
+            const dt = room.last_msg_dtm;
+
+            var date = new Date(
+                dt[0],        // year
+                dt[1] - 1,    // month (중요!!)
+                dt[2],        // day
+                dt[3],        // hour
+                dt[4],        // minute
+                dt[5]         // second
+            );
+
             var month = String(date.getMonth() + 1).padStart(2, '0');
             var day = String(date.getDate()).padStart(2, '0');
             var hours = String(date.getHours()).padStart(2, '0');
             var minutes = String(date.getMinutes()).padStart(2, '0');
-            timeHtml = '<span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">' + month + '/' + day + ' ' + hours + ':' + minutes + '</span>';
+
+            timeHtml =
+                '<span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">'
+                + month + '/' + day + ' ' + hours + ':' + minutes +
+                '</span>';
         }
 
         div.innerHTML =

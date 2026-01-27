@@ -34,7 +34,8 @@
             sb.book_publisher,
             sb.book_org_price,
             sb.book_img,
-            sb.isbn
+            sb.isbn,
+            sb.safe_payment_st
         FROM sb_trade_info AS sb
         WHERE sb.trade_seq = #{trade_seq}
     </select>
