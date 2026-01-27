@@ -166,10 +166,14 @@
                         판매지역 [시, 군, 구만 표기됩니다.]
                     </label>
                     <div class="flex">
-                        <input type="text" id="sale_rg" name="sale_rg" readonly
+                        <input type="text"
+                               id="sale_rg"
+                               name="sale_rg"
+                               readonly
                                value="${trade.sale_rg}"
                                placeholder="주소 검색을 클릭하세요"
-                               class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                               onclick="clearOnClick(this)"
+                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                         <button type="button" onclick="searchRG()"
                                 class="px-6 py-3 bg-gray-900 text-white rounded-r-lg hover:bg-gray-800 transition font-bold">
                             주소 검색
@@ -296,6 +300,13 @@ searchInput.addEventListener('keypress', function(e) {
         searchBooks();
     }
 });
+// 주소입력 초기화
+function clearOnClick(el) {
+    if (el.value !== '') {
+        el.value = '';
+        el.dataset.cleared = 'true'; // 한 번만 지워지게
+    }
+}
 
 // 책 검색 API 호출
 function searchBooks() {

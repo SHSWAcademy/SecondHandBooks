@@ -18,6 +18,7 @@ import project.bookclub.dto.BookClubUpdateSettingsDTO;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
+import project.util.LoginUtil;
 import project.util.imgUpload.FileStore;
 
 /**
@@ -60,7 +61,7 @@ public class BookClubManageController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
             log.warn("비로그인 상태에서 관리 페이지 접근 시도: bookClubId={}", bookClubId);
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long loginMemberSeq = loginMember.getMember_seq();
@@ -382,7 +383,13 @@ public class BookClubManageController {
             return Map.of("success", false, "message", "모임장만 수정할 수 있습니다.");
         }
 
-        // 4. 파일 업로드 처리 (파일이 있으면 파일 우선)
+        // 4. 파일 업로드 처리 (파일이 있으면 파일 우선) - 디버그 로그 추가
+        log.info("배너 파일 업로드 체크: null={}, empty={}, originalFilename={}, size={}",
+                 bannerFile == null,
+                 bannerFile != null ? bannerFile.isEmpty() : "N/A",
+                 bannerFile != null ? bannerFile.getOriginalFilename() : "N/A",
+                 bannerFile != null ? bannerFile.getSize() : "N/A");
+
         String finalBannerUrl = bannerImgUrl;
         if (bannerFile != null && !bannerFile.isEmpty()) {
             try {

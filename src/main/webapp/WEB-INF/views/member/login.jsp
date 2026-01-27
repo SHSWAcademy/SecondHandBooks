@@ -12,6 +12,9 @@
         </div>
 
         <form action="/login" method="post" class="space-y-3">
+            <c:if test="${not empty redirect}">
+                <input type="hidden" name="redirect" value="${redirect}" />
+            </c:if>
             <div>
                 <input type="text" name="login_id" placeholder="아이디" required
                        class="w-full px-4 py-3.5 border border-gray-300 rounded-md focus:border-primary-500 outline-none transition text-sm focus:ring-1 focus:ring-primary-500" />

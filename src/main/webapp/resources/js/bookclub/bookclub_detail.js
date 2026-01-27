@@ -100,6 +100,11 @@
         });
     });
 
+    // URL 파라미터 ?tab=board 확인 → 게시판 탭 자동 활성화
+    if (new URLSearchParams(window.location.search).get('tab') === 'board') {
+        switchTab('board');
+    }
+
     /**
      * CSRF 토큰 가져오기 (meta 태그에서 추출)
      */

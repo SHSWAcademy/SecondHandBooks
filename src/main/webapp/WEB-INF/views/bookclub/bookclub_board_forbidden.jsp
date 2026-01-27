@@ -28,7 +28,7 @@
         <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
             <%-- 비로그인 시 로그인 버튼 표시 --%>
             <c:if test="${not isLogin}">
-                <a href="${ctx}/login"
+                <button type="button" onclick="redirectToLogin()"
                    style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
                           padding: 0.75rem 1.5rem; background: #4299e1; color: white;
                           border: none; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600;
@@ -38,7 +38,7 @@
                               d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                     </svg>
                     로그인
-                </a>
+                </button>
             </c:if>
 
             <%-- 돌아가기 버튼 --%>

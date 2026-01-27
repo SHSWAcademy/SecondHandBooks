@@ -21,12 +21,11 @@
             <!-- 이미지 영역 -->
             <div class="w-16 h-20 bg-gray-100 rounded border flex items-center justify-center text-gray-400">
                 <c:choose>
-                    <c:when test="${not empty trade.trade_img and not empty trade.trade_img[0].img_url}">
-                        <img src="${trade.trade_img[0].img_url}" alt="${trade.sale_title}" class="w-full h-full object-cover rounded" />
-                    </c:when>
+                    <%-- 책 API 이미지 우선 --%>
                     <c:when test="${not empty trade.book_img}">
                         <img src="${trade.book_img}" alt="${trade.sale_title}" class="w-full h-full object-cover rounded" />
                     </c:when>
+                    <%-- 없으면 아이콘 --%>
                     <c:otherwise>
                         <i data-lucide="book" class="w-6 h-6"></i>
                     </c:otherwise>
