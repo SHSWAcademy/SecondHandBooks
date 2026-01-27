@@ -269,6 +269,12 @@
         loadTrade();
     }
 
+    // 페이징 처리
+    function goPage(page) {
+        tradeFilter.page = page;
+        loadTrade();
+    }
+
     function updateSortCss() {
         const sortLinks = [
             {id: 'sortNewest', key: null},
