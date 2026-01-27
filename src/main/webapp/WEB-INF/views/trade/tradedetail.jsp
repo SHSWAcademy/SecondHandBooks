@@ -207,7 +207,7 @@
             </c:if>
 
             <!-- 수정/삭제 버튼 -->
-            <c:if test="${not empty sessionScope.loginSess and sessionScope.loginSess.member_seq eq trade.member_seller_seq and trade.safe_payment_st ne 'COMPLETED'}">
+            <c:if test="${(not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq) or (not empty sessionScope.adminSess)}">
                 <div class="mt-6 flex gap-3">
                     <a href="/trade/modify/${trade.trade_seq}"
                        class="flex-1 px-6 py-3 bg-primary-500 text-white text-center rounded-lg hover:bg-primary-600 transition font-bold">

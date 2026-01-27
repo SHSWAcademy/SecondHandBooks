@@ -82,4 +82,23 @@ public class MemberService{
     public boolean deleteMember(long member_seq) {
         return memberMapper.deleteMember(member_seq) > 0;
     }
+
+    // 아이디 찾기 (전화번호로)
+    public String findIdByTel(String member_tel_no) {
+        return memberMapper.findIdByTel(member_tel_no);
+    }
+
+    // 비밀번호 찾기 - 회원 확인
+    public boolean checkUserByIdAndEmail(String login_id, String member_email) {
+        int count = memberMapper.checkUserByIdAndEmail(login_id, member_email);
+        return count > 0;
+    }
+
+    // 비밀번호 재설정
+    @Transactional
+    public boolean resetPassword(String login_id, String new_pwd) {
+        // 실제 운영 시에는 여기서 BCryptPasswordEncoder 등을 사용해 암호화해야 함
+        // 예: String encPwd = passwordEncoder.encode(new_pwd);
+        return memberMapper.updatePassword(login_id, new_pwd) > 0;
+    }
 }

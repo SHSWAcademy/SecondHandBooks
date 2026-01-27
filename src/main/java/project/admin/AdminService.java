@@ -46,20 +46,44 @@ public class AdminService {
     }
 
     // --- 관리 액션 (API) ---
+//    @Transactional
+//    public void handleMemberAction(Long seq, String action) {
+//        // ENUM 값에 맞춰 상태 코드 매핑 필요
+//        if ("BAN".equals(action)) adminMapper.updateMemberStatus(seq, "BAN");
+//        else if ("ACTIVE".equals(action)) adminMapper.updateMemberStatus(seq, "JOIN");
+//        else if ("DELETE".equals(action)) adminMapper.deleteMember(seq);
+//    }
+//
+//    @Transactional
+//    public void handleTradeAction(Long seq, String action) {
+//        if ("DELETE".equals(action)) {
+//            adminMapper.deleteTrade(seq);
+//        } else {
+//            // SALE, RESERVED, SOLD 등
+//            adminMapper.updateTradeStatus(seq, action);
+//        }
+//    }
     @Transactional
     public void handleMemberAction(Long seq, String action) {
-        // ENUM 값에 맞춰 상태 코드 매핑 필요
-        if ("BAN".equals(action)) adminMapper.updateMemberStatus(seq, "BAN");
-        else if ("ACTIVE".equals(action)) adminMapper.updateMemberStatus(seq, "JOIN");
-        else if ("DELETE".equals(action)) adminMapper.deleteMember(seq);
+        if ("BAN".equals(action)) {
+            adminMapper.updateMemberStatus(seq, "BAN"); // 정지 상태
+        } else if ("ACTIVE".equals(action)) {
+            adminMapper.updateMemberStatus(seq, "JOIN"); // 정상 상태 (JOIN으로 매핑)
+        } else if ("DELETE".equals(action)) {
+            adminMapper.deleteMember(seq); // 탈퇴 처리 (Deleted DTM 업데이트)
+        }
     }
 
     @Transactional
     public void handleTradeAction(Long seq, String action) {
         if ("DELETE".equals(action)) {
-            adminMapper.deleteTrade(seq);
+            adminMapper.deleteTrade(seq); // 삭제 처리 (Del DTM 업데이트)
+        } else if ("BAN".equals(action)) {
+            adminMapper.updateTradeStatus(seq, "BAN"); // 판매 금지 상태
+        } else if ("SALE".equals(action)) {
+            adminMapper.updateTradeStatus(seq, "SALE"); // 판매 중 상태로 복구 (Undo)
         } else {
-            // SALE, RESERVED, SOLD 등
+            // 그 외 RESERVED, SOLD 등 처리
             adminMapper.updateTradeStatus(seq, action);
         }
     }

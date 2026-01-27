@@ -28,6 +28,7 @@ import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
+import project.util.LoginUtil;
 import project.util.imgUpload.FileStore;
 
 @Controller
@@ -324,7 +325,7 @@ public class BookClubController {
         // 1. 로그인 여부 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long loginMemberSeq = loginMember.getMember_seq();
@@ -431,7 +432,7 @@ public class BookClubController {
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long memberSeq = loginMember.getMember_seq();
@@ -493,7 +494,7 @@ public class BookClubController {
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
         Long memberSeq = loginMember.getMember_seq();
 
@@ -549,7 +550,7 @@ public class BookClubController {
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
         Long memberSeq = loginMember.getMember_seq();
 
@@ -601,7 +602,7 @@ public class BookClubController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
             log.warn("비로그인 상태에서 가입 신청 시도: bookClubId={}", bookClubId);
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         // 1-1. 종료된 모임 가드
@@ -858,7 +859,7 @@ public class BookClubController {
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long memberSeq = loginMember.getMember_seq();
@@ -940,7 +941,7 @@ public class BookClubController {
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long memberSeq = loginMember.getMember_seq();
@@ -999,7 +1000,7 @@ public class BookClubController {
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long memberSeq = loginMember.getMember_seq();
@@ -1095,7 +1096,7 @@ public class BookClubController {
         // 1. 로그인 확인
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         if (loginMember == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         Long memberSeq = loginMember.getMember_seq();
