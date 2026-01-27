@@ -95,7 +95,7 @@
             .then(data => {
                 if (data.success) {
                     alert('공지사항이 삭제되었습니다.');
-                    location.href = '/admin';
+                    location.href = '/admin?tab=notice';
                 } else {
                     alert('삭제 중 오류가 발생했습니다: ' + data.message);
                 }

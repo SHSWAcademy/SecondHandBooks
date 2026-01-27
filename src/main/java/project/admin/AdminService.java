@@ -45,6 +45,10 @@ public class AdminService {
         return adminMapper.searchAdminLoginLogs(searchVO);
     }
 
+    public List<LoginInfoVO> searchUsersLoginLogs(SearchVO searchVO) {
+        return adminMapper.searchUsersLoginLogs(searchVO);
+    }
+
     // --- 관리 액션 (API) ---
 //    @Transactional
 //    public void handleMemberAction(Long seq, String action) {
@@ -170,19 +174,43 @@ public class AdminService {
     }
 
     // 공지사항 목록 조회
+
+    public List<NoticeVO> searchNotices(SearchVO searchVO) {
+        return adminMapper.searchNotices(searchVO);
+    }
+
+    public int countAllNoticesBySearch(SearchVO searchVO) {
+        return adminMapper.countAllNoticesBySearch(searchVO);
+    }
+
     public List<NoticeVO> selectNotices() {
         return adminMapper.selectNotices();
+    }
+
+    public List<NoticeVO> selectActiveNotices(SearchVO searchVO) {
+        return adminMapper.selectActiveNotices(searchVO);
+    }
+    public int countActiveNotices(SearchVO searchVO) {
+        return adminMapper.countActiveNotices(searchVO);
     }
 
     public NoticeVO selectNotice(Long notice_seq) {
         return adminMapper.selectNotice(notice_seq);
     }
+
+    @Transactional
     public void increaseViewCount(Long notice_seq) {
         adminMapper.increaseViewCount(notice_seq);
     }
 
+    @Transactional
     public void deleteNotice(Long notice_seq) {
         adminMapper.deleteNotice(notice_seq);
+    }
+
+    @Transactional
+    public void updateNotice(NoticeVO noticeVO) {
+        adminMapper.updateNotice(noticeVO);
     }
 
     public int countAllMembersBySearch(SearchVO searchVO) {
@@ -199,5 +227,9 @@ public class AdminService {
 
     public int countAdminLoginLogsBySearch(SearchVO searchVO) {
         return adminMapper.countAdminLoginLogsBySearch(searchVO);
+    }
+
+    public int countUsersLoginLogsBySearch(SearchVO searchVO) {
+        return adminMapper.countUsersLoginLogsBySearch(searchVO);
     }
 }

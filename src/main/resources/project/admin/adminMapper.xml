@@ -222,6 +222,113 @@
         </if>
     </select>
 
+    <select id="searchUsersLoginLogs" parameterType="project.util.paging.SearchVO" resultType="project.admin.LoginInfoVO">
+        SELECT L.LOGIN_INFO_SEQ
+             , L.MEMBER_SEQ
+             , L.LOGIN_DTM
+             , L.LOGIN_IP
+             , L.LOGOUT_DTM
+             , L.LOGOUT_IP
+             , M.MEMBER_NICKNM
+        FROM LOGIN_INFO L
+        INNER JOIN MEMBER_INFO M
+        ON L.MEMBER_SEQ = M.MEMBER_SEQ
+        WHERE L.MEMBER_SEQ IS NOT NULL
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'nickname'">
+                    AND M.MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'ip'">
+                    AND L.LOGIN_IP LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'accessTime'">
+                    AND L.LOGIN_DTM::text LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (M.MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_IP LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_DTM::text LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
+        ORDER BY L.LOGIN_DTM DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countUsersLoginLogsBySearch" parameterType="project.util.paging.SearchVO" resultType="int">
+        SELECT COUNT(*)
+          FROM LOGIN_INFO L
+         INNER JOIN MEMBER_INFO M
+            ON L.MEMBER_SEQ = M.MEMBER_SEQ
+         WHERE L.MEMBER_SEQ IS NOT NULL
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'nickname'">
+                    AND M.MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'ip'">
+                    AND L.LOGIN_IP LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'accessTime'">
+                    AND L.LOGIN_DTM::text LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (M.MEMBER_NICKNM LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_IP LIKE CONCAT('%', #{keyword}, '%') OR L.LOGIN_DTM::text LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+    <select id="searchNotices" parameterType="project.util.paging.SearchVO" resultType="project.admin.notice.NoticeVO">
+        SELECT N.NOTICE_SEQ
+             , N.NOTICE_TITLE
+             , N.NOTICE_PRIORITY
+             , N.ACTIVE
+             , N.VIEW_COUNT
+             , N.CRT_DTM
+             , A.ADMIN_LOGIN_ID
+          FROM NOTICE N
+          LEFT JOIN ADMIN A
+            ON N.ADMIN_SEQ = A.ADMIN_SEQ
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND N.NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND N.NOTICE_CONT LIKE '%' || #{keyword} || '%'
+                    </when>
+                    <otherwise>
+                        AND (N.NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+                         OR N.NOTICE_CONT LIKE '%' || #{keyword} || '%')
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        ORDER BY N.NOTICE_PRIORITY DESC, N.CRT_DTM DESC
+         LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countAllNoticesBySearch" parameterType="project.util.paging.SearchVO" resultType="int">
+        SELECT COUNT(*)
+          FROM notice
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'title'">
+                        AND NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND NOTICE_CONT LIKE '%' || #{keyword} || '%'
+                    </when>
+                    <otherwise>
+                        AND (NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+                         OR NOTICE_CONT LIKE '%' || #{keyword} || '%')
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+
     <update id="updateMemberStatus">
         UPDATE MEMBER_INFO SET MEMBER_ST = #{status}::member_st_enum WHERE MEMBER_SEQ = #{seq}
     </update>
@@ -465,6 +572,34 @@
          WHERE N.NOTICE_SEQ = #{notice_seq}
     </select>
 
+    <select id="selectActiveNotices" resultType="project.admin.notice.NoticeVO">
+        SELECT NOTICE_SEQ
+             , NOTICE_TITLE
+             , NOTICE_CONT
+             , CRT_DTM
+             , ACTIVE
+             , NOTICE_PRIORITY
+             , VIEW_COUNT
+          FROM NOTICE
+        WHERE 1=1
+        <if test="status != null and status != ''">
+            AND ACTIVE = CAST(#{status} AS BOOLEAN)  </if>
+        <if test="keyword != null and keyword != ''">
+            AND NOTICE_TITLE LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY NOTICE_PRIORITY DESC, CRT_DTM DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countActiveNotices" resultType="int">
+        SELECT COUNT(*)
+          FROM NOTICE
+          WHERE ACTIVE IS TRUE
+        <if test="keyword != null and keyword != ''">
+            AND NOTICE_TITLE LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </select>
+
     <update id="increaseViewCount">
         UPDATE NOTICE
            SET VIEW_COUNT = VIEW_COUNT + 1
@@ -475,4 +610,14 @@
         DELETE FROM NOTICE
          WHERE NOTICE_SEQ = #{notice_seq}
     </delete>
+
+    <update id="updateNotice" parameterType="project.admin.notice.NoticeVO">
+        UPDATE NOTICE
+           SET NOTICE_TITLE = #{notice_title}
+             , NOTICE_CONT = #{notice_cont}
+             , NOTICE_PRIORITY = #{notice_priority}
+             , ACTIVE = #{active}
+             , UPD_DTM = NOW()
+         WHERE NOTICE_SEQ = #{notice_seq}
+    </update>
 </mapper>
