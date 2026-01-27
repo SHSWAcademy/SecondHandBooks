@@ -278,9 +278,15 @@ const BookClubManage = (() => {
      */
     function initSettingsSaveButton() {
         const saveBtn = document.getElementById('btnSaveSettings');
-        if (!saveBtn) return;
+        if (!saveBtn) {
+            console.warn('[BookClubManage] btnSaveSettings 버튼을 찾을 수 없습니다.');
+            return;
+        }
+
+        console.log('[BookClubManage] 설정 저장 버튼 이벤트 리스너 등록 완료');
 
         saveBtn.addEventListener('click', async () => {
+            console.log('[BookClubManage] 저장 버튼 클릭됨');
             // 입력값 수집
             const name = document.getElementById('clubName')?.value.trim();
             const description = document.getElementById('clubDescription')?.value.trim();
@@ -363,7 +369,11 @@ const BookClubManage = (() => {
                         document.getElementById('clubDescription').value = result.updated.description;
                         document.getElementById('clubRegion').value = result.updated.region || '';
                         document.getElementById('clubSchedule').value = result.updated.schedule || '';
-                        document.getElementById('bannerImgUrl').value = result.updated.bannerImgUrl || '';
+
+                        const bannerImgUrlInput = document.getElementById('bannerImgUrl');
+                        if (bannerImgUrlInput) {
+                            bannerImgUrlInput.value = result.updated.bannerImgUrl || '';
+                        }
 
                         // 배너 이미지 미리보기 갱신
                         updateBannerPreview(result.updated.bannerImgUrl);
@@ -593,7 +603,11 @@ const BookClubManage = (() => {
      * 페이지 초기화 (외부에서 호출)
      */
     function init(clubSeq) {
-        console.log('BookClubManage 초기화:', clubSeq);
+        console.log('[BookClubManage] 초기화 시작:', clubSeq);
+
+        // CSRF 토큰 확인
+        const csrf = getCsrfToken();
+        console.log('[BookClubManage] CSRF 토큰 확인:', csrf);
 
         // 탭 전환 기능 초기화
         initTabs();
@@ -609,6 +623,8 @@ const BookClubManage = (() => {
 
         // 설정 저장 버튼 초기화
         initSettingsSaveButton();
+
+        console.log('[BookClubManage] 초기화 완료');
     }
 
     // 외부 공개 API
@@ -616,6 +632,7 @@ const BookClubManage = (() => {
         init,
         switchTab,
         openModal,
-        closeModal
+        closeModal,
+        getCsrfToken  // 디버깅용 노출
     };
 })();

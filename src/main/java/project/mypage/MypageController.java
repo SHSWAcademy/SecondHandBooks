@@ -12,6 +12,7 @@ import project.member.MemberVO;
 import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.Const;
+import project.util.LoginUtil;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -29,7 +30,7 @@ public class MypageController {
     public String mypage(HttpSession sess, Model model) {
         MemberVO loginSess = (MemberVO) sess.getAttribute(Const.SESSION);
         if (loginSess == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         model.addAttribute("currentTab", "profile");
@@ -43,7 +44,7 @@ public class MypageController {
                                 Model model) {
         MemberVO loginSess = (MemberVO) sess.getAttribute(Const.SESSION);
         if (loginSess == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         model.addAttribute("currentTab", tab);
@@ -91,7 +92,9 @@ public class MypageController {
             case "addresses" :
                 break;
             default:
-                return "redirect:/mypage/profile";
+                // 지원하지 않는 탭은 profile로 처리 (redirect 대신 직접 반환)
+                log.info("지원하지 않는 탭: {}, profile로 대체", tab);
+                return "member/tabs/profile";
         }
         log.info("반환 JSP: member/tabs/{}", tab);
         return "member/tabs/" + tab;
