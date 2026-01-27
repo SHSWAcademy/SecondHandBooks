@@ -194,7 +194,13 @@ public class BookClubController {
 
         vo.setBook_club_leader_seq(loginUser.getMember_seq());
 
-        // 이미지 파일 처리
+        // 이미지 파일 처리 (디버그 로그 추가)
+        log.info("배너 이미지 업로드 체크: null={}, empty={}, originalFilename={}, size={}",
+                 bannerImg == null,
+                 bannerImg != null ? bannerImg.isEmpty() : "N/A",
+                 bannerImg != null ? bannerImg.getOriginalFilename() : "N/A",
+                 bannerImg != null ? bannerImg.getSize() : "N/A");
+
         if (bannerImg != null && !bannerImg.isEmpty()) {
             try {
                 String savedFileName = saveFile(bannerImg);
