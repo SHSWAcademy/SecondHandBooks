@@ -118,7 +118,10 @@
 
         books.forEach(t => {
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-50/50 transition-colors';
+            tr.className = 'hover:bg-gray-50/50 transition-colors cursor-pointer group';
+
+            // 클릭 시 상세 페이지로 이동 (관리자 헤더 적용됨)
+            tr.onclick = () => window.location.href = '/trade/' + t.trade_seq;
 
             const tdTitle = document.createElement('td');
             tdTitle.className = 'px-6 py-4';
