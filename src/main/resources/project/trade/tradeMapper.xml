@@ -65,7 +65,7 @@
             sale_price,
             delivery_cost,
             <if test="sale_rg != null and sale_rg != ''">
-                , sale_rg
+                sale_rg ,
             </if>
             crt_dtm
         ) VALUES (
@@ -85,7 +85,7 @@
             #{sale_price},
             #{delivery_cost},
             <if test="sale_rg != null and sale_rg != ''">
-                , #{sale_rg}
+                 #{sale_rg},
             </if>
             now()
         )

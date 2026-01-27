@@ -740,18 +740,30 @@ function startServerSyncTimer(timerId) {
                     return;
                 }
 
-                if (data.status === 'NONE') {
-                    timerElement.textContent = '대기 중';
-                    timerElement.style.color = '#868e96';
-                    return;
-                }
+                 if (data.status === 'NONE') {
+                      // 타이머가 속한 카드 찾기
+                      const card = timerElement.closest('.safe-payment-card');
+                      if (card) {
+                          card.style.display = 'none';
+                      }
+                      // 타이머 중지
+                      if (window.safePaymentTimerInterval) {
+                          clearInterval(window.safePaymentTimerInterval);
+                      }
+                      if (window.safePaymentSyncInterval) {
+                          clearInterval(window.safePaymentSyncInterval);
+                      }
+                      return;
+                  }
 
                 if (data.remainingSeconds <= 0) {
-                    timerElement.textContent = '만료됨';
-                    timerElement.style.color = '#fa5252';
-                    stopAllPaymentTimers();
-                    return;
-                }
+                      const card = timerElement.closest('.safe-payment-card');
+                      if (card) {
+                          card.style.display = 'none';  // 카드 숨기기
+                      }
+                      stopAllPaymentTimers();
+                      return;
+                  }
 
                 // 서버에서 받은 시간으로 로컬 동기화
                 localRemainingSeconds = data.remainingSeconds;
