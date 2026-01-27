@@ -581,7 +581,7 @@
              , NOTICE_PRIORITY
              , VIEW_COUNT
           FROM NOTICE
-         WHERE ACTIVE = 'true'
+         WHERE ACTIVE IS TRUE
          ORDER BY NOTICE_PRIORITY DESC, CRT_DTM DESC
     </select>
 
