@@ -73,14 +73,29 @@ public class AdminController {
         return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
     }
 
-    // [API] 회원 액션
+//    // [API] 회원 액션
+//    @PatchMapping("/api/users")
+//    @ResponseBody
+//    public String updateUserStatus(@RequestBody Map<String, Object> body) {
+//        Long seq = Long.valueOf(body.get("seq").toString());
+//        String action = (String) body.get("action");
+//        adminService.handleMemberAction(seq, action);
+//        return "ok";
+//    }
+
+    // [API] 회원 액션 (BAN / ACTIVE / DELETE)
     @PatchMapping("/api/users")
     @ResponseBody
     public String updateUserStatus(@RequestBody Map<String, Object> body) {
-        Long seq = Long.valueOf(body.get("seq").toString());
-        String action = (String) body.get("action");
-        adminService.handleMemberAction(seq, action);
-        return "ok";
+        try {
+            Long seq = Long.valueOf(body.get("seq").toString());
+            String action = (String) body.get("action");
+            adminService.handleMemberAction(seq, action);
+            return "ok";
+        } catch (Exception e) {
+            log.error("회원 상태 변경 오류", e);
+            return "error";
+        }
     }
 
     // [API] 상품 목록

@@ -115,10 +115,7 @@ function searchGroups(page) {
 
         groups.forEach(g => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50/50 transition-colors cursor-pointer';
-
-                // 클릭 시 모임 상세 페이지로 이동 (관리자 헤더 상태로)
-                tr.onclick = () => window.location.href = '/bookclubs/' + g.book_club_seq;
+                tr.className = 'hover:bg-gray-50/50 transition-colors';
 
                 const tdTitle = document.createElement('td');
                 tdTitle.className = 'px-6 py-4';
