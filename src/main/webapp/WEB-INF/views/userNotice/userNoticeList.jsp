@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script src="/resources/js/paging/paging.js"></script>
 
 <jsp:include page="../common/header.jsp" />
 
@@ -14,8 +15,7 @@
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div id="userNoticeList" class="divide-y divide-gray-50">
-
-                <c:forEach var="notice" items="${notices}">
+                <c:forEach var="notice" items="${result.list}">
                     <div class="group flex items-center justify-between py-5 px-6 md:px-8 cursor-pointer hover:bg-gray-50/80 transition-all"
                          onclick="location.href='/notice/view?notice_seq=${notice.notice_seq}'">
 
@@ -34,22 +34,33 @@
                     </div>
                 </c:forEach>
 
-                <c:if test="${empty notices}">
+                <c:if test="${empty result.list}">
                     <div class="py-24 text-center">
                         <p class="text-gray-400">등록된 공지사항이 없습니다.</p>
                     </div>
                 </c:if>
-
             </div>
         </div>
 
-        <div class="mt-10 flex justify-center" id="userPagination">
-            </div>
+        <div id="userPagination" class="mt-10 flex justify-center"></div>
     </div>
 </main>
 
-<jsp:include page="../common/footer.jsp" />
-
 <script>
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', function() {
+        // 컨트롤러에서 model.addAttribute("result", result) 로 보냈을 경우
+        renderCommonPagination(
+            'userPagination',
+            ${result.total},
+            ${result.curPage},
+            ${result.size},
+            'goToPage'
+        );
+    });
+
+    function goToPage(page) {
+        // 기존 검색 조건이 유지되도록 location.search를 활용하는 것이 좋지만,
+        // 지금은 검색이 없으므로 단순 이동도 괜찮습니다.
+        location.href = '/notice?page=' + page;
+    }
 </script>

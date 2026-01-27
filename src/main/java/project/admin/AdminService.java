@@ -187,8 +187,11 @@ public class AdminService {
         return adminMapper.selectNotices();
     }
 
-    public List<NoticeVO> selectActiveNotices() {
-        return adminMapper.selectActiveNotices();
+    public List<NoticeVO> selectActiveNotices(SearchVO searchVO) {
+        return adminMapper.selectActiveNotices(searchVO);
+    }
+    public int countActiveNotices(SearchVO searchVO) {
+        return adminMapper.countActiveNotices(searchVO);
     }
 
     public NoticeVO selectNotice(Long notice_seq) {
