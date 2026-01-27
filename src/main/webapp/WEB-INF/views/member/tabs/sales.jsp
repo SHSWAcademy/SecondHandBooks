@@ -54,16 +54,18 @@
                     <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" />원
                 </p>
             </div>
-            <c:if test="${trade.sale_st == 'SALE'}">
-                <button type="button"
-                        class="text-xs bg-primary-600 text-white px-3 py-2 rounded font-bold hover:bg-primary-700"
-                        data-trade-seq="${trade.trade_seq}"
-                        onclick="postTrade(${trade.trade_seq})">
-                    판매처리
-                </button>
-            </c:if>
+            <div class="flex flex-col gap-2">
             <button onclick="location.href='/trade/${trade.trade_seq}'"
-                    class="text-xs bg-primary-600 text-white px-3 py-2 rounded font-bold hover:bg-primary-700">상세보기</button>
+                                class="text-xs bg-primary-600 text-white px-3 py-2 rounded font-bold hover:bg-primary-700">상세보기</button>
+                    <c:if test="${trade.sale_st == 'SALE'}">
+                        <button type="button"
+                                class="text-xs bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600"
+                                data-trade-seq="${trade.trade_seq}"
+                                onclick="postTrade(${trade.trade_seq})">
+                            판매처리
+                        </button>
+                    </c:if>
+                 </div>
             </div>
     </c:forEach>
 </div>

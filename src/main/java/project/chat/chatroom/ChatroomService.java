@@ -35,6 +35,7 @@ public class ChatroomService {
 
             if (result > 0) {
                 log.info("new chatroom save success");
+                chatroom = chatroomMapper.findRoom(member_seller_seq, member_buyer_seq, trade_seq);
             } else {
                 throw new RuntimeException("fail to save new chatroom");
             }

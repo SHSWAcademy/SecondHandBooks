@@ -20,32 +20,32 @@
 
             <nav class="p-2 space-y-1">
                 <a href="/mypage/profile" data-tab="profile"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
+                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
                     <i data-lucide="user" class="w-4 h-4"></i> 내 프로필
                 </a>
 
                 <a href="/mypage/purchases" data-tab="purchases"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
+                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i> 구매 내역
                 </a>
 
                 <a href="/mypage/sales" data-tab="sales"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
+                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
                     <i data-lucide="package" class="w-4 h-4"></i> 판매 내역
                 </a>
 
                 <a href="/mypage/wishlist" data-tab="wishlist"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
+                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
                     <i data-lucide="heart" class="w-4 h-4"></i> 찜한 상품
                 </a>
 
                 <a href="/mypage/groups" data-tab="groups"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
+                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
                     <i data-lucide="users" class="w-4 h-4"></i> 내 모임
                 </a>
 
                 <a href="/mypage/addresses" data-tab="addresses"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all
+                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
                     <i data-lucide="map-pin" class="w-4 h-4"></i> 배송지 관리
                 </a>
             </nav>

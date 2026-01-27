@@ -38,12 +38,16 @@
         WHERE chat_room_seq = #{chat_room_seq}
         ORDER BY sent_dtm ASC
     </select>
+
     <select id="isUnreadMessage" resultType="java.lang.Boolean">
         SELECT EXISTS (
         SELECT 1
-        FROM chat_msg
-        WHERE read_yn = 'N'
-        )s
+        FROM chat_msg c
+        JOIN chatroom r ON c.chat_room_seq = r.chat_room_seq
+        WHERE c.read_yn = false
+        AND c.sender_seq != #{member_seq}
+        AND (r.member_seller_seq = #{member_seq} OR r.member_buyer_seq = #{member_seq})
+        )
     </select>
 
     <!-- 닉네임 조회 -->
