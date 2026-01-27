@@ -18,7 +18,7 @@
              , UPD_DTM
           FROM MEMBER_INFO
          WHERE LOGIN_ID = #{login_id}
-           AND MEMBER_PWD = #{member_pwd}
+           AND MEMBER_PWD = MD5(#{member_pwd})
            AND MEMBER_DELETED_DTM IS NULL
     </select>
     <update id="loginLogUpdate" parameterType="long">
@@ -32,7 +32,7 @@
                                , MEMBER_EMAIL, MEMBER_TEL_NO, MEMBER_NICKNM
                                , CRT_DTM
         ) VALUES (
-                   #{login_id}, #{member_pwd}
+                   #{login_id}, MD5(#{member_pwd})
                  , #{member_email}, #{member_tel_no}, #{member_nicknm}
                  , NOW()
         )
@@ -51,7 +51,7 @@
         INSERT INTO MEMBER_INFO (
             LOGIN_ID, MEMBER_EMAIL, MEMBER_PWD, MEMBER_NICKNM, CRT_DTM
         ) VALUES (
-                     #{login_id}, #{email}, #{member_pwd}, #{nickname}, NOW()
+                     #{login_id}, #{email}, MD5(#{member_pwd}), #{nickname}, NOW()
                  )
     </insert>
 
@@ -115,7 +115,7 @@
 
     <update id="updatePassword">
         UPDATE MEMBER_INFO
-        SET MEMBER_PWD = #{member_pwd},
+        SET MEMBER_PWD = MD5(#{member_pwd}),
             UPD_DTM = NOW()
         WHERE LOGIN_ID = #{login_id}
     </update>
