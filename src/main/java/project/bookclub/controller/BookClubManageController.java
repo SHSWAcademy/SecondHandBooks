@@ -1,9 +1,7 @@
 package project.bookclub.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
@@ -20,6 +18,7 @@ import project.bookclub.dto.BookClubUpdateSettingsDTO;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
+import project.util.imgUpload.FileStore;
 
 /**
  * 독서모임 관리 컨트롤러 (모임장 전용)
@@ -36,6 +35,7 @@ import project.member.MemberVO;
 public class BookClubManageController {
 
     private final BookClubService bookClubService;
+    private final FileStore fileStore;
 
     /**
      * 독서모임 관리 페이지 (모임장 전용)
@@ -336,14 +336,14 @@ public class BookClubManageController {
      * - 모임명 변경 시 중복 체크
      * - book_club UPDATE (정원 제외)
      *
-     * @param bookClubId    독서모임 ID
-     * @param name          모임 이름
-     * @param description   모임 소개
-     * @param region        지역
-     * @param schedule      정기 일정
-     * @param bannerFile    업로드 파일 (선택)
-     * @param bannerImgUrl  이미지 URL (선택, 파일이 없을 때만 사용)
-     * @param session       세션 (로그인 확인용)
+     * @param bookClubId   독서모임 ID
+     * @param name         모임 이름
+     * @param description  모임 소개
+     * @param region       지역
+     * @param schedule     정기 일정
+     * @param bannerFile   업로드 파일 (선택)
+     * @param bannerImgUrl 이미지 URL (선택, 파일이 없을 때만 사용)
+     * @param session      세션 (로그인 확인용)
      * @return JSON {success, message, updated}
      */
     @PostMapping("/{bookClubId}/manage/settings")
@@ -386,7 +386,8 @@ public class BookClubManageController {
         String finalBannerUrl = bannerImgUrl;
         if (bannerFile != null && !bannerFile.isEmpty()) {
             try {
-                finalBannerUrl = saveUploadedFile(bannerFile, session);
+                String savedFileName = saveUploadedFile(bannerFile);
+                finalBannerUrl = "/img/" + savedFileName;
                 log.info("배너 이미지 업로드 완료: bookClubId={}, path={}", bookClubId, finalBannerUrl);
             } catch (IOException e) {
                 log.error("파일 업로드 실패: bookClubId={}, error={}", bookClubId, e.getMessage());
@@ -420,34 +421,14 @@ public class BookClubManageController {
     }
 
     /**
-     * 업로드된 파일을 서버 로컬에 저장
+     * 업로드된 파일을 서버에 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
      *
-     * @param file    업로드 파일
-     * @param session 세션 (실제 경로 조회용)
-     * @return 저장된 파일의 웹 경로 (예: /resources/upload/bookclub/uuid.jpg)
+     * @param file 업로드 파일
+     * @return 저장된 파일명 (UUID + 확장자)
      * @throws IOException 파일 저장 실패 시
      */
-    private String saveUploadedFile(MultipartFile file, HttpSession session) throws IOException {
-        // 실제 물리 경로 조회
-        String uploadDir = session.getServletContext().getRealPath("/resources/upload/bookclub");
-        File dir = new File(uploadDir);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        // 파일명 생성 (UUID + 원본 확장자)
-        String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-        String savedFilename = UUID.randomUUID().toString() + extension;
-
-        // 파일 저장
-        File dest = new File(uploadDir, savedFilename);
-        file.transferTo(dest);
-
-        // 웹 경로 반환 (contextPath는 클라이언트가 처리하므로 상대 경로만 반환)
-        return "/resources/upload/bookclub/" + savedFilename;
+    private String saveUploadedFile(MultipartFile file) throws IOException {
+        var uploadFile = fileStore.storeFile(file);
+        return uploadFile.getStoreFileName();
     }
 }
