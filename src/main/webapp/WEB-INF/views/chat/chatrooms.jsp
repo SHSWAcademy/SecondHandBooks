@@ -21,7 +21,8 @@
         book_title: "${trade_info.book_title}",
         sale_price: Number("${trade_info.sale_price}") || 0,
         delivery_cost: Number("${trade_info.delivery_cost}") || 0,
-        book_st: "${trade_info.book_st}"
+        book_st: "${trade_info.book_st}",
+        sale_st: "${trade_info.sale_st}"
     };
 </script>
 
@@ -566,14 +567,15 @@ function updatePlusButtonVisibility() {
         console.log('+ 버튼 숨김');
     }
 
-    // 안전결제 버튼: 판매자에게만 보임
+    // 안전결제 버튼: 판매자이고, 판매중(SOLD가 아닌) 상품에만 보임
     if (safePaymentRequestBtn) {
-        if (isSeller && chat_room_seq > 0) {
+        const isSold = currentTradeInfo.sale_st === 'SOLD';
+        if (isSeller && chat_room_seq > 0 && !isSold) {
             safePaymentRequestBtn.style.display = 'flex';
             console.log('안전결제 버튼 표시');
         } else {
             safePaymentRequestBtn.style.display = 'none';
-            console.log('안전결제 버튼 숨김');
+            console.log('안전결제 버튼 숨김 (SOLD:', isSold, ')');
         }
     }
 }
