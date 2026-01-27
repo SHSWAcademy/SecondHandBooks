@@ -11,6 +11,17 @@
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
+      /**
+       * 로그인 페이지로 리다이렉트 (현재 URL을 redirect 파라미터로 전달)
+       * - 로그인 후 원래 페이지로 돌아오기 위함
+       */
+      function redirectToLogin() {
+        var currentUrl = window.location.pathname + window.location.search;
+        var loginUrl = '/login?redirect=' + encodeURIComponent(currentUrl);
+        window.location.href = loginUrl;
+      }
+    </script>
+    <script>
       tailwind.config = {
         theme: {
           extend: {
@@ -114,7 +125,7 @@
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <a href="/login" class="px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md text-sm font-bold transition-all shadow-sm hover:shadow-md">로그인</a>
+                    <button type="button" onclick="redirectToLogin()" class="px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md text-sm font-bold transition-all shadow-sm hover:shadow-md">로그인</button>
                 </c:otherwise>
             </c:choose>
           </nav>
