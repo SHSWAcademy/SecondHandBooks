@@ -25,6 +25,9 @@ public class ChatroomVO {
     private String member_seller_nicknm;
     private String member_buyer_nicknm;
 
+    // 채팅방 안읽음 표시를 위함
+    private boolean msg_unread;
+
     public ChatroomVO(long trade_seq, long member_buyer_seq, long member_seller_seq, String sale_title) {
         this.trade_seq = trade_seq;
         this.member_buyer_seq = member_buyer_seq;

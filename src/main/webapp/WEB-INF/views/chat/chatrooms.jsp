@@ -21,7 +21,8 @@
         book_title: "${trade_info.book_title}",
         sale_price: Number("${trade_info.sale_price}") || 0,
         delivery_cost: Number("${trade_info.delivery_cost}") || 0,
-        book_st: "${trade_info.book_st}"
+        book_st: "${trade_info.book_st}",
+        sale_st: "${trade_info.sale_st}"
     };
 </script>
 
@@ -283,8 +284,11 @@
                             <div class="chatroom-item px-5 py-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 border-l-4 border-l-transparent ${room.chat_room_seq == trade_chat_room.chat_room_seq ? 'active' : ''}"
                                  data-chat-room-seq="${room.chat_room_seq}">
                                 <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <div class="relative w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                                        <c:if test="${room.msg_unread}">
+                                                <span class="unread-dot absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                                         </c:if>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between gap-2">
@@ -563,14 +567,15 @@ function updatePlusButtonVisibility() {
         console.log('+ 버튼 숨김');
     }
 
-    // 안전결제 버튼: 판매자에게만 보임
+    // 안전결제 버튼: 판매자이고, 판매중(SOLD가 아닌) 상품에만 보임
     if (safePaymentRequestBtn) {
-        if (isSeller && chat_room_seq > 0) {
+        const isSold = currentTradeInfo.sale_st === 'SOLD';
+        if (isSeller && chat_room_seq > 0 && !isSold) {
             safePaymentRequestBtn.style.display = 'flex';
             console.log('안전결제 버튼 표시');
         } else {
             safePaymentRequestBtn.style.display = 'none';
-            console.log('안전결제 버튼 숨김');
+            console.log('안전결제 버튼 숨김 (SOLD:', isSold, ')');
         }
     }
 }
@@ -704,6 +709,8 @@ function startServerSyncTimer(timerId) {
     const timerElement = document.getElementById(timerId);
     if (!timerElement) return;
 
+    timerElement.textContent = '로딩중...';
+
     let localRemainingSeconds = 0; // 로컬에서 카운트다운할 초
 
     // 타이머 표시 업데이트
@@ -738,18 +745,30 @@ function startServerSyncTimer(timerId) {
                     return;
                 }
 
-                if (data.status === 'NONE') {
-                    timerElement.textContent = '대기 중';
-                    timerElement.style.color = '#868e96';
-                    return;
-                }
+                 if (data.status === 'NONE') {
+                      // 타이머가 속한 카드 찾기
+                      const card = timerElement.closest('.safe-payment-card');
+                      if (card) {
+                          card.style.display = 'none';
+                      }
+                      // 타이머 중지
+                      if (window.safePaymentTimerInterval) {
+                          clearInterval(window.safePaymentTimerInterval);
+                      }
+                      if (window.safePaymentSyncInterval) {
+                          clearInterval(window.safePaymentSyncInterval);
+                      }
+                      return;
+                  }
 
                 if (data.remainingSeconds <= 0) {
-                    timerElement.textContent = '만료됨';
-                    timerElement.style.color = '#fa5252';
-                    stopAllPaymentTimers();
-                    return;
-                }
+                      const card = timerElement.closest('.safe-payment-card');
+                      if (card) {
+                          card.style.display = 'none';  // 카드 숨기기
+                      }
+                      stopAllPaymentTimers();
+                      return;
+                  }
 
                 // 서버에서 받은 시간으로 로컬 동기화
                 localRemainingSeconds = data.remainingSeconds;
@@ -900,7 +919,7 @@ function showSafePaymentRequest(msg) {
             '</div>';
 
         // 서버에서 남은 시간 조회 후 타이머 시작
-        startServerSyncTimer('timer-' + msgId);
+        //startServerSyncTimer('timer-' + msgId);
     } else {
         // 구매자가 받은 경우 - 구매 요청하기 버튼 표시
         card.innerHTML =
@@ -910,7 +929,6 @@ function showSafePaymentRequest(msg) {
                     '<line x1="1" y1="10" x2="23" y2="10"></line>' +
                 '</svg>' +
                 '<span class="card-title">안전 결제 요청</span>' +
-                '<span class="timer" id="timer-' + msgId + '">01:00</span>' +
             '</div>' +
             '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px; margin-bottom: 12px;">' +
                 '판매자가 안전 결제를 요청했습니다.' +
@@ -924,17 +942,23 @@ function showSafePaymentRequest(msg) {
             '</div>';
 
         // 1분 타이머 시작 (구매 요청 수락 제한 시간)
-        startTimer(msgId, 60, function() {
-            expireSafePaymentRequest(msgId);
-        });
+        //startTimer(msgId, 60, function() {
+        //    expireSafePaymentRequest(msgId);
+        //});
 
         // 서버 동기화 타이머 시작 (남은 결제 시간)
-        startServerSyncTimer('payment-timer-' + msgId);
+        // startServerSyncTimer('payment-timer-' + msgId);
     }
 
     msgWrapper.appendChild(card);
     log.appendChild(msgWrapper);
     log.scrollTop = log.scrollHeight;
+
+    if (isMyMessage) {
+              startServerSyncTimer('timer-' + msgId);
+          } else {
+              startServerSyncTimer('payment-timer-' + msgId);
+          }
 }
 
 // 구매 요청 수락 (구매자가 클릭)
@@ -1373,13 +1397,27 @@ function appendChatrooms(rooms) {
 
         // 마지막 메시지 시간 포맷팅
         var timeHtml = '';
-        if (room.last_msg_dtm) {
-            var date = new Date(room.last_msg_dtm);
+        if (room.last_msg_dtm && Array.isArray(room.last_msg_dtm)) {
+            const dt = room.last_msg_dtm;
+
+            var date = new Date(
+                dt[0],        // year
+                dt[1] - 1,    // month (중요!!)
+                dt[2],        // day
+                dt[3],        // hour
+                dt[4],        // minute
+                dt[5]         // second
+            );
+
             var month = String(date.getMonth() + 1).padStart(2, '0');
             var day = String(date.getDate()).padStart(2, '0');
             var hours = String(date.getHours()).padStart(2, '0');
             var minutes = String(date.getMinutes()).padStart(2, '0');
-            timeHtml = '<span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">' + month + '/' + day + ' ' + hours + ':' + minutes + '</span>';
+
+            timeHtml =
+                '<span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">'
+                + month + '/' + day + ' ' + hours + ':' + minutes +
+                '</span>';
         }
 
         div.innerHTML =
@@ -1723,13 +1761,23 @@ function showImageMessage(msg) {
     var timeDiv = document.createElement('div');
     timeDiv.className = 'msg-time';
     if (msg.sent_dtm) {
-        var date = new Date(msg.sent_dtm);
-        var timeStr = date.getFullYear() + '/' +
-            String(date.getMonth() + 1).padStart(2, '0') + '/' +
-            String(date.getDate()).padStart(2, '0') + ' ' +
-            String(date.getHours()).padStart(2, '0') + ':' +
-            String(date.getMinutes()).padStart(2, '0');
-        timeDiv.textContent = timeStr;
+        var date;
+        // 배열 형식인 경우 (예: [2024, 1, 15, 10, 30, 0])
+        if (Array.isArray(msg.sent_dtm)) {
+            date = new Date(msg.sent_dtm[0], msg.sent_dtm[1] - 1, msg.sent_dtm[2],
+                           msg.sent_dtm[3] || 0, msg.sent_dtm[4] || 0, msg.sent_dtm[5] || 0);
+        } else {
+            date = new Date(msg.sent_dtm);
+        }
+
+        if (!isNaN(date.getTime())) {
+            var timeStr = date.getFullYear() + '/' +
+                String(date.getMonth() + 1).padStart(2, '0') + '/' +
+                String(date.getDate()).padStart(2, '0') + ' ' +
+                String(date.getHours()).padStart(2, '0') + ':' +
+                String(date.getMinutes()).padStart(2, '0');
+            timeDiv.textContent = timeStr;
+        }
     }
     msgWrapper.appendChild(timeDiv);
 
