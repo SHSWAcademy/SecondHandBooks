@@ -1,5 +1,6 @@
 package project.util.imgUpload;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class FileStore {
 
@@ -37,12 +39,27 @@ public class FileStore {
     public UploadFile storeFile(MultipartFile multipartFile) throws IOException {
 
         if (multipartFile.isEmpty()) {
+            log.warn("빈 파일이 전달됨");
             return null;
+        }
+
+        // 디렉토리 생성 (없으면 자동 생성)
+        File dir = new File(fileDir);
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            log.info("파일 저장 디렉토리 생성: {} (성공: {})", dir.getAbsolutePath(), created);
         }
 
         String orgFileName = multipartFile.getOriginalFilename();
         String storeFileName = createStoreFileName(orgFileName); // 사용자가 업로드한 파일 이름 -> 서버에 저장될 이름
-        multipartFile.transferTo(new File(getFullPath(storeFileName))); // 서버에 저장될 파일 이름으로 실제 경로에 저장
+        String fullPath = getFullPath(storeFileName);
+
+        log.info("파일 저장 시도: 원본={}, 저장명={}, 경로={}, 크기={}바이트",
+                 orgFileName, storeFileName, fullPath, multipartFile.getSize());
+
+        multipartFile.transferTo(new File(fullPath)); // 서버에 저장될 파일 이름으로 실제 경로에 저장
+
+        log.info("파일 저장 완료: {}", fullPath);
         return new UploadFile(orgFileName, storeFileName);
     }
 
