@@ -67,11 +67,10 @@ public class TradeVO {
         return sale_title != null && !sale_title.equals("") &&
                 book_img != null && !book_img.equals("") &&
                 book_title != null && !book_title.equals("") &&
-                book_author != null && !book_author.equals("") &&
-                book_publisher != null && !book_publisher.equals("") &&
+                // book_author != null && !book_author.equals("") &&
+                // book_publisher != null && !book_publisher.equals("") &&
                 category_nm != null && !category_nm.equals("") &&
-                sale_cont != null && !sale_cont.equals("") &&
-                isbn != null && !isbn.equals("");
+                sale_cont != null && !sale_cont.equals("");
     }
 
     public BookVO generateBook () {
