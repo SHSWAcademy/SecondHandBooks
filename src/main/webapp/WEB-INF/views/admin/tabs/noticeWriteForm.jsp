@@ -9,7 +9,7 @@
     </div>
 
     <!-- Form -->
-    <form id="noticeForm" enctype="multipart/form-data" class="space-y-8">
+    <form id="noticeForm" enctype="multipart/form-data" class="space-y-8" autocomplete="off">
 
         <!-- 기본 정보 섹션 -->
         <div class="bg-white rounded-lg border border-gray-200 p-6">
@@ -255,35 +255,11 @@ fileInput.addEventListener('change', function() {
 
 // 임시저장 기능
 function saveDraft() {
-    const formData = {
-        notice_title: document.getElementById('notice_title').value,
-        notice_cont: document.getElementById('notice_cont').value,
-        is_important: document.getElementById('is_important').checked,
-        active: document.getElementById('active').value
-    };
 
-    // localStorage에 저장
-    localStorage.setItem('notice_draft', JSON.stringify(formData));
-    alert('임시저장되었습니다.');
+    alert('구현중.');
 }
 
-// 페이지 로드시 임시저장 데이터 복구
-window.addEventListener('DOMContentLoaded', function() {
-    const draft = localStorage.getItem('notice_draft');
-    if (draft) {
-        const confirm = window.confirm('임시저장된 내용이 있습니다. 불러오시겠습니까?');
-        if (confirm) {
-            const data = JSON.parse(draft);
-            document.getElementById('notice_title').value = data.notice_title || '';
-            document.getElementById('notice_cont').value = data.notice_content || '';
-            document.getElementById('is_important').checked = data.is_important || false;
-            document.getElementById('active').value = data.active || 'true';
 
-            // 글자 수 업데이트
-            contentTextarea.dispatchEvent(new Event('input'));
-        }
-    }
-});
 
 // 폼 제출시 임시저장 데이터 삭제
 document.querySelector('form').addEventListener('submit', function(e) {
@@ -315,7 +291,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
     .then(data => {
         if (data.success) {
             alert('공지사항이 등록되었습니다.');
-            localStorage.removeItem('notice_draft');
+
 
             // 목록 탭으로 돌아가기
             switchView('notice', null);
