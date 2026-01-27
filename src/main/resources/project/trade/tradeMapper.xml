@@ -87,7 +87,7 @@
             <if test="sale_rg != null and sale_rg != ''">
                 , #{sale_rg}
             </if>
-            now()
+            , now()
         )
     </insert>
 
