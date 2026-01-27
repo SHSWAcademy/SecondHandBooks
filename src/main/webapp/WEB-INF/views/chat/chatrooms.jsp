@@ -704,6 +704,8 @@ function startServerSyncTimer(timerId) {
     const timerElement = document.getElementById(timerId);
     if (!timerElement) return;
 
+    timerElement.textContent = '로딩중...';
+
     let localRemainingSeconds = 0; // 로컬에서 카운트다운할 초
 
     // 타이머 표시 업데이트
@@ -900,7 +902,7 @@ function showSafePaymentRequest(msg) {
             '</div>';
 
         // 서버에서 남은 시간 조회 후 타이머 시작
-        startServerSyncTimer('timer-' + msgId);
+        //startServerSyncTimer('timer-' + msgId);
     } else {
         // 구매자가 받은 경우 - 구매 요청하기 버튼 표시
         card.innerHTML =
@@ -910,7 +912,6 @@ function showSafePaymentRequest(msg) {
                     '<line x1="1" y1="10" x2="23" y2="10"></line>' +
                 '</svg>' +
                 '<span class="card-title">안전 결제 요청</span>' +
-                '<span class="timer" id="timer-' + msgId + '">01:00</span>' +
             '</div>' +
             '<div style="text-align:center; padding: 8px 0; color: #495057; font-size: 13px; margin-bottom: 12px;">' +
                 '판매자가 안전 결제를 요청했습니다.' +
@@ -924,17 +925,23 @@ function showSafePaymentRequest(msg) {
             '</div>';
 
         // 1분 타이머 시작 (구매 요청 수락 제한 시간)
-        startTimer(msgId, 60, function() {
-            expireSafePaymentRequest(msgId);
-        });
+        //startTimer(msgId, 60, function() {
+        //    expireSafePaymentRequest(msgId);
+        //});
 
         // 서버 동기화 타이머 시작 (남은 결제 시간)
-        startServerSyncTimer('payment-timer-' + msgId);
+        // startServerSyncTimer('payment-timer-' + msgId);
     }
 
     msgWrapper.appendChild(card);
     log.appendChild(msgWrapper);
     log.scrollTop = log.scrollHeight;
+
+    if (isMyMessage) {
+              startServerSyncTimer('timer-' + msgId);
+          } else {
+              startServerSyncTimer('payment-timer-' + msgId);
+          }
 }
 
 // 구매 요청 수락 (구매자가 클릭)
