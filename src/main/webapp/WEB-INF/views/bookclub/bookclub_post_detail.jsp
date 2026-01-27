@@ -865,7 +865,7 @@
                 }
             } else if (data.needLogin) {
                 alert('로그인이 필요합니다.');
-                window.location.href = '${pageContext.request.contextPath}/login';
+                redirectToLogin();
             } else {
                 alert(data.message || '좋아요 처리에 실패했습니다.');
             }

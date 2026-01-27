@@ -115,7 +115,11 @@ function searchGroups(page) {
 
         groups.forEach(g => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50/50 transition-colors';
+                tr.className = 'hover:bg-gray-50/50 transition-colors cursor-pointer';
+
+                tr.onclick = function() {
+                  window.location.href = '/bookclubs/' + g.book_club_seq;
+                };
 
                 const tdTitle = document.createElement('td');
                 tdTitle.className = 'px-6 py-4';

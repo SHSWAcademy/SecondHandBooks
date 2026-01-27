@@ -20,4 +20,12 @@ public interface MemberMapper {
 
     int updateMember(MemberVO vo);
     int deleteMember(long member_seq);
+
+    String findIdByTel(String member_tel_no);
+
+    int checkUserByIdAndEmail(@org.apache.ibatis.annotations.Param("login_id") String login_id,
+                              @org.apache.ibatis.annotations.Param("member_email") String member_email);
+
+    int updatePassword(@org.apache.ibatis.annotations.Param("login_id") String login_id,
+                       @org.apache.ibatis.annotations.Param("member_pwd") String member_pwd);
 }

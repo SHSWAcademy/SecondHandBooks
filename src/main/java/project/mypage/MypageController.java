@@ -12,6 +12,7 @@ import project.member.MemberVO;
 import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.Const;
+import project.util.LoginUtil;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -29,7 +30,7 @@ public class MypageController {
     public String mypage(HttpSession sess, Model model) {
         MemberVO loginSess = (MemberVO) sess.getAttribute(Const.SESSION);
         if (loginSess == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         model.addAttribute("currentTab", "profile");
@@ -43,7 +44,7 @@ public class MypageController {
                                 Model model) {
         MemberVO loginSess = (MemberVO) sess.getAttribute(Const.SESSION);
         if (loginSess == null) {
-            return "redirect:/login";
+            return LoginUtil.redirectToLogin();
         }
 
         model.addAttribute("currentTab", tab);

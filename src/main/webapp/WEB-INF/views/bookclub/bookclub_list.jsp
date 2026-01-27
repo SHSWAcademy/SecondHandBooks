@@ -285,7 +285,7 @@
                     // 로그인 세션 없이 모임 만들기 버튼 클릭 -> 로그인 요청 alert
                     document.getElementById("needLoginBtn")?.addEventListener("click", () => {
                         alert("로그인이 필요합니다.");
-                        location.href = "/login";
+                        redirectToLogin();
                     });
 
                     // 찜 토글
@@ -301,7 +301,7 @@
                         .then(function(data) {
                             if (data.needLogin) {
                                 alert('로그인이 필요합니다.');
-                                location.href = '${pageContext.request.contextPath}/login';
+                                redirectToLogin();
                                 return;
                             }
                             if (data.status === 'ok') {
