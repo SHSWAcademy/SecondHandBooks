@@ -153,7 +153,6 @@
                                                             로그인 후 이용
                                                         </button>
                                                     </c:when>
-
                                                     <%-- 2. 관리자 (Admin) --%>
                                                         <c:when test="${not empty sessionScope.adminSess}">
                                                             <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/manage"
