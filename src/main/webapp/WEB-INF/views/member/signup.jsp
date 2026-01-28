@@ -140,7 +140,37 @@
     let timerInterval; // 인증번호 만료 제한시간
     let nickNmChecked = false;
 
-    // ... (checkLoginId, checkEmail, sendEmailAuth, startTimer, verifyAuthCode 함수는 기존과 동일) ...
+    // [추가] 이메일 입력값 변경 감지 -> 상태 초기화
+    document.getElementById('member_email').addEventListener('input', function() {
+        const msg = document.getElementById('emailMsg');
+        const btn = document.getElementById('checkEmailBtn');
+        const sendAuthBtn = document.getElementById('sendAuthBtn');
+        const authCodeBox = document.getElementById('authCodeBox');
+
+        // 상태 초기화
+        emailChecked = false;
+        emailVerified = false;
+
+        // 버튼 및 메시지 원상복구
+        msg.textContent = '';
+        btn.textContent = '중복확인';
+        btn.disabled = false;
+        btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+
+        // 인증 관련 UI 숨기기 및 초기화
+        sendAuthBtn.classList.add('hidden');
+        sendAuthBtn.disabled = false;
+        sendAuthBtn.textContent = "인증번호 발송";
+
+        authCodeBox.classList.add('hidden');
+        document.getElementById('authCodeInput').value = '';
+        document.getElementById('authCodeInput').disabled = false;
+        document.getElementById('verifyBtn').disabled = false;
+
+        // 타이머 정지
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('timer').textContent = "03:00";
+    });
 
     function checkLoginId() {
         const login_id = document.getElementById('login_id').value;
@@ -162,8 +192,6 @@
                     msg.textContent = '이미 사용 중인 아이디입니다.';
                     msg.className = 'text-xs mt-1 text-red-500';
                     loginIdChecked = false;
-                    btn.textContent = '중복확인';
-                    btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
                 } else {
                     msg.textContent = '사용 가능한 아이디입니다.';
                     msg.className = 'text-xs mt-1 text-green-600';
@@ -183,9 +211,9 @@
         const msg = document.getElementById('emailMsg');
         const btn = document.getElementById('checkEmailBtn');
         const sendAuthBtn = document.getElementById('sendAuthBtn');
-        const authCodeBox = document.getElementById('authCodeBox');
 
-        const emailPattern = /^.+@.+\..+$/;
+        // 간단한 이메일 형식 검사
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
         if (!emailPattern.test(member_email)) {
             msg.textContent = '올바른 이메일 형식이 아닙니다.';
@@ -202,17 +230,16 @@
                     msg.textContent = '이미 사용 중인 이메일입니다.';
                     msg.className = 'text-xs mt-1 text-red-500';
                     emailChecked = false;
-                    btn.textContent = '중복확인';
-                    btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-                    sendAuthBtn.classList.add('hidden');
-                    authCodeBox.classList.add('hidden');
                 } else {
                     msg.textContent = '사용 가능한 이메일입니다. 인증번호를 발송해 입력해주세요.';
                     msg.className = 'text-xs mt-1 text-green-600';
                     emailChecked = true;
+
+                    // 중복 확인 성공 시 버튼 스타일 변경
                     btn.textContent = '✓';
                     btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
 
+                    // 인증번호 발송 버튼 노출
                     sendAuthBtn.classList.remove('hidden');
                 }
             },
@@ -235,6 +262,7 @@
         const verifyBtn = document.getElementById('verifyBtn');
         const authMsg = document.getElementById('authMsg');
 
+        // 전송 중 상태 표시
         sendAuthBtn.textContent = "전송 중..";
         sendAuthBtn.disabled = true;
 
@@ -245,15 +273,23 @@
             success: function(res) {
                 if (res === "success") {
                     alert("인증번호가 발송되었습니다. 메일함을 확인해주세요.");
+
+                    // 발송 성공 시 버튼 숨기고 인증번호 입력창 표시
                     sendAuthBtn.classList.add('hidden');
                     authCodeBox.classList.remove('hidden');
+
+                    // 입력창 초기화
                     authInput.value = '';
                     authInput.disabled = false;
                     verifyBtn.disabled = false;
+
                     authMsg.textContent = "3분 이내에 입력해주세요.";
                     authMsg.className = "text-xs text-gray-500";
+
+                    // 타이머 시작 (기존 타이머가 있다면 리셋됨)
                     startTimer(180);
                 } else {
+                    // 실패 시 다시 시도할 수 있도록 버튼 복구
                     alert("메일 발송에 실패했습니다. 이메일 주소를 확인해주세요.");
                     sendAuthBtn.textContent = "인증번호 발송";
                     sendAuthBtn.disabled = false;
@@ -270,6 +306,8 @@
     function startTimer(duration) {
         let timer = duration, minutes, seconds;
         const display = document.getElementById('timer');
+
+        // 기존 타이머가 있으면 제거
         if (timerInterval) clearInterval(timerInterval);
 
         timerInterval = setInterval(function() {
@@ -315,7 +353,11 @@
                     document.getElementById('timer').textContent = "";
                     authInput.disabled = true;
                     verifyBtn.disabled = true;
+
+                    // 인증 완료 시 이메일 수정 불가 (원하면 주석 처리 가능)
                     document.getElementById('member_email').readOnly = true;
+                    document.getElementById('checkEmailBtn').disabled = true;
+
                     emailVerified = true;
                 } else {
                     authMsg.textContent = "인증번호가 일치하지 않거나 만료되었습니다.";
@@ -349,8 +391,6 @@
                     msg.textContent = '이미 사용 중인 닉네임입니다.';
                     msg.className = 'text-xs mt-1 text-red-500';
                     nickNmChecked = false;
-                    btn.textContent = '중복확인';
-                    btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
                 } else {
                     msg.textContent = '사용 가능한 닉네임입니다.';
                     msg.className = 'text-xs mt-1 text-green-600';
@@ -365,7 +405,7 @@
     // 휴대폰 번호 자동 하이픈 (010-0000-0000)
     function autoHyphen(target) {
         target.value = target.value
-            .replace(/[^0-9]/g, '') // 숫자가 아닌 문자 제거
+            .replace(/[^0-9]/g, '')
             .replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
     }
 
@@ -407,9 +447,8 @@
             return false;
         }
 
-        // 휴대폰 번호 유효성 검사 (010-0000-0000 형식)
         const member_tel_no = document.getElementById('member_tel_no').value;
-        const telPattern = /^\d{3}-\d{4}-\d{4}$/; // 3자리-4자리-4자리
+        const telPattern = /^\d{3}-\d{4}-\d{4}$/;
 
         if (!member_tel_no) {
             errorMsg.textContent = '휴대폰 번호를 입력해주세요.';
@@ -421,7 +460,6 @@
             return false;
         }
 
-        // Check required terms
         const terms1 = document.querySelector('input[name="terms1"]').checked;
         const terms2 = document.querySelector('input[name="terms2"]').checked;
         const terms3 = document.querySelector('input[name="terms3"]').checked;
@@ -439,7 +477,6 @@
         checkboxes.forEach(cb => cb.checked = checkbox.checked);
     }
 
-    // Auto-check "전체 동의" when all individual terms are checked
     document.querySelectorAll('.terms-checkbox').forEach(cb => {
         cb.addEventListener('change', () => {
             const allChecked = Array.from(document.querySelectorAll('.terms-checkbox')).every(c => c.checked);
