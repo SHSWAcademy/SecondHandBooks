@@ -7,6 +7,7 @@
         <h2 class="text-xl font-bold mb-6 text-gray-900">회원가입</h2>
 
         <form action="/auth/signup" method="post" onsubmit="return validateForm()" class="space-y-4">
+            <%-- ... (아이디, 이메일, 비밀번호, 닉네임, 휴대폰 입력 부분은 기존과 동일하므로 생략) ... --%>
 
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">아이디 <span class="text-red-500">*</span></label>
@@ -24,7 +25,6 @@
 
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일<span class="text-red-500">*</span></label>
-
                 <div class="flex gap-2">
                     <input type="email" name="member_email" id="member_email" required
                            class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
@@ -35,12 +35,10 @@
                     </button>
                 </div>
                 <p id="emailMsg" class="text-xs mt-1"></p>
-
                 <button type="button" id="sendAuthBtn" onclick="sendEmailAuth()"
                         class="hidden w-full mt-2 bg-blue-500 text-white py-2 rounded-sm text-xs font-bold hover:bg-blue-600 transition">
                     인증번호 발송
                 </button>
-
                 <div id="authCodeBox" class="hidden mt-2 p-3 bg-gray-50 border border-gray-200 rounded-sm">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-xs text-gray-600">인증번호 입력</span>
@@ -101,24 +99,35 @@
 
             <div id="errorMsg" class="text-xs text-red-500 font-bold"></div>
 
-            <div class="text-xs text-gray-600 bg-gray-50 p-3 rounded border border-gray-100 space-y-1.5">
+            <div class="text-xs text-gray-600 bg-gray-50 p-3 rounded border border-gray-100 space-y-2">
                 <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
                     <input type="checkbox" id="termsAll" onchange="toggleAll(this)" class="rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
                     <span class="font-bold">전체 동의</span>
                 </label>
                 <div class="border-t border-gray-200 my-2"></div>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                    <input type="checkbox" name="terms1" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
-                    <span>[필수] 만 14세 이상입니다</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                    <input type="checkbox" name="terms2" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
-                    <span>[필수] 이용약관 동의</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                    <input type="checkbox" name="terms3" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
-                    <span>[필수] 개인정보 수집 및 이용 동의</span>
-                </label>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
+                        <input type="checkbox" name="terms1" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
+                        <span>[필수] 만 14세 이상입니다</span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
+                        <input type="checkbox" name="terms2" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
+                        <span>[필수] 이용약관 동의</span>
+                    </label>
+                    <button type="button" onclick="openModal('service')" class="text-gray-400 underline hover:text-primary-600">내용보기</button>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
+                        <input type="checkbox" name="terms3" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
+                        <span>[필수] 개인정보 수집 및 이용 동의</span>
+                    </label>
+                    <button type="button" onclick="openModal('privacy')" class="text-gray-400 underline hover:text-primary-600">내용보기</button>
+                </div>
             </div>
 
             <button type="submit" class="w-full bg-primary-500 text-white py-3.5 rounded-md font-bold hover:bg-primary-600 transition text-sm">
@@ -133,14 +142,130 @@
     </div>
 </div>
 
+<div id="termsModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 id="modalTitle" class="font-bold text-gray-900">약관 상세</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto text-xs text-gray-600 leading-relaxed bg-gray-50" id="modalContent">
+        </div>
+        <div class="p-4 border-t border-gray-100 bg-white">
+            <button onclick="closeModal()" class="w-full bg-gray-900 text-white py-2.5 rounded-md font-bold text-sm hover:bg-gray-800">확인</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    // 기존 변수들 ...
     let loginIdChecked = false;
     let emailChecked = false;
-    let emailVerified = false; // 인증번호 통과 여부
-    let timerInterval; // 인증번호 만료 제한시간
+    let emailVerified = false;
+    let timerInterval;
     let nickNmChecked = false;
 
-    // ... (checkLoginId, checkEmail, sendEmailAuth, startTimer, verifyAuthCode 함수는 기존과 동일) ...
+    // [추가] 약관 데이터 (일반적인 표준 약관 내용)
+    const termsData = {
+        'service': `
+            <p class="font-bold mb-2 text-gray-900">제 1 조 (목적)</p>
+            <p class="mb-4">본 약관은 Shinhan Books(이하 "회사")가 제공하는 중고 서적 거래 및 관련 제반 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+
+            <p class="font-bold mb-2 text-gray-900">제 2 조 (회원의 의무)</p>
+            <p class="mb-2">1. 회원은 관계법령, 본 약관의 규정, 이용안내 및 주의사항 등 회사가 통지하는 사항을 준수하여야 합니다.</p>
+            <p class="mb-4">2. 회원은 다음 행위를 하여서는 안 됩니다.<br>
+            - 회원가입 신청 또는 변경 시 허위 내용 등록<br>
+            - 타인의 정보 도용<br>
+            - 회사가 게시한 정보의 변경<br>
+            - 회사 및 기타 제3자의 저작권 등 지적재산권에 대한 침해</p>
+
+            <p class="font-bold mb-2 text-gray-900">제 3 조 (서비스의 제공 등)</p>
+            <p class="mb-4">회사는 회원에게 다음과 같은 서비스를 제공합니다.<br>
+            1. 중고 서적 판매 및 구매 중개<br>
+            2. 독서 모임 커뮤니티 서비스<br>
+            3. 기타 회사가 정하는 업무</p>
+        `,
+        'privacy': `
+            <p class="font-bold mb-2 text-gray-900">1. 개인정보 수집 항목</p>
+            <p class="mb-4">회사는 회원가입, 상담, 서비스 신청 등을 위해 아래와 같은 개인정보를 수집하고 있습니다.<br>
+            - 필수항목: 아이디, 비밀번호, 이름, 휴대폰번호, 이메일, 닉네임</p>
+
+            <p class="font-bold mb-2 text-gray-900">2. 개인정보의 수집 및 이용목적</p>
+            <p class="mb-4">회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.<br>
+            - 서비스 제공에 따른 본인 인증, 구매 및 요금 결제<br>
+            - 회원 관리: 회원제 서비스 이용에 따른 본인확인, 개인식별, 불량회원의 부정 이용 방지<br>
+            - 마케팅 및 광고에 활용: 신규 서비스 개발 및 특화, 이벤트 등 광고성 정보 전달</p>
+
+            <p class="font-bold mb-2 text-gray-900">3. 개인정보의 보유 및 이용기간</p>
+            <p class="mb-4">원칙적으로, 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 단, 관계법령의 규정에 의하여 보존할 필요가 있는 경우 회사는 아래와 같이 관계법령에서 정한 일정한 기간 동안 회원정보를 보관합니다.<br>
+            - 로그인 기록: 3개월 (통신비밀보호법)<br>
+            - 대금결제 및 재화 등의 공급에 관한 기록: 5년 (전자상거래 등에서의 소비자보호에 관한 법률)</p>
+        `
+    };
+
+    // [추가] 모달 열기 함수
+    function openModal(type) {
+        const modal = document.getElementById('termsModal');
+        const title = document.getElementById('modalTitle');
+        const content = document.getElementById('modalContent');
+
+        if (type === 'service') {
+            title.textContent = "서비스 이용약관";
+            content.innerHTML = termsData['service'];
+        } else if (type === 'privacy') {
+            title.textContent = "개인정보 수집 및 이용 동의";
+            content.innerHTML = termsData['privacy'];
+        }
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+    }
+
+    // [추가] 모달 닫기 함수
+    function closeModal() {
+        const modal = document.getElementById('termsModal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = ''; // 배경 스크롤 복구
+    }
+
+    // [추가] 모달 바깥 배경 클릭 시 닫기
+    document.getElementById('termsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // ... (이전 스크립트 내용들: checkLoginId, checkEmail 등등) ...
+    // 아래에 기존 script 내용을 그대로 두시면 됩니다.
+
+    // [기존 코드 유지]
+    document.getElementById('member_email').addEventListener('input', function() {
+        const msg = document.getElementById('emailMsg');
+        const btn = document.getElementById('checkEmailBtn');
+        const sendAuthBtn = document.getElementById('sendAuthBtn');
+        const authCodeBox = document.getElementById('authCodeBox');
+
+        emailChecked = false;
+        emailVerified = false;
+
+        msg.textContent = '';
+        btn.textContent = '중복확인';
+        btn.disabled = false;
+        btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
+
+        sendAuthBtn.classList.add('hidden');
+        sendAuthBtn.disabled = false;
+        sendAuthBtn.textContent = "인증번호 발송";
+
+        authCodeBox.classList.add('hidden');
+        document.getElementById('authCodeInput').value = '';
+        document.getElementById('authCodeInput').disabled = false;
+        document.getElementById('verifyBtn').disabled = false;
+
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('timer').textContent = "03:00";
+    });
 
     function checkLoginId() {
         const login_id = document.getElementById('login_id').value;
@@ -162,8 +287,6 @@
                     msg.textContent = '이미 사용 중인 아이디입니다.';
                     msg.className = 'text-xs mt-1 text-red-500';
                     loginIdChecked = false;
-                    btn.textContent = '중복확인';
-                    btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
                 } else {
                     msg.textContent = '사용 가능한 아이디입니다.';
                     msg.className = 'text-xs mt-1 text-green-600';
@@ -183,9 +306,8 @@
         const msg = document.getElementById('emailMsg');
         const btn = document.getElementById('checkEmailBtn');
         const sendAuthBtn = document.getElementById('sendAuthBtn');
-        const authCodeBox = document.getElementById('authCodeBox');
 
-        const emailPattern = /^.+@.+\..+$/;
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
         if (!emailPattern.test(member_email)) {
             msg.textContent = '올바른 이메일 형식이 아닙니다.';
@@ -202,17 +324,12 @@
                     msg.textContent = '이미 사용 중인 이메일입니다.';
                     msg.className = 'text-xs mt-1 text-red-500';
                     emailChecked = false;
-                    btn.textContent = '중복확인';
-                    btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
-                    sendAuthBtn.classList.add('hidden');
-                    authCodeBox.classList.add('hidden');
                 } else {
                     msg.textContent = '사용 가능한 이메일입니다. 인증번호를 발송해 입력해주세요.';
                     msg.className = 'text-xs mt-1 text-green-600';
                     emailChecked = true;
                     btn.textContent = '✓';
                     btn.className = 'text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border border-green-500 text-green-600 bg-white';
-
                     sendAuthBtn.classList.remove('hidden');
                 }
             },
@@ -270,6 +387,7 @@
     function startTimer(duration) {
         let timer = duration, minutes, seconds;
         const display = document.getElementById('timer');
+
         if (timerInterval) clearInterval(timerInterval);
 
         timerInterval = setInterval(function() {
@@ -315,7 +433,10 @@
                     document.getElementById('timer').textContent = "";
                     authInput.disabled = true;
                     verifyBtn.disabled = true;
+
                     document.getElementById('member_email').readOnly = true;
+                    document.getElementById('checkEmailBtn').disabled = true;
+
                     emailVerified = true;
                 } else {
                     authMsg.textContent = "인증번호가 일치하지 않거나 만료되었습니다.";
@@ -349,8 +470,6 @@
                     msg.textContent = '이미 사용 중인 닉네임입니다.';
                     msg.className = 'text-xs mt-1 text-red-500';
                     nickNmChecked = false;
-                    btn.textContent = '중복확인';
-                    btn.className = "text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition";
                 } else {
                     msg.textContent = '사용 가능한 닉네임입니다.';
                     msg.className = 'text-xs mt-1 text-green-600';
@@ -366,7 +485,8 @@
     function autoHyphen(target) {
         target.value = target.value
             .replace(/[^0-9]/g, '') // 숫자가 아닌 문자 제거
-            .replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+            .replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3") // 3-4-4 자리로 나눠서 하이픈 추가
+            .replace(/(\-{1,2})$/g, ""); // 끝에 남은 하이픈 제거
     }
 
     function validateForm() {
@@ -407,9 +527,8 @@
             return false;
         }
 
-        // 휴대폰 번호 유효성 검사 (010-0000-0000 형식)
         const member_tel_no = document.getElementById('member_tel_no').value;
-        const telPattern = /^\d{3}-\d{4}-\d{4}$/; // 3자리-4자리-4자리
+        const telPattern = /^\d{3}-\d{4}-\d{4}$/;
 
         if (!member_tel_no) {
             errorMsg.textContent = '휴대폰 번호를 입력해주세요.';
@@ -421,7 +540,6 @@
             return false;
         }
 
-        // Check required terms
         const terms1 = document.querySelector('input[name="terms1"]').checked;
         const terms2 = document.querySelector('input[name="terms2"]').checked;
         const terms3 = document.querySelector('input[name="terms3"]').checked;
@@ -439,7 +557,6 @@
         checkboxes.forEach(cb => cb.checked = checkbox.checked);
     }
 
-    // Auto-check "전체 동의" when all individual terms are checked
     document.querySelectorAll('.terms-checkbox').forEach(cb => {
         cb.addEventListener('change', () => {
             const allChecked = Array.from(document.querySelectorAll('.terms-checkbox')).every(c => c.checked);
