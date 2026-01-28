@@ -67,13 +67,21 @@ public class TradeVO {
     private Boolean confirm_purchase;
 
     public boolean checkTradeVO() {
-        return sale_title != null && !sale_title.equals("") &&
-                book_img != null && !book_img.equals("") &&
-                book_title != null && !book_title.equals("") &&
-                // book_author != null && !book_author.equals("") &&
-                // book_publisher != null && !book_publisher.equals("") &&
-                category_nm != null && !category_nm.equals("") &&
-                sale_cont != null && !sale_cont.equals("");
+
+        boolean result = false;
+
+            if (sale_title != null && !sale_title.equals("") &&
+                    book_img != null && !book_img.equals("") &&
+                    book_title != null && !book_title.equals("") &&
+                    // book_author != null && !book_author.equals("") &&
+                    // book_publisher != null && !book_publisher.equals("") &&
+                    category_nm != null && !category_nm.equals("") &&
+                    sale_cont != null && !sale_cont.equals("")) {
+                result = true;
+            }
+
+
+        return result;
     }
 
     public BookVO generateBook () {
