@@ -115,9 +115,13 @@
                         판매가격 (원)
                     </label>
                     <input type="number" id="sale_price" name="sale_price" required
-                           value="${trade.sale_price}"
+                           max="10000000"
                            placeholder="25000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                           <p id="sale_price_error"
+                                class="mt-1 text-sm text-red-500 hidden">
+                                상품 금액은 0원 이상 1천만원 이하로 입력해주세요.
+                           </p>
                 </div>
 
                 <!-- 배송비 -->
@@ -126,10 +130,13 @@
                         배송비 (원)
                     </label>
                     <input type="number" id="delivery_cost" name="delivery_cost" required
-                           value="${trade.delivery_cost}"
                            placeholder="3000"
+                           max="50000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                    <p class="text-xs text-gray-500 mt-1">무료배송인 경우 0을 입력하세요</p>
+                    <p id="delivery_cost_error"
+                        class="mt-1 text-sm text-red-500 hidden">
+                        배송비는 0원 이상 5만원 이하로 입력해주세요.
+                    </p>
                 </div>
 
                 <!-- 책 상태 -->
@@ -431,6 +438,34 @@ function searchRG() {
     }).open();
 }
 
+function validatePrice(inputId, min, max, errorId) {
+    const input = document.getElementById(inputId);
+    const error = document.getElementById(errorId);
+
+    input.addEventListener('blur', function () {
+        if (this.value === '') return;
+
+        const value = Number(this.value);
+
+        if (value < min || value > max) {
+            this.classList.add('border-red-500');
+            error.classList.remove('hidden');
+            this.focus();
+        }
+    });
+
+    input.addEventListener('input', function () {
+        this.classList.remove('border-red-500');
+        error.classList.add('hidden');
+    });
+}
+
+// 상품 금액 (0 ~ 1천만)
+validatePrice('sale_price', 0, 10000000, 'sale_price_error');
+
+// 배송비 (0 ~ 5만)
+validatePrice('delivery_cost', 0, 50000, 'delivery_cost_error');
+
 // 폼 제출 전 검증
 document.querySelector('form').addEventListener('submit', function(e) {
     // 필수 필드 체크는 HTML5 required 속성으로 자동 처리됨
@@ -443,6 +478,28 @@ document.querySelector('form').addEventListener('submit', function(e) {
         searchInput.focus();
         return;
     }
+
+    // 판매 금액
+        const salePriceInput = document.getElementById('sale_price');
+        const salePrice = Number(salePriceInput.value);
+
+        if (isNaN(salePrice) || salePrice < 0 || salePrice > 10000000) {
+            e.preventDefault();
+            alert('판매 금액은 0원 이상 10,000,000원 이하로 입력해 주세요.');
+            salePriceInput.focus();
+            return;
+        }
+
+        // 배송비
+        const deliveryCostInput = document.getElementById('delivery_cost');
+        const deliveryCost = Number(deliveryCostInput.value);
+
+        if (isNaN(deliveryCost) || deliveryCost < 0 || deliveryCost > 50000) {
+            e.preventDefault();
+            alert('배송비는 0원 이상 50,000원 이하로 입력해 주세요.');
+            deliveryCostInput.focus();
+            return;
+        }
 });
 
 </script>
