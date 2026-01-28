@@ -59,7 +59,7 @@
                 <input type="hidden" id="book_title" name="book_title" required />
                 <input type="hidden" id="book_author" name="book_author" required />
                 <input type="hidden" id="book_publisher" name="book_publisher" required />
-                <input type="hidden" id="book_org_price" name="book_org_price" />
+                <input type="hidden" id="book_org_price" name="book_org_price" required/>
                 <input type="hidden" id="book_img" name="book_img" required />
             </div>
         </div>
@@ -108,9 +108,14 @@
                     <label for="sale_price" class="block text-sm font-bold text-gray-700 mb-2">
                         판매가격 (원)
                     </label>
-                    <input type="number" id="sale_price" name="sale_price"
+                    <input type="number" id="sale_price" name="sale_price" required
+                           max="10000000"
                            placeholder="25000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+                           <p id="sale_price_error"
+                                class="mt-1 text-sm text-red-500 hidden">
+                                상품 금액은 0원 이상 1천만원 이하로 입력해주세요.
+                           </p>
                 </div>
 
                 <!-- 배송비 -->
@@ -118,10 +123,14 @@
                     <label for="delivery_cost" class="block text-sm font-bold text-gray-700 mb-2">
                         배송비 (원)
                     </label>
-                    <input type="number" id="delivery_cost" name="delivery_cost"
+                    <input type="number" id="delivery_cost" name="delivery_cost" required
                            placeholder="3000"
+                           max="50000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-                    <p class="text-xs text-gray-500 mt-1">무료배송인 경우 0을 입력하세요</p>
+                    <p id="delivery_cost_error"
+                        class="mt-1 text-sm text-red-500 hidden">
+                        배송비는 0원 이상 5만원 이하로 입력해주세요.
+                    </p>
                 </div>
 
                 <!-- 책 상태 -->
@@ -130,7 +139,7 @@
                         책 상태
                     </label>
                     <select id="book_st" name="book_st"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
                         <option value="">선택하세요</option>
                         <option value="NEW">새책</option>
                         <option value="LIKE_NEW">거의 새책</option>
@@ -145,7 +154,7 @@
                         거래방법
                     </label>
                     <select id="payment_type" name="payment_type"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
                         <option value="">선택하세요</option>
                         <option value="account">계좌이체</option>
                         <option value="tosspay">토스페이</option>
@@ -179,8 +188,9 @@
                         상세설명 <span class="text-red-500">*</span>
                     </label>
                     <textarea id="sale_cont" name="sale_cont" required rows="6"
-                              placeholder="책의 상태, 특이사항 등을 자세히 설명해주세요"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"></textarea>
+                              placeholder="책의 상태, 특이사항 등을 자세히 설명해주세요 (500자 제한)"
+                              maxlength="500"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none" ></textarea>
                 </div>
             </div>
         </div>
@@ -243,34 +253,60 @@ function clearOnClick(el) {
     }
 }
 
-// 첨부파일 갯수제한
-function limitFileUploadTo3(inputEl, msgEl) {
+// 첨부파일 갯수, 용량, img파일 업로드 검증
+function validateImageUpload(inputEl, msgEl) {
+    const MAX_COUNT = 3;
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
     inputEl.addEventListener('change', () => {
-        const files = inputEl.files;
-        // 3개로 제한
-        if (files.length > 3) { // 최대 3개
-            msgEl.textContent = `최대 3개까지 업로드 가능합니다.`;
+        const files = Array.from(inputEl.files);
 
-            // 스타일 적용
-            msgEl.style.color = 'red';
-            msgEl.style.fontWeight = 'bold';
-            msgEl.style.fontSize = '1rem'; // 원하면 더 키울 수 있음
-            inputEl.value = ''; // 선택 초기화
-        } else {
-            msgEl.textContent = ''; // 메시지 초기화
-
-            // 스타일 초기화
-            msgEl.style.color = '';
-            msgEl.style.fontWeight = '';
-            msgEl.style.fontSize = '';
+        //개수 제한
+        if (files.length > MAX_COUNT) {
+            showFileError(`최대 ${MAX_COUNT}개까지 업로드 가능합니다.`);
+            return;
         }
+
+        //파일별 검사
+        for (let file of files) {
+
+            // 이미지 타입 체크
+            if (!file.type.startsWith('image/')) {
+                showFileError('이미지 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            // 용량 체크 (파일 하나당 5MB)
+            if (file.size > MAX_SIZE) {
+                showFileError('이미지 파일은 1개당 5MB 이하만 업로드 가능합니다.');
+                return;
+            }
+        }
+
+        // 통과 시 메시지 초기화
+        clearFileError();
     });
+
+    function showFileError(message) {
+        msgEl.textContent = message;
+        msgEl.style.color = 'red';
+        msgEl.style.fontWeight = 'bold';
+        msgEl.style.fontSize = '1rem';
+        inputEl.value = ''; // 선택 초기화
+    }
+
+    function clearFileError() {
+        msgEl.textContent = '여러 이미지를 한 번에 선택할 수 있습니다. (Ctrl/Cmd + 클릭)';
+        msgEl.style.color = '';
+        msgEl.style.fontWeight = '';
+        msgEl.style.fontSize = '';
+    }
 }
 
 // 적용
 const fileInput = document.querySelector('input[name="uploadFiles"]');
 const msg = document.getElementById('fileMsg');
-limitFileUploadTo3(fileInput, msg);
+validateImageUpload(fileInput, msg);
 
 
 // 검색 버튼 클릭
@@ -399,9 +435,69 @@ function searchRG() {
     }).open();
 }
 
+function validatePrice(inputId, min, max, errorId) {
+    const input = document.getElementById(inputId);
+    const error = document.getElementById(errorId);
+
+    input.addEventListener('blur', function () {
+        if (this.value === '') return;
+
+        const value = Number(this.value);
+
+        if (value < min || value > max) {
+            this.classList.add('border-red-500');
+            error.classList.remove('hidden');
+            this.focus();
+        }
+    });
+
+    input.addEventListener('input', function () {
+        this.classList.remove('border-red-500');
+        error.classList.add('hidden');
+    });
+}
+
+// 상품 금액 (0 ~ 1천만)
+validatePrice('sale_price', 0, 10000000, 'sale_price_error');
+
+// 배송비 (0 ~ 5만)
+validatePrice('delivery_cost', 0, 50000, 'delivery_cost_error');
+
+
 // 폼 제출 전 검증
 document.querySelector('form').addEventListener('submit', function(e) {
     // 필수 필드 체크는 HTML5 required 속성으로 자동 처리됨
+    const bookTitle = document.getElementById('book_title').value.trim();
+
+    // 책 선택은 추가함
+    if (!bookTitle) {
+        e.preventDefault(); // 제출 중단
+        alert('판매 하실책을 선택 해주세요.');
+        searchInput.focus();
+        return;
+    }
+
+        // 판매 금액
+        const salePriceInput = document.getElementById('sale_price');
+        const salePrice = Number(salePriceInput.value);
+
+        if (isNaN(salePrice) || salePrice < 0 || salePrice > 10000000) {
+            e.preventDefault();
+            alert('판매 금액은 0원 이상 10,000,000원 이하로 입력해 주세요.');
+            salePriceInput.focus();
+            return;
+        }
+
+        // 배송비
+        const deliveryCostInput = document.getElementById('delivery_cost');
+        const deliveryCost = Number(deliveryCostInput.value);
+
+        if (isNaN(deliveryCost) || deliveryCost < 0 || deliveryCost > 50000) {
+            e.preventDefault();
+            alert('배송비는 0원 이상 50,000원 이하로 입력해 주세요.');
+            deliveryCostInput.focus();
+            return;
+        }
 });
 
 

@@ -93,7 +93,9 @@
 
     <update id="deleteMember" parameterType="long">
         UPDATE MEMBER_INFO
-           SET MEMBER_DELETED_DTM = NOW()
+           SET
+            MEMBER_DELETED_DTM = NOW()
+          , MEMBER_NICKNM = '탈퇴한 회원'
          WHERE MEMBER_SEQ = #{member_seq}
     </update>
 

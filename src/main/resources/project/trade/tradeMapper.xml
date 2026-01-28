@@ -229,7 +229,7 @@
         SELECT COUNT(*)
         FROM sb_trade_info
         WHERE
-            del_dtm IS NULL
+            del_dtm IS NULL <!-- 삭제되지 않은 게시글 조회 -->
         <!-- 검색조건추가 (카테고리, 상태, 검색어) -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
             AND category_seq = #{searchVO.category_seq}
@@ -307,6 +307,12 @@
         DELETE FROM trade_wish
         WHERE trade_seq = #{trade_seq} AND member_seq = #{member_seq}
     </delete>
+    <!-- 회원 탈퇴 시 삭제되는 trade, soft delete -->
+    <update id="deleteAll">
+        UPDATE sb_trade_info
+        SET del_dtm = now()
+        WHERE member_seller_seq = #{member_seq}
+    </update>
 
     <!-- 마이페이지 찜조회용 -->
     <select id="selectWishTrades" parameterType="long" resultType="project.trade.TradeVO">

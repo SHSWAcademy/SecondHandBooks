@@ -3,12 +3,18 @@ package project.trade;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 import project.trade.ENUM.BookStatus;
 import project.trade.ENUM.PaymentType;
 import project.trade.ENUM.SaleStatus;
 import project.util.Const;
 import project.util.book.BookVO;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,11 +29,15 @@ public class TradeVO {
     private long settlement_seq;    // 추가
     private Long pending_buyer_seq; // 추가
 
+    @NotBlank
     private String sale_title;      //책 제목
     private BookStatus book_st;     // DB: book_st_enum 매핑
+    @NotBlank @Length(max = 500)
     private String sale_cont;       // 상세설명
-    private int sale_price;         // 판매가격
-    private int delivery_cost; // 배송비
+    @NotNull @Min(0) @Max(Integer.MAX_VALUE)
+    private Integer sale_price;         // 판매가격
+    @NotNull @Min(0) @Max(Integer.MAX_VALUE)
+    private Integer delivery_cost; // 배송비
     private String sale_rg;         // 수정: book_sale_region -> sale_rg
     private SaleStatus sale_st;     // DB: sale_st_enum 매핑
     private LocalDateTime sale_st_dtm;  // 상품상태 변경 시간
@@ -42,15 +52,19 @@ public class TradeVO {
 //    private LocalDateTime crt_dtm;  // 완료일자
     private LocalDateTime upd_dtm;  // 업데이트 일자
     private PaymentType payment_type; // 거래방법
+    @NotBlank
     private String category_nm; // 카테고리 이름
 
     // Book 관련 (Join 결과 매핑용)
     private String isbn;            // 책 고유번호
+    @NotBlank
     private String book_title;      // 책 제목
     private String book_author;     // 저자
     private String book_publisher;  // 출판사
+    @NotBlank
     private String book_img;        // 썸네일 이미지 url
-    private int book_org_price;     // 책 원가
+    @NotNull @Min(0) @Max(Integer.MAX_VALUE)
+    private Integer book_org_price;     // 책 원가
 
     // 이미지 리스트
     private List<MultipartFile> uploadFiles; // form 에서 받아오는 데이터
@@ -67,13 +81,19 @@ public class TradeVO {
     private Boolean confirm_purchase;
 
     public boolean checkTradeVO() {
-        return sale_title != null && !sale_title.equals("") &&
-                book_img != null && !book_img.equals("") &&
-                book_title != null && !book_title.equals("") &&
-                // book_author != null && !book_author.equals("") &&
-                // book_publisher != null && !book_publisher.equals("") &&
-                category_nm != null && !category_nm.equals("") &&
-                sale_cont != null && !sale_cont.equals("");
+
+        boolean result = false;
+
+            if (sale_title != null && !sale_title.equals("") &&
+                    book_img != null && !book_img.equals("") &&
+                    book_title != null && !book_title.equals("") &&
+                    // book_author != null && !book_author.equals("") &&
+                    // book_publisher != null && !book_publisher.equals("") &&
+                    category_nm != null && !category_nm.equals("") &&
+                    sale_cont != null && !sale_cont.equals("") && !(sale_cont.length() >= 500)) {
+                result = true;
+            }
+        return result;
     }
 
     public BookVO generateBook () {
