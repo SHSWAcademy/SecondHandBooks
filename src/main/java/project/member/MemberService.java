@@ -102,10 +102,8 @@ public class MemberService{
 
         List<BookClubVO> bookClubVOS = bookClubMapper.selectMyBookClubs(member_seq);
         for (BookClubVO bookClubVO : bookClubVOS) {
-            Map<String, Object> stringObjectMap = bookClubService.leaveBookClub(bookClubVO.getBook_club_seq(), member_seq);
-            for (int i = 0; i < stringObjectMap.size(); i++) {
-                log.info("leaveBookClub : {}", stringObjectMap.get(i));
-            }
+            Map<String, Object> result = bookClubService.leaveBookClub(bookClubVO.getBook_club_seq(), member_seq);
+            result.forEach((key, value) -> log.info("leaveBookClub - {} : {}", key, value));
         }
 
         return memberMapper.deleteMember(member_seq) > 0;
