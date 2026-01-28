@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.bookclub.mapper.BookClubMapper;
+import project.bookclub.service.BookClubService;
+import project.bookclub.vo.BookClubVO;
 import project.trade.TradeMapper;
 
 import java.lang.reflect.Member;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -20,6 +23,8 @@ public class MemberService{
     private final MemberMapper memberMapper;
     private final TradeMapper tradeMapper;
     private final BookClubMapper bookClubMapper;
+
+    private final BookClubService bookClubService;
 
     @Transactional
     public boolean signUp(MemberVO vo) {
@@ -84,11 +89,24 @@ public class MemberService{
 
     @Transactional
     public boolean deleteMember(long member_seq) {
+        
+        // 1. 탈퇴하는 회원이 쓴 Trade soft delete
         int deleteTradeCount = tradeMapper.deleteAll(member_seq);
-        int signOutBookClubCount = bookClubMapper.signOutAll(member_seq);
-
         log.info("delete trade count : {}", deleteTradeCount);
+        
+        /* 2. 탈퇴하는 회원이 가입된 Book Club의 join_st = LEFT 처리
+
+        int signOutBookClubCount = bookClubMapper.signOutAll(member_seq);
         log.info("sign out book club count : {}", signOutBookClubCount);
+        */
+
+        List<BookClubVO> bookClubVOS = bookClubMapper.selectMyBookClubs(member_seq);
+        for (BookClubVO bookClubVO : bookClubVOS) {
+            Map<String, Object> stringObjectMap = bookClubService.leaveBookClub(bookClubVO.getBook_club_seq(), member_seq);
+            for (int i = 0; i < stringObjectMap.size(); i++) {
+                log.info("leaveBookClub : {}", stringObjectMap.get(i));
+            }
+        }
 
         return memberMapper.deleteMember(member_seq) > 0;
     }
