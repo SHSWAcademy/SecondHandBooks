@@ -311,7 +311,7 @@
     <update id="deleteAll">
         UPDATE sb_trade_info
         SET del_dtm = now()
-        WHERE = member_seller_seq = #{member_seq}
+        WHERE member_seller_seq = #{member_seq}
     </update>
 
     <!-- 마이페이지 찜조회용 -->
