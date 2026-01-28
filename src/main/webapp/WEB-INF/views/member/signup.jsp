@@ -481,10 +481,12 @@
         })
     }
 
+    // 휴대폰 번호 자동 하이픈 (010-0000-0000)
     function autoHyphen(target) {
         target.value = target.value
-            .replace(/[^0-9]/g, '')
-            .replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+            .replace(/[^0-9]/g, '') // 숫자가 아닌 문자 제거
+            .replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3") // 3-4-4 자리로 나눠서 하이픈 추가
+            .replace(/(\-{1,2})$/g, ""); // 끝에 남은 하이픈 제거
     }
 
     function validateForm() {
