@@ -267,34 +267,60 @@ function bindCategoryName(selectId, hiddenId) {
     });
 }
 
-// 첨부파일 갯수제한
-function limitFileUploadTo3(inputEl, msgEl) {
+// 첨부파일 갯수, 용량, img파일 업로드 검증
+function validateImageUpload(inputEl, msgEl) {
+    const MAX_COUNT = 3;
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
     inputEl.addEventListener('change', () => {
-        const files = inputEl.files;
-        // 3개로 제한
-        if (files.length > 3) { // 최대 3개
-            msgEl.textContent = `최대 3개까지 업로드 가능합니다.`;
+        const files = Array.from(inputEl.files);
 
-            // 스타일 적용
-            msgEl.style.color = 'red';
-            msgEl.style.fontWeight = 'bold';
-            msgEl.style.fontSize = '1rem'; // 원하면 더 키울 수 있음
-            inputEl.value = ''; // 선택 초기화
-        } else {
-            msgEl.textContent = ''; // 메시지 초기화
-
-            // 스타일 초기화
-            msgEl.style.color = '';
-            msgEl.style.fontWeight = '';
-            msgEl.style.fontSize = '';
+        //개수 제한
+        if (files.length > MAX_COUNT) {
+            showFileError(`최대 ${MAX_COUNT}개까지 업로드 가능합니다.`);
+            return;
         }
+
+        //파일별 검사
+        for (let file of files) {
+
+            // 이미지 타입 체크
+            if (!file.type.startsWith('image/')) {
+                showFileError('이미지 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            // 용량 체크 (파일 하나당 5MB)
+            if (file.size > MAX_SIZE) {
+                showFileError('이미지 파일은 1개당 5MB 이하만 업로드 가능합니다.');
+                return;
+            }
+        }
+
+        // 통과 시 메시지 초기화
+        clearFileError();
     });
+
+    function showFileError(message) {
+        msgEl.textContent = message;
+        msgEl.style.color = 'red';
+        msgEl.style.fontWeight = 'bold';
+        msgEl.style.fontSize = '1rem';
+        inputEl.value = ''; // 선택 초기화
+    }
+
+    function clearFileError() {
+        msgEl.textContent = '여러 이미지를 한 번에 선택할 수 있습니다. (Ctrl/Cmd + 클릭)';
+        msgEl.style.color = '';
+        msgEl.style.fontWeight = '';
+        msgEl.style.fontSize = '';
+    }
 }
 
 // 적용
 const fileInput = document.querySelector('input[name="uploadFiles"]');
 const msg = document.getElementById('fileMsg');
-limitFileUploadTo3(fileInput, msg);
+validateImageUpload(fileInput, msg);
 
 
 
