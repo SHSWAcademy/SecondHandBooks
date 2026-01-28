@@ -9,6 +9,9 @@ import project.trade.ENUM.PaymentType;
 import project.trade.ENUM.SaleStatus;
 import project.util.Const;
 import project.util.book.BookVO;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,10 +26,14 @@ public class TradeVO {
     private long settlement_seq;    // 추가
     private Long pending_buyer_seq; // 추가
 
+    @NotBlank
     private String sale_title;      //책 제목
     private BookStatus book_st;     // DB: book_st_enum 매핑
+    @NotNull
     private String sale_cont;       // 상세설명
+    @NotBlank
     private int sale_price;         // 판매가격
+    @NotBlank
     private int delivery_cost; // 배송비
     private String sale_rg;         // 수정: book_sale_region -> sale_rg
     private SaleStatus sale_st;     // DB: sale_st_enum 매핑
@@ -42,6 +49,7 @@ public class TradeVO {
 //    private LocalDateTime crt_dtm;  // 완료일자
     private LocalDateTime upd_dtm;  // 업데이트 일자
     private PaymentType payment_type; // 거래방법
+    @NotBlank
     private String category_nm; // 카테고리 이름
 
     // Book 관련 (Join 결과 매핑용)
@@ -50,6 +58,7 @@ public class TradeVO {
     private String book_author;     // 저자
     private String book_publisher;  // 출판사
     private String book_img;        // 썸네일 이미지 url
+    @NotBlank
     private int book_org_price;     // 책 원가
 
     // 이미지 리스트
