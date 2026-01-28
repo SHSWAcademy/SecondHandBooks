@@ -10,6 +10,7 @@ import project.trade.ENUM.SaleStatus;
 import project.util.Const;
 import project.util.book.BookVO;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -32,9 +33,9 @@ public class TradeVO {
     private BookStatus book_st;     // DB: book_st_enum 매핑
     @NotBlank
     private String sale_cont;       // 상세설명
-    @NotNull @Min(0)
+    @NotNull @Min(0) @Max(Integer.MAX_VALUE)
     private Integer sale_price;         // 판매가격
-    @NotNull @Min(0)
+    @NotNull @Min(0) @Max(Integer.MAX_VALUE)
     private Integer delivery_cost; // 배송비
     private String sale_rg;         // 수정: book_sale_region -> sale_rg
     private SaleStatus sale_st;     // DB: sale_st_enum 매핑
@@ -61,7 +62,7 @@ public class TradeVO {
     private String book_publisher;  // 출판사
     @NotBlank
     private String book_img;        // 썸네일 이미지 url
-    @NotNull @Min(0)
+    @NotNull @Min(0) @Max(Integer.MAX_VALUE)
     private Integer book_org_price;     // 책 원가
 
     // 이미지 리스트
