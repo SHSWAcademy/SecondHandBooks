@@ -94,12 +94,9 @@ public class MemberService{
         int deleteTradeCount = tradeMapper.deleteAll(member_seq);
         log.info("delete trade count : {}", deleteTradeCount);
         
-        /* 2. 탈퇴하는 회원이 가입된 Book Club의 join_st = LEFT 처리
 
-        int signOutBookClubCount = bookClubMapper.signOutAll(member_seq);
-        log.info("sign out book club count : {}", signOutBookClubCount);
-        */
-
+        // 2. 탈퇴한 회원의 Book Club 처리
+        // BookClubVO seq 조회를 위한 select 쿼리 전달
         List<BookClubVO> bookClubVOS = bookClubMapper.selectMyBookClubs(member_seq);
         for (BookClubVO bookClubVO : bookClubVOS) {
             Map<String, Object> result = bookClubService.leaveBookClub(bookClubVO.getBook_club_seq(), member_seq);
