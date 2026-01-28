@@ -176,10 +176,10 @@ function getNoticeSeqFromURL() {
 }
 
 // 글자 수 카운터
-const contentTextarea = document.getElementById('notice_cont');
+const noticeEditContent = document.getElementById('notice_cont');
 const charCount = document.getElementById('charCount');
 
-contentTextarea.addEventListener('input', function() {
+noticeEditContent.addEventListener('input', function() {
     const length = this.value.length;
     charCount.textContent = length.toLocaleString() + '자';
 
