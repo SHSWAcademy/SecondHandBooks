@@ -59,7 +59,7 @@
                 <input type="hidden" id="book_title" name="book_title" required />
                 <input type="hidden" id="book_author" name="book_author" required />
                 <input type="hidden" id="book_publisher" name="book_publisher" required />
-                <input type="hidden" id="book_org_price" name="book_org_price" />
+                <input type="hidden" id="book_org_price" name="book_org_price" required/>
                 <input type="hidden" id="book_img" name="book_img" required />
             </div>
         </div>
@@ -108,7 +108,7 @@
                     <label for="sale_price" class="block text-sm font-bold text-gray-700 mb-2">
                         판매가격 (원)
                     </label>
-                    <input type="number" id="sale_price" name="sale_price"
+                    <input type="number" id="sale_price" name="sale_price" required
                            placeholder="25000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                 </div>
@@ -118,7 +118,7 @@
                     <label for="delivery_cost" class="block text-sm font-bold text-gray-700 mb-2">
                         배송비 (원)
                     </label>
-                    <input type="number" id="delivery_cost" name="delivery_cost"
+                    <input type="number" id="delivery_cost" name="delivery_cost" required
                            placeholder="3000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                     <p class="text-xs text-gray-500 mt-1">무료배송인 경우 0을 입력하세요</p>
@@ -130,7 +130,7 @@
                         책 상태
                     </label>
                     <select id="book_st" name="book_st"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
                         <option value="">선택하세요</option>
                         <option value="NEW">새책</option>
                         <option value="LIKE_NEW">거의 새책</option>
@@ -145,7 +145,7 @@
                         거래방법
                     </label>
                     <select id="payment_type" name="payment_type"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
                         <option value="">선택하세요</option>
                         <option value="account">계좌이체</option>
                         <option value="tosspay">토스페이</option>
@@ -179,8 +179,9 @@
                         상세설명 <span class="text-red-500">*</span>
                     </label>
                     <textarea id="sale_cont" name="sale_cont" required rows="6"
-                              placeholder="책의 상태, 특이사항 등을 자세히 설명해주세요"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"></textarea>
+                              placeholder="책의 상태, 특이사항 등을 자세히 설명해주세요 (500자 제한)"
+                              maxlength="500"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none" ></textarea>
                 </div>
             </div>
         </div>
@@ -402,6 +403,15 @@ function searchRG() {
 // 폼 제출 전 검증
 document.querySelector('form').addEventListener('submit', function(e) {
     // 필수 필드 체크는 HTML5 required 속성으로 자동 처리됨
+    const bookTitle = document.getElementById('book_title').value.trim();
+
+    // 책 선택은 추가함
+    if (!bookTitle) {
+        e.preventDefault(); // 제출 중단
+        alert('판매 하실책을 선택 해주세요.');
+        searchInput.focus();
+        return;
+    }
 });
 
 
