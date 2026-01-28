@@ -93,19 +93,20 @@
                     <label class="block text-sm font-bold text-gray-700 mb-2">
                            카테고리 <span class="text-red-500">*</span>
                               </label>
+                                    <select id="categorySelect"
+                                                name="category_seq"
+                                                required
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                            <option value="">카테고리 선택</option>
 
-                              <select id="categorySelect" name="category_seq" required
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                                    <option value="">카테고리 선택</option>
-
-                                    <c:forEach var="cat" items="${category}">
-                                         <option value="${cat.category_seq}"
-                                               data-nm="${cat.category_nm}">
-                                             ${cat.category_nm}
-                                            </option>
-                                        </c:forEach>
-                                    </select>
-                                    <!-- 카테고리 네임 히든으로 보내기 위에는 seq보냄 -->
+                                            <c:forEach var="cat" items="${category}">
+                                                <option value="${cat.category_seq}"
+                                                        data-nm="${cat.category_nm}"
+                                                        ${cat.category_nm eq trade.category_nm ? 'selected' : ''}>
+                                                    ${cat.category_nm}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
                            <input type="hidden" name="category_nm" id="category_nm">
                         </div>
 
@@ -116,6 +117,7 @@
                     </label>
                     <input type="number" id="sale_price" name="sale_price" required
                            max="10000000"
+                           value="${trade.sale_price}"
                            placeholder="25000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                            <p id="sale_price_error"
@@ -131,6 +133,7 @@
                     </label>
                     <input type="number" id="delivery_cost" name="delivery_cost" required
                            placeholder="3000"
+                           value="${trade.delivery_cost}"
                            max="50000"
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
                     <p id="delivery_cost_error"
