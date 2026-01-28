@@ -172,7 +172,7 @@
 
     function adminLog_resetSearch() {
         document.getElementById('adminLogSearchKeyword').value = '';
-        document.getElementById('adminLogLogSearchType').value = 'all';
+        document.getElementById('adminLogSearchType').value = 'all';
         searchAdminLog(1);
     }
 
