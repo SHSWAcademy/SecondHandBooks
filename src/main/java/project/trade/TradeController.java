@@ -247,7 +247,7 @@ public class TradeController {
         return bookApiService.searchBooks(query);
     }
 
-    private void checkSessionAndTrade(HttpSession session, TradeVO tradeVO) throws Exception {
+    private void checkSessionAndTrade(HttpSession session, TradeVO tradeVO) throws CheckTradeException {
 
         // 세션 검증
         MemberVO loginMember = (MemberVO)session.getAttribute(Const.SESSION);
