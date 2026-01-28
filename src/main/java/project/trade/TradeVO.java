@@ -3,6 +3,7 @@ package project.trade;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 import project.trade.ENUM.BookStatus;
 import project.trade.ENUM.PaymentType;
@@ -31,7 +32,7 @@ public class TradeVO {
     @NotBlank
     private String sale_title;      //책 제목
     private BookStatus book_st;     // DB: book_st_enum 매핑
-    @NotBlank
+    @NotBlank @Length(max = 500)
     private String sale_cont;       // 상세설명
     @NotNull @Min(0) @Max(Integer.MAX_VALUE)
     private Integer sale_price;         // 판매가격
@@ -89,7 +90,7 @@ public class TradeVO {
                     // book_author != null && !book_author.equals("") &&
                     // book_publisher != null && !book_publisher.equals("") &&
                     category_nm != null && !category_nm.equals("") &&
-                    sale_cont != null && !sale_cont.equals("")) {
+                    sale_cont != null && !sale_cont.equals("") && !(sale_cont.length() >= 500)) {
                 result = true;
             }
         return result;
