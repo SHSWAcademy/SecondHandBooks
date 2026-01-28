@@ -311,7 +311,7 @@
     <update id="deleteAll">
         UPDATE sb_trade_info
         SET del_dtm = now()
-        WHERE = member_seller_seq = #{member_seq}
+        WHERE member_seller_seq = #{member_seq}
     </update>
 
     <!-- 마이페이지 찜조회용 -->
@@ -342,7 +342,6 @@
         , T.CONFIRM_PURCHASE
         FROM SB_TRADE_INFO T
         WHERE T.MEMBER_BUYER_SEQ = #{member_seq}
-        AND T.DEL_DTM IS NULL
         ORDER BY T.SALE_ST_DTM DESC
     </select>
 
