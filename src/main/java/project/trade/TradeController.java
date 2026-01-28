@@ -21,6 +21,7 @@ import project.util.imgUpload.UploadFile;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +69,23 @@ public class TradeController {
         return "trade/tradeform";
     }
 
+    /*
+    입력 숫자 범위 체크
+    @GetMapping("/trade/check")
+    @ResponseBody
+    public String checkPrice(String price) {
+        try {
+            int p = Integer.parseInt(price); // 문자열 → int 변환
+            if (p < 0) {
+                return "0 이상의 값만 입력 가능합니다.";
+            }
+            return "입력값 정상"; // 정상 범위
+        } catch (NumberFormatException e) {
+            return "숫자 범위가 올바르지 않습니다.";
+        }
+    }
+     */
+
     // 판매글 create
     @PostMapping("/trade")
     public String uploadTrade(@Valid TradeVO tradeVO, BindingResult bindingResult,
@@ -77,7 +95,7 @@ public class TradeController {
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
         if (sessionMember == null || bindingResult.hasErrors()) {
             log.warn("Trade validation error: {}", bindingResult.getAllErrors());
-            return "error/400";
+            return "error/numberError";
         }
 
         tradeVO.setMember_seller_seq(sessionMember.getMember_seq());
