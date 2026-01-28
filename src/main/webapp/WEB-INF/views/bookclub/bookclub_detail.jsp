@@ -148,10 +148,10 @@
                                             <c:choose>
                                                 <%-- 1. 비로그인 (관리자도 아니고 일반 회원도 아님) --%>
                                                     <c:when test="${(not isLogin) and (empty sessionScope.adminSess)}">
-                                                        <a href="${pageContext.request.contextPath}/login"
+                                                        <button type="button" onclick="redirectToLogin()"
                                                             class="bc-btn bc-btn-secondary">
                                                             로그인 후 이용
-                                                        </a>
+                                                        </button>
                                                     </c:when>
 
                                                     <%-- 2. 관리자 (Admin) --%>
@@ -257,7 +257,7 @@
                             .then(function (data) {
                                 if (data.needLogin) {
                                     alert('로그인이 필요합니다.');
-                                    location.href = window.__CTX + '/login';
+                                    redirectToLogin();
                                     return;
                                 }
                                 if (data.status === 'ok') {
