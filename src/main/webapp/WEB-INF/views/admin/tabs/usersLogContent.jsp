@@ -28,7 +28,7 @@
                 id="usersLogSearchKeyword"
                 placeholder="검색어를 입력하세요..."
                 class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition pl-10"
-                onkeypress="if(event.keyCode === 13) searchMembers()">
+                onkeypress="if(event.keyCode === 13) searchUsersLog()">
               <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
             </div>
 
@@ -176,7 +176,7 @@
 
     function usersLog_resetSearch() {
         document.getElementById('usersLogSearchKeyword').value = '';
-        document.getElementById('usersLogLogSearchType').value = 'all';
+        document.getElementById('usersLogSearchType').value = 'all';
         searchUsersLog(1);
     }
 
