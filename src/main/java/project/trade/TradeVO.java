@@ -10,6 +10,7 @@ import project.trade.ENUM.SaleStatus;
 import project.util.Const;
 import project.util.book.BookVO;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -29,12 +30,12 @@ public class TradeVO {
     @NotBlank
     private String sale_title;      //책 제목
     private BookStatus book_st;     // DB: book_st_enum 매핑
-    @NotNull
+    @NotBlank
     private String sale_cont;       // 상세설명
-    @NotBlank
-    private int sale_price;         // 판매가격
-    @NotBlank
-    private int delivery_cost; // 배송비
+    @NotNull @Min(0)
+    private Integer sale_price;         // 판매가격
+    @NotNull @Min(0)
+    private Integer delivery_cost; // 배송비
     private String sale_rg;         // 수정: book_sale_region -> sale_rg
     private SaleStatus sale_st;     // DB: sale_st_enum 매핑
     private LocalDateTime sale_st_dtm;  // 상품상태 변경 시간
@@ -54,12 +55,14 @@ public class TradeVO {
 
     // Book 관련 (Join 결과 매핑용)
     private String isbn;            // 책 고유번호
+    @NotBlank
     private String book_title;      // 책 제목
     private String book_author;     // 저자
     private String book_publisher;  // 출판사
-    private String book_img;        // 썸네일 이미지 url
     @NotBlank
-    private int book_org_price;     // 책 원가
+    private String book_img;        // 썸네일 이미지 url
+    @NotNull @Min(0)
+    private Integer book_org_price;     // 책 원가
 
     // 이미지 리스트
     private List<MultipartFile> uploadFiles; // form 에서 받아오는 데이터
@@ -88,8 +91,6 @@ public class TradeVO {
                     sale_cont != null && !sale_cont.equals("")) {
                 result = true;
             }
-
-
         return result;
     }
 

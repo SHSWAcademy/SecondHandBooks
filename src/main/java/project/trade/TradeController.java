@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -19,6 +20,7 @@ import project.util.imgUpload.FileStore;
 import project.util.imgUpload.UploadFile;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,10 +70,18 @@ public class TradeController {
 
     // 판매글 create
     @PostMapping("/trade")
-    public String uploadTrade(TradeVO tradeVO, HttpSession session,
+    public String uploadTrade(@Valid TradeVO tradeVO, BindingResult bindingResult,
+                              HttpSession session,
                               RedirectAttributes redirectAttributes) throws Exception {
 
-        checkSessionAndTrade(session, tradeVO);
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+        if (sessionMember == null || bindingResult.hasErrors()) {
+            log.warn("Trade validation error: {}", bindingResult.getAllErrors());
+            return "error/400";
+        }
+
+        tradeVO.setMember_seller_seq(sessionMember.getMember_seq());
+
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
         List<MultipartFile> uploadFiles = tradeVO.getUploadFiles(); // form 에서 받은 데이터 조회
         log.info("uploadFiles: {}", uploadFiles);
@@ -257,7 +267,7 @@ public class TradeController {
         }
 
         // tradeVO 검증
-        if (tradeVO == null || !tradeVO.checkTradeVO()){
+        if (tradeVO == null || !tradeVO.checkTradeVO() ){
             log.info("Invalid trade data: {}", tradeVO);
             throw new TradeNotFoundException("cannot upload trade");
         }
