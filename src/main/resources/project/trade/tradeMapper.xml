@@ -307,6 +307,12 @@
         DELETE FROM trade_wish
         WHERE trade_seq = #{trade_seq} AND member_seq = #{member_seq}
     </delete>
+    <!-- 회원 탈퇴 시 삭제되는 trade, soft delete -->
+    <update id="deleteAll">
+        UPDATE sb_trade_info
+        SET del_dtm = now()
+        WHERE = member_seller_seq = #{member_seq}
+    </update>
 
     <!-- 마이페이지 찜조회용 -->
     <select id="selectWishTrades" parameterType="long" resultType="project.trade.TradeVO">

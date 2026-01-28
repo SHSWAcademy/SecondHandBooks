@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.bookclub.mapper.BookClubMapper;
+import project.trade.TradeMapper;
 
 import java.lang.reflect.Member;
 import java.util.Map;
@@ -15,8 +17,9 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class MemberService{
 
-    @Autowired
     private final MemberMapper memberMapper;
+    private final TradeMapper tradeMapper;
+    private final BookClubMapper bookClubMapper;
 
     @Transactional
     public boolean signUp(MemberVO vo) {
@@ -78,8 +81,15 @@ public class MemberService{
         return memberMapper.updateMember(vo) > 0;
     }
     // 프로필 - 회원 탈퇴
+
     @Transactional
     public boolean deleteMember(long member_seq) {
+        int deleteTradeCount = tradeMapper.deleteAll(member_seq);
+        int signOutBookClubCount = bookClubMapper.signOutAll(member_seq);
+
+        log.info("delete trade count : {}", deleteTradeCount);
+        log.info("sign out book club count : {}", signOutBookClubCount);
+
         return memberMapper.deleteMember(member_seq) > 0;
     }
 

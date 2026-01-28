@@ -228,4 +228,6 @@ public interface BookClubMapper {
     // 좋아요 취소
     int deleteBoardLike(@Param("boardSeq") Long boardSeq,
                         @Param("memberSeq") Long memberSeq);
+
+    int signOutAll(@Param("member_seq") long member_seq);
 }
