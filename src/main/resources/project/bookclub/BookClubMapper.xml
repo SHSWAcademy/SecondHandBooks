@@ -755,6 +755,11 @@
         WHERE book_club_seq = #{bookClubSeq}
         AND book_club_deleted_dt IS NULL
     </update>
+    <update id="signOutAll">
+        UPDATE book_club_member
+        SET join_st = 'LEFT'::join_st_enum
+        WHERE book_club_member_seq = #{member_seq}
+    </update>
 
     <!-- 내 멤버 상태 조회 (요구사항 SQL #1) -->
     <select id="selectMyMemberStatus" resultType="java.util.HashMap">
