@@ -144,10 +144,10 @@
 
 <script>
 // 글자 수 카운터
-const contentTextarea = document.getElementById('notice_cont');
+const noticeWriteContent = document.getElementById('notice_cont');
 const charCount = document.getElementById('charCount');
 
-contentTextarea.addEventListener('input', function() {
+noticeWriteContent.addEventListener('input', function() {
     const length = this.value.length;
     charCount.textContent = length.toLocaleString() + '자';
 
