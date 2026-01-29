@@ -18,16 +18,21 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(adminAuthInterceptor)
+                .addPathPatterns("/admin", "/admin/**")
+                .excludePathPatterns(
+                        "/admin/login",
+                        "/admin/loginProcess",
+                        "/admin/api/logout-pending",
+                        "/admin/api/cancel-logout",
+                        "/css/**", "/js/**", "/img/**"
+                );
+
         registry.addInterceptor(unreadInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/css/**", "/js/**", "/images/**");
 
-        registry.addInterceptor(adminAuthInterceptor)
-                .addPathPatterns("/admin/**")
-                .excludePathPatterns(
-                        "/admin/login",
-                        "/admin/loginProcess"
-                );
+
         registry.addInterceptor(memberActivityInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(

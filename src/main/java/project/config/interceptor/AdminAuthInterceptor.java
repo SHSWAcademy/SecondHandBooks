@@ -22,6 +22,7 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
+
         String uri = request.getRequestURI();
         log.info("=== AdminAuthInterceptor 실행: uri={} ===", uri);
         // 세션 확인
@@ -39,14 +40,16 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
 
         // ★ 강제 로그아웃 체크 ★
         if (logoutPendingManager.isForceLogout(UserType.ADMIN, admin.getAdmin_seq())) {
-
+            System.out.println("!!!!!!!!!! [FORCE LOGOUT DETECTED] !!!!!!!!!!");
             // 세션 무효화
-            sess.invalidate();
+            request.getSession().invalidate();
             // 강제 로그아웃 대상에서 제거
             logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
 
-            // 로그인 페이지로 이동
-            return handleUnauthorized(request, response);
+            response.sendRedirect("/admin/login?forced=true");
+            return false;
+        } else {
+            System.out.println("DEBUG: Not in force logout list. Seq: " + admin.getAdmin_seq());
         }
         // pending 상태 제거 (활동 감지)
         // logout-pending API는 제외

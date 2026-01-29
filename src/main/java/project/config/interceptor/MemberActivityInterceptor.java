@@ -38,11 +38,10 @@ public class MemberActivityInterceptor implements HandlerInterceptor {
             if (memberVO != null) {
                 // ★ 강제 로그아웃 체크 ★
                 if (logoutPendingManager.isForceLogout(UserType.MEMBER, memberVO.getMember_seq())) {
+
+                    request.getSession().invalidate();
                     // 강제 로그아웃 대상에서 제거
                     logoutPendingManager.removeForceLogout(UserType.MEMBER, memberVO.getMember_seq());
-
-                    // 세션 무효화
-                    sess.invalidate();
 
                     log.info("Member 강제 로그아웃 실행: memberSeq={}", memberVO.getMember_seq());
 
