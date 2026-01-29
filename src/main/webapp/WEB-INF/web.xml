@@ -25,7 +25,7 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
-	
+
 	<!-- Spring Security Filter -->
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
@@ -61,4 +61,10 @@
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
+	<session-config>
+		<session-timeout>30</session-timeout>
+		<cookie-config>
+			<http-only>true</http-only>
+		</cookie-config>
+	</session-config>
 </web-app>
