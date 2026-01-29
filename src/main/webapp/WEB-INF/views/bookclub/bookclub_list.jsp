@@ -13,6 +13,7 @@
                 </c:if>
                 <title>독서모임 목록 - 신한북스</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub.css">
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/place_search.css">
             </head>
 
             <body>
@@ -185,19 +186,45 @@
                             <div class="form-group">
                                 <label class="form-label">활동 지역</label>
                                 <div class="toggle-group">
-                                    <button type="button" class="toggle-btn active" data-value="offline">오프라인</button>
-                                    <button type="button" class="toggle-btn" data-value="online">온라인</button>
+                                    <button type="button" class="toggle-btn active" data-value="offline" id="offlineToggle">오프라인</button>
+                                    <button type="button" class="toggle-btn" data-value="online" id="onlineToggle">온라인</button>
                                 </div>
                                 <input type="hidden" name="book_club_type" id="bookClubType" value="offline">
-                                <div class="detail-region show" id="detailRegion">
-                                    <input type="text" name="book_club_rg" class="form-input"
-                                        placeholder="상세 지역 (예: 서울 강남구)">
+                                <input type="hidden" name="book_club_rg" id="bookClubRegion" value="">
+
+                                <!-- 오프라인 장소 검색 영역 -->
+                                <div class="place-search-container" id="modalPlaceSearchContainer">
+                                    <div class="place-search-input-wrap">
+                                        <input type="text" id="modalPlaceSearchInput" class="form-input"
+                                            placeholder="장소를 검색하세요 (예: 스타벅스 강남)"
+                                            autocomplete="off">
+                                        <button type="button" id="modalPlaceSearchBtn" class="btn-place-search">검색</button>
+                                    </div>
+
+                                    <!-- 검색 결과 리스트 -->
+                                    <div class="place-search-results" id="modalPlaceSearchResults" style="display:none;">
+                                        <ul id="modalPlaceResultList"></ul>
+                                    </div>
+
+                                    <!-- 지도 영역 -->
+                                    <div class="place-map-container">
+                                        <div id="modalPlaceMap" class="place-map"></div>
+                                    </div>
+
+                                    <!-- 선택된 장소 표시 -->
+                                    <div class="selected-place" id="modalSelectedPlace" style="display:none;">
+                                        <div class="selected-place-info">
+                                            <strong id="modalSelectedPlaceName"></strong>
+                                            <span id="modalSelectedPlaceAddress"></span>
+                                        </div>
+                                        <button type="button" class="btn-remove-place" id="modalRemovePlaceBtn" title="장소 삭제">X</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- 모임 소개 -->
                             <div class="form-group">
-                                <textarea name="book_club_desc" class="form-textarea" placeholder="모임 소개"></textarea>
+                                <textarea name="book_club_desc" class="form-textarea" placeholder="모임 소개" maxlength="500"></textarea>
                             </div>
 
                             <!-- 정기 모임 일정 -->
@@ -278,18 +305,149 @@
 
                 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
+                <!-- 카카오 지도 SDK -->
+                <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
+                <script src="${pageContext.request.contextPath}/resources/js/bookclub/kakaoPlaceSearch.js"></script>
                 <script src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub.js"></script>
                 <script>
                     // 페이지별 초기화
                     document.addEventListener('DOMContentLoaded', function () {
                         BookClub.initList();
                         initCreateModal();
+                        initModalPlaceSearch();
                     });
                     // 로그인 세션 없이 모임 만들기 버튼 클릭 -> 로그인 요청 alert
                     document.getElementById("needLoginBtn")?.addEventListener("click", () => {
                         alert("로그인이 필요합니다.");
                         redirectToLogin();
                     });
+
+                    // 모달 장소 검색 초기화
+                    function initModalPlaceSearch() {
+                        var offlineToggle = document.getElementById('offlineToggle');
+                        var onlineToggle = document.getElementById('onlineToggle');
+                        var placeSearchContainer = document.getElementById('modalPlaceSearchContainer');
+                        var placeSearchInput = document.getElementById('modalPlaceSearchInput');
+                        var placeSearchBtn = document.getElementById('modalPlaceSearchBtn');
+                        var placeResultList = document.getElementById('modalPlaceResultList');
+                        var placeSearchResults = document.getElementById('modalPlaceSearchResults');
+                        var selectedPlaceDiv = document.getElementById('modalSelectedPlace');
+                        var selectedPlaceName = document.getElementById('modalSelectedPlaceName');
+                        var selectedPlaceAddress = document.getElementById('modalSelectedPlaceAddress');
+                        var removePlaceBtn = document.getElementById('modalRemovePlaceBtn');
+                        var regionInput = document.getElementById('bookClubRegion');
+                        var typeInput = document.getElementById('bookClubType');
+
+                        var mapInitialized = false;
+
+                        // 카카오 지도 초기화 함수
+                        function initKakaoMap() {
+                            if (mapInitialized) {
+                                KakaoPlaceSearch.relayout();
+                                return;
+                            }
+
+                            KakaoPlaceSearch.init('modalPlaceMap', function(place) {
+                                var address = place.road_address_name || place.address_name || '';
+                                selectedPlaceName.textContent = place.place_name;
+                                selectedPlaceAddress.textContent = address;
+                                selectedPlaceDiv.style.display = 'flex';
+                                placeSearchResults.style.display = 'none';
+                                regionInput.value = KakaoPlaceSearch.formatPlaceString(place);
+                            });
+
+                            mapInitialized = true;
+                        }
+
+                        // 모달 열릴 때 지도 초기화
+                        document.getElementById('openCreateModal')?.addEventListener('click', function() {
+                            setTimeout(function() {
+                                if (typeInput.value === 'offline') {
+                                    initKakaoMap();
+                                }
+                            }, 300);
+                        });
+
+                        // 오프라인/온라인 토글
+                        offlineToggle?.addEventListener('click', function() {
+                            offlineToggle.classList.add('active');
+                            onlineToggle.classList.remove('active');
+                            typeInput.value = 'offline';
+                            placeSearchContainer.style.display = 'block';
+                            if (selectedPlaceDiv.style.display !== 'flex') {
+                                regionInput.value = '';
+                            }
+                            setTimeout(function() {
+                                initKakaoMap();
+                            }, 100);
+                        });
+
+                        onlineToggle?.addEventListener('click', function() {
+                            onlineToggle.classList.add('active');
+                            offlineToggle.classList.remove('active');
+                            typeInput.value = 'online';
+                            placeSearchContainer.style.display = 'none';
+                            regionInput.value = '온라인';
+                            selectedPlaceDiv.style.display = 'none';
+                        });
+
+                        // 검색 버튼 클릭
+                        placeSearchBtn?.addEventListener('click', function() {
+                            searchPlaces();
+                        });
+
+                        // Enter 키로 검색
+                        placeSearchInput?.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                searchPlaces();
+                            }
+                        });
+
+                        // 장소 검색 함수
+                        function searchPlaces() {
+                            var keyword = placeSearchInput.value.trim();
+                            if (!keyword) {
+                                alert('장소를 입력해주세요.');
+                                return;
+                            }
+
+                            if (!mapInitialized) {
+                                initKakaoMap();
+                            }
+
+                            KakaoPlaceSearch.searchPlaces(keyword, function(results, status) {
+                                placeResultList.innerHTML = '';
+
+                                if (status === kakao.maps.services.Status.OK) {
+                                    placeSearchResults.style.display = 'block';
+
+                                    results.slice(0, 10).forEach(function(place) {
+                                        var li = document.createElement('li');
+                                        li.className = 'place-result-item';
+                                        li.innerHTML = '<strong>' + place.place_name + '</strong>' +
+                                                       '<span>' + (place.road_address_name || place.address_name) + '</span>';
+                                        li.addEventListener('click', function() {
+                                            KakaoPlaceSearch.selectPlace(place);
+                                        });
+                                        placeResultList.appendChild(li);
+                                    });
+                                } else {
+                                    placeSearchResults.style.display = 'block';
+                                    placeResultList.innerHTML = '<li class="no-result">검색 결과가 없습니다.</li>';
+                                }
+                            });
+                        }
+
+                        // 선택 장소 삭제
+                        removePlaceBtn?.addEventListener('click', function() {
+                            selectedPlaceDiv.style.display = 'none';
+                            regionInput.value = '';
+                            if (mapInitialized) {
+                                KakaoPlaceSearch.clearSelection();
+                            }
+                        });
+                    }
 
                     // 찜 토글
                     function toggleWish(clubSeq, btn) {

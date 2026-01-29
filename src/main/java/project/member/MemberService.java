@@ -65,6 +65,15 @@ public class MemberService{
         }
 
         // 2. 미가입 -> 회원가입 진행
+        String nickname = (String) params.get("nickname"); // 소셜 로그인 시 중복체크
+        while (memberMapper.nickNmCheck(nickname) > 0) {
+            // 홍길동 --> 홍길동_1242(난수 4자리)
+            int randomNum = (int) (Math.random() * 9000) + 1000;
+            nickname = nickname + "_" + randomNum;
+        }
+
+        params.put("nickname", nickname);
+
         // (1) MEMBER_INFO 저장 (Map 사용)
         //params.put("member_st", "ACTIVE");
         String generatedLoginId = params.get("provider") + "_" + params.get("provider_id");
@@ -119,9 +128,13 @@ public class MemberService{
 
     // 비밀번호 재설정
     @Transactional
-    public boolean resetPassword(String login_id, String new_pwd) {
-        // 실제 운영 시에는 여기서 BCryptPasswordEncoder 등을 사용해 암호화해야 함
-        // 예: String encPwd = passwordEncoder.encode(new_pwd);
-        return memberMapper.updatePassword(login_id, new_pwd) > 0;
+    public String resetPassword(String login_id, String new_pwd) {
+        // 이전 비밀번호와 같은지 확인하기
+        int matchCount = memberMapper.checkPasswordMatch(login_id, new_pwd);
+        if (matchCount > 0) {
+            return "same_password";
+        }
+        int updateCount = memberMapper.updatePassword(login_id, new_pwd);
+        return updateCount > 0 ? "success" : "fail";
     }
 }

@@ -25,7 +25,7 @@
                 <label class="block text-sm font-bold text-gray-700 mb-1.5">휴대폰 번호</label>
                 <input type="tel" id="findId_tel" oninput="autoHyphen(this)" maxlength="13"
                        class="w-full px-4 py-3 border border-gray-300 rounded-md focus:border-primary-500 outline-none text-sm"
-                       placeholder="가입 시 등록한 휴대폰 번호 (010-0000-0000)" />
+                       placeholder="가입 시 등록한 휴대폰 번호" />
             </div>
             <p id="resultMsgId" class="text-sm text-center font-bold min-h-[20px]"></p>
 
@@ -47,11 +47,11 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일</label>
                     <div class="flex gap-2">
-                        <input type="email" id="findPwd_email"
+                        <input type="email" id="findPwd_email" oninput="resetEmailAuth()"
                                class="flex-1 px-4 py-3 border border-gray-300 rounded-md focus:border-primary-500 outline-none text-sm"
                                placeholder="가입 시 등록한 이메일" />
                         <button type="button" onclick="sendResetCode()" id="btnSendCode"
-                                class="px-4 py-2 bg-gray-800 text-white text-xs font-bold rounded-md hover:bg-gray-900 whitespace-nowrap">
+                                class="px-4 py-2 bg-gray-800 text-white text-xs font-bold rounded-md hover:bg-gray-900 whitespace-nowrap transition">
                             인증번호 전송
                         </button>
                     </div>
@@ -66,17 +66,22 @@
                         <input type="text" id="authCode" maxlength="6"
                                class="flex-1 px-3 py-2 border border-gray-300 rounded-sm text-sm outline-none"
                                placeholder="인증번호 6자리" />
-                        <button type="button" onclick="verifyResetCode()"
+                        <button type="button" onclick="verifyResetCode()" id="btnVerifyCode"
                                 class="px-3 py-2 bg-white border border-gray-300 text-xs font-bold rounded-sm hover:bg-gray-100">
                             확인
                         </button>
                     </div>
-                    <p id="authMsg" class="text-xs mt-2 text-gray-500"></p>
+                    <div class="flex justify-between items-center mt-2">
+                        <p id="authMsg" class="text-xs text-gray-500"></p>
+                        <button type="button" onclick="sendResetCode()" class="text-xs text-gray-500 underline hover:text-gray-800">
+                            재전송
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div id="step-reset" class="hidden space-y-4 border-t border-gray-100 pt-4 mt-2">
-                <div class="bg-blue-50 p-3 rounded text-xs text-blue-700 mb-2">
+                <div class="bg-blue-50 p-3 rounded text-xs text-blue-700 mb-2 font-medium">
                     인증이 완료되었습니다. 새로운 비밀번호를 설정해주세요.
                 </div>
                 <div>
@@ -108,6 +113,7 @@
 
 <script>
     let timerInterval;
+    let isEmailSent = false; // 메일 발송 여부 체크
 
     // --- 탭 전환 로직 ---
     function switchTab(tabName) {
@@ -119,26 +125,52 @@
         if (tabName === 'findId') {
             contentId.classList.remove('hidden');
             contentPwd.classList.add('hidden');
-
             tabId.className = "flex-1 pb-3 text-sm font-bold text-primary-600 border-b-2 border-primary-600 transition";
             tabPwd.className = "flex-1 pb-3 text-sm font-medium text-gray-400 hover:text-gray-600 transition";
         } else {
             contentId.classList.add('hidden');
             contentPwd.classList.remove('hidden');
-
             tabId.className = "flex-1 pb-3 text-sm font-medium text-gray-400 hover:text-gray-600 transition";
             tabPwd.className = "flex-1 pb-3 text-sm font-bold text-primary-600 border-b-2 border-primary-600 transition";
         }
 
-        // 메시지 및 입력 초기화
-        document.getElementById('resultMsgId').innerText = '';
-        document.getElementById('authMsg').innerText = '';
-
-        // 인풋 초기화
-        document.querySelectorAll('input').forEach(input => input.value = '');
+        // 초기화
+        resetInputs();
     }
 
-    // --- 아이디 찾기 로직 ---
+    function resetInputs() {
+        document.querySelectorAll('input').forEach(input => input.value = '');
+        document.getElementById('resultMsgId').innerText = '';
+        document.getElementById('authMsg').innerText = '';
+        resetEmailAuth(); // 인증 상태 초기화
+    }
+
+    // [추가] 이메일 입력값 변경 시 인증 상태 초기화
+    function resetEmailAuth() {
+        const btn = document.getElementById('btnSendCode');
+        const authBox = document.getElementById('authBox');
+
+        // 전송 버튼 복구
+        btn.innerText = "인증번호 전송";
+        btn.disabled = false;
+        btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
+
+        // 인증박스 숨김 및 초기화
+        authBox.classList.add('hidden');
+        document.getElementById('authCode').value = '';
+        document.getElementById('authCode').disabled = false;
+        document.getElementById('btnVerifyCode').disabled = false;
+        document.getElementById('authMsg').innerText = '';
+
+        // 타이머 정지
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById('timer').innerText = "03:00";
+
+        isEmailSent = false;
+    }
+
+    // --- 아이디 찾기 ---
     function findIdAction() {
         const tel = document.getElementById('findId_tel').value;
         const resultMsg = document.getElementById('resultMsgId');
@@ -154,7 +186,6 @@
             data: { member_tel_no: tel },
             success: function(res) {
                 if (res && res !== "fail") {
-                    // [수정] 마스킹 로직 제거 -> 전체 아이디 출력
                     resultMsg.innerHTML = '회원님의 아이디는 <span class="text-primary-600 text-lg">' + res + '</span> 입니다.';
                     resultMsg.className = "text-sm text-center font-bold mt-4 text-gray-800";
                 } else {
@@ -162,9 +193,7 @@
                     resultMsg.className = "text-sm text-center font-bold mt-4 text-red-500";
                 }
             },
-            error: function() {
-                alert('서버 오류가 발생했습니다.');
-            }
+            error: function() { alert('오류가 발생했습니다.'); }
         });
     }
 
@@ -189,27 +218,34 @@
             success: function(res) {
                 if(res === 'success') {
                     alert('인증번호가 발송되었습니다.\n메일함을 확인해주세요.');
+
+                    // UI 상태 변경
                     document.getElementById('authBox').classList.remove('hidden');
-                    document.getElementById('findPwd_id').readOnly = true;
-                    document.getElementById('findPwd_email').readOnly = true;
-                    btn.innerText = "재전송";
-                    btn.disabled = false;
+                    btn.innerText = "전송됨";
+                    btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    btn.classList.remove('bg-gray-800', 'hover:bg-gray-900');
+
+                    // 입력창 활성화 상태 유지 (수정 가능하도록 readOnly 제거)
+                    // document.getElementById('findPwd_email').readOnly = false;
+
+                    document.getElementById('authCode').value = '';
+                    document.getElementById('authCode').focus();
+
+                    isEmailSent = true;
                     startTimer(180);
                 } else {
                     alert('일치하는 회원 정보가 없습니다.\n아이디와 이메일을 확인해주세요.');
-                    btn.innerText = "인증번호 전송";
-                    btn.disabled = false;
+                    resetEmailAuth(); // 실패 시 버튼 복구
                 }
             },
             error: function() {
                 alert('서버 오류가 발생했습니다.');
-                btn.disabled = false;
-                btn.innerText = "인증번호 전송";
+                resetEmailAuth();
             }
         });
     }
 
-    // --- 비밀번호 찾기: 인증번호 확인 ---
+    // --- 인증번호 확인 ---
     function verifyResetCode() {
         const email = document.getElementById('findPwd_email').value;
         const code = document.getElementById('authCode').value;
@@ -226,9 +262,13 @@
             type: 'POST',
             data: { member_email: email, auth_code: code },
             success: function(res) {
-                if(res === true) { // boolean 리턴
+                if(res === true) {
                     clearInterval(timerInterval);
-                    // 인증 UI 숨기고 리셋 UI 보여주기
+                    // 성공 시 이메일/아이디 수정 불가 처리
+                    document.getElementById('findPwd_id').readOnly = true;
+                    document.getElementById('findPwd_email').readOnly = true;
+                    document.getElementById('btnSendCode').disabled = true;
+
                     document.getElementById('step-auth').classList.add('hidden');
                     document.getElementById('step-reset').classList.remove('hidden');
                 } else {
@@ -240,9 +280,9 @@
         });
     }
 
-    // --- 비밀번호 재설정 실행 ---
+    // --- 비밀번호 재설정 ---
     function resetPasswordAction() {
-        const id = document.getElementById('findPwd_id').value; // 인증된 아이디
+        const id = document.getElementById('findPwd_id').value;
         const newPwd = document.getElementById('new_pwd').value;
         const confirmPwd = document.getElementById('confirm_pwd').value;
 
@@ -262,8 +302,13 @@
             data: { login_id: id, new_pwd: newPwd },
             success: function(res) {
                 if(res === 'success') {
-                    alert('비밀번호가 성공적으로 변경되었습니다.\n로그인 페이지로 이동합니다.');
+                    alert('비밀번호가 변경되었습니다.\n로그인해주세요.');
                     location.href = '/login';
+                } else if (res === 'same_password') {
+                    alert('이전 비밀번호와 동일합니다.\n다른 비밀번호를 사용해주세요.');
+                    document.getElementById('new_pwd').value = '';
+                    document.getElementById('confirm_pwd').value = '';
+                    document.getElementById('new_pwd').focus();
                 } else {
                     alert('비밀번호 변경에 실패했습니다.');
                 }
@@ -272,7 +317,7 @@
         });
     }
 
-    // 타이머 함수
+    // 타이머
     function startTimer(duration) {
         let timer = duration, minutes, seconds;
         const display = document.getElementById('timer');
@@ -287,13 +332,14 @@
 
             if (--timer < 0) {
                 clearInterval(timerInterval);
-                display.textContent = "시간만료";
+                display.textContent = "만료";
                 document.getElementById('authCode').disabled = true;
+                document.getElementById('btnVerifyCode').disabled = true;
+                document.getElementById('authMsg').innerText = "인증 시간이 만료되었습니다.";
             }
         }, 1000);
     }
 
-    // 휴대폰 번호 자동 하이픈
     function autoHyphen(target) {
         target.value = target.value
             .replace(/[^0-9]/g, '')
