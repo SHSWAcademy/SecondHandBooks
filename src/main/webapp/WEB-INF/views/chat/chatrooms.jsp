@@ -518,8 +518,16 @@
                     </div>
                     <!-- 숨겨진 파일 input -->
                     <input type="file" id="imageInput" accept="image/*" style="display: none;" />
-                    <input type="text" id="message" placeholder="메시지를 입력하세요..."
-                           class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all text-sm" />
+                    <div class="flex flex-col flex-1">
+                        <input type="text" id="message"
+                               placeholder="메시지를 입력하세요..."
+                               class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl
+                                      focus:outline-none focus:ring-2 focus:ring-primary-200
+                                      focus:border-primary-500 transition-all text-sm" />
+                        <p id="messageError" class="mt-1 text-xs text-red-500 hidden">
+                            메시지는 최대 1000자까지 입력할 수 있습니다.
+                        </p>
+                    </div>
                     <button id="sendBtn" class="px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2">
                         전송
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
