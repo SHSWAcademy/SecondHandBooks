@@ -45,14 +45,14 @@ public class LogoutPendingController {
     }
 
     // member 로그아웃 pending
-    @PostMapping("/member/api/logout-pending")
+    @PostMapping("/api/member/logout-pending")
     public Map<String, Object> memberLogoutPending(HttpServletRequest request,
                                                   HttpSession sess) {
         return handleLogoutPending(UserType.MEMBER, "loginSess", request, sess);
     }
 
     // member 로그아웃 취소
-    @PostMapping("/member/api/cancel-logout")
+    @PostMapping("/api/member/cancel-logout")
     public Map<String, Object> memberCancelLogout(HttpSession sess) {
         return handleCancelLogout(UserType.MEMBER, "loginSess", sess);
     }
