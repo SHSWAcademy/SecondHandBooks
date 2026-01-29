@@ -30,10 +30,17 @@ public class S3Service {
     public String uploadFile(MultipartFile file) throws IOException {
         if (file.isEmpty()) return null;
 
+        // 파일명 및 확장자 처리
         String originalFilename = file.getOriginalFilename();
-        String ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
-        String key = "images/" + UUID.randomUUID() + "." + ext;
+        if (originalFilename == null) originalFilename = "file";
+        String ext = "";
+        int dotIndex = originalFilename.lastIndexOf(".");
+        if(dotIndex >= 0) ext = originalFilename.substring(dotIndex + 1);
 
+        // S3에 저장될 키 생성 (UUID 기반)
+        String key = "images/" + UUID.randomUUID() + (ext.isEmpty() ? "" : "." + ext);
+
+        // S3 업로드 요청
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -55,5 +62,25 @@ public class S3Service {
             }
         }
         return urls;
+    }
+
+    // 단일 파일 삭제
+    public void deleteFile(String key) {
+        s3Client.deleteObject(builder -> builder.bucket(bucketName).key(key).build());
+    }
+
+    // 다중 파일 삭제
+    public void deleteFiles(List<String> keys) {
+        for (String key : keys) {
+            deleteFile(key);
+        }
+    }
+
+    // 만약 imgUrls 전체 URL이 있다면 key만 추출
+    public void deleteFilesByUrls(List<String> urls) {
+        for (String url : urls) {
+            String key = url.substring(url.indexOf(".com/") + 5); // https://bucket.s3.region.amazonaws.com/key
+            deleteFile(key);
+        }
     }
 }

@@ -210,22 +210,7 @@ public class TradeService {
     // return true : 안전 결제 요청 성공, false : 이미 안전 결제 요청 처리
     @Transactional
     public boolean requestSafePayment(long trade_seq, long pending_buyer_seq) {
-        // 1. 현재 판매 게시글의 안전 결제 상태 조회
-        String currentStatus = tradeMapper.findSafePaymentStatus(trade_seq);
-
-        // 2-1. DB에서 조회한 안전 결제 상태가 PENDING일 경우 false
-        if ("PENDING".equals(currentStatus)) {
-            return false; // 이미 안전결제 진행 중
-        }
-
-        // 2-2. DB에서 조회한 안전 결제 상태가 COMPLETED일 경우 false
-        if ("COMPLETED".equals(currentStatus)) {
-            // sale_st = sold 처리 필요 ? => 노노 이미 결제 완료 시 sold 처리됨
-            return false; // 이미 완료된 거래
-        }
-
-        // PENDING, COMPLETED도 아니면 NONE 상태이다. (DB에 default로 NONE이 들어간다)
-        // 3. PENDING, COMPLETED가 아닌 NONE 상태라면 : 안전 결제 진행 중이 아닌 상태라면 PENDING(안전 결제 시작) 으로 변경 + 5분 만료 시간 설정
+        // 안전 결제 진행 중이 아닌 상태라면 PENDING(안전 결제 시작) 으로 변경 + 5분 만료 시간 설정
         tradeMapper.updateSafePaymentWithExpire(trade_seq, "PENDING", 5, pending_buyer_seq);
         return true; // 안전 결제 시작
     }
@@ -251,7 +236,9 @@ public class TradeService {
 
     public long getSafePaymentExpireSeconds(long trade_seq) {
         Long seconds = tradeMapper.findSafePaymentExpireSeconds(trade_seq); // trade의 안전 결제 만료 시간이 몇 초 남았는지 조회
-        return seconds != null ? seconds : 0; // seconds가 null이라면 0 리턴
+
+        if (seconds == null) return 0;
+        else return seconds;
     }
 
     @Transactional

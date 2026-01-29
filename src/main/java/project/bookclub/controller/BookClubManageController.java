@@ -19,6 +19,7 @@ import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.util.LoginUtil;
+import project.util.S3Service;
 import project.util.imgUpload.FileStore;
 
 /**
@@ -37,6 +38,7 @@ public class BookClubManageController {
 
     private final BookClubService bookClubService;
     private final FileStore fileStore;
+    private final S3Service s3Service;
 
     /**
      * 독서모임 관리 페이지 (모임장 전용)
