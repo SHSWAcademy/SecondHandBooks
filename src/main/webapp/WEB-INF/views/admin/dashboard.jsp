@@ -137,30 +137,17 @@
 
 <script>
   (function() {
-      const RELOAD_KEY = 'admin_page_unload_time';
-      const SESSION_CHECK_INTERVAL = 5 * 60 * 1000;  // 5분
-      const RELOAD_THRESHOLD = 3000;  // 3초
+  const RELOAD_KEY = 'member_page_unload_time';
 
-      // ========================================
-      // 1. 페이지 로드 시: 새로고침 여부 확인
-      // ========================================
       document.addEventListener('DOMContentLoaded', function() {
-          const unloadTime = sessionStorage.getItem(RELOAD_KEY);
 
-          if (unloadTime) {
-              const timeDiff = Date.now() - parseInt(unloadTime, 10);
-
-              if (timeDiff < RELOAD_THRESHOLD) {
-                  // 새로고침으로 판단 → 로그아웃 취소
                   fetch('/admin/api/cancel-logout', {
                       method: 'POST',
                       credentials: 'same-origin'
                   }).catch(function(err) {
                       console.error('로그아웃 취소 실패:', err);
                   });
-              }
               sessionStorage.removeItem(RELOAD_KEY);
-          }
       });
 
       // ========================================

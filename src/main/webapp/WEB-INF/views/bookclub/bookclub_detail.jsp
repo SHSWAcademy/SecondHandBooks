@@ -146,6 +146,13 @@
                                         <!-- CTA 버튼 분기 처리 (ctaStatus 기반) -->
                                         <div class="bc-bottom-actions">
                                             <c:choose>
+                                            <%-- Admin 모드 --%>
+                                                  <c:when test="${isAdminView}">
+                                                        <a href="/admin/bookclubs/${bookClub.book_club_seq}/manage"
+                                                           class="bc-btn bc-btn-primary">
+                                                           모임 관리하기 (Admin)
+                                                        </a>
+                                                   </c:when>
                                                 <%-- 1. 비로그인 (관리자도 아니고 일반 회원도 아님) --%>
                                                     <c:when test="${(not isLogin) and (empty sessionScope.adminSess)}">
                                                         <button type="button" onclick="redirectToLogin()"
@@ -153,14 +160,6 @@
                                                             로그인 후 이용
                                                         </button>
                                                     </c:when>
-                                                    <%-- 2. 관리자 (Admin) --%>
-                                                        <c:when test="${not empty sessionScope.adminSess}">
-                                                            <a href="${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/manage"
-                                                                class="bc-btn bc-btn-primary">
-                                                                모임 관리하기 (Admin)
-                                                            </a>
-                                                        </c:when>
-
                                                         <%-- 3. 로그인한 일반 회원 --%>
                                                             <c:otherwise>
                                                                 <%-- 3-1. 모임장(Leader) --%>
