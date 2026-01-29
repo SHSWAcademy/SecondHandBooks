@@ -82,6 +82,10 @@ public class PaymentController {
                           @RequestParam String paymentKey,
                           @RequestParam String orderId,
                           @RequestParam int amount,
+                          @RequestParam String addr_type,
+                          @RequestParam(required = false) String post_no,
+                          @RequestParam(required = false) String addr_h,
+                          @RequestParam(required = false) String addr_d,
                           HttpSession session,
                           Model model) {
 
@@ -94,14 +98,14 @@ public class PaymentController {
             return "payment/fail";
         }
 
-        // 검증 - 판매 상태
-        if (trade.getSale_st() == SaleStatus.SOLD) {
+        // 검증 - 판매 상태 (판매된 제품이거나 pending이 아닌 제품일 경우 실패)
+        if (trade.getSale_st() == SaleStatus.SOLD || !trade.getSafe_payment_st().equals("PENDING")) {
             tradeService.cancelSafePayment(trade_seq);
-            model.addAttribute("errorMessage", "이미 판매 완료된 상품입니다.");
+            model.addAttribute("errorMessage", "이미 판매 완료된 상품이거나 결제 요청시간이 만료된 상품입니다..");
             return "payment/fail";
         }
 
-        // 토스 결제 승인 API 호출
+        // 검증 모두 통과 시 토스 결제 승인 API 호출
         TossPaymentResponse tossResponse = tossApiService.confirmPayment(paymentKey, orderId, amount);
 
         // 승인 실패 시
@@ -113,7 +117,8 @@ public class PaymentController {
         }
 
 
-        // 모델로 프론트에 전달할 결제 VO
+        // 승인 성공 시 :
+        // 0. 모델로 프론트에 전달할 결제 VO
         MemberVO buyer = (MemberVO) session.getAttribute(Const.SESSION);
         if (buyer == null) {
             model.addAttribute("errorMessage", "세션 누락");
@@ -124,20 +129,37 @@ public class PaymentController {
         payment.setTrade_seq(trade_seq);
         payment.setMember_buyer_seq(buyer.getMember_seq());
         payment.setPayment_key(paymentKey);
-        //payment.setOrder_id(orderId);
         payment.setAmount(amount);
         payment.setStatus(tossResponse.getStatus());
         payment.setMethod(tossResponse.getMethod());
 
+        // 배송지 타입에 따라 구분해서 처리
+        payment.setAddr_type(addr_type);
+        if ("manual".equals(addr_type) || "existing".equals(addr_type)) {
+            if (addr_h.length() >= 180 || addr_d.length() >= 180) {return "payment/fail";} // 길이 검증
+
+            payment.setPost_no(post_no);
+            payment.setAddr_h(addr_h);
+            payment.setAddr_d(addr_d);
+        } else if ("direct".equals(addr_type)) { // null로 넘어온다.
+            payment.setPost_no("직거래/반값택배");
+            payment.setAddr_h("직거래/반값택배");
+            payment.setAddr_d("직거래/반값택배");
+        } else {
+            log.info("Address Fail");
+            return "payment/fail";
+        }
+
         model.addAttribute("payment", payment);
 
-        // 프론트에 payment 전송 후
+        // 프론트에 payment 전송 후 success purchase 처리
+        tradeService.successPurchase(trade_seq, buyer.getMember_seq(), payment.getPost_no(), payment.getAddr_h(), payment.getAddr_d());
 
-        // 1. trade의 sale_st를 SOLD로 변경 : 판매 완료 처리
-        tradeService.updateStatusToSold(trade_seq, "SOLD", buyer.getMember_seq());
-
-        // 2. trade의 safe_payment_st를 COMPLETED로 변경 : 안전결제 완료 처리
-        tradeService.completeSafePayment(trade_seq);
+//        // 1. trade의 sale_st를 SOLD로 변경 : 판매 완료 처리
+//        tradeService.updateStatusToSold(trade_seq, "SOLD", buyer.getMember_seq(), payment.getPost_no(), payment.getAddr_h(), payment.getAddr_d());
+//
+//        // 2. trade의 safe_payment_st를 COMPLETED로 변경 : 안전결제 완료 처리
+//        tradeService.completeSafePayment(trade_seq);
 
         // 3. 채팅방 조회 후 결제 완료 메시지 전송
         Long chat_room_seq = chatroomService.findChatRoomSeqByTradeAndBuyer(trade_seq, buyer.getMember_seq()); // 3-1. 채팅방 조회
@@ -150,11 +172,9 @@ public class PaymentController {
                 completeMsg.setChat_cont("[SAFE_PAYMENT_COMPLETE]");
 
                 messageService.saveMessage(completeMsg); // 메시지 DB에 저장
-                // 결제 완료 메시지 전송
-                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, completeMsg);
+                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, completeMsg); // 결제 완료 메시지 전송
             } catch (Exception e) {
-                log.error("결제 완료 메시지 전송 실패: trade_seq={}, chatRoomSeq={}",
-                        trade_seq, chat_room_seq, e);
+                log.error("결제 완료 메시지 전송 실패: trade_seq={}, chatRoomSeq={}", trade_seq, chat_room_seq, e);
                 // 결제는 이미 완료된 상태이므로 메시지 실패는 무시하고 진행
             }
         } else {

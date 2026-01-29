@@ -43,22 +43,36 @@ public class StompController {
                             SimpMessageHeaderAccessor headerAccessor) {
 
 
-        // 검증 : 로그인 및 채팅방 참여자, trade 번호
+        // 검증 : 로그인 및 채팅방 참여자, trade 번호, 채팅 메시지 길이 최대 1000자
         MemberVO sessionMember = validateSessionAndMembership(chat_room_seq, headerAccessor);
         long trade_seq = message.getTrade_seq();
-        if (sessionMember == null || trade_seq <= 0) {
+        if (sessionMember == null || trade_seq <= 0 ||
+                message.getChat_cont() != null && message.getChat_cont().length() > 1000) {
             return; // 검증 실패 시 바로 종료
         }
-        // 세션 seq기준 닉네임 조회
+
+
+        // 세션 seq기준 닉네임 조회, sender_seq를 세션에서 가져온 값으로 설정
         message.setMember_seller_nicknm(messageService.findBySellerNicknm(sessionMember.getMember_seq()));
-        // sender_seq를 세션에서 가져온 값으로 설정
+
         message.setSender_seq(sessionMember.getMember_seq());
         message.setChat_room_seq(chat_room_seq);
 
         String chatMessage = message.getChat_cont();
 
-        // 안전 결제 요청일 경우, 이용 불가 시 return
-        if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember)) return;
+        if ("[SAFE_PAYMENT_REQUEST]".equals(chatMessage)) {
+            if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember)) {
+                return;
+            }
+        }
+        // 안전 결제 메시지일 경우
+//        switch (chatMessage) {
+//            case "[SAFE_PAYMENT_REQUEST]" : // 안전 결제 요청일 경우, 이용 불가 시 return, 이용 가능 시 안전 결제 시작 (PENDING 수정, 5분 할당)
+//                if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember)) {return;}
+//                break;
+//            case "[SAFE_PAYMENT_FAILED]" :
+//                break;
+//        }
 
         log.info("메시지 수신: chat_room_seq={}, sender={}, content={}", chat_room_seq, message.getSender_seq(), message.getChat_cont());
 
@@ -72,56 +86,40 @@ public class StompController {
         messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, message);
     }
 
+    // 안전 결제 가능한지 판단
     private boolean canUseSafePayment(Long chat_room_seq, long trade_seq, String chatMessage, MemberVO sessionMember) {
-        if ("[SAFE_PAYMENT_REQUEST]".equals(chatMessage)) {
 
-            // // '판매자' 만 안전 결제 요청 가능, 다른 유저가 시도 시 return false
-            TradeVO trade = tradeService.search(trade_seq);
-            if (trade == null || trade.getMember_seller_seq() != sessionMember.getMember_seq()) {
-                log.warn("안전결제 요청 권한 없음: member_seq={}, trade_seq={}", sessionMember.getMember_seq(), trade_seq);
+        TradeVO trade = tradeService.search(trade_seq);
 
-                // 에러 메시지 전송
-                MessageVO errorMsg = new MessageVO();
-                errorMsg.setChat_room_seq(chat_room_seq);
-                errorMsg.setSender_seq(sessionMember.getMember_seq());
-                errorMsg.setChat_cont("[SAFE_PAYMENT_UNAUTHORIZED]");
-                errorMsg.setTrade_seq(trade_seq);
-
-                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
-                return false;
-            }
-
-            // 안전 결제 요청 시 해당 상품 판매상태 확인
-            if (trade.getSale_st() == SaleStatus.SOLD) {
-                log.warn("이미 판매 완료된 상품 안전결제 요청: trade_seq={}", trade_seq);
-                MessageVO errorMsg = new MessageVO();
-                errorMsg.setChat_room_seq(chat_room_seq);
-                errorMsg.setSender_seq(sessionMember.getMember_seq());
-                errorMsg.setChat_cont("[SAFE_PAYMENT_ALREADY_SOLD]");
-                errorMsg.setTrade_seq(trade_seq);
-                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
-                return false;
-            }
-
-            // 안전 결제 요청 : 현재 채팅방의 구매자를 대상으로 지정
-            ChatroomVO chatroom = chatroomService.findByChatRoomSeq(chat_room_seq);
-            boolean canRequest = tradeService.requestSafePayment(trade_seq, chatroom.getMember_buyer_seq());
-            if (!canRequest) { // 안전 결제 불가능할 경우 (다른 트랜잭션이 안전 결제를 진행하는 중일 경우)
-                // 이미 진행 중이면 에러 메시지 전송 (에러 메시지는 DB에 저장하지 않음)
-                MessageVO errorMsg = new MessageVO();
-                errorMsg.setChat_room_seq(chat_room_seq);
-                errorMsg.setSender_seq(sessionMember.getMember_seq());
-                errorMsg.setChat_cont("[SAFE_PAYMENT_IN_PROGRESS]");
-                errorMsg.setTrade_seq(trade_seq);
-
-                // 요청한 사람에게 에러 메시지 전송
-                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
-
-                log.info("안전결제 요청 거부: trade_seq={}, 이미 진행 중", trade_seq);
-                return false; // 안전 결제 이용 불가
-            }
-            log.info("안전결제 요청 승인: trade_seq={}", trade_seq);
+        // 검증 : 결제 가능한지 판단
+        // '판매자' 만 안전 결제 요청 가능, 다른 유저가 시도 시 false, 이미 판매 완료된 상품에 안전 결제 시도 시 false
+        if (trade == null || trade.getMember_seller_seq() != sessionMember.getMember_seq() ||
+                trade.getSale_st() == SaleStatus.SOLD ||
+                !(trade.getSafe_payment_st().equals("NONE"))) {
+            return false;
         }
+
+        // 결제 가능한 상태 : sale_st가 sale일 때만 && safe_payment_st가 none일 때만
+        // 결제 가능한 상태라면 : 안전 결제 요청, 현재 채팅방의 구매자를 대상으로 지정
+        ChatroomVO chatroom = chatroomService.findByChatRoomSeq(chat_room_seq);
+        boolean canRequest = tradeService.requestSafePayment(trade_seq, chatroom.getMember_buyer_seq());
+        if (!canRequest) { // 안전 결제 불가능할 경우 (다른 트랜잭션이 안전 결제를 진행하는 중일 경우)
+            // 이미 진행 중이면 에러 메시지 전송 (에러 메시지는 DB에 저장하지 않음)
+            MessageVO errorMsg = new MessageVO();
+            errorMsg.setChat_room_seq(chat_room_seq);
+            errorMsg.setSender_seq(sessionMember.getMember_seq());
+            errorMsg.setChat_cont("[SAFE_PAYMENT_IN_PROGRESS]");
+            errorMsg.setTrade_seq(trade_seq);
+
+            // 요청한 사람에게 에러 메시지 전송
+            messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, errorMsg);
+
+            log.info("안전결제 요청 거부: trade_seq={}, 이미 진행 중", trade_seq);
+            return false; // 안전 결제 이용 불가
+        }
+
+        // if 문에 걸리지 않으면 안전 결제 요청 승인
+        log.info("안전결제 요청 승인: trade_seq={}", trade_seq);
         return true; // 안전 결제 이용 가능
     }
 
