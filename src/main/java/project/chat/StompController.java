@@ -60,7 +60,11 @@ public class StompController {
 
         String chatMessage = message.getChat_cont();
 
-        if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember)) {return;}
+        if ("[SAFE_PAYMENT_REQUEST]".equals(chatMessage)) {
+            if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember)) {
+                return;
+            }
+        }
         // 안전 결제 메시지일 경우
 //        switch (chatMessage) {
 //            case "[SAFE_PAYMENT_REQUEST]" : // 안전 결제 요청일 경우, 이용 불가 시 return, 이용 가능 시 안전 결제 시작 (PENDING 수정, 5분 할당)
