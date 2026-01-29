@@ -101,7 +101,7 @@ public class PaymentController {
             return "payment/fail";
         }
 
-        // 토스 결제 승인 API 호출
+        // 검증 모두 통과 시 토스 결제 승인 API 호출
         TossPaymentResponse tossResponse = tossApiService.confirmPayment(paymentKey, orderId, amount);
 
         // 승인 실패 시
@@ -113,7 +113,8 @@ public class PaymentController {
         }
 
 
-        // 모델로 프론트에 전달할 결제 VO
+        // 승인 성공 시 :
+        // 0. 모델로 프론트에 전달할 결제 VO
         MemberVO buyer = (MemberVO) session.getAttribute(Const.SESSION);
         if (buyer == null) {
             model.addAttribute("errorMessage", "세션 누락");
@@ -124,7 +125,6 @@ public class PaymentController {
         payment.setTrade_seq(trade_seq);
         payment.setMember_buyer_seq(buyer.getMember_seq());
         payment.setPayment_key(paymentKey);
-        //payment.setOrder_id(orderId);
         payment.setAmount(amount);
         payment.setStatus(tossResponse.getStatus());
         payment.setMethod(tossResponse.getMethod());
@@ -150,11 +150,9 @@ public class PaymentController {
                 completeMsg.setChat_cont("[SAFE_PAYMENT_COMPLETE]");
 
                 messageService.saveMessage(completeMsg); // 메시지 DB에 저장
-                // 결제 완료 메시지 전송
-                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, completeMsg);
+                messagingTemplate.convertAndSend("/chatroom/" + chat_room_seq, completeMsg); // 결제 완료 메시지 전송
             } catch (Exception e) {
-                log.error("결제 완료 메시지 전송 실패: trade_seq={}, chatRoomSeq={}",
-                        trade_seq, chat_room_seq, e);
+                log.error("결제 완료 메시지 전송 실패: trade_seq={}, chatRoomSeq={}", trade_seq, chat_room_seq, e);
                 // 결제는 이미 완료된 상태이므로 메시지 실패는 무시하고 진행
             }
         } else {

@@ -16,6 +16,7 @@ import project.member.MemberVO;
 import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.Const;
+import project.util.S3Service;
 import project.util.imgUpload.FileStore;
 import project.util.imgUpload.UploadFile;
 
@@ -36,6 +37,7 @@ public class ChatroomController {
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final FileStore fileStore;
+    private final S3Service s3Service;
 
     // 메인 화면 -> 채팅방 조회
     @GetMapping("/chatrooms")

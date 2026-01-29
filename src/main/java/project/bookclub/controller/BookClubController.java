@@ -29,6 +29,7 @@ import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.util.LoginUtil;
+import project.util.S3Service;
 import project.util.imgUpload.FileStore;
 
 @Controller
@@ -39,6 +40,7 @@ public class BookClubController {
 
     private final BookClubService bookClubService;
     private final FileStore fileStore;
+    private final S3Service s3Service;
 
     /**
      * 독서모임 상세 페이지 공통 model 세팅 (조회 로직 재사용)
