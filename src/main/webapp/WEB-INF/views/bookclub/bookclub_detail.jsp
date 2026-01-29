@@ -14,7 +14,7 @@
                     <c:when test="${not empty errorMessage}">
                         <!-- 에러 메시지 -->
                         <div class="bc-error">
-                            <p>${errorMessage}</p>
+                            <p><c:out value="${errorMessage}"/></p>
                         </div>
                     </c:when>
                     <c:when test="${not empty bookClub}">
