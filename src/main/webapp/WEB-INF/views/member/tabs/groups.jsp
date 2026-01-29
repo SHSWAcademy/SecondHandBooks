@@ -1,149 +1,239 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
-<div class="space-y-10">
-    <div class="space-y-4">
-        <div class="flex justify-between items-center">
+<div class="space-y-16 animate-[fadeIn_0.3s_ease-out]">
+    <section>
+        <div class="flex justify-between items-end mb-6 px-1">
             <div>
-                <h2 class="text-xl font-bold text-gray-900">참여 중인 모임</h2>
-                <p class="text-xs text-gray-500 mt-1">현재 활동 중인 독서 모임입니다.</p>
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                    내 모임 <span id="my-club-count" class="text-sm font-bold text-primary-600 bg-primary-50 px-2.5 py-0.5 rounded-full">0</span>
+                </h2>
+                <p class="text-sm font-medium text-gray-500 mt-1">참여 중이거나 운영 중인 모임</p>
             </div>
-            <a href="/bookclubs" class="flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-bold hover:bg-gray-800 transition shadow-sm">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i> 모임 만들기
+            <a href="/bookclubs" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-full text-sm font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                <i data-lucide="plus" class="w-4 h-4"></i> 모임 만들기
             </a>
         </div>
-        <div id="my-club-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
-    </div>
+        <div id="my-club-list" class="grid grid-cols-1 gap-4"></div>
+        <div id="my-club-more" class="hidden text-center mt-8">
+            <button onclick="GroupsTab.loadMoreMyClubs()" class="px-6 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm">
+                더보기 <i data-lucide="chevron-down" class="w-4 h-4 inline"></i>
+            </button>
+        </div>
+    </section>
 
     <div class="border-t border-gray-100"></div>
 
-    <div class="space-y-4">
-        <div>
-            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i data-lucide="heart" class="w-5 h-5 text-red-500 fill-current"></i> 찜한 모임
+    <section>
+        <div class="mb-6 px-1">
+            <h2 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                찜한 모임 <span id="wish-club-count" class="text-sm font-bold text-red-500 bg-red-50 px-2.5 py-0.5 rounded-full">0</span>
             </h2>
-            <p class="text-xs text-gray-500 mt-1">찜한 모임 목록입니다.</p>
+            <p class="text-sm font-medium text-gray-500 mt-1">관심 등록한 모임 목록</p>
         </div>
-        <div id="wish-club-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
-    </div>
+
+        <div id="wish-club-list" class="grid grid-cols-1 gap-4"></div>
+
+        <div id="wish-club-more" class="hidden text-center mt-8">
+            <button onclick="GroupsTab.loadMoreWishClubs()" class="px-6 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm">
+                더보기 <i data-lucide="chevron-down" class="w-4 h-4 inline"></i>
+            </button>
+        </div>
+    </section>
 </div>
 
 <script>
-    $(document).ready(function() {
-        loadMyClubs();   // 참여 모임 로드
-        loadWishClubs(); // 찜한 모임 로드
-    });
+    (function() { // IIFE
+        const PAGE_SIZE = 4;
+        let myClubData = [];
+        let myClubCursor = 0;
+        let wishClubData = [];
+        let wishClubCursor = 0;
 
-    function loadMyClubs() {
-        $.ajax({
-            url: '/profile/bookclub/list', // 컨트롤러가 해당 경로를 제공하는지 확인 필요
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) { renderClubs(data, '#my-club-list', 'joined'); },
-            error: function() { $('#my-club-list').html('<div class="col-span-full text-center py-10 text-gray-400">참여 중인 모임이 없습니다.</div>'); }
-        });
-    }
+        const methods = {
+            init: () => {
+                methods.fetchMyClubs();
+                methods.fetchWishClubs();
+            },
 
-    function loadWishClubs() {
-        $.ajax({
-            url: '/profile/wishlist/bookclub', // 컨트롤러가 해당 경로를 제공하는지 확인 필요
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) { renderClubs(data, '#wish-club-list', 'wish'); },
-            error: function() { $('#wish-club-list').html('<div class="col-span-full text-center py-10 text-gray-400">찜한 모임이 없습니다.</div>'); }
-        });
-    }
+            fetchMyClubs: () => {
+                $.ajax({
+                    url: '/profile/bookclub/list',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: (data) => {
+                        myClubData = data || [];
+                        $('#my-club-count').text(myClubData.length);
+                        $('#my-club-list').empty();
+                        myClubCursor = 0;
+                        methods.renderMyClubs();
+                    },
+                    error: () => $('#my-club-list').html('<div class="text-center py-10 text-red-500">로드 실패</div>')
+                });
+            },
 
-    function renderClubs(data, containerId, type) {
-        const container = $(containerId);
-        let html = '';
+            renderMyClubs: () => {
+                const container = $('#my-club-list');
+                const btn = $('#my-club-more');
 
-        if (!data || data.length === 0) {
-            const msg = type === 'joined' ? '가입한 모임이 없습니다.' : '찜한 모임이 없습니다.';
-            html = `<div class="col-span-full py-12 text-center text-gray-400 bg-gray-50 rounded-xl">\${msg}</div>`;
-        } else {
-            data.forEach(club => {
-                // [수정 2] 이미지 경로 처리 및 속성명 통일 (snake_case 가정)
-                // club.banner_img_url, club.book_club_desc, club.book_club_schedule 등 확인 필요
-                let img = 'https://via.placeholder.com/400x200/f3f4f6/9ca3af?text=ShinhanBooks';
-                const bannerUrl = club.banner_img_url || club.bannerImgUrl; // 호환성 고려
-
-                if (bannerUrl) {
-                    if (bannerUrl.startsWith('/') || bannerUrl.startsWith('http')) {
-                        img = bannerUrl;
-                    } else {
-                        img = '/upload/' + bannerUrl;
-                    }
+                if (myClubData.length === 0) {
+                    container.html(methods.getEmptyHtml('가입한 모임이 없습니다.', '/bookclubs', '모임 둘러보기'));
+                    btn.addClass('hidden');
+                    return;
                 }
 
-                const clubId = club.book_club_seq || club.bookClubSeq;
-                // [수정 3] 링크 생성 시 변수 결합 (/bookclub -> /bookclubs, {id} -> clubId)
-                const link = '/bookclubs/' + clubId;
+                const nextCursor = myClubCursor + PAGE_SIZE;
+                const slice = myClubData.slice(myClubCursor, nextCursor);
 
-                // [수정 4] 찜 아이콘에 onclick 이벤트 추가 (찜 취소 기능)
-                let wishIconHtml = '';
-                if (type === 'wish') {
-                    wishIconHtml = `
-                        <div class="absolute top-3 right-3 z-10" onclick="toggleWish(event, \${clubId})">
-                            <div class="bg-white/90 p-1.5 rounded-full text-red-500 shadow-sm hover:scale-110 transition cursor-pointer">
-                                <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
-                            </div>
-                        </div>`;
-                }
+                let html = '';
+                slice.forEach(club => {
+                    const img = methods.getImageUrl(club.bannerImgUrl || club.banner_img_url);
+                    const link = '/bookclubs/' + (club.bookClubSeq || club.book_club_seq);
+                    const isLeader = club.isLeader || club.is_leader === 'Y';
+                    const badge = isLeader
+                        ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-900 text-white shadow-sm tracking-wide">LEADER</span>'
+                        : '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100">MEMBER</span>';
 
-                // 속성명 null 체크
-                const rg = club.book_club_rg || '전국';
-                const name = club.book_club_name || '이름 없음';
-                const desc = club.book_club_desc || club.description || '';
-                const schedule = club.book_club_schedule || club.schedule || '일정 미정';
-
-                html += `
-                    <div class="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer relative"
+                    html += `
+                    <div class="group bg-white border border-gray-100 rounded-3xl p-5 hover:shadow-lg transition-all duration-300 cursor-pointer flex gap-5 items-center relative"
                          onclick="location.href='\${link}'">
-
-                        \${wishIconHtml}
-
-                        <div class="relative h-36 bg-gray-100 overflow-hidden">
-                            <img src="\${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="this.src='https://via.placeholder.com/400x200/f3f4f6/9ca3af?text=No+Image'">
-                            <div class="absolute bottom-3 left-3 px-2 py-1 bg-white/90 rounded-md text-[10px] font-bold text-gray-600 backdrop-blur-sm">
-                                <i data-lucide="map-pin" class="w-3 h-3 inline mr-1"></i>\${rg}
-                            </div>
+                        <div class="w-20 h-20 rounded-2xl bg-gray-50 overflow-hidden flex-shrink-0 shadow-inner">
+                            <img src="\${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                 onerror="this.src='https://placehold.co/200x200?text=No+Image'">
                         </div>
-                        <div class="p-4">
-                            <h3 class="font-bold text-gray-900 mb-1 truncate">\${name}</h3>
-                            <p class="text-xs text-gray-500 line-clamp-1">\${desc}</p>
-                            <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs text-gray-400">
-                                <span><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>\${schedule}</span>
-                                <span class="group-hover:text-primary-600 transition"><i data-lucide="chevron-right" class="w-4 h-4"></i></span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                \${badge}
+                                <span class="text-[11px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded">\${club.book_club_rg || '전국'}</span>
+                            </div>
+                            <h4 class="text-base font-bold text-gray-900 truncate">\${club.book_club_name}</h4>
+                            <p class="text-xs text-gray-500 mt-1 truncate">\${club.description || club.book_club_desc || ''}</p>
+                        </div>
+                        <div class="hidden sm:block text-right pr-2">
+                            <div class="inline-flex items-center gap-1 bg-gray-50 px-2.5 py-1 rounded-full text-xs font-bold text-gray-500">
+                                <i data-lucide="users" class="w-3 h-3"></i>
+                                <span>\${club.memberCnt || 0} / \${club.maxMember || club.book_club_max_member}</span>
                             </div>
                         </div>
                     </div>`;
-            });
-        }
-        container.html(html);
-        lucide.createIcons();
-    }
+                });
 
-    // [수정 5] 찜 취소 기능 추가
-    function toggleWish(event, clubId) {
-        event.stopPropagation(); // 카드 클릭 이동 방지
+                container.append(html);
+                myClubCursor = nextCursor;
+                if (myClubCursor >= myClubData.length) btn.addClass('hidden');
+                else btn.removeClass('hidden');
 
-        if(!confirm('찜 목록에서 삭제하시겠습니까?')) return;
+                if(window.lucide) lucide.createIcons();
+            },
 
-        fetch('/bookclubs/' + clubId + '/wish', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'ok') {
-                    loadWishClubs(); // 목록 새로고침
-                } else {
-                    alert(data.message || '오류가 발생했습니다.');
+            fetchWishClubs: () => {
+                $.ajax({
+                    url: '/profile/wishlist/bookclub',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: (data) => {
+                        wishClubData = data || [];
+                        $('#wish-club-count').text(wishClubData.length);
+                        $('#wish-club-list').empty();
+                        wishClubCursor = 0;
+                        methods.renderWishClubs();
+                    },
+                    error: () => $('#wish-club-list').html('<div class="text-center py-10 text-red-500">로드 실패</div>')
+                });
+            },
+
+            // [수정] 찜한 모임도 가로형 리스트 스타일로 변경
+            renderWishClubs: () => {
+                const container = $('#wish-club-list');
+                const btn = $('#wish-club-more');
+
+                if (wishClubData.length === 0) {
+                    container.html(methods.getEmptyHtml('찜한 모임이 없습니다.', '/bookclubs', '모임 찾기'));
+                    btn.addClass('hidden');
+                    return;
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('오류가 발생했습니다.');
-            });
-    }
+
+                const nextCursor = wishClubCursor + PAGE_SIZE;
+                const slice = wishClubData.slice(wishClubCursor, nextCursor);
+
+                let html = '';
+                slice.forEach(club => {
+                    const img = methods.getImageUrl(club.bannerImgUrl || club.banner_img_url);
+                    const link = '/bookclubs/' + (club.bookClubSeq || club.book_club_seq);
+                    const clubId = club.bookClubSeq || club.book_club_seq;
+
+                    html += `
+                    <div class="group bg-white border border-gray-100 rounded-3xl p-5 hover:shadow-lg transition-all duration-300 cursor-pointer flex gap-5 items-center relative"
+                         onclick="location.href='\${link}'">
+
+                        <div class="w-20 h-20 rounded-2xl bg-gray-50 overflow-hidden flex-shrink-0 shadow-inner">
+                            <img src="\${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                 onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[11px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded">\${club.book_club_rg || '전국'}</span>
+                            </div>
+                            <h4 class="text-base font-bold text-gray-900 truncate">\${club.book_club_name}</h4>
+                            <p class="text-xs text-gray-500 mt-1 truncate">\${club.description || club.book_club_desc || ''}</p>
+                        </div>
+
+                        <div class="text-right pr-1">
+                            <button onclick="GroupsTab.toggleWish(event, \${clubId})"
+                                    class="p-2 bg-white border border-gray-100 rounded-full text-red-500 hover:bg-red-50 hover:border-red-100 transition shadow-sm group-hover:shadow">
+                                <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                });
+
+                container.append(html);
+                wishClubCursor = nextCursor;
+
+                if (wishClubCursor >= wishClubData.length) btn.addClass('hidden');
+                else btn.removeClass('hidden');
+
+                if(window.lucide) lucide.createIcons();
+            },
+
+            loadMoreMyClubs: () => methods.renderMyClubs(),
+            loadMoreWishClubs: () => methods.renderWishClubs(),
+
+            getImageUrl: (url) => {
+                if (!url) return 'https://placehold.co/400x200?text=No+Image';
+                return (url.startsWith('/') || url.startsWith('http')) ? url : '/upload/' + url;
+            },
+
+            getEmptyHtml: (msg, linkUrl, linkText) => {
+                return `
+                <div class="col-span-full py-20 text-center bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-200">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300 shadow-sm">
+                        <i data-lucide="folder-open" class="w-8 h-8"></i>
+                    </div>
+                    <p class="text-base text-gray-500 font-bold mb-4">\${msg}</p>
+                    <a href="\${linkUrl}" class="inline-flex items-center gap-1 text-primary-600 font-bold text-sm hover:underline">\${linkText}</a>
+                </div>`;
+            },
+
+            toggleWish: (event, clubId) => {
+                event.stopPropagation();
+                if(!confirm('찜 목록에서 삭제하시겠습니까?')) return;
+                fetch('/bookclubs/' + clubId + '/wish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(res => res.json()).then(data => {
+                    if (data.status === 'ok') {
+                        wishClubData = wishClubData.filter(c => (c.bookClubSeq || c.book_club_seq) != clubId);
+                        wishClubCursor = 0;
+                        $('#wish-club-list').empty();
+                        $('#wish-club-count').text(wishClubData.length);
+                        methods.renderWishClubs();
+                    }
+                });
+            }
+        };
+
+        window.GroupsTab = methods;
+        methods.init(); // 즉시 실행
+    })();
 </script>

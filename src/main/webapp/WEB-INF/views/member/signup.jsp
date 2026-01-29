@@ -2,158 +2,168 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <jsp:include page="../common/header.jsp" />
 
-<div class="max-w-[400px] mx-auto mt-12 mb-12">
-    <div class="bg-white p-8 rounded-md border border-gray-200 shadow-sm">
-        <h2 class="text-xl font-bold mb-6 text-gray-900">회원가입</h2>
+<div class="min-h-[calc(100vh-200px)] flex items-center justify-center py-16 px-4 animate-[fadeIn_0.5s_ease-out]">
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] w-full max-w-[480px] border border-gray-100 relative overflow-hidden">
 
-        <form action="/auth/signup" method="post" onsubmit="return validateForm()" class="space-y-4">
-            <%-- ... (아이디, 이메일, 비밀번호, 닉네임, 휴대폰 입력 부분은 기존과 동일하므로 생략) ... --%>
+        <div class="absolute top-[-50px] left-[-50px] w-40 h-40 bg-purple-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1.5">아이디 <span class="text-red-500">*</span></label>
+        <div class="text-center mb-8 relative z-10">
+            <h2 class="text-2xl font-black text-gray-900 tracking-tight">회원가입</h2>
+            <p class="text-gray-500 text-xs mt-2 font-medium">Shinhan Books의 회원이 되어보세요.</p>
+        </div>
+
+        <form action="/auth/signup" method="post" onsubmit="return validateForm()" class="space-y-5 relative z-10">
+
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-gray-500 ml-1">아이디 <span class="text-red-500">*</span></label>
                 <div class="flex gap-2">
                     <input type="text" name="login_id" id="login_id" required
-                           class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                           class="flex-1 px-5 py-3.5 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition outline-none placeholder-gray-400"
                            placeholder="영문 소문자/숫자 4자 이상" />
                     <button type="button" onclick="checkLoginId()" id="checkLoginIdBtn"
-                            class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
+                            class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-2xl text-xs font-bold hover:bg-gray-50 hover:text-gray-900 transition shadow-sm whitespace-nowrap">
                         중복확인
                     </button>
                 </div>
-                <p id="loginIdMsg" class="text-xs mt-1"></p>
+                <p id="loginIdMsg" class="text-[11px] ml-1 font-medium min-h-[1rem]"></p>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1.5">이메일<span class="text-red-500">*</span></label>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-gray-500 ml-1">이메일 <span class="text-red-500">*</span></label>
                 <div class="flex gap-2">
                     <input type="email" name="member_email" id="member_email" required
-                           class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
-                           placeholder="email@email.com" />
+                           class="flex-1 px-5 py-3.5 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition outline-none placeholder-gray-400"
+                           placeholder="email@example.com" />
                     <button type="button" onclick="checkEmail()" id="checkEmailBtn"
-                            class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
+                            class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-2xl text-xs font-bold hover:bg-gray-50 hover:text-gray-900 transition shadow-sm whitespace-nowrap">
                         중복확인
                     </button>
                 </div>
-                <p id="emailMsg" class="text-xs mt-1"></p>
+                <p id="emailMsg" class="text-[11px] ml-1 font-medium min-h-[1rem]"></p>
+
                 <button type="button" id="sendAuthBtn" onclick="sendEmailAuth()"
-                        class="hidden w-full mt-2 bg-blue-500 text-white py-2 rounded-sm text-xs font-bold hover:bg-blue-600 transition">
+                        class="hidden w-full py-3 bg-blue-50 text-blue-600 rounded-2xl text-xs font-bold hover:bg-blue-100 transition mt-2">
                     인증번호 발송
                 </button>
-                <div id="authCodeBox" class="hidden mt-2 p-3 bg-gray-50 border border-gray-200 rounded-sm">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-xs text-gray-600">인증번호 입력</span>
+
+                <div id="authCodeBox" class="hidden mt-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-gray-500">인증번호 입력</span>
                         <span id="timer" class="text-xs font-bold text-red-500">03:00</span>
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="authCodeInput"
-                               class="flex-1 px-3 py-2 border border-gray-300 rounded-sm text-sm outline-none"
-                               placeholder="6자리 번호" maxlength="6" />
+                        <input type="text" id="authCodeInput" maxlength="6"
+                               class="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none text-center tracking-widest"
+                               placeholder="123456" />
                         <button type="button" onclick="verifyAuthCode()" id="verifyBtn"
-                                class="px-3 py-2 bg-white border border-gray-300 text-xs font-bold rounded-sm hover:bg-gray-50">
+                                class="px-4 py-2.5 bg-gray-900 text-white text-xs font-bold rounded-xl hover:bg-black shadow-sm">
                             확인
                         </button>
                     </div>
-                    <div class="flex justify-between items-center mt-1">
-                        <p id="authMsg" class="text-xs text-gray-500"></p>
-                        <button type="button" onclick="sendEmailAuth()" class="text-xs text-gray-500 underline hover:text-gray-800">
+                    <div class="flex justify-between items-center mt-2 px-1">
+                        <p id="authMsg" class="text-[10px] text-gray-400 font-medium"></p>
+                        <button type="button" onclick="sendEmailAuth()" class="text-[10px] font-bold text-gray-400 hover:text-gray-600 underline">
                             재전송
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1.5">비밀번호 <span class="text-red-500">*</span></label>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-gray-500 ml-1">비밀번호 <span class="text-red-500">*</span></label>
                 <input type="password" name="member_pwd" id="member_pwd" required
-                       class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                       class="w-full px-5 py-3.5 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition outline-none placeholder-gray-400"
                        placeholder="8자 이상 입력" />
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1.5">비밀번호 확인 <span class="text-red-500">*</span></label>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-gray-500 ml-1">비밀번호 확인 <span class="text-red-500">*</span></label>
                 <input type="password" name="confirmPwd" id="confirmPwd" required
-                       class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                       class="w-full px-5 py-3.5 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition outline-none placeholder-gray-400"
                        placeholder="비밀번호 재입력" />
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1.5">닉네임 <span class="text-red-500">*</span></label>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-gray-500 ml-1">닉네임 <span class="text-red-500">*</span></label>
                 <div class="flex gap-2">
                     <input type="text" name="member_nicknm" id="member_nicknm" required
-                           class="flex-1 px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
-                           placeholder="사용하실 별명을 입력하세요" />
+                           class="w-full px-5 py-3.5 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition outline-none placeholder-gray-400"
+                           placeholder="사용하실 별명" />
                     <button type="button" onclick="checkNicknm()" id="checkNicknmBtn"
-                            class="text-xs px-3 py-2.5 rounded-sm font-bold whitespace-nowrap border bg-gray-800 text-white border-gray-800 hover:bg-gray-900 transition">
+                            class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-2xl text-xs font-bold hover:bg-gray-50 hover:text-gray-900 transition shadow-sm whitespace-nowrap">
                         중복확인
                     </button>
                 </div>
-                <p id="nickNmMsg" class="text-xs mt-1"></p>
+                <p id="nickNmMsg" class="text-[11px] ml-1 font-medium min-h-[1rem]"></p>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1.5">휴대폰 번호 <span class="text-red-500">*</span></label>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-gray-500 ml-1">휴대폰 번호 <span class="text-red-500">*</span></label>
                 <input type="tel" name="member_tel_no" id="member_tel_no" required maxlength="13" oninput="autoHyphen(this)"
-                       class="w-full px-3 py-2.5 border border-gray-300 rounded-sm focus:border-primary-500 outline-none text-sm transition"
+                       class="w-full px-5 py-3.5 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-primary-500/20 transition outline-none placeholder-gray-400"
                        placeholder="010-0000-0000" />
             </div>
 
-            <div id="errorMsg" class="text-xs text-red-500 font-bold"></div>
+            <div id="errorMsg" class="text-xs text-red-500 font-bold text-center min-h-[1rem]"></div>
 
-            <div class="text-xs text-gray-600 bg-gray-50 p-3 rounded border border-gray-100 space-y-2">
-                <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                    <input type="checkbox" id="termsAll" onchange="toggleAll(this)" class="rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
-                    <span class="font-bold">전체 동의</span>
+            <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 space-y-3">
+                <label class="flex items-center gap-3 cursor-pointer hover:text-gray-900 transition group">
+                    <input type="checkbox" id="termsAll" onchange="toggleAll(this)" class="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 border-gray-300 transition cursor-pointer"/>
+                    <span class="text-sm font-black text-gray-800 group-hover:text-primary-600 transition-colors">전체 동의하기</span>
                 </label>
-                <div class="border-t border-gray-200 my-2"></div>
+                <div class="border-t border-gray-200 my-1"></div>
 
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                        <input type="checkbox" name="terms1" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
+                <div class="flex items-center justify-between text-xs font-medium text-gray-500">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-800 transition">
+                        <input type="checkbox" name="terms1" class="terms-checkbox w-3.5 h-3.5 rounded text-primary-600 focus:ring-primary-500 border-gray-300 cursor-pointer"/>
                         <span>[필수] 만 14세 이상입니다</span>
                     </label>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                        <input type="checkbox" name="terms2" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
+                <div class="flex items-center justify-between text-xs font-medium text-gray-500">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-800 transition">
+                        <input type="checkbox" name="terms2" class="terms-checkbox w-3.5 h-3.5 rounded text-primary-600 focus:ring-primary-500 border-gray-300 cursor-pointer"/>
                         <span>[필수] 이용약관 동의</span>
                     </label>
-                    <button type="button" onclick="openModal('service')" class="text-gray-400 underline hover:text-primary-600">내용보기</button>
+                    <button type="button" onclick="openModal('service')" class="text-gray-400 underline hover:text-primary-600 transition">보기</button>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-900">
-                        <input type="checkbox" name="terms3" class="terms-checkbox rounded-sm text-primary-500 focus:ring-primary-500 border-gray-300"/>
+                <div class="flex items-center justify-between text-xs font-medium text-gray-500">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-gray-800 transition">
+                        <input type="checkbox" name="terms3" class="terms-checkbox w-3.5 h-3.5 rounded text-primary-600 focus:ring-primary-500 border-gray-300 cursor-pointer"/>
                         <span>[필수] 개인정보 수집 및 이용 동의</span>
                     </label>
-                    <button type="button" onclick="openModal('privacy')" class="text-gray-400 underline hover:text-primary-600">내용보기</button>
+                    <button type="button" onclick="openModal('privacy')" class="text-gray-400 underline hover:text-primary-600 transition">보기</button>
                 </div>
             </div>
 
-            <button type="submit" class="w-full bg-primary-500 text-white py-3.5 rounded-md font-bold hover:bg-primary-600 transition text-sm">
-                회원가입
+            <button type="submit" class="w-full bg-primary-600 text-white py-4 rounded-2xl font-bold text-sm hover:bg-primary-700 hover:-translate-y-0.5 shadow-lg transition-all duration-300">
+                회원가입 완료
             </button>
         </form>
 
-        <div class="mt-6 text-center text-sm text-gray-600">
-            이미 계정이 있으신가요?
-            <a href="/login" class="text-primary-600 font-bold hover:underline ml-1">로그인</a>
+        <div class="mt-8 text-center">
+            <p class="text-xs text-gray-400 font-medium">
+                이미 계정이 있으신가요?
+                <a href="/login" class="text-gray-800 font-bold hover:underline ml-1">로그인</a>
+            </p>
         </div>
     </div>
 </div>
 
-<div id="termsModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-lg shadow-lg overflow-hidden flex flex-col max-h-[80vh]">
-        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 id="modalTitle" class="font-bold text-gray-900">약관 상세</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+<div id="termsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+    <div class="bg-white w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden relative z-10 transform transition-all scale-100 max-h-[80vh] flex flex-col">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white/80 backdrop-blur sticky top-0 z-10">
+            <h3 id="modalTitle" class="text-lg font-black text-gray-900 tracking-tight">약관 상세</h3>
+            <button onclick="closeModal()" class="p-2 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
-        <div class="p-6 overflow-y-auto text-xs text-gray-600 leading-relaxed bg-gray-50" id="modalContent">
+        <div class="p-6 overflow-y-auto text-xs text-gray-600 leading-relaxed bg-gray-50 flex-1 custom-scrollbar" id="modalContent">
         </div>
-        <div class="p-4 border-t border-gray-100 bg-white">
-            <button onclick="closeModal()" class="w-full bg-gray-900 text-white py-2.5 rounded-md font-bold text-sm hover:bg-gray-800">확인</button>
+        <div class="p-5 border-t border-gray-100 bg-white">
+            <button onclick="closeModal()" class="w-full bg-gray-900 text-white py-3.5 rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-md">확인했습니다</button>
         </div>
     </div>
 </div>
@@ -236,10 +246,6 @@
         }
     });
 
-    // ... (이전 스크립트 내용들: checkLoginId, checkEmail 등등) ...
-    // 아래에 기존 script 내용을 그대로 두시면 됩니다.
-
-    // [기존 코드 유지]
     document.getElementById('member_email').addEventListener('input', function() {
         const msg = document.getElementById('emailMsg');
         const btn = document.getElementById('checkEmailBtn');
