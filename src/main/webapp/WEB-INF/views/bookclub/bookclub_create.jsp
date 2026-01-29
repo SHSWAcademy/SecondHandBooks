@@ -8,8 +8,8 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <meta name="_csrf" content="${_csrf.token}">
-                <meta name="_csrf_header" content="${_csrf.headerName}">
+                <meta name="_csrf" content="${fn:escapeXml(_csrf.token)}">
+                <meta name="_csrf_header" content="${fn:escapeXml(_csrf.headerName)}">
                 <title>독서모임 만들기 - 신한북스</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub.css">
             </head>

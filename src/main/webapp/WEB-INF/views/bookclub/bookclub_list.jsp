@@ -142,7 +142,7 @@
                                     <c:set var="currentPage" value="${bookclubList.page}" />
 
                                     <c:if test="${currentPage > 1}">
-                                        <a href="?page=${currentPage - 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${bookclubList.sort}"
+                                        <a href="?page=${currentPage - 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${fn:escapeXml(bookclubList.sort)}"
                                             class="page-link">이전</a>
                                     </c:if>
 
@@ -151,7 +151,7 @@
                                     </span>
 
                                     <c:if test="${currentPage < totalPages}">
-                                        <a href="?page=${currentPage + 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${bookclubList.sort}"
+                                        <a href="?page=${currentPage + 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${fn:escapeXml(bookclubList.sort)}"
                                             class="page-link">다음</a>
                                     </c:if>
                                 </div>
