@@ -136,6 +136,8 @@ public class PaymentController {
         // 배송지 타입에 따라 구분해서 처리
         payment.setAddr_type(addr_type);
         if ("manual".equals(addr_type) || "existing".equals(addr_type)) {
+            if (addr_h.length() >= 180 || addr_d.length() >= 180) {return "payment/fail";} // 길이 검증
+
             payment.setPost_no(post_no);
             payment.setAddr_h(addr_h);
             payment.setAddr_d(addr_d);
