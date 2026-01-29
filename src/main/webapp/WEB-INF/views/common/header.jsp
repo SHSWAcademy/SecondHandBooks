@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shinhan Books</title>
+    <title>Secondary Books</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -86,7 +86,7 @@
         <div class="flex items-center gap-2 cursor-pointer mr-10" onclick="location.href='/home'">
             <div class="flex flex-col leading-none">
                 <span class="text-[10px] font-bold text-primary-500 tracking-widest mb-0.5">PREMIUM</span>
-                <span class="text-2xl font-black text-primary-600 tracking-tighter">Shinhan<span class="text-gray-800 font-bold ml-1">Books</span></span>
+                <span class="text-2xl font-black text-primary-600 tracking-tighter">Secondary<span class="text-gray-800 font-bold ml-1">Books</span></span>
             </div>
         </div>
 
