@@ -239,12 +239,19 @@
 
             var url = ctx + '/bookclubs/' + bookClubId + '/join';
 
+            // CSRF 토큰 가져오기
+            var csrf = getCsrfToken();
+            var headers = {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+            if (csrf.token && csrf.header) {
+                headers[csrf.header] = csrf.token;
+            }
+
             fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: headers,
                 body: JSON.stringify({ reason: reason })
             })
             .then(function (res) {
