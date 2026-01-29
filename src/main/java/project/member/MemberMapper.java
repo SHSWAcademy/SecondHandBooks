@@ -1,6 +1,7 @@
 package project.member;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Map;
 
@@ -28,4 +29,6 @@ public interface MemberMapper {
 
     int updatePassword(@org.apache.ibatis.annotations.Param("login_id") String login_id,
                        @org.apache.ibatis.annotations.Param("member_pwd") String member_pwd);
+
+    int checkPasswordMatch(@Param("login_id") String login_id, @Param("member_pwd") String member_pwd);
 }

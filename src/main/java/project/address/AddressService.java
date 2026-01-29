@@ -50,4 +50,8 @@ public class AddressService {
         addressMapper.resetDefaultAddress(member_seq);
         return addressMapper.setDefaultAddress(addr_seq) > 0;
     }
+
+    public int getAddressCount(long member_seq) {
+        return addressMapper.countAddress(member_seq);
+    }
 }
