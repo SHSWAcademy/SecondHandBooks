@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -19,6 +20,8 @@ import project.util.imgUpload.FileStore;
 import project.util.imgUpload.UploadFile;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,12 +69,37 @@ public class TradeController {
         return "trade/tradeform";
     }
 
+    /*
+    입력 숫자 범위 체크
+    @GetMapping("/trade/check")
+    @ResponseBody
+    public String checkPrice(String price) {
+        try {
+            int p = Integer.parseInt(price); // 문자열 → int 변환
+            if (p < 0) {
+                return "0 이상의 값만 입력 가능합니다.";
+            }
+            return "입력값 정상"; // 정상 범위
+        } catch (NumberFormatException e) {
+            return "숫자 범위가 올바르지 않습니다.";
+        }
+    }
+     */
+
     // 판매글 create
     @PostMapping("/trade")
-    public String uploadTrade(TradeVO tradeVO, HttpSession session,
+    public String uploadTrade(@Valid TradeVO tradeVO, BindingResult bindingResult,
+                              HttpSession session,
                               RedirectAttributes redirectAttributes) throws Exception {
 
-        checkSessionAndTrade(session, tradeVO);
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+        if (sessionMember == null || bindingResult.hasErrors()) {
+            log.warn("Trade validation error: {}", bindingResult.getAllErrors());
+            return "error/numberError";
+        }
+
+        tradeVO.setMember_seller_seq(sessionMember.getMember_seq());
+
         // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
         List<MultipartFile> uploadFiles = tradeVO.getUploadFiles(); // form 에서 받은 데이터 조회
         log.info("uploadFiles: {}", uploadFiles);
@@ -247,7 +275,7 @@ public class TradeController {
         return bookApiService.searchBooks(query);
     }
 
-    private void checkSessionAndTrade(HttpSession session, TradeVO tradeVO) throws Exception {
+    private void checkSessionAndTrade(HttpSession session, TradeVO tradeVO) {
 
         // 세션 검증
         MemberVO loginMember = (MemberVO)session.getAttribute(Const.SESSION);
@@ -257,7 +285,7 @@ public class TradeController {
         }
 
         // tradeVO 검증
-        if (tradeVO == null || !tradeVO.checkTradeVO()){
+        if (tradeVO == null || !tradeVO.checkTradeVO() ){
             log.info("Invalid trade data: {}", tradeVO);
             throw new TradeNotFoundException("cannot upload trade");
         }
