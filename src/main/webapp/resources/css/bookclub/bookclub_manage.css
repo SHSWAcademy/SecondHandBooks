@@ -693,6 +693,76 @@
     margin-left: 4px;
 }
 
+/* 정기 일정 선택 (수정 페이지용) */
+.schedule-row {
+    margin-bottom: 10px;
+}
+
+.schedule-cycle {
+    margin-bottom: 0;
+}
+
+.toggle-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.toggle-btn.active {
+    background: #3a3a3a;
+    color: #fff;
+    border-color: #3a3a3a;
+}
+
+.toggle-btn:hover:not(.active) {
+    border-color: #aaa;
+}
+
+/* 요일 선택 버튼 그룹 */
+.day-group {
+    display: flex;
+    gap: 6px;
+}
+
+.day-btn-manage {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+}
+
+.day-btn-manage.active {
+    background: #3a3a3a;
+    color: #fff;
+    border-color: #3a3a3a;
+}
+
+.day-btn-manage:hover:not(.active) {
+    border-color: #aaa;
+}
+
+/* 시간 선택 */
+.time-input {
+    width: 100%;
+}
+
 /* 반응형 */
 @media (max-width: 768px) {
     .container {
