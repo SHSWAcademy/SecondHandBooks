@@ -451,6 +451,19 @@
                            return;
                        }
 
+                       // --- 글자 수 제한 체크 (180자) ---
+                           if (addrH.length > 180 || addrD.length > 180) {
+                               alert("주소 정보가 너무 깁니다. 180자 이내로 입력해주세요.");
+                               return;
+                           }
+
+                           // 파라미터 구성
+                           if (addrType !== 'direct') {
+                               addrParams += "&post_no=" + encodeURIComponent(postNo);
+                               addrParams += "&addr_h=" + encodeURIComponent(addrH);
+                               addrParams += "&addr_d=" + encodeURIComponent(addrD);
+                           }
+
                        addrParams += "&post_no=" + encodeURIComponent(postNo);
                        addrParams += "&addr_h=" + encodeURIComponent(addrH);
                        addrParams += "&addr_d=" + encodeURIComponent(addrD);
