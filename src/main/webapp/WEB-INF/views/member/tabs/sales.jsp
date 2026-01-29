@@ -6,13 +6,13 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-gray-900">판매 내역</h2>
 
-        <select id="status-filter"
-                class="text-sm border border-gray-300 rounded px-3 py-2 outline-none focus:border-primary-500">
-            <option value="all" ${selectedStatus == 'all' ? 'selected' : ''}>전체</option>
-            <option value="PENDING" ${selectedStatus == 'SALES' ? 'selected' : ''}>판매중</option>
-            <option value="SHIPPING" ${selectedStatus == 'RESERVE' ? 'selected' : ''}>예약중</option>
-            <option value="COMPLETED" ${selectedStatus == 'SOLD' ? 'selected' : ''}>판매완료</option>
-        </select>
+<%--        <select id="status-filter"--%>
+<%--                class="text-sm border border-gray-300 rounded px-3 py-2 outline-none focus:border-primary-500">--%>
+<%--            <option value="all" ${selectedStatus == 'all' ? 'selected' : ''}>전체</option>--%>
+<%--            <option value="PENDING" ${selectedStatus == 'SALES' ? 'selected' : ''}>판매중</option>--%>
+<%--            <option value="SHIPPING" ${selectedStatus == 'RESERVE' ? 'selected' : ''}>예약중</option>--%>
+<%--            <option value="COMPLETED" ${selectedStatus == 'SOLD' ? 'selected' : ''}>판매완료</option>--%>
+<%--        </select>--%>
 </div>
     <!-- 데이터가 없을 때 -->
     <c:if test="${empty salesList}">
