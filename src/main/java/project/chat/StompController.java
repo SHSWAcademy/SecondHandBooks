@@ -49,6 +49,13 @@ public class StompController {
         if (sessionMember == null || trade_seq <= 0) {
             return; // 검증 실패 시 바로 종료
         }
+
+        // 검증 : 채팅 메시지 길이는 최대 1000자
+        if (message.getChat_cont() != null && message.getChat_cont().length() > 1000) {
+            log.warn("메시지 글자수 초과: {}자", message.getChat_cont().length());
+            return; // 검증 실패 시 바로 종료
+        }
+
         // 세션 seq기준 닉네임 조회
         message.setMember_seller_nicknm(messageService.findBySellerNicknm(sessionMember.getMember_seq()));
         // sender_seq를 세션에서 가져온 값으로 설정
