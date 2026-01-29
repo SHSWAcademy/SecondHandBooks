@@ -246,12 +246,24 @@
 
                     // 찜 토글
                     function toggleWish(clubSeq) {
+                        // CSRF 토큰 가져오기
+                        var csrfToken = document.querySelector('meta[name="_csrf"]');
+                        var csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+
+                        var headers = {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        };
+
+                        if (csrfToken && csrfHeader) {
+                            headers[csrfHeader.getAttribute('content')] = csrfToken.getAttribute('content');
+                        } else {
+                            console.warn('[toggleWish] CSRF 토큰을 찾을 수 없습니다. 요청을 계속 진행합니다.');
+                        }
+
                         fetch(window.__CTX + '/bookclubs/' + clubSeq + '/wish', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
+                            headers: headers
                         })
                             .then(function (res) { return res.json(); })
                             .then(function (data) {
