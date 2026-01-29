@@ -12,6 +12,29 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
+          /**
+           * 로그인 페이지로 리다이렉트 (현재 URL을 redirect 파라미터로 전달)
+           * - 로그인 후 원래 페이지로 돌아오기 위함
+           * - 독서모임 상세 페이지에서 게시판 탭이 활성화된 경우 ?tab=board 추가
+           */
+          function redirectToLogin() {
+            var currentUrl = window.location.pathname + window.location.search;
+
+            // 독서모임 상세 페이지에서 게시판 탭이 활성화된 경우 ?tab=board 추가
+            var boardTab = document.querySelector('.bc-tab-link[data-tab="board"].active');
+            if (boardTab && currentUrl.indexOf('tab=board') === -1) {
+                if (currentUrl.indexOf('?') === -1) {
+                    currentUrl += '?tab=board';
+                } else {
+                    currentUrl += '&tab=board';
+                }
+            }
+
+            var loginUrl = '/login?redirect=' + encodeURIComponent(currentUrl);
+            window.location.href = loginUrl;
+          }
+        </script>
+        <script>
         tailwind.config = {
             theme: {
                 extend: {
