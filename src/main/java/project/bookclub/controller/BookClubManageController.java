@@ -38,6 +38,9 @@ public class BookClubManageController {
     private final BookClubService bookClubService;
     private final FileStore fileStore;
 
+    @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
+    private String kakaoJsKey;
+
     /**
      * 독서모임 관리 페이지 (모임장 전용)
      * GET /bookclubs/{bookClubId}/manage
@@ -98,6 +101,7 @@ public class BookClubManageController {
         model.addAttribute("bookclub", new BookClubManageViewDTO(bookClub, currentMemberCount));
         model.addAttribute("members", members);
         model.addAttribute("pendingRequests", pendingRequests);
+        model.addAttribute("kakaoJsKey", kakaoJsKey);
 
         log.info("관리 페이지 로드: bookClubId={}, memberCount={}, pendingCount={}",
                 bookClubId, members.size(), pendingRequests.size());
