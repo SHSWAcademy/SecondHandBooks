@@ -86,7 +86,6 @@
     <update id="updateMember" parameterType="project.member.MemberVO">
         UPDATE MEMBER_INFO
            SET MEMBER_NICKNM = #{member_nicknm}
-             , MEMBER_EMAIL = #{member_email}
              , MEMBER_TEL_NO = #{member_tel_no}
              , UPD_DTM = NOW()
          WHERE MEMBER_SEQ = #{member_seq}
@@ -122,4 +121,11 @@
             UPD_DTM = NOW()
         WHERE LOGIN_ID = #{login_id}
     </update>
+
+    <select id="checkPasswordMatch" resultType="int">
+        SELECT COUNT(*)
+          FROM MEMBER_INFO
+         WHERE LOGIN_ID = #{login_id}
+           AND MEMBER_PWD = MD5(#{member_pwd})
+    </select>
 </mapper>
