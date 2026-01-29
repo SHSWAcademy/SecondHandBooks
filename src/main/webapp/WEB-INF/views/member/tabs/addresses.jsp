@@ -34,9 +34,12 @@
                 <input type="hidden" name="addr_seq" id="addr_seq" value="0">
 
                 <div class="space-y-1.5">
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">배송지명</label>
-                    <input type="text" name="addr_nm" id="addr_nm" placeholder="예: 우리집, 회사"
-                           class="w-full bg-gray-50 border-0 rounded-2xl px-5 py-3.5 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition placeholder-gray-400" required />
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
+                        배송지명 <span class="text-[10px] font-normal text-gray-400 ml-1">(최대 17자)</span>
+                    </label>
+                    <input type="text" name="addr_nm" id="addr_nm" placeholder="예: 우리집, 회사" maxlength="17"
+                           class="w-full bg-gray-50 border-0 rounded-2xl px-5 py-3.5 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition placeholder-gray-400" required
+                           oninput="AddressTab.checkLength(this, 17)"/>
                 </div>
 
                 <div class="space-y-1.5">
@@ -51,8 +54,13 @@
                     </div>
                     <input type="text" name="addr_h" id="addr_h" placeholder="기본 주소" readonly
                            class="w-full bg-gray-50 border-0 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 mt-2 cursor-default" required />
-                    <input type="text" name="addr_d" id="addr_d" placeholder="상세 주소를 입력해주세요"
-                           class="w-full bg-gray-50 border-0 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition mt-2 placeholder-gray-400" required />
+
+                    <div class="relative">
+                        <input type="text" name="addr_d" id="addr_d" placeholder="상세 주소를 입력해주세요 (최대 50자)" maxlength="50"
+                               class="w-full bg-gray-50 border-0 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition mt-2 placeholder-gray-400 pr-12" required
+                               oninput="AddressTab.checkLength(this, 50)"/>
+                        <span class="absolute right-4 bottom-3.5 text-[10px] text-gray-400 font-bold pointer-events-none" id="addr_d_count"></span>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-3 p-1">
@@ -77,7 +85,6 @@
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
 <script>
-    // [중요] IIFE 패턴 적용: 전역 변수 충돌 방지
     (function() {
         let currentAddrCount = 0;
         let addressesData = [];
@@ -88,6 +95,7 @@
             },
 
             loadAddressList: async () => {
+                // ... (기존 loadAddressList 로직 동일) ...
                 try {
                     const response = await fetch('/profile/address/list');
                     if (!response.ok) throw new Error('Network error');
@@ -116,7 +124,6 @@
                     let html = '';
                     addressesData.forEach((item, index) => {
                         const isDefault = (item.default_yn === 1);
-                        // 기본 배송지일 때 파란색 테두리와 배경 적용
                         const borderClass = isDefault ? 'border-primary-500 ring-4 ring-primary-500/5 bg-primary-50/30' : 'border-gray-100 hover:border-gray-300 bg-white';
                         const defaultBadge = isDefault
                             ? '<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary-600 text-white shadow-sm">기본</span>'
@@ -166,6 +173,19 @@
                 }
             },
 
+            // [추가] 글자 수 체크 함수
+            checkLength: (input, max) => {
+                if (input.value.length > max) {
+                    input.value = input.value.slice(0, max);
+                }
+
+                // 상세주소 카운터 표시 (선택사항)
+                if (input.id === 'addr_d') {
+                    const counter = document.getElementById('addr_d_count');
+                    if(counter) counter.innerText = input.value.length + '/' + max;
+                }
+            },
+
             openModal: () => {
                 if (currentAddrCount >= 5) {
                     alert('배송지는 최대 5개까지만 등록할 수 있습니다.\n불필요한 배송지를 삭제 후 다시 시도해주세요.');
@@ -178,6 +198,7 @@
                 modal.classList.add('flex');
             },
 
+            // ... (openEditModal, closeModal, resetForm 등 기존 로직 동일) ...
             openEditModal: (index) => {
                 const item = addressesData[index];
                 if (!item) return;
@@ -189,6 +210,11 @@
                 document.getElementById('addr_h').value = item.addr_h;
                 document.getElementById('addr_d').value = item.addr_d;
                 document.getElementById('chk-default').checked = (item.default_yn === 1);
+
+                // 글자수 카운트 초기화
+                if(document.getElementById('addr_d_count')) {
+                    document.getElementById('addr_d_count').innerText = item.addr_d.length + '/50';
+                }
 
                 document.getElementById('modal-title').textContent = '배송지 수정';
                 const modal = document.getElementById('addr-modal');
@@ -205,10 +231,25 @@
             resetForm: () => {
                 document.getElementById('form-addr').reset();
                 document.getElementById('addr_seq').value = 0;
+                if(document.getElementById('addr_d_count')) document.getElementById('addr_d_count').innerText = '';
             },
 
             submitAddress: async (e) => {
                 e.preventDefault();
+                // [추가] 길이 유효성 검사 (서버 전송 전 한 번 더 체크)
+                const addrNm = document.getElementById('addr_nm').value;
+                const addrD = document.getElementById('addr_d').value;
+
+                if(addrNm.length > 20) {
+                    alert('배송지명은 20자 이내로 입력해주세요.');
+                    return;
+                }
+                if(addrD.length > 50) {
+                    alert('상세 주소는 50자 이내로 입력해주세요.');
+                    return;
+                }
+
+                // ... (기존 전송 로직) ...
                 const form = document.getElementById('form-addr');
                 const formData = new FormData(form);
                 const seq = document.getElementById('addr_seq').value;
@@ -290,10 +331,7 @@
             }
         };
 
-        // Window 객체에 할당하여 HTML 인라인 이벤트(onclick)에서 접근 가능하게 함
         window.AddressTab = actions;
-
-        // 초기화 실행
         actions.init();
     })();
 </script>
