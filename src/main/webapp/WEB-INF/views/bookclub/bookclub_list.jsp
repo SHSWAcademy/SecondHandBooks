@@ -9,8 +9,8 @@
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <c:if test="${not empty _csrf}">
-                    <meta name="_csrf" content="${_csrf.token}">
-                    <meta name="_csrf_header" content="${_csrf.headerName}">
+                    <meta name="_csrf" content="${fn:escapeXml(_csrf.token)}">
+                    <meta name="_csrf_header" content="${fn:escapeXml(_csrf.headerName)}">
                 </c:if>
                 <title>독서모임 목록 - 신한북스</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub.css">
@@ -307,7 +307,7 @@
                 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
                 <!-- 카카오 지도 SDK -->
-                <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
+                <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${fn:escapeXml(kakaoJsKey)}&libraries=services"></script>
                 <script src="${pageContext.request.contextPath}/resources/js/bookclub/kakaoPlaceSearch.js"></script>
                 <script src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub.js"></script>
                 <script>
