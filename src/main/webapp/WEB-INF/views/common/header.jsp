@@ -50,37 +50,8 @@
 </head>
 <body class="bg-[#F8F9FA] text-gray-900 font-sans antialiased">
 
-<c:choose>
-    <%-- [1] 관리자 접속 시 보여줄 심플 헤더 --%>
-<c:when test="${not empty sessionScope.adminSess}">
-<header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-md">
-    <div class="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <span class="text-xl font-black text-white tracking-tight">Admin<span class="text-primary-500">View</span></span>
-            <span class="px-2 py-0.5 bg-gray-800 border border-gray-700 rounded text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                        Management Mode
-                    </span>
-        </div>
-
-        <div class="flex items-center gap-4">
-                    <span class="text-sm text-gray-400">
-                        <span class="text-white font-bold">${sessionScope.adminSess.admin_login_id}</span> 관리자님
-                    </span>
-            <a href="/admin" class="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-bold hover:bg-primary-700 transition">
-                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                관리자 홈으로 이동
-            </a>
-        </div>
-    </div>
-</header>
-<script>
-    // 관리자 모드일 때 아이콘 초기화 (헤더 로드 시점)
-    if(window.lucide) lucide.createIcons();
-</script>
-</c:when>
 
     <%-- [2] 일반 회원/비회원 헤더 (기존 코드 유지) --%>
-<c:otherwise>
 <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
     <div class="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
         <div class="flex items-center gap-2 cursor-pointer mr-10" onclick="location.href='/home'">
@@ -126,8 +97,7 @@
         </nav>
     </div>
 </header>
-</c:otherwise>
-</c:choose>
+
 
 <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10">
 
