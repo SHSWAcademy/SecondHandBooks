@@ -806,10 +806,11 @@ public class BookClubController {
     }
 
     /**
-     * 파일 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
+     * 이미지 파일 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
+     * 이미지 파일만 허용 (jpg, jpeg, png, gif, webp, bmp)
      */
     private String saveFile(MultipartFile file) throws IOException {
-        var uploadFile = fileStore.storeFile(file);
+        var uploadFile = fileStore.storeImageFile(file);
         return uploadFile.getStoreFileName();
     }
 
