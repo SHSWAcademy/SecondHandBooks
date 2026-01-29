@@ -537,7 +537,11 @@
         </div>
     </div>
 </div>
-
+<script>
+    // 서버에서 내려준 값
+    const enterChatRoomSeq = '${enter_chat_room_seq}';
+    console.log('json변환처리 확인', enterChatRoomSeq);
+</script>
 <script src="${pageContext.request.contextPath}/resources/js/chat/chat.js"></script>
 
 <script>
@@ -556,6 +560,13 @@ document.addEventListener("DOMContentLoaded", function() {
     updatePlusButtonVisibility();
     setupPlusButtonEvents();
 });
+
+function removeActivePaymentCard() {
+    const btn = document.querySelector('.safe-payment-card .action-btn');
+    if (btn) {
+        btn.closest('.msg-left, .msg-right')?.remove();
+    }
+}
 
 // + 버튼 표시/숨김 (채팅방 선택 시 모두에게 보임, 안전결제는 판매자만)
 function updatePlusButtonVisibility() {
@@ -810,6 +821,10 @@ function startServerSyncTimer(timerId) {
 
 // 안전 결제 실패 UI 표시
 function showSafePaymentFailed(msg) {
+    //기존 안전결제 카드 전부 숨김
+    document.querySelectorAll('.safe-payment-card').forEach(el => {
+           el.style.display = 'none';
+    });
     const log = document.getElementById("chatContainer");
     const emptyNotice = document.getElementById("emptyNotice");
     if (emptyNotice) emptyNotice.remove();
@@ -841,9 +856,6 @@ function showSafePaymentFailed(msg) {
     msgWrapper.appendChild(card);
     log.appendChild(msgWrapper);
     log.scrollTop = log.scrollHeight;
-
-    // 기존 안전결제 요청 카드의 타이머 정지 및 만료 표시
-    stopAllPaymentTimers();
 }
 
 // 모든 결제 타이머 정지
@@ -1013,6 +1025,7 @@ function acceptSafePaymentRequest(msgId) {
 
 // 안전 결제 수락 UI 표시 (상품 정보 + 결제하기 버튼)
 function showSafePaymentAccept(msg) {
+
     const log = document.getElementById("chatContainer");
     const emptyNotice = document.getElementById("emptyNotice");
     if (emptyNotice) emptyNotice.remove();
@@ -1110,6 +1123,10 @@ function goToPayment(msgId) {
 
 // 결제 완료 UI 표시
 function showSafePaymentComplete(msg) {
+    //기존 안전결제 카드 전부 숨김
+    document.querySelectorAll('.safe-payment-card').forEach(el => {
+           el.style.display = 'none';
+    });
     const log = document.getElementById("chatContainer");
     const emptyNotice = document.getElementById("emptyNotice");
     if (emptyNotice) emptyNotice.remove();
@@ -1797,6 +1814,10 @@ function showImageMessage(msg) {
     log.scrollTop = log.scrollHeight;
 }
 
+if (enterChatRoomSeq) {
+        chat_room_seq = Number(enterChatRoomSeq);
+        fetchMessages(chat_room_seq);
+}
 </script>
 
 <%@ include file="/WEB-INF/views/common/footer.jsp" %>

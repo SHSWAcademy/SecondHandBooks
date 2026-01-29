@@ -256,9 +256,21 @@ function parseLocalDateTime(arr) {
    이벤트 바인딩
 -------------------------------- */
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("sendBtn")
-        .addEventListener("click", sendMessage);
+    const sendBtn = document.getElementById("sendBtn");
+    const messageInput = document.getElementById("message"); // 입력창 id
+
+    // 버튼 클릭
+    sendBtn.addEventListener("click", sendMessage);
+
+    // Enter 키 전송
+    messageInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault(); // 줄바꿈 방지
+            sendMessage();      // 버튼 클릭과 동일
+        }
+    });
 });
+
 
 window.addEventListener("beforeunload", function () {
     if (stompClient) stompClient.disconnect();
