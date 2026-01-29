@@ -292,7 +292,7 @@ const BookClubManage = (() => {
             const description = document.getElementById('clubDescription')?.value.trim();
             const region = document.getElementById('clubRegion')?.value.trim();
             const schedule = document.getElementById('clubSchedule')?.value.trim();
-            const bannerImgUrl = document.getElementById('bannerImgUrl')?.value.trim();
+            const existingBannerUrl = document.getElementById('existingBannerUrl')?.value.trim();
             const bannerFile = document.getElementById('bannerFile')?.files[0];
 
             // 필수 입력값 검증
@@ -335,11 +335,11 @@ const BookClubManage = (() => {
                 formData.append('region', region || '');
                 formData.append('schedule', schedule || '');
 
-                // 파일이 있으면 파일 우선, 없으면 URL
+                // 파일이 있으면 파일 우선, 없으면 기존 URL 유지
                 if (bannerFile) {
                     formData.append('bannerFile', bannerFile);
-                } else if (bannerImgUrl) {
-                    formData.append('bannerImgUrl', bannerImgUrl);
+                } else if (existingBannerUrl) {
+                    formData.append('bannerImgUrl', existingBannerUrl);
                 }
 
                 const response = await fetch(url, {
@@ -370,9 +370,9 @@ const BookClubManage = (() => {
                         document.getElementById('clubRegion').value = result.updated.region || '';
                         document.getElementById('clubSchedule').value = result.updated.schedule || '';
 
-                        const bannerImgUrlInput = document.getElementById('bannerImgUrl');
-                        if (bannerImgUrlInput) {
-                            bannerImgUrlInput.value = result.updated.bannerImgUrl || '';
+                        const existingBannerUrlInput = document.getElementById('existingBannerUrl');
+                        if (existingBannerUrlInput) {
+                            existingBannerUrlInput.value = result.updated.bannerImgUrl || '';
                         }
 
                         // 배너 이미지 미리보기 갱신

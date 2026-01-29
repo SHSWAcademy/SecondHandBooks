@@ -274,6 +274,8 @@
                                                     </label>
                                                     <input type="file" id="bannerFile" class="banner-file-input"
                                                         accept="image/*">
+                                                    <!-- 기존 배너 이미지 URL 보존용 hidden input -->
+                                                    <input type="hidden" id="existingBannerUrl" value="<c:out value='${bookclub.bannerImgUrl}'/>">
                                                 </div>
 
                                                 <!-- 모임 이름 -->
@@ -349,10 +351,62 @@
 
                                                 <!-- 정기 일정 -->
                                                 <div class="form-group">
-                                                    <label for="clubSchedule" class="form-label">정기 일정</label>
-                                                    <input type="text" id="clubSchedule" class="form-input"
-                                                        value="<c:out value='${bookclub.schedule}'/>"
-                                                        placeholder="예: 매주 토요일 오후 2시" maxlength="100">
+                                                    <label class="form-label">정기 모임 일정 (선택)</label>
+                                                    <!-- 주기 선택 -->
+                                                    <div class="schedule-row">
+                                                        <div class="toggle-group schedule-cycle">
+                                                            <button type="button" class="toggle-btn cycle-btn-manage" data-value="매일">매일</button>
+                                                            <button type="button" class="toggle-btn cycle-btn-manage" data-value="매주">매주</button>
+                                                            <button type="button" class="toggle-btn cycle-btn-manage" data-value="매월">매월</button>
+                                                        </div>
+                                                    </div>
+                                                    <!-- 주차 선택 (매월 선택시만 표시) -->
+                                                    <div class="schedule-row week-select" id="weekSelectManage" style="display: none;">
+                                                        <select class="form-input" id="scheduleWeekManage">
+                                                            <option value="">주차 선택</option>
+                                                            <option value="첫째주">첫째주</option>
+                                                            <option value="둘째주">둘째주</option>
+                                                            <option value="셋째주">셋째주</option>
+                                                            <option value="넷째주">넷째주</option>
+                                                            <option value="다섯째주">다섯째주</option>
+                                                        </select>
+                                                    </div>
+                                                    <!-- 요일 선택 (매주/매월 선택시 표시) -->
+                                                    <div class="schedule-row day-select" id="daySelectManage" style="display: none;">
+                                                        <div class="day-group">
+                                                            <button type="button" class="day-btn-manage" data-value="월">월</button>
+                                                            <button type="button" class="day-btn-manage" data-value="화">화</button>
+                                                            <button type="button" class="day-btn-manage" data-value="수">수</button>
+                                                            <button type="button" class="day-btn-manage" data-value="목">목</button>
+                                                            <button type="button" class="day-btn-manage" data-value="금">금</button>
+                                                            <button type="button" class="day-btn-manage" data-value="토">토</button>
+                                                            <button type="button" class="day-btn-manage" data-value="일">일</button>
+                                                        </div>
+                                                    </div>
+                                                    <!-- 시간 선택 -->
+                                                    <div class="schedule-row time-select" id="timeSelectManage" style="display: none;">
+                                                        <select class="form-input time-input" id="scheduleHourManage">
+                                                            <option value="">시간 선택</option>
+                                                            <option value="오전 6시">오전 6시</option>
+                                                            <option value="오전 7시">오전 7시</option>
+                                                            <option value="오전 8시">오전 8시</option>
+                                                            <option value="오전 9시">오전 9시</option>
+                                                            <option value="오전 10시">오전 10시</option>
+                                                            <option value="오전 11시">오전 11시</option>
+                                                            <option value="오후 12시">오후 12시</option>
+                                                            <option value="오후 1시">오후 1시</option>
+                                                            <option value="오후 2시">오후 2시</option>
+                                                            <option value="오후 3시">오후 3시</option>
+                                                            <option value="오후 4시">오후 4시</option>
+                                                            <option value="오후 5시">오후 5시</option>
+                                                            <option value="오후 6시">오후 6시</option>
+                                                            <option value="오후 7시">오후 7시</option>
+                                                            <option value="오후 8시">오후 8시</option>
+                                                            <option value="오후 9시">오후 9시</option>
+                                                            <option value="오후 10시">오후 10시</option>
+                                                        </select>
+                                                    </div>
+                                                    <input type="hidden" id="clubSchedule" value="<c:out value='${bookclub.schedule}'/>">
                                                 </div>
 
                                                 <!-- 저장 버튼 -->
@@ -411,7 +465,152 @@
                             document.addEventListener('DOMContentLoaded', function () {
                                 BookClubManage.init(${ bookclub.bookClubSeq });
                                 initPlaceSearchManage();
+                                initScheduleManage();
                             });
+
+                            function initScheduleManage() {
+                                var cycleBtns = document.querySelectorAll('.cycle-btn-manage');
+                                var weekSelect = document.getElementById('weekSelectManage');
+                                var daySelect = document.getElementById('daySelectManage');
+                                var timeSelect = document.getElementById('timeSelectManage');
+                                var dayBtns = document.querySelectorAll('.day-btn-manage');
+                                var scheduleWeek = document.getElementById('scheduleWeekManage');
+                                var scheduleHour = document.getElementById('scheduleHourManage');
+                                var clubSchedule = document.getElementById('clubSchedule');
+
+                                var selectedCycle = '';
+                                var selectedDay = '';
+
+                                // 기존 값 파싱 및 UI 설정
+                                var existingSchedule = clubSchedule.value || '';
+                                if (existingSchedule) {
+                                    parseAndSetSchedule(existingSchedule);
+                                }
+
+                                // 기존 일정 파싱하여 UI에 반영
+                                function parseAndSetSchedule(schedule) {
+                                    // 패턴: "매일 오후 2시", "매주 토요일 오후 2시", "매월 첫째주 토요일 오후 2시"
+                                    var parts = schedule.split(' ');
+
+                                    if (parts.length === 0) return;
+
+                                    // 주기 (매일/매주/매월)
+                                    var cycle = parts[0];
+                                    if (['매일', '매주', '매월'].includes(cycle)) {
+                                        selectedCycle = cycle;
+                                        cycleBtns.forEach(function(btn) {
+                                            if (btn.dataset.value === cycle) {
+                                                btn.classList.add('active');
+                                            }
+                                        });
+
+                                        timeSelect.style.display = 'block';
+
+                                        if (cycle === '매주') {
+                                            daySelect.style.display = 'block';
+                                        } else if (cycle === '매월') {
+                                            weekSelect.style.display = 'block';
+                                            daySelect.style.display = 'block';
+                                        }
+                                    }
+
+                                    // 주차 (매월인 경우)
+                                    if (cycle === '매월' && parts.length > 1) {
+                                        var weekOptions = ['첫째주', '둘째주', '셋째주', '넷째주', '다섯째주'];
+                                        if (weekOptions.includes(parts[1])) {
+                                            scheduleWeek.value = parts[1];
+                                        }
+                                    }
+
+                                    // 요일 찾기
+                                    var dayPattern = /(월|화|수|목|금|토|일)요일/;
+                                    for (var i = 0; i < parts.length; i++) {
+                                        var match = parts[i].match(dayPattern);
+                                        if (match) {
+                                            selectedDay = match[1] + '요일';
+                                            dayBtns.forEach(function(btn) {
+                                                if (btn.dataset.value === match[1]) {
+                                                    btn.classList.add('active');
+                                                }
+                                            });
+                                            break;
+                                        }
+                                    }
+
+                                    // 시간 찾기 (오전/오후 X시)
+                                    var timePattern = /(오전|오후)\s*(\d+)시/;
+                                    var timeMatch = schedule.match(timePattern);
+                                    if (timeMatch) {
+                                        var timeValue = timeMatch[1] + ' ' + timeMatch[2] + '시';
+                                        scheduleHour.value = timeValue;
+                                    }
+                                }
+
+                                // 주기 선택
+                                cycleBtns.forEach(function(btn) {
+                                    btn.addEventListener('click', function() {
+                                        cycleBtns.forEach(function(b) { b.classList.remove('active'); });
+                                        btn.classList.add('active');
+
+                                        selectedCycle = btn.dataset.value;
+
+                                        // 초기화
+                                        weekSelect.style.display = 'none';
+                                        daySelect.style.display = 'none';
+                                        scheduleWeek.value = '';
+                                        selectedDay = '';
+                                        dayBtns.forEach(function(b) { b.classList.remove('active'); });
+
+                                        if (selectedCycle === '매주') {
+                                            daySelect.style.display = 'block';
+                                        } else if (selectedCycle === '매월') {
+                                            weekSelect.style.display = 'block';
+                                            daySelect.style.display = 'block';
+                                        }
+
+                                        timeSelect.style.display = 'block';
+                                        updateScheduleValue();
+                                    });
+                                });
+
+                                // 주차 선택
+                                scheduleWeek.addEventListener('change', function() {
+                                    updateScheduleValue();
+                                });
+
+                                // 요일 선택
+                                dayBtns.forEach(function(btn) {
+                                    btn.addEventListener('click', function() {
+                                        dayBtns.forEach(function(b) { b.classList.remove('active'); });
+                                        btn.classList.add('active');
+                                        selectedDay = btn.dataset.value + '요일';
+                                        updateScheduleValue();
+                                    });
+                                });
+
+                                // 시간 선택
+                                scheduleHour.addEventListener('change', function() {
+                                    updateScheduleValue();
+                                });
+
+                                // 일정 값 조합
+                                function updateScheduleValue() {
+                                    var schedule = '';
+                                    if (selectedCycle) {
+                                        schedule = selectedCycle;
+                                        if (selectedCycle === '매월' && scheduleWeek.value) {
+                                            schedule += ' ' + scheduleWeek.value;
+                                        }
+                                        if ((selectedCycle === '매주' || selectedCycle === '매월') && selectedDay) {
+                                            schedule += ' ' + selectedDay;
+                                        }
+                                        if (scheduleHour.value) {
+                                            schedule += ' ' + scheduleHour.value;
+                                        }
+                                    }
+                                    clubSchedule.value = schedule;
+                                }
+                            }
 
                             function initPlaceSearchManage() {
                                 var placeTypeRadios = document.querySelectorAll('input[name="placeTypeManage"]');
