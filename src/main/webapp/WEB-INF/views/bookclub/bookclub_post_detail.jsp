@@ -611,7 +611,7 @@
                 <c:if test="${not empty post.book_title}">
                     <div class="bc-book-info-card">
                         <c:if test="${not empty post.book_img_url}">
-                            <img src="${post.book_img_url}" alt="책 표지" class="bc-book-info-img">
+                            <img src="${fn:escapeXml(post.book_img_url)}" alt="책 표지" class="bc-book-info-img">
                         </c:if>
                         <div class="bc-book-info-text">
                             <div class="bc-book-info-label">
@@ -639,10 +639,10 @@
                     <div class="bc-post-image">
                         <c:choose>
                             <c:when test="${post.board_img_url.startsWith('http://') or post.board_img_url.startsWith('https://')}">
-                                <img src="${post.board_img_url}" alt="첨부 이미지">
+                                <img src="${fn:escapeXml(post.board_img_url)}" alt="첨부 이미지">
                             </c:when>
                             <c:when test="${post.board_img_url.startsWith('/')}">
-                                <img src="${pageContext.request.contextPath}${post.board_img_url}" alt="첨부 이미지">
+                                <img src="${pageContext.request.contextPath}${fn:escapeXml(post.board_img_url)}" alt="첨부 이미지">
                             </c:when>
                         </c:choose>
                     </div>
