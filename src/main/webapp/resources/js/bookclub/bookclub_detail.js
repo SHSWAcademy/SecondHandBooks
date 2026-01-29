@@ -247,6 +247,8 @@
             };
             if (csrf.token && csrf.header) {
                 headers[csrf.header] = csrf.token;
+            } else {
+                console.warn('[bookclub_detail.js] CSRF 토큰을 찾을 수 없습니다. 요청을 계속 진행합니다.');
             }
 
             fetch(url, {
