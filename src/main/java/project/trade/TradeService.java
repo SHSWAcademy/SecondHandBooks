@@ -302,4 +302,9 @@ public class TradeService {
     public boolean statusUpdate(long trade_seq) {
         return tradeMapper.statusUpdate(trade_seq, SaleStatus.SOLD) > 0;
     }
+
+    @Transactional
+    public void successPurchase(Long tradeSeq, long memberSeq, String postNo, String addrH, String addrD) {
+        tradeMapper.successPurchase(tradeSeq, memberSeq, postNo, addrH, addrD);
+    }
 }
