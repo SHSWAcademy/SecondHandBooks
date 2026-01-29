@@ -406,17 +406,22 @@ public class BookClubService {
 
     // #5-3. 관리 페이지 - 가입 신청 승인
     /**
-     * 독서모임 가입 신청 승인 (재가입 지원)
+     * 독서모임 가입 신청 승인 (재가입 지원 + 동시성 제어)
      *
      * 검증 및 처리 순서:
      * 1. 파라미터 null 체크
-     * 2. request 조회 및 WAIT 상태 검증
-     * 3. 정원 초과 방지 (JOINED 멤버 수 < max_member)
-     * 4. 멤버 상태 확인:
+     * 2. book_club row 비관적 락 획득 (FOR UPDATE) - 정원 초과 동시성 방지
+     * 3. request 조회 및 WAIT 상태 검증
+     * 4. 정원 초과 방지 (JOINED 멤버 수 < max_member) - 락 보호 하에 체크
+     * 5. 멤버 상태 확인:
      *    - 멤버 row 없음 → INSERT (신규 가입)
      *    - join_st='JOINED' → 승인 실패 (이미 가입된 멤버)
      *    - join_st='LEFT/KICKED/REJECTED/WAIT' → UPDATE (재가입 복구)
-     * 5. book_club_request UPDATE (request_st='APPROVED', request_processed_dt=오늘)
+     * 6. book_club_request UPDATE (request_st='APPROVED', request_processed_dt=오늘)
+     *
+     * 동시성 제어:
+     * - lockBookClubForUpdate()로 book_club row를 FOR UPDATE 잠금
+     * - 트랜잭션 커밋 전까지 다른 승인 요청은 대기 → 정원 초과 방지
      *
      * @param bookClubSeq 독서모임 ID
      * @param requestSeq  가입 신청 ID
@@ -433,7 +438,14 @@ public class BookClubService {
             throw new IllegalArgumentException("잘못된 요청입니다.");
         }
 
-        // 2. request 조회 및 WAIT 상태 검증
+        // 2. book_club row 비관적 락 획득 (동시성 제어 - 정원 초과 방지)
+        Long lockedClubSeq = bookClubMapper.lockBookClubForUpdate(bookClubSeq);
+        if (lockedClubSeq == null) {
+            log.warn("승인 처리 실패: 모임이 존재하지 않거나 삭제됨 - bookClubSeq={}", bookClubSeq);
+            throw new IllegalStateException("존재하지 않거나 종료된 모임입니다.");
+        }
+
+        // 3. request 조회 및 WAIT 상태 검증 (조건부 선점)
         project.bookclub.dto.BookClubJoinRequestDTO request = bookClubMapper.selectRequestById(requestSeq);
         if (request == null) {
             log.warn("승인 처리 실패: 존재하지 않는 신청 - requestSeq={}", requestSeq);
@@ -453,7 +465,7 @@ public class BookClubService {
             throw new IllegalArgumentException("잘못된 요청입니다.");
         }
 
-        // 3. 정원 초과 방지
+        // 4. 정원 초과 방지 (락 획득 후 안전하게 체크)
         BookClubVO bookClub = bookClubMapper.selectById(bookClubSeq);
         if (bookClub == null) {
             log.warn("승인 처리 실패: 존재하지 않는 모임 - bookClubSeq={}", bookClubSeq);
@@ -469,23 +481,23 @@ public class BookClubService {
             throw new IllegalStateException("모임 정원이 초과되었습니다.");
         }
 
-        // 4. 멤버 상태 확인 (재가입 지원)
+        // 5. 멤버 상태 확인 (재가입 지원)
         Long memberSeq = request.getRequestMemberSeq();
         String joinSt = bookClubMapper.selectMemberJoinSt(bookClubSeq, memberSeq);
 
         if (joinSt == null) {
-            // 4-A. 멤버 row 없음 → 신규 가입 (INSERT)
+            // 5-A. 멤버 row 없음 → 신규 가입 (INSERT)
             bookClubMapper.insertMember(bookClubSeq, memberSeq);
             log.info("신규 멤버 등록 완료: bookClubSeq={}, memberSeq={}", bookClubSeq, memberSeq);
 
         } else if ("JOINED".equals(joinSt)) {
-            // 4-B. 이미 JOINED 상태 → 승인 실패
+            // 5-B. 이미 JOINED 상태 → 승인 실패
             log.warn("승인 처리 실패: 이미 JOINED 상태 - bookClubSeq={}, memberSeq={}, joinSt={}",
                     bookClubSeq, memberSeq, joinSt);
             throw new IllegalStateException("이미 가입된 멤버입니다.");
 
         } else {
-            // 4-C. LEFT/KICKED/REJECTED/WAIT 등 JOINED가 아닌 상태 → 재가입 복구 (UPDATE)
+            // 5-C. LEFT/KICKED/REJECTED/WAIT 등 JOINED가 아닌 상태 → 재가입 복구 (UPDATE)
             int updatedRows = bookClubMapper.restoreMemberToJoined(bookClubSeq, memberSeq);
             if (updatedRows == 0) {
                 log.warn("승인 처리 실패: 재가입 복구 UPDATE 실패 - bookClubSeq={}, memberSeq={}, joinSt={}",
@@ -496,7 +508,7 @@ public class BookClubService {
                     bookClubSeq, memberSeq, joinSt);
         }
 
-        // 5. book_club_request UPDATE
+        // 6. book_club_request UPDATE (최종 처리)
         bookClubMapper.updateRequestStatus(requestSeq, "APPROVED");
         log.info("가입 신청 승인 완료: requestSeq={}", requestSeq);
     }
