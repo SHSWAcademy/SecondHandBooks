@@ -224,7 +224,7 @@
 
                             <!-- 모임 소개 -->
                             <div class="form-group">
-                                <textarea name="book_club_desc" class="form-textarea" placeholder="모임 소개"></textarea>
+                                <textarea name="book_club_desc" class="form-textarea" placeholder="모임 소개" maxlength="500"></textarea>
                             </div>
 
                             <!-- 정기 모임 일정 -->
