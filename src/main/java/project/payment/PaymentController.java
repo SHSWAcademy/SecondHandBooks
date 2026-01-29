@@ -95,9 +95,9 @@ public class PaymentController {
         }
 
         // 검증 - 판매 상태
-        if (trade.getSale_st() == SaleStatus.SOLD) {
+        if (trade.getSale_st() == SaleStatus.SOLD || trade.getSafe_payment_st().equals("NONE")) {
             tradeService.cancelSafePayment(trade_seq);
-            model.addAttribute("errorMessage", "이미 판매 완료된 상품입니다.");
+            model.addAttribute("errorMessage", "이미 판매 완료된 상품이거나 결제 요청시간이 만료된 상품입니다..");
             return "payment/fail";
         }
 

@@ -585,6 +585,10 @@ function updatePlusButtonVisibility() {
             safePaymentRequestBtn.style.display = 'none';
             console.log('안전결제 버튼 숨김 (SOLD:', isSold, ')');
         }
+        if (currentTradeInfo.sale_st === 'SOLD') {
+            safePaymentRequestBtn.style.display = 'none';
+            console.log('안전결제 버튼 숨김 (SOLD:', isSold, ')');
+        }
     }
 }
 
