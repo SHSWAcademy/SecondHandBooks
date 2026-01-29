@@ -66,6 +66,11 @@ function updateReadStatus() {
     });
 }
 
+const MAX_LENGTH = 1000;
+const input = document.getElementById("message");
+const errorEl = document.getElementById("messageError");
+
+
 /* -------------------------------
    메시지 전송
 -------------------------------- */
@@ -75,7 +80,10 @@ function sendMessage() {
     const input = document.getElementById("message");
     const msg = input.value.trim();
     if (!msg) return;
-
+    if (msg.length > MAX_LENGTH) {
+        errorEl.classList.remove("hidden");
+        return;
+    }
     stompClient.send(
         "/sendMessage/chat/" + chat_room_seq,
         {},
