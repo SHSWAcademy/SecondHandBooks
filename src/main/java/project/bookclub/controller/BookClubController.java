@@ -53,6 +53,9 @@ public class BookClubController {
     @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
     private String kakaoJsKey;
 
+    @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
+    private String kakaoJsKey;
+
     /**
      * 독서모임 상세 페이지 공통 model 세팅 (조회 로직 재사용)
      * - fragment 엔드포인트에서도 동일한 model 데이터 필요
