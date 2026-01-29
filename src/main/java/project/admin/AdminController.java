@@ -30,6 +30,7 @@ public class AdminController {
     // 대시보드 뷰
     @GetMapping("")
     public String dashboard(HttpSession sess, Model model) {
+
         try {
             AdminVO admin = (AdminVO) sess.getAttribute("adminSess");
             if (admin == null) return "redirect:/admin/login";
@@ -141,7 +142,9 @@ public class AdminController {
 
     // 2. 로그인 페이지 이동
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(@RequestParam String code1,
+                            @RequestParam String code2) {
+        if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) return "error/400";
         return "admin/adminLogin";
     }
 
@@ -178,7 +181,7 @@ public class AdminController {
             adminService.recordAdminLogout(admin.getAdmin_seq(), logoutIp);
         }
         sess.invalidate();
-        return "redirect:/admin/login";
+        return "redirect:/";
     }
 
     @PostMapping("/logout-beacon")
