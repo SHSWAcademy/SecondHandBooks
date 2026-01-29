@@ -101,42 +101,32 @@
 
 <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10">
 
-<c:if test="${not empty loginSess}">
+<c:if test="${not empty sessionScope.adminSess or not empty sessionScope.loginSess}">
   <script>
   (function() {
-      const RELOAD_KEY = 'member_page_unload_time';
-      const RELOAD_THRESHOLD = 3000;  // 3초
-
-      // ========================================
-      // 1. 페이지 로드 시: 새로고침 여부 확인
-      // ========================================
+      // 1. 페이지 로드 시: 관리자든 회원이든 일단 펜딩된 로그아웃을 취소함
       document.addEventListener('DOMContentLoaded', function() {
-          const unloadTime = sessionStorage.getItem(RELOAD_KEY);
+          // 관리자 세션이 있을 때는 관리자용 취소 API 호출
+          <c:if test="${not empty sessionScope.adminSess}">
+          fetch('/admin/api/cancel-logout', { method: 'POST', credentials: 'same-origin' });
+          </c:if>
 
-          if (unloadTime) {
-              const timeDiff = Date.now() - parseInt(unloadTime, 10);
-
-              if (timeDiff < RELOAD_THRESHOLD) {
-                  // 새로고침 → 로그아웃 취소
-                  fetch('/api/member/cancel-logout', {
-                      method: 'POST',
-                      credentials: 'same-origin'
-                  }).catch(function(err) {
-                      console.error('로그아웃 취소 실패:', err);
-                  });
-              }
-              sessionStorage.removeItem(RELOAD_KEY);
-          }
+          // 일반 회원 세션이 있을 때는 회원용 취소 API 호출
+          <c:if test="${not empty sessionScope.loginSess}">
+          fetch('/api/member/cancel-logout', { method: 'POST', credentials: 'same-origin' });
+          </c:if>
       });
 
-      // ========================================
-      // 2. 페이지 떠날 때: pending 등록
-      // ========================================
-      window.addEventListener('pagehide', function(event) {
-          sessionStorage.setItem(RELOAD_KEY, Date.now().toString());
+      // 2. 페이지 떠날 때: 일단 펜딩 신호를 보냄
+      window.addEventListener('pagehide', function() {
+          <c:if test="${not empty sessionScope.adminSess}">
+          navigator.sendBeacon('/admin/api/logout-pending');
+          </c:if>
+
+          <c:if test="${not empty sessionScope.loginSess}">
           navigator.sendBeacon('/api/member/logout-pending');
+          </c:if>
       });
-
   })();
   </script>
-  </c:if>
+</c:if>
