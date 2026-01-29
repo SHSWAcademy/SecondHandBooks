@@ -136,6 +136,119 @@
 
 
 <script>
+  (function() {
+      const RELOAD_KEY = 'admin_page_unload_time';
+      const SESSION_CHECK_INTERVAL = 5 * 60 * 1000;  // 5분
+      const RELOAD_THRESHOLD = 3000;  // 3초
+
+      // ========================================
+      // 1. 페이지 로드 시: 새로고침 여부 확인
+      // ========================================
+      document.addEventListener('DOMContentLoaded', function() {
+          const unloadTime = sessionStorage.getItem(RELOAD_KEY);
+
+          if (unloadTime) {
+              const timeDiff = Date.now() - parseInt(unloadTime, 10);
+
+              if (timeDiff < RELOAD_THRESHOLD) {
+                  // 새로고침으로 판단 → 로그아웃 취소
+                  fetch('/admin/api/cancel-logout', {
+                      method: 'POST',
+                      credentials: 'same-origin'
+                  }).catch(function(err) {
+                      console.error('로그아웃 취소 실패:', err);
+                  });
+              }
+              sessionStorage.removeItem(RELOAD_KEY);
+          }
+      });
+
+      // ========================================
+      // 2. 페이지 떠날 때: pending 등록
+      // ========================================
+      window.addEventListener('pagehide', function(event) {
+          sessionStorage.setItem(RELOAD_KEY, Date.now().toString());
+
+          // 빈 JSON 객체를 포함한 Blob을 생성하여 전송
+          const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
+          navigator.sendBeacon('/admin/api/logout-pending', blob);
+      });
+
+      // ========================================
+      // 3. 5분마다 세션 체크
+      // ========================================
+      function checkSession() {
+          fetch('/admin/api/session-check', {
+              method: 'GET',
+              credentials: 'same-origin'
+          })
+          .then(function(response) {
+              return response.json();
+          })
+          .then(function(data) {
+              if (!data.valid) {
+                  // 세션 만료
+                  alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+                  window.location.href = '/admin/login';
+                  return;
+              }
+
+              // 세션 만료 임박 경고 (5분 이하)
+              if (data.remainingSeconds <= 300) {
+                  showSessionWarning(data.remainingSeconds);
+              }
+          })
+          .catch(function(err) {
+              console.error('세션 체크 실패:', err);
+          });
+      }
+
+      // 5분마다 세션 체크
+      setInterval(checkSession, SESSION_CHECK_INTERVAL);
+
+      // ========================================
+      // 4. 세션 만료 경고 표시 (선택)
+      // ========================================
+      function showSessionWarning(remainingSeconds) {
+          const minutes = Math.floor(remainingSeconds / 60);
+          const seconds = remainingSeconds % 60;
+
+          // 이미 경고창이 있으면 업데이트만
+          let warningEl = document.getElementById('session-warning');
+
+          if (!warningEl) {
+              warningEl = document.createElement('div');
+              warningEl.id = 'session-warning';
+              warningEl.style.cssText = 'position:fixed;top:10px;right:10px;' +
+                  'background:#ff6b6b;color:white;padding:15px 20px;' +
+                  'border-radius:8px;z-index:9999;font-size:14px;';
+              document.body.appendChild(warningEl);
+          }
+
+          warningEl.innerHTML = '세션 만료까지 ' + minutes + '분 ' + seconds + '초 남았습니다. ' +
+              '<button onclick="extendSession()" style="margin-left:10px;padding:5px 10px;' +
+              'cursor:pointer;">연장하기</button>';
+      }
+
+      // ========================================
+      // 5. 세션 연장 (선택)
+      // ========================================
+      window.extendSession = function() {
+          fetch('/admin/api/session-check', {
+              method: 'GET',
+              credentials: 'same-origin'
+          })
+          .then(function() {
+              const warningEl = document.getElementById('session-warning');
+              if (warningEl) {
+                  warningEl.remove();
+              }
+              alert('세션이 연장되었습니다.');
+          });
+      };
+
+  })();
+
   // 1. Initialize Icons
   lucide.createIcons();
 
@@ -197,6 +310,8 @@
         }
     }
   });
+
+
 </script>
 
 </body>

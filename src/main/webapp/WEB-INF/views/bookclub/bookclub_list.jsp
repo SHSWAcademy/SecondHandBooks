@@ -262,12 +262,12 @@
 
                             <!-- 최대 인원 (고정) -->
                             <div class="form-group">
-                                <label class="form-label">모임의 최대 인원은 10명입니다.</label>
                                 <%--
                                 <label class="form-label">최대 인원 (최대 10명)</label>
                                 <input type="text" class="form-input-readonly" value="10" readonly>
-                                <input type="hidden" name="book_club_max_member" value="10">
                                 --%>
+                                <label class="form-label">모임의 최대 인원은 10명입니다.</label>
+                                <input type="hidden" name="book_club_max_member" value="10">
                             </div>
 
                             <!-- 모임 개설 버튼 -->

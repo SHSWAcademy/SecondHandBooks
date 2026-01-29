@@ -48,7 +48,7 @@
                 <c:otherwise>
                     <div class="w-full flex-shrink-0 bg-gradient-to-r from-gray-700 to-gray-900 p-12 flex items-center relative">
                         <div class="z-10 text-white max-w-lg">
-                            <h1 class="text-4xl font-extrabold mb-4">Shinhan Books</h1>
+                            <h1 class="text-4xl font-extrabold mb-4">Secondary Books</h1>
                             <p class="text-white/90 text-lg mb-8">Welcome. Experience better trading.</p>
                         </div>
                     </div>
