@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+            <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
             <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
                 <sec:csrfMetaTags />
                 <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -30,14 +31,14 @@
                                                 <%-- HTTP/HTTPS로 시작하면 그대로 사용 --%>
                                                     <c:when
                                                         test="${bookClub.banner_img_url.startsWith('http://') or bookClub.banner_img_url.startsWith('https://')}">
-                                                        <img class="bc-hero-background" src="${bookClub.banner_img_url}"
-                                                            alt="${bookClub.book_club_name} 배너">
+                                                        <img class="bc-hero-background" src="${fn:escapeXml(bookClub.banner_img_url)}"
+                                                            alt="${fn:escapeXml(bookClub.book_club_name)} 배너">
                                                     </c:when>
                                                     <%-- /로 시작하는 상대경로면 contextPath 붙이기 --%>
                                                         <c:when test="${bookClub.banner_img_url.startsWith('/')}">
                                                             <img class="bc-hero-background"
-                                                                src="${pageContext.request.contextPath}${bookClub.banner_img_url}"
-                                                                alt="${bookClub.book_club_name} 배너">
+                                                                src="${pageContext.request.contextPath}${fn:escapeXml(bookClub.banner_img_url)}"
+                                                                alt="${fn:escapeXml(bookClub.book_club_name)} 배너">
                                                         </c:when>
                                                         <%-- 그 외 --%>
                                                             <c:otherwise>
@@ -83,9 +84,9 @@
                                         <!-- 하단: 지역 뱃지 + 모임명 + 메타 -->
                                         <div class="bc-hero-bottom">
                                             <c:if test="${not empty bookClub.book_club_rg}">
-                                                <span class="bc-region-badge">${bookClub.book_club_rg}</span>
+                                                <span class="bc-region-badge"><c:out value="${bookClub.book_club_rg}"/></span>
                                             </c:if>
-                                            <h1 class="bc-hero-title">${bookClub.book_club_name}</h1>
+                                            <h1 class="bc-hero-title"><c:out value="${bookClub.book_club_name}"/></h1>
                                             <div class="bc-hero-meta">
                                                 <div class="bc-meta-item">
                                                     <svg width="16" height="16" fill="none" stroke="currentColor"
@@ -298,8 +299,8 @@
                         <div class="bc-apply-modal-overlay"></div>
                         <div class="bc-apply-modal-container">
                             <h2 class="bc-apply-modal-header">모임 가입 신청</h2>
-                            <h3 class="bc-apply-modal-club-name">${bookClub.book_club_name}</h3>
-                            <div class="bc-apply-modal-desc">${bookClub.book_club_desc}</div>
+                            <h3 class="bc-apply-modal-club-name"><c:out value="${bookClub.book_club_name}"/></h3>
+                            <div class="bc-apply-modal-desc"><c:out value="${bookClub.book_club_desc}"/></div>
                             <div class="bc-apply-modal-form">
                                 <label class="bc-apply-modal-label">지원 동기</label>
                                 <textarea id="applyReasonInput" class="bc-apply-modal-textarea"
