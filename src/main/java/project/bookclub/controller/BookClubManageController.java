@@ -43,6 +43,9 @@ public class BookClubManageController {
     @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
     private String kakaoJsKey;
 
+    @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
+    private String kakaoJsKey;
+
     /**
      * 독서모임 관리 페이지 (모임장 전용)
      * GET /bookclubs/{bookClubId}/manage
