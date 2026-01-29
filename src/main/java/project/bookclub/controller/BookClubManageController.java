@@ -2,6 +2,7 @@ package project.bookclub.controller;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
@@ -34,6 +35,10 @@ import project.util.imgUpload.FileStore;
 @RequestMapping("/bookclubs")
 
 public class BookClubManageController {
+
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "webp");
+    private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     private final BookClubService bookClubService;
     private final FileStore fileStore;
@@ -439,6 +444,35 @@ public class BookClubManageController {
      * @throws IOException 파일 저장 실패 시
      */
     private String saveUploadedFile(MultipartFile file) throws IOException {
+        // 1. 파일명 유효성 검사
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new IllegalArgumentException("파일명이 유효하지 않습니다.");
+        }
+        if (!originalFilename.contains(".")) {
+            throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없습니다.");
+        }
+
+        // 2. 확장자 화이트리스트 검증
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+        }
+
+        // 3. MIME 타입 검증
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            throw new IllegalArgumentException("파일 형식을 확인할 수 없습니다.");
+        }
+        if (!ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+        }
+
+        // 4. 파일 크기 검증
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("파일 크기는 5MB를 초과할 수 없습니다.");
+        }
+
         var uploadFile = fileStore.storeFile(file);
         return uploadFile.getStoreFileName();
     }
