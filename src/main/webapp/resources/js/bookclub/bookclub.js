@@ -269,30 +269,10 @@ function initCreateModal() {
         }
     });
 
-    // 오프라인/온라인 토글 버튼
-    const regionToggleBtns = document.querySelectorAll(".toggle-group:not(.schedule-cycle) .toggle-btn");
+    // 오프라인/온라인 토글 버튼 - 카카오 지도 연동 방식으로 변경됨
+    // 토글 로직은 initModalPlaceSearch()에서 처리함
     const bookClubType = document.getElementById("bookClubType");
-    const detailRegion = document.getElementById("detailRegion");
-    const regionInput = detailRegion?.querySelector("input[name='book_club_rg']");
-
-    regionToggleBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            regionToggleBtns.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-
-            const value = btn.dataset.value;
-            bookClubType.value = value;
-
-            if (value === "offline") {
-                detailRegion.classList.add("show");
-                regionInput.required = true;
-            } else {
-                detailRegion.classList.remove("show");
-                regionInput.required = false;
-                regionInput.value = "온라인";
-            }
-        });
-    });
+    const bookClubRegion = document.getElementById("bookClubRegion");
 
     // 정기 일정 선택
     const cycleBtns = document.querySelectorAll(".cycle-btn");
@@ -391,12 +371,21 @@ function initCreateModal() {
         if (text) text.style.display = "";
         imageUploadArea.classList.remove("has-image");
         // 활동 지역 토글 버튼 초기화
-        regionToggleBtns.forEach(b => b.classList.remove("active"));
-        document.querySelector(".toggle-btn[data-value='offline']")?.classList.add("active");
-        bookClubType.value = "offline";
-        detailRegion.classList.add("show");
-        regionInput.required = true;
-        regionInput.value = "";
+        const offlineToggle = document.getElementById("offlineToggle");
+        const onlineToggle = document.getElementById("onlineToggle");
+        offlineToggle?.classList.add("active");
+        onlineToggle?.classList.remove("active");
+        if (bookClubType) bookClubType.value = "offline";
+        if (bookClubRegion) bookClubRegion.value = "";
+        // 장소 검색 영역 초기화
+        const placeSearchContainer = document.getElementById("modalPlaceSearchContainer");
+        const selectedPlaceDiv = document.getElementById("modalSelectedPlace");
+        const placeSearchResults = document.getElementById("modalPlaceSearchResults");
+        const placeSearchInput = document.getElementById("modalPlaceSearchInput");
+        if (placeSearchContainer) placeSearchContainer.style.display = "block";
+        if (selectedPlaceDiv) selectedPlaceDiv.style.display = "none";
+        if (placeSearchResults) placeSearchResults.style.display = "none";
+        if (placeSearchInput) placeSearchInput.value = "";
         // 정기 일정 초기화
         cycleBtns.forEach(b => b.classList.remove("active"));
         dayBtns.forEach(b => b.classList.remove("active"));
