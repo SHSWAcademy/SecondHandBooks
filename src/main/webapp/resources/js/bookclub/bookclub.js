@@ -246,6 +246,12 @@ function initCreateModal() {
     bannerImgInput?.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (file) {
+            // 이미지 파일인지 검증
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 선택할 수 있습니다.');
+                bannerImgInput.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (event) => {
                 // 기존 미리보기 이미지 제거

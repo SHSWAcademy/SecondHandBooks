@@ -439,7 +439,7 @@ public class BookClubManageController {
      * @throws IOException 파일 저장 실패 시
      */
     private String saveUploadedFile(MultipartFile file) throws IOException {
-        var uploadFile = fileStore.storeFile(file);
+        var uploadFile = fileStore.storeImageFile(file);
         return uploadFile.getStoreFileName();
     }
 }
