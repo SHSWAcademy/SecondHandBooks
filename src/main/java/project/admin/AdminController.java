@@ -155,7 +155,7 @@ public class AdminController {
 
         if (admin != null) {
             sess.setAttribute("adminSess", admin);
-            sess.setMaxInactiveInterval(60 * 60); // 1시간
+            sess.setMaxInactiveInterval(30 * 60); // 1시간
 
             // 로그인 기록 추가
             String loginIp = getClientIP(request);
@@ -165,6 +165,7 @@ public class AdminController {
             return "redirect:/admin/login?error=true";
         }
     }
+
 
     // 4. 로그아웃
     @GetMapping("/logout")
@@ -178,6 +179,21 @@ public class AdminController {
         }
         sess.invalidate();
         return "redirect:/admin/login";
+    }
+
+    @PostMapping("/logout-beacon")
+    @ResponseBody
+    public void logoutBeacon(HttpSession sess, HttpServletRequest request) {
+        AdminVO adminVO = (AdminVO) sess.getAttribute("adminSess");
+
+        if (adminVO != null) {
+            log.info("비콘 수신: 관리자 {} 종료 시도", adminVO.getAdmin_login_id());
+            String logoutIp = getClientIP(request);
+            adminService.recordAdminLogout(adminVO.getAdmin_seq(), logoutIp);
+        }
+
+        sess.invalidate();
+        log.info("비콘 처리: 세션 무효화 완료");
     }
 
     //관리자 로그인 로그 목록

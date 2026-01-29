@@ -107,3 +107,43 @@
 </c:choose>
 
 <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10">
+
+<c:if test="${not empty loginSess}">
+  <script>
+  (function() {
+      const RELOAD_KEY = 'member_page_unload_time';
+      const RELOAD_THRESHOLD = 3000;  // 3초
+
+      // ========================================
+      // 1. 페이지 로드 시: 새로고침 여부 확인
+      // ========================================
+      document.addEventListener('DOMContentLoaded', function() {
+          const unloadTime = sessionStorage.getItem(RELOAD_KEY);
+
+          if (unloadTime) {
+              const timeDiff = Date.now() - parseInt(unloadTime, 10);
+
+              if (timeDiff < RELOAD_THRESHOLD) {
+                  // 새로고침 → 로그아웃 취소
+                  fetch('/api/member/cancel-logout', {
+                      method: 'POST',
+                      credentials: 'same-origin'
+                  }).catch(function(err) {
+                      console.error('로그아웃 취소 실패:', err);
+                  });
+              }
+              sessionStorage.removeItem(RELOAD_KEY);
+          }
+      });
+
+      // ========================================
+      // 2. 페이지 떠날 때: pending 등록
+      // ========================================
+      window.addEventListener('pagehide', function(event) {
+          sessionStorage.setItem(RELOAD_KEY, Date.now().toString());
+          navigator.sendBeacon('/api/member/logout-pending');
+      });
+
+  })();
+  </script>
+  </c:if>
