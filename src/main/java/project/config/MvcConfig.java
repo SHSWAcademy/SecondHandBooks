@@ -50,8 +50,8 @@ public class MvcConfig implements WebMvcConfigurer {
     private String redisHost;
     @Value("${redis.port}")
     private int redisPort;
-    @Value("${file.dir}")
-    private String uploadPath;
+//    @Value("${file.dir}")
+//    private String uploadPath;
 
     // JSP ViewResolver
     @Override
