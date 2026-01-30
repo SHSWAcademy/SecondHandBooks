@@ -177,16 +177,16 @@ function getNoticeSeqFromURL() {
 
 // 글자 수 카운터
 const noticeEditContent = document.getElementById('notice_cont');
-const charCount = document.getElementById('charCount');
+const charCountEdit = document.getElementById('charCount');
 
 noticeEditContent.addEventListener('input', function() {
     const length = this.value.length;
-    charCount.textContent = length.toLocaleString() + '자';
+    charCountEdit.textContent = length.toLocaleString() + '자';
 
     if (length > 5000) {
-        charCount.classList.add('text-red-500', 'font-bold');
+        charCountEdit.classList.add('text-red-500', 'font-bold');
     } else {
-        charCount.classList.remove('text-red-500', 'font-bold');
+        charCountEdit.classList.remove('text-red-500', 'font-bold');
     }
 });
 
