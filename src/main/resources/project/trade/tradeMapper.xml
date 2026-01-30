@@ -169,56 +169,63 @@
     <!-- 페이징 처리 -->
     <select id="findAllWithPaging" resultType="project.trade.TradeVO">
         SELECT
-        trade_seq,
-        book_title,
-        book_author,
-        book_publisher,
-        book_img,
-        sale_title,
-        sale_price,
-        sale_st,
-        sale_rg,
-        crt_dtm
-        FROM sb_trade_info
-        WHERE del_dtm IS NULL
+        ti.trade_seq,
+        ti.book_title,
+        ti.book_author,
+        ti.book_publisher,
+        ti.book_img,
+        ti.sale_title,
+        ti.sale_price,
+        ti.sale_st,
+        ti.sale_rg,
+        ti.crt_dtm,
+        COALESCE(tl.wish_count, 0) AS wish_count
+        FROM sb_trade_info ti
+        LEFT JOIN (
+        SELECT trade_seq, COUNT(*) AS wish_count
+        FROM trade_wish
+        GROUP BY trade_seq
+        ) tl ON ti.trade_seq = tl.trade_seq
+        WHERE ti.del_dtm IS NULL
 
         <!-- 카테고리 -->
         <if test="searchVO.category_seq != null and searchVO.category_seq != 0">
-            AND category_seq = #{searchVO.category_seq}
+            AND ti.category_seq = #{searchVO.category_seq}
         </if>
 
         <!-- 상태 -->
         <if test="searchVO.book_st != null">
-            AND book_st = #{searchVO.book_st}::book_st_enum
+            AND ti.book_st = #{searchVO.book_st}::book_st_enum
         </if>
 
         <!-- 검색어 -->
         <if test="searchVO.search_word != null and searchVO.search_word != ''">
             AND (
-            book_title LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
-            OR sale_title LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
-            OR book_author LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
-            OR book_publisher LIKE '%' || #{searchVO.search_word} || '%' ESCAPE '\'
+            ti.book_title ILIKE '%' || #{searchVO.search_word} || '%'
+            OR ti.sale_title ILIKE '%' || #{searchVO.search_word} || '%'
+            OR ti.book_author ILIKE '%' || #{searchVO.search_word} || '%'
+            OR ti.book_publisher ILIKE '%' || #{searchVO.search_word} || '%'
             )
         </if>
 
         <!-- 판매 상태 -->
         <if test="searchVO.sale_st != null">
-            AND sale_st = #{searchVO.sale_st}::sale_st_enum
+            AND ti.sale_st = #{searchVO.sale_st}::sale_st_enum
         </if>
 
-        <!-- order 조건  -->
+        <!-- order 조건 -->
         <choose>
             <when test="searchVO.sort == 'priceAsc'">
-                ORDER BY sale_price ASC
+                ORDER BY ti.sale_price ASC
             </when>
             <when test="searchVO.sort == 'likeDesc'">
-                ORDER BY (SELECT COUNT(*) FROM trade_wish tl WHERE tl.trade_seq = sb_trade_info.trade_seq) DESC
+                ORDER BY wish_count DESC
             </when>
             <otherwise>
-                ORDER BY crt_dtm DESC
+                ORDER BY ti.crt_dtm DESC
             </otherwise>
         </choose>
+
         LIMIT #{size}
         OFFSET #{offset}
     </select>
