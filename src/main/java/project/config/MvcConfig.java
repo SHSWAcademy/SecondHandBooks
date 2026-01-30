@@ -1,6 +1,5 @@
 package project.config;
 
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -23,8 +22,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.util.Properties;
 
 @Configuration
-@MapperScan(basePackages = {"project"}, annotationClass = Mapper.class)
-@ComponentScan(basePackages = {"project"})
+@MapperScan(basePackages = { "project" }, annotationClass = Mapper.class)
+@ComponentScan(basePackages = { "project" })
 @EnableWebMvc
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
@@ -50,8 +49,8 @@ public class MvcConfig implements WebMvcConfigurer {
     private String redisHost;
     @Value("${redis.port}")
     private int redisPort;
-//    @Value("${file.dir}")
-//    private String uploadPath;
+    @Value("${file.dir}")
+    private String uploadPath;
 
     // JSP ViewResolver
     @Override
@@ -73,11 +72,11 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     // 이미지 경로 매핑 (임시 S3사용시 필요없음)
-//    @Override
-//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//        registry.addResourceHandler("/img/**").
-//                addResourceLocations("file:" + uploadPath + "/");
-//    }
+    // @Override
+    // public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    // registry.addResourceHandler("/img/**").
+    // addResourceLocations("file:" + uploadPath + "/");
+    // }
 
     // hikaricp
     @Bean
@@ -90,11 +89,11 @@ public class MvcConfig implements WebMvcConfigurer {
         dataSource.setPassword(password);
 
         // 공용 RDS를 위한 커넥션 풀 설정
-        dataSource.setMaximumPoolSize(5);      // 최대 커넥션 수 (공용이므로 작게)
-        dataSource.setMinimumIdle(2);          // 최소 유휴 커넥션
+        dataSource.setMaximumPoolSize(5); // 최대 커넥션 수 (공용이므로 작게)
+        dataSource.setMinimumIdle(2); // 최소 유휴 커넥션
         dataSource.setConnectionTimeout(30000); // 커넥션 획득 대기 시간 (30초)
-        dataSource.setIdleTimeout(600000);     // 유휴 커넥션 유지 시간 (10분)
-        dataSource.setMaxLifetime(1800000);    // 커넥션 최대 수명 (30분)
+        dataSource.setIdleTimeout(600000); // 유휴 커넥션 유지 시간 (10분)
+        dataSource.setMaxLifetime(1800000); // 커넥션 최대 수명 (30분)
 
         return dataSource;
     }
@@ -114,14 +113,11 @@ public class MvcConfig implements WebMvcConfigurer {
 
         ssf.setConfiguration(config);
 
-        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver =
-                new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
+        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
         ssf.setMapperLocations(resolver.getResources("classpath:**/*Mapper.xml"));
 
         return ssf.getObject();
     }
-
-
 
     // ================= TransactionManager =================
     @Bean
@@ -168,6 +164,5 @@ public class MvcConfig implements WebMvcConfigurer {
         template.setConnectionFactory(redisConnectionFactory());
         return template;
     }
-
 
 }

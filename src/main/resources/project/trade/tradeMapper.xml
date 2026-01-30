@@ -515,4 +515,37 @@
         ORDER BY sale_st_dtm DESC
     </select>
 
+    <!-- 이미지 전체 조회 -->
+    <select id="findImgUrlByTradeSeqList" resultType="project.trade.TradeImageVO">
+        SELECT
+            trade_seq,
+            book_img_seq,
+            img_url,
+            sort_seq
+        FROM book_image
+        WHERE trade_seq IN
+        <foreach collection="tradeSeqList"
+                 item="seq"
+                 open="("
+                 separator=","
+                 close=")">
+            #{seq}
+        </foreach>
+    </select>
+
+    <!-- 결제창 진입시 유효성 체크 컬럼 selelct -->
+    <select id="getPaymentCheckInfo" resultType="project.payment.PaymentVO">
+        SELECT
+            COALESCE(t.safe_payment_st, 'NONE') AS safePaymentStatus,
+            t.pending_buyer_seq AS pendingBuyerSeq,
+            CASE
+            WHEN t.safe_payment_st = 'PENDING' AND t.safe_payment_expire_dtm IS NOT NULL
+            THEN GREATEST(0, CEIL(EXTRACT(EPOCH FROM (t.safe_payment_expire_dtm - now()))))::bigint
+            ELSE 0
+            END AS remainingSeconds
+        FROM sb_trade_info t
+        WHERE t.trade_seq = #{trade_seq}
+        FOR UPDATE
+    </select>
+
 </mapper>
