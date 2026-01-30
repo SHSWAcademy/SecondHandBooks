@@ -176,7 +176,7 @@ public class TradeController {
         // 검증 - PENDING 상태일 때는 수정 불가
         String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
         if ("PENDING".equals(safePaymentStatus) ||
-            "COMPLETED".equals(safePaymentStatus)) {
+                "COMPLETED".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
@@ -254,7 +254,7 @@ public class TradeController {
         // 검증 - PENDING 상태일 때는 삭제 불가
         String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
         if ("PENDING".equals(safePaymentStatus) ||
-            "COMPLETED".equals(safePaymentStatus)) {
+                "COMPLETED".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
