@@ -20,6 +20,7 @@
          WHERE LOGIN_ID = #{login_id}
            AND MEMBER_PWD = MD5(#{member_pwd})
            AND MEMBER_DELETED_DTM IS NULL
+           AND MEMBER_ST = 'JOIN'::member_st_enum
     </select>
     <update id="loginLogUpdate" parameterType="long">
         UPDATE MEMBER_INFO
