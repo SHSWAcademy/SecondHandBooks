@@ -78,4 +78,7 @@ public interface TradeMapper {
 
     void successPurchase(@Param("trade_seq") Long trade_seq, @Param("member_buyer_seq") long member_buyer_seq,
                          @Param("post_no")String post_no, @Param("addr_h") String addr_h, @Param("addr_d") String addr_d);
+
+    // 이미지 조회
+    List<TradeImageVO> findImgUrlByTradeSeqList(@Param("tradeSeqList") List<Long> tradeSeqList);
 }
