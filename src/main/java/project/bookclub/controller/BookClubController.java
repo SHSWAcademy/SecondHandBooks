@@ -50,15 +50,6 @@ public class BookClubController {
     @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
     private String kakaoJsKey;
 
-    @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
-    private String kakaoJsKey;
-
-    @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
-    private String kakaoJsKey;
-
-    @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
-    private String kakaoJsKey;
-
     /**
      * 독서모임 상세 페이지 공통 model 세팅 (조회 로직 재사용)
      * - fragment 엔드포인트에서도 동일한 model 데이터 필요
@@ -217,10 +208,10 @@ public class BookClubController {
 
         // 이미지 파일 처리 (디버그 로그 추가)
         log.info("배너 이미지 업로드 체크: null={}, empty={}, originalFilename={}, size={}",
-                 bannerImg == null,
-                 bannerImg != null ? bannerImg.isEmpty() : "N/A",
-                 bannerImg != null ? bannerImg.getOriginalFilename() : "N/A",
-                 bannerImg != null ? bannerImg.getSize() : "N/A");
+                bannerImg == null,
+                bannerImg != null ? bannerImg.isEmpty() : "N/A",
+                bannerImg != null ? bannerImg.getOriginalFilename() : "N/A",
+                bannerImg != null ? bannerImg.getSize() : "N/A");
 
         if (bannerImg != null && !bannerImg.isEmpty()) {
             try {
