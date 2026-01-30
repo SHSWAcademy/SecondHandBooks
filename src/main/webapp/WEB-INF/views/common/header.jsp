@@ -68,6 +68,9 @@
             <div class="h-4 w-px bg-gray-300 mx-2"></div>
 
             <c:choose>
+            <c:when test="${not empty adminSess}">
+                    <span class="badge">ADMIN</span> ${adminSess.admin_login_id}님 환영합니다.
+                </c:when>
                 <c:when test="${not empty sessionScope.loginSess}">
                     <div class="flex items-center gap-3">
                         <a href="/notice" class="relative p-2 transition hover:text-primary-600 text-gray-600" title="공지사항">
