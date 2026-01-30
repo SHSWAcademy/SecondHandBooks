@@ -31,13 +31,23 @@
     </update>
 
     <!-- 메시지 전체 조회 -->
-    <select id="findByRoomSeq" resultType="project.chat.message.MessageVO">
-        SELECT chat_msg_seq, chat_room_seq, sender_seq, chat_cont, sent_dtm, read_yn,
-        (SELECT member_nicknm FROM member_info WHERE member_seq = chat_msg.sender_seq) AS member_seller_nicknm
-        FROM chat_msg
-        WHERE chat_room_seq = #{chat_room_seq}
-        ORDER BY sent_dtm ASC
+    <select id="findByRoomSeq"
+            resultType="project.chat.message.MessageVO">
+        SELECT
+        cm.chat_msg_seq,
+        cm.chat_room_seq,
+        cm.sender_seq,
+        cm.chat_cont,
+        cm.sent_dtm,
+        cm.read_yn,
+        mi.member_nicknm AS member_seller_nicknm
+        FROM chat_msg cm
+        JOIN member_info mi
+        ON mi.member_seq = cm.sender_seq
+        WHERE cm.chat_room_seq = #{chat_room_seq}
+        ORDER BY cm.sent_dtm ASC
     </select>
+
 
     <select id="isUnreadMessage" resultType="java.lang.Boolean">
         SELECT EXISTS (
