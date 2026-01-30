@@ -230,6 +230,12 @@
                 <!-- contextPath를 JS에 전달 -->
                 <script>
                     window.__CTX = "${pageContext.request.contextPath}";
+                    // CSRF 토큰 전역 변수 (동적 폼용)
+                    window.CSRF = {
+                        param: '${_csrf.parameterName}',
+                        token: '${_csrf.token}',
+                        header: '${_csrf.headerName}'
+                    };
 
                     // 게시글 삭제 확인 (게시판 탭 fragment에서 사용)
                     function confirmDeletePost(bookClubId, postId) {
@@ -238,6 +244,12 @@
                             const form = document.createElement('form');
                             form.method = 'post';
                             form.action = window.__CTX + '/bookclubs/' + bookClubId + '/posts/' + postId + '/delete';
+                            // CSRF 토큰 hidden input 추가
+                            const csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = window.CSRF.param;
+                            csrfInput.value = window.CSRF.token;
+                            form.appendChild(csrfInput);
                             document.body.appendChild(form);
                             form.submit();
                         }

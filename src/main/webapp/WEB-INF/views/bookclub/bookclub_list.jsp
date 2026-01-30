@@ -464,12 +464,18 @@
 
                     // 찜 토글
                     function toggleWish(clubSeq, btn) {
+                        var csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+                        var csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                        var headers = {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        };
+                        if (csrfToken && csrfHeader) {
+                            headers[csrfHeader] = csrfToken;
+                        }
                         fetch('${pageContext.request.contextPath}/bookclubs/' + clubSeq + '/wish', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
+                            headers: headers
                         })
                         .then(function(res) { return res.json(); })
                         .then(function(data) {

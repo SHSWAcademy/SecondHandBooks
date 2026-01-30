@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
 <!-- 독서모임 상세 페이지 전용 CSS -->
@@ -463,6 +464,7 @@
 
         <!-- 폼 -->
         <form id="postForm" method="post" action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts" enctype="multipart/form-data">
+            <sec:csrfInput />
             <div class="bc-post-form-body">
                 <!-- 제목 입력 -->
                 <input type="text" name="boardTitle" class="bc-post-input bc-post-title-input"

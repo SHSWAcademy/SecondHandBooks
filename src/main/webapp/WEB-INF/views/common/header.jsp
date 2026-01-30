@@ -39,6 +39,54 @@
             }
             window.location.href = '/login?redirect=' + encodeURIComponent(currentUrl);
         }
+
+        // 세션 만료(강제 로그아웃) 처리를 위한 전역 fetch 인터셉터
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                return originalFetch.apply(this, args).then(function(response) {
+                    // 401 응답 시 세션 만료 처리
+                    if (response.status === 401) {
+                        // JSON 응답인 경우 파싱 시도
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.clone().json().then(function(data) {
+                                if (data.error === 'SESSION_EXPIRED') {
+                                    alert(data.message || '세션이 만료되었습니다. 다시 로그인해주세요.');
+                                    window.location.href = data.redirectUrl || '/login';
+                                    // 빈 응답 반환하여 후속 처리 방지
+                                    return new Response(JSON.stringify(data), {
+                                        status: 401,
+                                        headers: { 'Content-Type': 'application/json' }
+                                    });
+                                }
+                                return response;
+                            }).catch(function() {
+                                return response;
+                            });
+                        }
+                    }
+                    return response;
+                });
+            };
+
+            // jQuery AJAX도 처리 (있는 경우)
+            if (typeof $ !== 'undefined' && $.ajaxSetup) {
+                $(document).ajaxError(function(event, xhr, settings, error) {
+                    if (xhr.status === 401) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data.error === 'SESSION_EXPIRED') {
+                                alert(data.message || '세션이 만료되었습니다. 다시 로그인해주세요.');
+                                window.location.href = data.redirectUrl || '/login';
+                            }
+                        } catch (e) {
+                            // JSON 파싱 실패 시 무시
+                        }
+                    }
+                });
+            }
+        })();
     </script>
     <style>
         .glass-header {
