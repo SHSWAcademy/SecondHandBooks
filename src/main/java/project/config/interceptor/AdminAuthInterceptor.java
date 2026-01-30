@@ -46,7 +46,7 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
             // 강제 로그아웃 대상에서 제거
             logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
 
-            response.sendRedirect("/admin/login?forced=true");
+            response.sendRedirect("/admin/login?code1=qorhqtlrp&code2=rptlrhqqo");
             return false;
         } else {
             System.out.println("DEBUG: Not in force logout list. Seq: " + admin.getAdmin_seq());

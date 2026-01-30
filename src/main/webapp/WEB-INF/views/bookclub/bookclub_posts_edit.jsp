@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
 <!-- 독서모임 상세 페이지 전용 CSS -->
@@ -469,7 +470,7 @@
 
                 <!-- 선택된 책 (기존 책 정보가 있으면 표시) -->
                 <div class="bc-selected-book ${not empty post.book_title ? 'show' : ''}" id="selectedBookCard">
-                    <img src="${not empty post.book_img_url ? post.book_img_url : 'https://via.placeholder.com/50x70?text=Book'}"
+                    <img src="${not empty post.book_img_url ? fn:escapeXml(post.book_img_url) : 'https://via.placeholder.com/50x70?text=Book'}"
                          alt="책 표지" class="bc-selected-book-img" id="selectedBookImg"
                          onerror="this.src='https://via.placeholder.com/50x70?text=Book'">
                     <div class="bc-selected-book-info">
@@ -482,10 +483,10 @@
                         </svg>
                     </button>
                     <!-- 책 정보 hidden inputs -->
-                    <input type="hidden" name="isbn" id="isbnInput" value="${post.isbn}">
-                    <input type="hidden" name="bookTitle" id="bookTitleInput" value="${post.book_title}">
-                    <input type="hidden" name="bookAuthor" id="bookAuthorInput" value="${post.book_author}">
-                    <input type="hidden" name="bookImgUrl" id="bookImgUrlInput" value="${post.book_img_url}">
+                    <input type="hidden" name="isbn" id="isbnInput" value="${fn:escapeXml(post.isbn)}">
+                    <input type="hidden" name="bookTitle" id="bookTitleInput" value="${fn:escapeXml(post.book_title)}">
+                    <input type="hidden" name="bookAuthor" id="bookAuthorInput" value="${fn:escapeXml(post.book_author)}">
+                    <input type="hidden" name="bookImgUrl" id="bookImgUrlInput" value="${fn:escapeXml(post.book_img_url)}">
                 </div>
 
                 <!-- 내용 입력 -->
@@ -495,7 +496,7 @@
                 <!-- 첨부 이미지 미리보기 -->
                 <div class="bc-attached-image-wrapper ${not empty post.board_img_url ? 'show' : ''}" id="attachedImageWrapper">
                     <div class="bc-attached-image">
-                        <img src="${post.board_img_url}" alt="첨부 이미지" id="attachedImagePreview">
+                        <img src="${fn:escapeXml(post.board_img_url)}" alt="첨부 이미지" id="attachedImagePreview">
                         <button type="button" class="bc-attached-image-remove" onclick="removeAttachedImage()">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
