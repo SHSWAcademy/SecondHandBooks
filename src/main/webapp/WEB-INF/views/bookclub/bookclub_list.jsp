@@ -97,8 +97,20 @@
                                                 <div class="card-banner">
                                                     <c:choose>
                                                         <c:when test="${not empty club.banner_img_url}">
-                                                            <img src="<c:out value='${club.banner_img_url}'/>"
-                                                                alt="<c:out value='${club.book_club_name}'/> 배너">
+                                                            <%-- S3 URL (http/https)는 그대로, 로컬 경로(/)는 contextPath 붙임 --%>
+                                                            <c:choose>
+                                                                <c:when test="${club.banner_img_url.startsWith('http://') or club.banner_img_url.startsWith('https://')}">
+                                                                    <c:set var="bannerSrc" value="${club.banner_img_url}" />
+                                                                </c:when>
+                                                                <c:when test="${club.banner_img_url.startsWith('/')}">
+                                                                    <c:set var="bannerSrc" value="${pageContext.request.contextPath}${club.banner_img_url}" />
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <c:set var="bannerSrc" value="${club.banner_img_url}" />
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                            <img src="${fn:escapeXml(bannerSrc)}"
+                                                                alt="${fn:escapeXml(club.book_club_name)} 배너">
                                                         </c:when>
                                                         <c:otherwise>
                                                             <div class="card-banner-placeholder">
