@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
@@ -29,6 +30,7 @@ import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.util.LoginUtil;
+import project.util.S3Service;
 import project.util.imgUpload.FileStore;
 
 @Controller
@@ -37,8 +39,13 @@ import project.util.imgUpload.FileStore;
 @RequestMapping("/bookclubs")
 public class BookClubController {
 
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "webp");
+    private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+
     private final BookClubService bookClubService;
     private final FileStore fileStore;
+    private final S3Service s3Service;
 
     @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
     private String kakaoJsKey;
@@ -201,10 +208,10 @@ public class BookClubController {
 
         // 이미지 파일 처리 (디버그 로그 추가)
         log.info("배너 이미지 업로드 체크: null={}, empty={}, originalFilename={}, size={}",
-                 bannerImg == null,
-                 bannerImg != null ? bannerImg.isEmpty() : "N/A",
-                 bannerImg != null ? bannerImg.getOriginalFilename() : "N/A",
-                 bannerImg != null ? bannerImg.getSize() : "N/A");
+                bannerImg == null,
+                bannerImg != null ? bannerImg.isEmpty() : "N/A",
+                bannerImg != null ? bannerImg.getOriginalFilename() : "N/A",
+                bannerImg != null ? bannerImg.getSize() : "N/A");
 
         if (bannerImg != null && !bannerImg.isEmpty()) {
             try {
@@ -806,9 +813,39 @@ public class BookClubController {
     }
 
     /**
-     * 파일 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
+     * 이미지 파일 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
+     * 이미지 파일만 허용 (jpg, jpeg, png, gif, webp, bmp)
      */
     private String saveFile(MultipartFile file) throws IOException {
+        // 1. 파일명 유효성 검사
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new IllegalArgumentException("파일명이 유효하지 않습니다.");
+        }
+        if (!originalFilename.contains(".")) {
+            throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없습니다.");
+        }
+
+        // 2. 확장자 화이트리스트 검증
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+        }
+
+        // 3. MIME 타입 검증
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            throw new IllegalArgumentException("파일 형식을 확인할 수 없습니다.");
+        }
+        if (!ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
+            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+        }
+
+        // 4. 파일 크기 검증
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("파일 크기는 5MB를 초과할 수 없습니다.");
+        }
+
         var uploadFile = fileStore.storeFile(file);
         return uploadFile.getStoreFileName();
     }
@@ -1081,7 +1118,8 @@ public class BookClubController {
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 수정에 실패했습니다.");
         }
 
-        return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
+        // 게시판 탭으로 리다이렉트
+        return "redirect:/bookclubs/" + bookClubId + "?tab=board";
     }
 
     /**
@@ -1117,7 +1155,7 @@ public class BookClubController {
         BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
         if (post == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "게시글을 찾을 수 없거나 이미 삭제되었습니다.");
-            return "redirect:/bookclubs/" + bookClubId;
+            return "redirect:/bookclubs/" + bookClubId + "?tab=board";
         }
 
         // 4. 삭제 권한 확인 (작성자 OR 모임장)
@@ -1138,7 +1176,7 @@ public class BookClubController {
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 삭제에 실패했습니다.");
         }
 
-        // 6. 게시판 목록으로 리다이렉트
-        return "redirect:/bookclubs/" + bookClubId;
+        // 6. 게시판 탭으로 리다이렉트
+        return "redirect:/bookclubs/" + bookClubId + "?tab=board";
     }
 }
