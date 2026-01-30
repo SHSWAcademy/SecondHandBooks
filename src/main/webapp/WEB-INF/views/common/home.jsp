@@ -156,6 +156,16 @@
                     <a href="javascript:selectSaleStatus(null, '판매중 & 완료')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">판매중 & 완료</a>
                 </div>
             </div>
+            <div class="flex gap-2">
+                <button type="button"
+                        onclick="resetFilters()"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    필터 초기화
+                </button>
+            </div>
         </div>
     </div>
 
@@ -372,6 +382,36 @@
     $(document).ready(function() {
         loadTrade();
     });
+
+    // 초기화
+    function resetFilters() {
+        // 필터 객체 초기화
+        tradeFilter.categorySeq = null;
+        tradeFilter.book_st = null;
+        tradeFilter.search_word = null;
+        tradeFilter.sale_st = 'SALE'; // 기본값
+        tradeFilter.page = 1;
+        tradeFilter.sort = null;
+
+        // UI 요소 초기화
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryText').innerText = '카테고리';
+        document.getElementById('conditionText').innerText = '상품 상태';
+        document.getElementById('saleStatusText').innerText = '판매중';
+
+        // 드롭다운 닫기
+        if (openDropdown) {
+            openDropdown.classList.add('hidden');
+            openDropdown = null;
+        }
+
+        // 정렬 CSS 갱신
+        updateSortCss();
+
+        // 거래 목록 로드
+        loadTrade();
+    }
+
 </script>
 
 <jsp:include page="footer.jsp" />

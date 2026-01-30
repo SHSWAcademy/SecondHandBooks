@@ -179,15 +179,20 @@ function setupChatroomClick() {
                     otherNick = data.member_seller_nicknm;
                 }
 
-                const headerTitleEl = document.getElementById('chatHeaderTitle');
+
                 const headerSubEl = document.getElementById('chatHeaderSub');
 
-                if (headerTitleEl) headerTitleEl.textContent = otherNick || '';
                 if (headerSubEl) {
                     headerSubEl.textContent =
                         otherNick ? `${otherNick}님과의 채팅` : '';
                 }
-            });
+
+                // 채팅방 목록 닉네임 반영
+                const nicknameEl = this.querySelector('.room-nickname');
+                if (nicknameEl) {
+                    nicknameEl.textContent = otherNick || '닉네임 없음';
+                }
+                });
 
             const titleEl = this.querySelector('.room-title');
             const headerTitleEl = document.getElementById('chatHeaderTitle');

@@ -50,6 +50,8 @@
         SELECT
             c.*,
             t.sale_st,
+            (SELECT member_nicknm FROM member_info WHERE c.member_seller_seq = member_seq) AS member_seller_nicknm,
+            (SELECT member_nicknm FROM member_info WHERE c.member_buyer_seq = member_seq) AS member_buyer_nicknm,
             EXISTS (
                 SELECT 1
                 FROM chat_msg m
