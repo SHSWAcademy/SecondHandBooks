@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
 <!-- 독서모임 상세 페이지 전용 CSS -->
@@ -488,7 +489,7 @@
 
                 <!-- 내용 입력 -->
                 <textarea name="boardCont" class="bc-post-input bc-post-content-input"
-                          placeholder="내용을 입력하세요." required></textarea>
+                          placeholder="내용을 입력하세요." required maxlength="1000"></textarea>
 
                 <!-- 첨부 이미지 미리보기 -->
                 <div class="bc-attached-image-wrapper" id="attachedImageWrapper">

@@ -4,200 +4,133 @@
 
 <jsp:include page="../common/header.jsp" />
 
-<script src="https://unpkg.com/lucide@latest"></script>
-
-<div class="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
+<div class="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto px-4 sm:px-6">
 
     <div class="lg:w-1/4">
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden sticky top-24">
-            <div class="p-6 text-center border-b border-gray-100 bg-gray-50/50">
-                <div class="w-20 h-20 bg-white border-2 border-primary-100 rounded-full flex items-center justify-center text-3xl font-bold text-primary-600 mx-auto mb-3 shadow-sm">
-                    ${sessionScope.loginSess.member_nicknm.substring(0, 1)}
-                </div>
-                <h2 class="font-bold text-gray-900 text-lg">${sessionScope.loginSess.member_nicknm}님</h2>
-                <p class="text-xs text-gray-500">${sessionScope.loginSess.member_email}</p>
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
+            <div class="p-8 text-center border-b border-gray-50 bg-primary-50/30"> <div class="w-20 h-20 bg-white border-2 border-white shadow-md rounded-full flex items-center justify-center text-2xl font-black text-primary-600 mx-auto mb-4">
+                ${sessionScope.loginSess.member_nicknm.substring(0, 1)}
+            </div>
+                <h2 class="font-extrabold text-gray-900 text-lg tracking-tight">${sessionScope.loginSess.member_nicknm}님</h2>
+                <p class="text-xs font-medium text-gray-400 mt-1">${sessionScope.loginSess.member_email}</p>
             </div>
 
-            <nav class="p-2 space-y-1">
-                <a href="/mypage/profile" data-tab="profile"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
+            <nav class="p-3 space-y-1">
+                <a href="#" data-tab="profile" onclick="loadTab(event, 'profile')"
+                   class="nav-btn block w-full text-left px-5 py-3.5 rounded-2xl text-sm font-bold text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-all flex items-center gap-3">
                     <i data-lucide="user" class="w-4 h-4"></i> 내 프로필
                 </a>
 
-                <a href="/mypage/purchases" data-tab="purchases"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
+                <a href="#" data-tab="purchases" onclick="loadTab(event, 'purchases')"
+                   class="nav-btn block w-full text-left px-5 py-3.5 rounded-2xl text-sm font-bold text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-all flex items-center gap-3">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i> 구매 내역
                 </a>
 
-                <a href="/mypage/sales" data-tab="sales"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
+                <a href="#" data-tab="sales" onclick="loadTab(event, 'sales')"
+                   class="nav-btn block w-full text-left px-5 py-3.5 rounded-2xl text-sm font-bold text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-all flex items-center gap-3">
                     <i data-lucide="package" class="w-4 h-4"></i> 판매 내역
                 </a>
 
-                <a href="/mypage/wishlist" data-tab="wishlist"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
+                <a href="#" data-tab="wishlist" onclick="loadTab(event, 'wishlist')"
+                   class="nav-btn block w-full text-left px-5 py-3.5 rounded-2xl text-sm font-bold text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-all flex items-center gap-3">
                     <i data-lucide="heart" class="w-4 h-4"></i> 찜한 상품
                 </a>
 
-                <a href="/mypage/groups" data-tab="groups"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
+                <a href="#" data-tab="groups" onclick="loadTab(event, 'groups')"
+                   class="nav-btn block w-full text-left px-5 py-3.5 rounded-2xl text-sm font-bold text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-all flex items-center gap-3">
                     <i data-lucide="users" class="w-4 h-4"></i> 내 모임
                 </a>
 
-                <a href="/mypage/addresses" data-tab="addresses"
-                   class="nav-btn block w-full text-left px-4 py-3 rounded-md text-sm font-bold flex items-center gap-3 transition-all">
+                <a href="#" data-tab="addresses" onclick="loadTab(event, 'addresses')"
+                   class="nav-btn block w-full text-left px-5 py-3.5 rounded-2xl text-sm font-bold text-gray-500 hover:bg-primary-50 hover:text-primary-600 transition-all flex items-center gap-3">
                     <i data-lucide="map-pin" class="w-4 h-4"></i> 배송지 관리
                 </a>
             </nav>
 
             <div class="p-4 border-t border-gray-100">
                 <button onclick="location.href='/logout'"
-                        class="w-full flex items-center justify-center gap-2 text-xs font-bold text-gray-500 hover:text-red-600 py-2 transition">
+                        class="w-full flex items-center justify-center gap-2 text-xs font-bold text-gray-400 hover:text-red-500 py-2 transition-colors">
                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> 로그아웃
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="lg:flex-1 min-h-[500px]">
-        <div id="tab-content">
-            <jsp:include page="tabs/profile.jsp"/>
-        </div>
+    <div class="lg:flex-1 min-h-[600px]">
+        <div id="tab-content" class="bg-transparent"></div>
     </div>
-
 </div>
 
 <script>
-    window.loadTab = async function(tabName, params = {}) {
+    window.loadTab = async function(event, tabName) {
+        if(event) event.preventDefault();
+
+        // 탭 스타일 업데이트
+        updateActiveTab(tabName);
+
         try {
-             // URL 파라미터 생성
-             const queryString = new URLSearchParams(params).toString();
-             const url = '/mypage/tab/' + tabName + (queryString ? '?' + queryString : '');
+            document.getElementById('tab-content').innerHTML = `
+                <div class="animate-pulse space-y-6">
+                    <div class="h-8 bg-gray-200 rounded-lg w-1/4"></div>
+                    <div class="h-64 bg-white border border-gray-100 rounded-3xl shadow-sm"></div>
+                </div>
+             `;
 
-             // 로딩 표시
-             document.getElementById('tab-content').innerHTML =
-                '<div class="flex items-center justify-center py-20"><div class="text-gray-400">로딩 중..</div></div>';
-             // Fetch 요청
-             const response = await fetch(url);
+            const response = await fetch('/mypage/tab/' + tabName);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const html = await response.text();
 
-             if (!response.ok) {
-                throw new Error('Network response was not ok');
-             }
+            const tabContent = document.getElementById('tab-content');
+            tabContent.innerHTML = html;
 
-             const html = await response.text();
-
-             // 탭 내용 업데이트
-             const tabContent = document.getElementById('tab-content');
-             tabContent.innerHTML = html;
-
-             const scripts = tabContent.querySelectorAll('script');
-             scripts.forEach(script => {
-                 const newScript = document.createElement('script');
-                 if (script.src) {
-                     newScript.src = script.src;
-                 } else {
-                     newScript.textContent = script.textContent;
-                 }
-                 document.body.appendChild(newScript);
-                 document.body.removeChild(newScript);
-              });
-
-             // 스타일 업데이트
-             updateActiveTab(tabName);
-
-             // Lucide 아이콘 재랜더링
-                lucide.createIcons();
-
-             // URL 업데이트
-             const displayUrl = '/mypage/' + tabName + (queryString ? '?' + queryString : '');
-             history.pushState({tab: tabName, params: params}, '', displayUrl);
-
-           } catch (error) {
-                console.error('Tab loading error:', error);
-                document.getElementById('tab-content').innerHTML =
-                    '<div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">' +
-                    '<p class="text-red-600 font-bold mb-2">탭을 불러오는데 실패했습니다</p>' +
-                    '<p class="text-sm text-red-500">새로고침 후 다시 시도해주세요</p>' +
-                    '</div>';
-           }
-        };
-
-        // 활성 탭 스타일 업데이트
-        function updateActiveTab(tabName) {
-            document.querySelectorAll('[data-tab]').forEach(link => {
-                    link.classList.remove('bg-primary-50', 'text-primary-600');
-                    link.classList.add('text-gray-600');
+            const scripts = tabContent.querySelectorAll('script');
+            scripts.forEach(script => {
+                const newScript = document.createElement('script');
+                if (script.src) newScript.src = script.src;
+                else newScript.textContent = script.textContent;
+                document.body.appendChild(newScript);
+                document.body.removeChild(newScript);
             });
 
-            const activeLink = document.querySelector('[data-tab="' + tabName + '"]');
-            if (activeLink) {
-                activeLink.classList.remove('text-gray-600');
-                activeLink.classList.add('bg-primary-50', 'text-primary-600');
-            }
+            if(window.lucide) lucide.createIcons();
+
+            history.pushState({tab: tabName}, '', '/mypage/' + tabName);
+
+        } catch (error) {
+            console.error('Tab error:', error);
+            document.getElementById('tab-content').innerHTML =
+                '<div class="text-center py-20 text-red-500 font-bold">컨텐츠를 불러오지 못했습니다.</div>';
         }
+    };
 
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-              // 탭 링크 클릭 이벤트
-              document.querySelectorAll('[data-tab]').forEach(link => {
-                  link.addEventListener('click', (e) => {
-                      e.preventDefault();
-                      const tabName = link.dataset.tab;
-                      loadTab(tabName);
-                  });
-              });
-
-              // URL에서 현재 탭 확인
-              const pathParts = window.location.pathname.split('/');
-              const currentTab = pathParts[2] || 'profile';  // /mypage/purchases -> purchases
-
-              // 해당 탭 로드
-              loadTab(currentTab);
-              lucide.createIcons();
-          });
-
-        // 브라우저 뒤로가기
-        window.addEventListener('popstate', (event) => {
-            if (event.state && event.state.tab) {
-                loadTab(event.state.tab, event.state.params || {});
-            }
+    function updateActiveTab(tabName) {
+        document.querySelectorAll('[data-tab]').forEach(link => {
+            // [수정] 기존 검은색(bg-gray-900) 제거
+            link.classList.remove('bg-primary-600', 'text-white', 'shadow-md');
+            link.classList.add('text-gray-500', 'hover:bg-primary-50', 'hover:text-primary-600');
+            const icon = link.querySelector('svg');
+            if(icon) icon.style.color = '';
         });
 
-        function updateToSold(trade_seq) {
-            if (!confirm('판매 완료 처리하면 다시 판매 중으로 되돌릴 수 없습니다.\n(판매글 수정 불가, 삭제 가능)')) {
-                return;
-            }
-
-            fetch('/trade/sold/' + trade_seq, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('판매 완료 처리되었습니다.');
-                        location.reload();
-                    } else {
-                        alert('처리에 실패했습니다.');
-                    }
-                });
+        const activeLink = document.querySelector('[data-tab="' + tabName + '"]');
+        if (activeLink) {
+            // [수정] 파란색(bg-primary-600) 적용
+            activeLink.classList.remove('text-gray-500', 'hover:bg-primary-50', 'hover:text-primary-600');
+            activeLink.classList.add('bg-primary-600', 'text-white', 'shadow-md');
         }
+    }
 
-        function confirmPurchase(trade_seq) {
-            if (!confirm('구매를 확정하시겠습니까?')) {
-                return;
-            }
+    document.addEventListener('DOMContentLoaded', () => {
+        const pathParts = window.location.pathname.split('/');
+        const currentTab = pathParts[2] || 'profile';
+        loadTab(null, currentTab);
+    });
 
-            fetch('/trade/confirm/' + trade_seq, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('구매 확정되었습니다.');
-                        location.reload();
-                    } else {
-                        alert('처리에 실패했습니다.');
-                    }
-                });
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.tab) {
+            loadTab(null, event.state.tab);
         }
-
+    });
 </script>
 
 <jsp:include page="../common/footer.jsp" />

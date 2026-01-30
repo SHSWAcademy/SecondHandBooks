@@ -31,6 +31,18 @@ public class AddressController {
         MemberVO user = (MemberVO) sess.getAttribute("loginSess");
         if (user == null) return "fail";
 
+        if (vo.getPost_no() == null || vo.getPost_no().trim().isEmpty()) {
+            return "fail_post_no_required"; // 우편번호 필수 입력
+        }
+        // 우편번호 형식 검사
+        if (!vo.getPost_no().matches("\\d{5}")) {  // 예: 5자리 숫자만 허용
+            return "fail_invalid_post_no";  // 우편번호가 유효하지 않음을 알리는 msg
+        }
+
+        int currentCount = addressService.getAddressCount(user.getMember_seq());
+        if (currentCount >= 5) {
+            return "count_limit"; // 제한 초과 시 별도의 메시지를 리턴
+        }
         vo.setMember_seq(user.getMember_seq());
         // int 타입은 체크 안 하면 0이 되므로 별도 처리 불필요
 
@@ -44,6 +56,16 @@ public class AddressController {
     public String updateAddress(AddressVO vo, HttpSession sess) {
         MemberVO user = (MemberVO) sess.getAttribute("loginSess");
         if (user == null) return "fail";
+
+        // 우편번호가 비어있는지 또는 유효하지 않은 경우 체크
+        if (vo.getPost_no() == null || vo.getPost_no().trim().isEmpty()) {
+            return "fail_post_no_required";  // 우편번호가 필수임을 알림
+        }
+
+        // 우편번호 형식 검사
+        if (!vo.getPost_no().matches("\\d{5}")) {  // 예: 5자리 숫자만 허용
+            return "fail_invalid_post_no";  // 우편번호가 유효하지 않음을 알리는 msg
+        }
 
         vo.setMember_seq(user.getMember_seq());
 
