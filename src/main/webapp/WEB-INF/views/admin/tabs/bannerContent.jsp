@@ -109,7 +109,7 @@
 </div>
 
 <script>
-  // 1. 미리보기 업데이트
+  // 1. 미리보기 업데이트 (정렬 기능 수정됨)
   window.updatePreview = function() {
     const title = document.getElementById('bannerTitle').value;
     const sub = document.getElementById('bannerSubtitle').value;
@@ -131,8 +131,15 @@
     // 그라데이션 (인라인 스타일 사용)
     container.style.background = `linear-gradient(to right, \${c1}, \${c2})`;
 
-    // 정렬 적용
-    contentDiv.className = `z-10 text-white max-w-lg w-full \${align}`;
+    // 정렬 적용 (텍스트 정렬 class + 박스 위치 정렬 margin)
+    let posClass = 'mr-auto'; // 기본값 (왼쪽)
+    if (align === 'text-center') {
+      posClass = 'mx-auto'; // 중앙 정렬
+    } else if (align === 'text-right') {
+      posClass = 'ml-auto'; // 우측 정렬
+    }
+
+    contentDiv.className = `z-10 text-white max-w-lg w-full \${align} \${posClass}`;
 
     // 아이콘 변경 (Lucide 재렌더링 필요하므로 속성 변경 후 호출)
     iconEl.setAttribute('data-lucide', icon);
@@ -141,7 +148,7 @@
 
   // 2. 배너 저장
   window.saveBanner = async function() {
-    // [1] 유효성 검사 (서버 전송 전에 수행해야 함)
+    // [1] 유효성 검사
     const linkValue = document.getElementById('btnLink').value;
     if (linkValue.includes('<html') || linkValue.includes('<!DOCTYPE')) {
       alert('잘못된 링크 형식입니다. 페이지를 다시 생성해주세요.\n(HTML 코드가 링크에 포함되어 있습니다)');
@@ -158,7 +165,6 @@
       iconName: document.getElementById('iconName').value,
       textAlign: document.getElementById('textAlign').value
     };
-
     // textAlign 컬럼이 없으면 subtitle 앞부분에 태그로 숨겨서 저장하는 트릭 사용
     data.subtitle = data.textAlign + '|||' + data.subtitle;
 
@@ -168,9 +174,8 @@
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
       });
-
       if (res.ok) {
-        alert('배너가 게시되었습니다.'); // [2] 오타 수정됨 (documnet -> document 불필요, 로직 이동됨)
+        alert('배너가 게시되었습니다.');
         loadBannerList();
       } else {
         alert('저장에 실패했습니다. (서버 오류)');
@@ -221,7 +226,7 @@
   window.closePageModal = function() {
     document.getElementById('pageModal').classList.add('hidden');
   }
-  // [수정] 임시 페이지 저장 함수 (에러 핸들링 강화)
+  // [수정] 임시 페이지 저장 함수
   window.saveTempPage = async function() {
     const title = document.getElementById('tempPageTitle').value;
     const content = document.getElementById('tempPageContent').value;
@@ -237,15 +242,12 @@
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({title, content})
       });
-
       if (!res.ok) {
-        // 에러 발생 시 텍스트(HTML)가 아닌 에러를 던짐
         throw new Error("서버 저장 실패: " + res.status);
       }
 
-      const pageId = await res.text(); // 정상적인 ID만 받음
+      const pageId = await res.text();
 
-      // ID가 숫자인지 확인
       if (isNaN(pageId)) {
         throw new Error("유효하지 않은 응답입니다.");
       }
@@ -264,4 +266,4 @@
   lucide.createIcons();
   updatePreview();
   loadBannerList();
-</script>
+  </script>

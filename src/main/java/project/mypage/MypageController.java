@@ -82,7 +82,7 @@ public class MypageController {
                 String salesStatus = status != null ? status : "all";
                 List<TradeVO> salesList = tradeService.getSaleTrades(member_seq, salesStatus);
                 model.addAttribute("salesList", salesList);
-                model.addAttribute("selectedStatus", salesStatus);
+//                model.addAttribute("selectedStatus", salesStatus); // 셀렉트 박스 삭제 요청
                 break;
             case "wishlist" :
                 break;

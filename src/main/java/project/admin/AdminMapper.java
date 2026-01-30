@@ -13,8 +13,7 @@ import java.util.Map;
 
 @Mapper
 public interface AdminMapper {
-    AdminVO loginAdmin(@Param("id") String id, @Param("pwd") String pwd);
-
+    AdminVO getAdminById(String id);
     // 통계 (카드)
     int countAllMembers();
     int countAllTrades();

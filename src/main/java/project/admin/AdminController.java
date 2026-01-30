@@ -7,8 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import project.admin.notice.NoticeVO;
+import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
+import project.common.LogoutPendingManager;
+import project.common.UserType;
 import project.member.MemberVO;
+import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.paging.PageResult;
 import project.util.paging.SearchVO;
@@ -26,6 +30,9 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final BookClubService bookClubService;
+    private final TradeService tradeService;
+    private final LogoutPendingManager logoutPendingManager;
 
     // 대시보드 뷰
     @GetMapping("")
@@ -142,9 +149,21 @@ public class AdminController {
 
     // 2. 로그인 페이지 이동
     @GetMapping("/login")
-    public String loginPage(@RequestParam String code1,
-                            @RequestParam String code2) {
-        if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) return "error/400";
+    public String loginPage(@RequestParam(required = false) String code1,
+                            @RequestParam(required = false) String code2,
+                            @RequestParam(required = false) String error,
+                            Model model) {
+
+        if ("true".equals(error)) {
+            model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
+            return "admin/adminLogin";
+        }
+        if (code1 != null && code2 != null) {
+            if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) {
+                return "error/400";
+            }
+        }
+
         return "admin/adminLogin";
     }
 
@@ -157,6 +176,13 @@ public class AdminController {
         AdminVO admin = adminService.login(id, pwd);
 
         if (admin != null) {
+            if (logoutPendingManager.isForceLogout(UserType.ADMIN, admin.getAdmin_seq())) {
+                logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
+                return "redirect:/admin/login?code1=qorhqtlrp&code2=rptlrhqqo&msg=forced";
+
+            }
+            sess.removeAttribute("loginSess");
+
             sess.setAttribute("adminSess", admin);
             sess.setMaxInactiveInterval(30 * 60); // 1시간
 
@@ -425,5 +451,38 @@ public class AdminController {
         }
 
         return response;
+    }
+
+    @GetMapping("/bookclubs/{id}")
+    public String viewBookClubAsAdmin(@PathVariable Long id,
+                                      HttpSession sess,
+                                      Model model) {
+        AdminVO admin = (AdminVO) sess.getAttribute("adminSess");
+        if (admin == null) return "redirect:/admin/login";
+
+        // 기존 BookClubService 메서드 활용
+        BookClubVO bookClub = bookClubService.getBookClubById(id);
+        // 필요한 추가 데이터 (멤버 수, 찜 수 등)
+
+        model.addAttribute("bookClub", bookClub);
+        model.addAttribute("isAdminView", true);
+
+        return "bookclub/bookclub_detail";  // 기존 JSP 재사용
+    }
+
+    @GetMapping("/trade/{id}")
+    public String viewTradeAsAdmin(@PathVariable Long id,
+                                   HttpSession sess,
+                                   Model model) {
+        AdminVO admin = (AdminVO) sess.getAttribute("adminSess");
+        if (admin == null) return "redirect:/admin/login";
+
+        // 기존 TradeService 메서드 활용
+        TradeVO trade = tradeService.search(id);
+
+        model.addAttribute("trade", trade);
+        model.addAttribute("isAdminView", true);
+
+        return "trade/tradedetail";  // 기존 JSP 재사용
     }
 }

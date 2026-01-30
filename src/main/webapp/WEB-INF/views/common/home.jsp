@@ -17,19 +17,34 @@
                         <div class="w-full flex-shrink-0 p-12 flex items-center relative"
                              style="background: linear-gradient(to right, ${b.bgColorFrom}, ${b.bgColorTo});">
 
-                            <%-- 텍스트 정렬 및 부제목 파싱 로직 (fn:split 버그 수정 버전) --%>
+                                <%-- [수정] 텍스트 정렬 및 박스 위치 계산 로직 --%>
                             <c:set var="alignClass" value="text-left" />
+                            <c:set var="posClass" value="mr-auto" /> <%-- 기본값: 왼쪽 정렬 --%>
                             <c:set var="realSubtitle" value="${b.subtitle}" />
 
                             <c:if test="${fn:contains(b.subtitle, '|||')}">
                                 <c:set var="parts" value="${fn:split(b.subtitle, '|')}" />
+
+                                <%-- 정렬 클래스 추출 (text-left, text-center, text-right) --%>
                                 <c:set var="alignClass" value="${parts[0]}" />
-                                <%-- 배열의 가장 마지막 요소를 실제 내용으로 사용 --%>
+
+                                <%-- 박스 위치 클래스 설정 --%>
+                                <c:choose>
+                                    <c:when test="${alignClass eq 'text-center'}">
+                                        <c:set var="posClass" value="mx-auto" />
+                                    </c:when>
+                                    <c:when test="${alignClass eq 'text-right'}">
+                                        <c:set var="posClass" value="ml-auto" />
+                                    </c:when>
+                                </c:choose>
+
+                                <%-- 실제 부제목 추출 --%>
                                 <c:set var="lastIndex" value="${fn:length(parts) - 1}" />
                                 <c:set var="realSubtitle" value="${parts[lastIndex]}" />
                             </c:if>
 
-                            <div class="z-10 text-white max-w-lg w-full ${alignClass}">
+                                <%-- [수정] 정렬 클래스(posClass) 추가 적용 --%>
+                            <div class="z-10 text-white max-w-lg w-full ${alignClass} ${posClass}">
                                 <i data-lucide="${b.iconName != null ? b.iconName : 'star'}" class="w-12 h-12 text-white/80 mb-4 inline-block"></i>
 
                                 <h1 class="text-4xl font-extrabold mb-4 leading-tight">${b.title}</h1>
@@ -123,7 +138,7 @@
                     <a href="javascript:selectCategory(null, '전체')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">전체</a>
                     <c:forEach var="cat" items="${category}">
                         <a href="javascript:selectCategory(${cat.category_seq}, '${cat.category_nm}')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">
-                            ${cat.category_nm}
+                                ${cat.category_nm}
                         </a>
                     </c:forEach>
                 </div>
@@ -156,6 +171,16 @@
                     <a href="javascript:selectSaleStatus(null, '판매중 & 완료')" class="block px-4 py-2.5 text-sm hover:bg-gray-50">판매중 & 완료</a>
                 </div>
             </div>
+            <div class="flex gap-2">
+                <button type="button"
+                        onclick="resetFilters()"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    필터 초기화
+                </button>
+            </div>
         </div>
     </div>
 
@@ -165,9 +190,8 @@
 </div>
 
 <script>
-    // --- [1. 배너 로직 (Source 1)] ---
+    // --- [1. 배너 로직] ---
     let currentBanner = 0;
-    // JSTL fn:length를 사용하여 리스트 크기를 동적으로 할당 (EL 에러 방지)
     const totalBanners = ${not empty bannerList ? fn:length(bannerList) : 1};
     let openDropdown = null;
 
@@ -209,7 +233,7 @@
     setInterval(nextBanner, 5000);
 
 
-    // --- [2. 검색 및 필터 로직 (Source 2)] ---
+    // --- [2. 검색 및 필터 로직] ---
     const tradeFilter = {
         categorySeq: null,
         book_st: null,
@@ -372,6 +396,36 @@
     $(document).ready(function() {
         loadTrade();
     });
+
+    // 초기화
+    function resetFilters() {
+        // 필터 객체 초기화
+        tradeFilter.categorySeq = null;
+        tradeFilter.book_st = null;
+        tradeFilter.search_word = null;
+        tradeFilter.sale_st = 'SALE'; // 기본값
+        tradeFilter.page = 1;
+        tradeFilter.sort = null;
+
+        // UI 요소 초기화
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryText').innerText = '카테고리';
+        document.getElementById('conditionText').innerText = '상품 상태';
+        document.getElementById('saleStatusText').innerText = '판매중';
+
+        // 드롭다운 닫기
+        if (openDropdown) {
+            openDropdown.classList.add('hidden');
+            openDropdown = null;
+        }
+
+        // 정렬 CSS 갱신
+        updateSortCss();
+
+        // 거래 목록 로드
+        loadTrade();
+    }
+
 </script>
 
 <jsp:include page="footer.jsp" />

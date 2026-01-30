@@ -44,6 +44,12 @@
           , ADDR_D = #{addr_d}
           , DEFAULT_YN = #{default_yn}
         WHERE ADDR_SEQ = #{addr_seq}
-          AND MEMBER_SEQ = #{member_seq} </update>
+          AND MEMBER_SEQ = #{member_seq}
+    </update>
 
+    <select id="countAddress" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM ADDRESS_INFO
+        WHERE MEMBER_SEQ = #{member_seq}
+    </select>
 </mapper>
