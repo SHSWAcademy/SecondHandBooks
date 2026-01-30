@@ -1,6 +1,7 @@
 package project.admin;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.admin.notice.NoticeVO;
@@ -18,9 +19,18 @@ import java.util.Map;
 public class AdminService {
 
     private final AdminMapper adminMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public AdminVO login(String id, String pwd) {
-        return adminMapper.loginAdmin(id, pwd);
+    public AdminVO login(String id, String rawPwd) {
+        AdminVO admin = adminMapper.getAdminById(id);
+
+        if (admin != null) {
+            boolean isMatch = passwordEncoder.matches(rawPwd, admin.getAdmin_password());
+            if (isMatch) return admin;
+        } else {
+            System.out.println("해당 아이디의 관리자가 없습니다: " + id);
+        }
+        return null;
     }
 
     // --- 통계 ---

@@ -1,11 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <sec:csrfMetaTags />
     <title>SecondHand Books</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -50,27 +52,7 @@
 </head>
 <body class="bg-[#F8F9FA] text-gray-900 font-sans antialiased">
 
-<c:choose>
-    <%-- [1] 관리자 헤더 --%>
-    <c:when test="${not empty sessionScope.adminSess}">
-        <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-md">
-            <div class="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-xl font-black text-white tracking-tight">Admin<span class="text-primary-500">View</span></span>
-                    <span class="px-2 py-0.5 bg-gray-800 border border-gray-700 rounded text-[10px] font-bold text-gray-400 uppercase tracking-wider">Management Mode</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="text-sm text-gray-400"><span class="text-white font-bold">${sessionScope.adminSess.admin_login_id}</span> 관리자님</span>
-                    <a href="/admin" class="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-bold hover:bg-primary-700 transition shadow-glow">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> 관리자 홈
-                    </a>
-                </div>
-            </div>
-        </header>
-    </c:when>
-
     <%-- [2] 일반 사용자 헤더 --%>
-    <c:otherwise>
         <header class="glass-header sticky top-0 z-50 transition-all duration-300">
             <div class="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
 
@@ -90,6 +72,9 @@
                     <div class="h-5 w-px bg-gray-200 mx-3"></div>
 
                     <c:choose>
+                     <c:when test="${not empty adminSess}">
+                          <span class="badge">ADMIN</span> ${adminSess.admin_login_id}님 환영합니다.
+                     </c:when>
                         <c:when test="${not empty sessionScope.loginSess}">
                             <div class="flex items-center gap-2">
                                 <a href="/notice" class="p-2.5 rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100/80 transition-all relative group" title="공지사항">
@@ -119,8 +104,6 @@
                 </nav>
             </div>
         </header>
-    </c:otherwise>
-</c:choose>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -132,32 +115,32 @@
 
 <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-12 min-h-[calc(100vh-200px)]">
 
-<c:if test="${not empty loginSess}">
-    <script>
-        (function() {
-            const RELOAD_KEY = 'member_page_unload_time';
-            const RELOAD_THRESHOLD = 3000;
+<c:if test="${not empty sessionScope.adminSess or not empty sessionScope.loginSess}">
+  <script>
+  (function() {
+      // 1. 페이지 로드 시: 관리자든 회원이든 일단 펜딩된 로그아웃을 취소함
+      document.addEventListener('DOMContentLoaded', function() {
+          // 관리자 세션이 있을 때는 관리자용 취소 API 호출
+          <c:if test="${not empty sessionScope.adminSess}">
+          fetch('/admin/api/cancel-logout', { method: 'POST', credentials: 'same-origin' });
+          </c:if>
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const unloadTime = sessionStorage.getItem(RELOAD_KEY);
-                if (unloadTime) {
-                    const timeDiff = Date.now() - parseInt(unloadTime, 10);
-                    if (timeDiff < RELOAD_THRESHOLD) {
-                        fetch('/api/member/cancel-logout', {
-                            method: 'POST',
-                            credentials: 'same-origin'
-                        }).catch(function(err) {
-                            console.error('로그아웃 취소 실패:', err);
-                        });
-                    }
-                    sessionStorage.removeItem(RELOAD_KEY);
-                }
-            });
+          // 일반 회원 세션이 있을 때는 회원용 취소 API 호출
+          <c:if test="${not empty sessionScope.loginSess}">
+          fetch('/api/member/cancel-logout', { method: 'POST', credentials: 'same-origin' });
+          </c:if>
+      });
 
-            window.addEventListener('pagehide', function(event) {
-                sessionStorage.setItem(RELOAD_KEY, Date.now().toString());
-                navigator.sendBeacon('/api/member/logout-pending');
-            });
-        })();
-    </script>
+      // 2. 페이지 떠날 때: 일단 펜딩 신호를 보냄
+      window.addEventListener('pagehide', function() {
+          <c:if test="${not empty sessionScope.adminSess}">
+          navigator.sendBeacon('/admin/api/logout-pending');
+          </c:if>
+
+          <c:if test="${not empty sessionScope.loginSess}">
+          navigator.sendBeacon('/api/member/logout-pending');
+          </c:if>
+      });
+  })();
+  </script>
 </c:if>
