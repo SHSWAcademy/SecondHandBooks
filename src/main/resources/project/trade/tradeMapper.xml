@@ -317,7 +317,6 @@
     <!-- 마이페이지 찜조회용 -->
     <select id="selectWishTrades" parameterType="long" resultType="project.trade.TradeVO">
         SELECT
-        SELECT
         T.TRADE_SEQ,
         T.SALE_TITLE,
         T.SALE_PRICE,
