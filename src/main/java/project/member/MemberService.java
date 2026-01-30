@@ -23,36 +23,46 @@ public class MemberService{
 
     private final MemberMapper memberMapper;
     private final BookClubMapper bookClubMapper;
-
     private final BookClubService bookClubService;
     private final TradeService tradeService;
 
+    // 회원 가입
     @Transactional
     public boolean signUp(MemberVO vo) {
         return memberMapper.signUp(vo) > 0;
     }
 
+    // 로그인
     public MemberVO login(MemberVO vo) {
         return memberMapper.login(vo);
     }
+
     // 로그인 로그 찍기
     @Transactional
     public boolean loginLogUpdate(long member_seq) {
         return memberMapper.loginLogUpdate(member_seq) > 0;
     }
+
+    // ID 중복체크
     public int idCheck(String login_id) {
         System.out.println(memberMapper.idCheck(login_id) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.idCheck(login_id);
     }
+
+    // NickName 중복체크
     public int nickNmCheck(String member_nicknm) {
         System.out.println(memberMapper.nickNmCheck(member_nicknm) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.nickNmCheck(member_nicknm);
     }
+
+    // Email 중복체크
     public int emailCheck(String member_email) {
         System.out.println(memberMapper.emailCheck(member_email) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.emailCheck(member_email);
     }
-    @Transactional // 2개 테이블 insert 보호
+
+    // 2개 테이블 insert 보호
+    @Transactional
     public MemberVO processSocialLogin(Map<String, Object> params) {
         // 1. 소셜 ID로 가입 여부 확인
         MemberVO existMember = memberMapper.getMemberByOAuth(params);

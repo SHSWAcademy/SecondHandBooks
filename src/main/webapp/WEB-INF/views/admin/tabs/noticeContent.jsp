@@ -29,24 +29,6 @@
         <option value="author">작성자</option>
       </select>
 
-      <!-- 상태 필터 -->
-      <select
-        id="statusFilter"
-        class="px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
-        <option value="all">전체 상태</option>
-        <option value="active">공개</option>
-        <option value="inactive">비공개</option>
-      </select>
-
-      <!-- 중요 공지 필터 -->
-      <select
-        id="importantFilter"
-        class="px-4 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
-        <option value="all">전체</option>
-        <option value="important">중요 공지</option>
-        <option value="normal">일반 공지</option>
-      </select>
-
       <!-- 검색 입력창 -->
       <div class="flex-1 relative">
         <input
@@ -80,10 +62,6 @@
   <table class="w-full">
     <thead class="bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
       <tr>
-        <th class="px-6 py-4 text-left w-12">
-          <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"
-            class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500">
-        </th>
         <th class="px-6 py-4 text-left">제목</th>
         <th class="px-6 py-4 text-left">작성자</th>
         <th class="px-6 py-4 text-center">조회수</th>
@@ -105,25 +83,15 @@
   </table>
 
   <!-- 페이징 영역 -->
-  <div class="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-center">
+<div class="px-6 py-4 bg-white border-t border-gray-100 flex items-center relative">
+  <div class="flex-1 flex justify-center">
     <div id="noticePaginationButtons" class="flex gap-1"></div>
   </div>
 
-  <!-- 하단 액션바 -->
-  <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <button
-        onclick="deleteSelectedNotices()"
-        class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2">
-        <i data-lucide="trash-2" class="w-4 h-4"></i>
-        선택 삭제
-      </button>
-    </div>
-
-    <div class="text-sm text-gray-600">
-      총 <span id="noticeTotalCount" class="font-bold text-primary-600">0</span>개의 공지사항
-    </div>
+  <div class="absolute right-6 text-sm text-gray-600">
+    총 <span id="noticeTotalCount" class="font-bold text-primary-600">0</span>개의 공지사항
   </div>
+</div>
 </div>
 
 <script>
@@ -199,17 +167,6 @@
     notices.forEach(notice => {
       const tr = document.createElement('tr');
       tr.className = 'hover:bg-gray-50/50 transition-colors';
-
-      // 1. 체크박스
-      const tdCheck = document.createElement('td');
-      tdCheck.className = 'px-6 py-4';
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.name = 'noticeCheck';
-      checkbox.value = notice.notice_seq;
-      checkbox.className = 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500';
-      tdCheck.appendChild(checkbox);
-      tr.appendChild(tdCheck);
 
       // 2. 제목
       const tdTitle = document.createElement('td');
