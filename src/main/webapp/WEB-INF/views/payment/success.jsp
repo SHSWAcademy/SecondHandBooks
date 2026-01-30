@@ -4,76 +4,111 @@
 
 <%@ include file="/WEB-INF/views/common/header.jsp" %>
 
-<div class="min-h-[calc(100vh-200px)] flex items-center justify-center">
-    <div class="w-full max-w-lg">
-        <!-- 결제 완료 카드 -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <!-- 성공 아이콘 -->
-            <div class="pt-10 pb-6 text-center bg-gradient-to-b from-green-50 to-white">
-                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<div class="min-h-[calc(100vh-200px)] flex items-center justify-center py-10">
+    <div class="w-full max-w-lg mx-4">
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+
+            <div class="pt-12 pb-8 text-center bg-gradient-to-b from-green-50 to-white">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 6 9 17l-5-5"/>
                     </svg>
                 </div>
                 <h1 class="text-2xl font-bold text-gray-900">결제가 완료되었습니다</h1>
-                <p class="text-sm text-gray-500 mt-2">주문이 정상적으로 접수되었습니다</p>
+                <p class="text-sm text-gray-500 mt-2">안전하게 거래가 접수되었습니다.</p>
             </div>
 
-            <!-- 결제 정보 -->
-            <div class="px-6 py-6 border-t border-gray-100">
-                <h3 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                        <polyline points="10 9 9 9 8 9"/>
+            <div class="px-8 py-6 border-t border-gray-100 bg-gray-50/30">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-500">
+                        <path d="M10 17h4V5H2v12h3m0 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0m11 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0m4-3h1l4 4v3h-4v-7Z"/>
                     </svg>
-                    결제 정보
+                    배송 정보
                 </h3>
 
-                <div class="space-y-3">
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                    <c:choose>
+                        <%-- 직거래/반값택배 선택 시 --%>
+                        <c:when test="${payment.addr_type == 'direct'}">
+                            <div class="flex items-center gap-3">
+                                <span class="px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-md">직거래/반택</span>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">판매자와 협의 예정</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">상세 위치는 채팅으로 조율해 주세요.</p>
+                                </div>
+                            </div>
+                        </c:when>
 
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                        <%-- 일반 배송지(기존/신규) 선택 시 --%>
+                        <c:otherwise>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-bold text-gray-400">우편번호</span>
+                                    <span class="text-sm font-mono font-medium text-gray-900">${payment.post_no}</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">${payment.addr_h}</p>
+                                    <p class="text-sm text-gray-600 mt-1">${payment.addr_d}</p>
+                                </div>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+
+            <div class="px-8 py-6 border-t border-gray-100">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500">
+                        <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
+                    </svg>
+                    결제 상세
+                </h3>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-500">결제수단</span>
-                        <span class="text-sm font-medium text-gray-900">${payment.method}</span>
+                        <span class="text-sm font-bold text-gray-900">${payment.method}</span>
                     </div>
+
                     <c:if test="${not empty payment.card_company}">
-                        <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                            <span class="text-sm text-gray-500">카드정보</span>
-                            <span class="text-sm font-medium text-gray-900">${payment.card_company} ${payment.card_number}</span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">카드 정보</span>
+                            <span class="text-sm font-medium text-gray-900">${payment.card_company} (${payment.card_number})</span>
                         </div>
                     </c:if>
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span class="text-sm text-gray-500">결제상태</span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            결제완료
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">결제 상태</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+                            결제승인 완료
                         </span>
                     </div>
-                    <div class="flex justify-between items-center pt-3">
-                        <span class="text-base font-bold text-gray-900">결제금액</span>
-                        <span class="text-xl font-bold text-primary-600">
+
+                    <div class="pt-4 border-t border-gray-50 flex justify-between items-center">
+                        <span class="text-base font-bold text-gray-900">총 결제 금액</span>
+                        <span class="text-2xl font-black text-primary-600">
                             <fmt:formatNumber value="${payment.amount}" type="number"/>원
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- 버튼 영역 -->
-            <div class="px-6 pb-6 flex gap-3">
-                <a href="/" class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold text-sm text-center transition-all">
-                    홈으로
+            <div class="px-8 pb-8 flex gap-3">
+                <a href="/" class="flex-1 py-4 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-2xl font-bold text-sm text-center transition-all border border-gray-100">
+                    홈으로 이동
                 </a>
-                <a href="/mypage/purchases" class="flex-1 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm text-center transition-all shadow-sm hover:shadow-md">
-                    주문내역 보기
+                <a href="/mypage/purchases" class="flex-1 py-4 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold text-sm text-center transition-all shadow-lg shadow-gray-200">
+                    주문내역 확인
                 </a>
             </div>
         </div>
 
-        <!-- 안내 문구 -->
-        <p class="text-center text-xs text-gray-400 mt-4">
-            주문 관련 문의는 마이페이지에서 확인하실 수 있습니다
-        </p>
+        <div class="mt-6 text-center">
+            <p class="text-xs text-gray-400 leading-relaxed">
+                결제 관련 영수증은 토스페이먼츠 앱 혹은 이메일에서 확인 가능합니다.<br>
+                문제가 발생했다면 <span class="underline cursor-pointer">고객센터</span>로 문의해 주세요.
+            </p>
+        </div>
     </div>
 </div>
 

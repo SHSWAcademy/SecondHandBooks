@@ -518,8 +518,16 @@
                     </div>
                     <!-- 숨겨진 파일 input -->
                     <input type="file" id="imageInput" accept="image/*" style="display: none;" />
-                    <input type="text" id="message" placeholder="메시지를 입력하세요..."
-                           class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 transition-all text-sm" />
+                    <div class="flex flex-col flex-1">
+                        <input type="text" id="message"
+                               placeholder="메시지를 입력하세요..."
+                               class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl
+                                      focus:outline-none focus:ring-2 focus:ring-primary-200
+                                      focus:border-primary-500 transition-all text-sm" />
+                        <p id="messageError" class="mt-1 text-xs text-red-500 hidden">
+                            메시지는 최대 1000자까지 입력할 수 있습니다.
+                        </p>
+                    </div>
                     <button id="sendBtn" class="px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2">
                         전송
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -529,7 +537,11 @@
         </div>
     </div>
 </div>
-
+<script>
+    // 서버에서 내려준 값
+    const enterChatRoomSeq = '${enter_chat_room_seq}';
+    console.log('json변환처리 확인', enterChatRoomSeq);
+</script>
 <script src="${pageContext.request.contextPath}/resources/js/chat/chat.js"></script>
 
 <script>
@@ -548,6 +560,13 @@ document.addEventListener("DOMContentLoaded", function() {
     updatePlusButtonVisibility();
     setupPlusButtonEvents();
 });
+
+function removeActivePaymentCard() {
+    const btn = document.querySelector('.safe-payment-card .action-btn');
+    if (btn) {
+        btn.closest('.msg-left, .msg-right')?.remove();
+    }
+}
 
 // + 버튼 표시/숨김 (채팅방 선택 시 모두에게 보임, 안전결제는 판매자만)
 function updatePlusButtonVisibility() {
@@ -574,6 +593,10 @@ function updatePlusButtonVisibility() {
             safePaymentRequestBtn.style.display = 'flex';
             console.log('안전결제 버튼 표시');
         } else {
+            safePaymentRequestBtn.style.display = 'none';
+            console.log('안전결제 버튼 숨김 (SOLD:', isSold, ')');
+        }
+        if (currentTradeInfo.sale_st === 'SOLD') {
             safePaymentRequestBtn.style.display = 'none';
             console.log('안전결제 버튼 숨김 (SOLD:', isSold, ')');
         }
@@ -798,6 +821,10 @@ function startServerSyncTimer(timerId) {
 
 // 안전 결제 실패 UI 표시
 function showSafePaymentFailed(msg) {
+    //기존 안전결제 카드 전부 숨김
+    document.querySelectorAll('.safe-payment-card').forEach(el => {
+           el.style.display = 'none';
+    });
     const log = document.getElementById("chatContainer");
     const emptyNotice = document.getElementById("emptyNotice");
     if (emptyNotice) emptyNotice.remove();
@@ -829,9 +856,6 @@ function showSafePaymentFailed(msg) {
     msgWrapper.appendChild(card);
     log.appendChild(msgWrapper);
     log.scrollTop = log.scrollHeight;
-
-    // 기존 안전결제 요청 카드의 타이머 정지 및 만료 표시
-    stopAllPaymentTimers();
 }
 
 // 모든 결제 타이머 정지
@@ -1001,6 +1025,7 @@ function acceptSafePaymentRequest(msgId) {
 
 // 안전 결제 수락 UI 표시 (상품 정보 + 결제하기 버튼)
 function showSafePaymentAccept(msg) {
+
     const log = document.getElementById("chatContainer");
     const emptyNotice = document.getElementById("emptyNotice");
     if (emptyNotice) emptyNotice.remove();
@@ -1098,6 +1123,10 @@ function goToPayment(msgId) {
 
 // 결제 완료 UI 표시
 function showSafePaymentComplete(msg) {
+    //기존 안전결제 카드 전부 숨김
+    document.querySelectorAll('.safe-payment-card').forEach(el => {
+           el.style.display = 'none';
+    });
     const log = document.getElementById("chatContainer");
     const emptyNotice = document.getElementById("emptyNotice");
     if (emptyNotice) emptyNotice.remove();
@@ -1785,6 +1814,10 @@ function showImageMessage(msg) {
     log.scrollTop = log.scrollHeight;
 }
 
+if (enterChatRoomSeq) {
+        chat_room_seq = Number(enterChatRoomSeq);
+        fetchMessages(chat_room_seq);
+}
 </script>
 
 <%@ include file="/WEB-INF/views/common/footer.jsp" %>

@@ -13,13 +13,13 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 1) 독서모임 manage 전용: CSRF 켬
+    // 1) 독서모임 전체: CSRF 켬
     @Bean
     @Order(1)
-    public SecurityFilterChain bookClubManageChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain bookClubChain(HttpSecurity http) throws Exception {
         http
-                // ✅ 이 체인은 /bookclubs/*/manage 하위에만 적용
-                .antMatcher("/bookclubs/**/manage/**")
+                // ✅ 이 체인은 /bookclubs/** 전체에 적용
+                .antMatcher("/bookclubs/**")
                 .authorizeRequests()
                 .anyRequest().permitAll()
                 .and()

@@ -8,7 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -17,6 +19,16 @@ public class FileStore {
 
     @Value("${file.dir}")
     private String fileDir;
+
+    // 허용된 이미지 확장자 목록
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of(
+            "jpg", "jpeg", "png", "gif", "webp", "bmp"
+    );
+
+    // 허용된 이미지 MIME 타입 목록
+    private static final Set<String> ALLOWED_IMAGE_CONTENT_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp"
+    );
 
     // 파라미터로 받은 파일 이름을 추가
     public String getFullPath(String fileName) {
@@ -72,5 +84,52 @@ public class FileStore {
     private String extractExt(String orgFileName) {
         int pos = orgFileName.lastIndexOf(".");
         return orgFileName.substring(pos + 1);
+    }
+
+    /**
+     * 이미지 파일 여부 검증
+     * @param file MultipartFile
+     * @return 이미지 파일이면 true
+     */
+    public boolean isImageFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return false;
+        }
+
+        // 1. Content-Type 검증
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_IMAGE_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+            log.warn("허용되지 않은 Content-Type: {}", contentType);
+            return false;
+        }
+
+        // 2. 확장자 검증
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.contains(".")) {
+            log.warn("파일명에 확장자가 없음: {}", originalFilename);
+            return false;
+        }
+
+        String ext = extractExt(originalFilename).toLowerCase();
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(ext)) {
+            log.warn("허용되지 않은 확장자: {}", ext);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 이미지 파일 저장 (이미지 검증 포함)
+     * @param multipartFile 업로드할 파일
+     * @return 저장된 파일 정보
+     * @throws IOException 파일 저장 실패 시
+     * @throws IllegalArgumentException 이미지 파일이 아닌 경우
+     */
+    public UploadFile storeImageFile(MultipartFile multipartFile) throws IOException {
+        if (!isImageFile(multipartFile)) {
+            throw new IllegalArgumentException("이미지 파일만 업로드할 수 있습니다. (jpg, jpeg, png, gif, webp, bmp)");
+        }
+        return storeFile(multipartFile);
     }
 }
