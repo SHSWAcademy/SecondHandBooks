@@ -24,13 +24,13 @@
                             <img id="mainImage"
                                  src="${pageContext.request.contextPath}/img/${trade.trade_img[0].img_url}"
                                  alt="${trade.book_title}"
-                                 class="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-105" />
+                                 class="w-full h-full object-contain p-8 transition-transform duration-500 />
                         </c:when>
                         <c:otherwise>
                             <img id="mainImage"
                                  src="${trade.book_img}"
                                  alt="${trade.book_title}"
-                                 class="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-105" />
+                                 class="w-full h-full object-contain p-8 transition-transform duration-500" />
                         </c:otherwise>
                     </c:choose>
 
