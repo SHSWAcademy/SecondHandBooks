@@ -508,4 +508,22 @@
         ORDER BY sale_st_dtm DESC
     </select>
 
+    <!-- 이미지 전체 조회 -->
+    <select id="findImgUrlByTradeSeqList" resultType="project.trade.TradeImageVO">
+        SELECT
+            trade_seq,
+            book_img_seq,
+            img_url,
+            sort_seq
+        FROM book_image
+        WHERE trade_seq IN
+        <foreach collection="tradeSeqList"
+                 item="seq"
+                 open="("
+                 separator=","
+                 close=")">
+            #{seq}
+        </foreach>
+    </select>
+
 </mapper>
