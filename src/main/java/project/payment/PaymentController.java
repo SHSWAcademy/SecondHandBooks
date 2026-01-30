@@ -42,6 +42,15 @@ public class PaymentController {
         MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
         TradeVO trade = tradeService.search(trade_seq);
 
+        // 검증 값 일괄조회
+        PaymentVO payment = tradeService.getPaymentCheckInfo(trade_seq);
+        // 남은 결제 시간
+        long remainingSeconds = payment.getRemainingSeconds();
+        // 안전결제 상태 확인
+        String safePaymentStatus = payment.getSafePaymentStatus();
+        // 안전결제 대상 구매자인지
+        Long pendingBuyerSeq = payment.getPendingBuyerSeq();
+
         // 검증 : trade.getMember_buyer_seq()는 현재 시점에서는 null
         if (sessionMember == null || trade.getMember_seller_seq() == sessionMember.getMember_seq()) {return "redirect:/";} // 검증 : 구매자 seq !=  세션 seq일 경우 홈으로 리다이렉트
 
@@ -53,19 +62,16 @@ public class PaymentController {
         }
 
         // 검증 : 안전결제 상태 확인 (직접 url 접근 시 체크)
-        String safePaymentStatus = tradeService.getSafePaymentStatus(trade_seq);
         if (!"PENDING".equals(safePaymentStatus)) {
             return "redirect:/";  // 안전결제 요청이 없으면 접근 불가
         }
 
         // 검증 : 안전결제 대상 구매자인지 확인
-        Long pendingBuyerSeq = tradeService.getPendingBuyerSeq(trade_seq);
         if (pendingBuyerSeq == null || pendingBuyerSeq != sessionMember.getMember_seq()) {
             return "redirect:/";  // 안전결제 대상 구매자가 아니면 접근 불가
         }
 
         // 정상 로직
-        long remainingSeconds = tradeService.getSafePaymentExpireSeconds(trade_seq); // 남은 결제 시간 (초) DB 에서 조회 후 전달
         List<AddressVO> address = paymentService.findAddress(sessionMember.getMember_seq()); // 구매자 주소 DB 에서 조회 후 전달
 
         model.addAttribute("remainingSeconds", remainingSeconds);
