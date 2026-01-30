@@ -181,6 +181,8 @@ public class AdminController {
                 return "redirect:/admin/login?code1=qorhqtlrp&code2=rptlrhqqo&msg=forced";
 
             }
+            sess.removeAttribute("loginSess");
+
             sess.setAttribute("adminSess", admin);
             sess.setMaxInactiveInterval(30 * 60); // 1시간
 
