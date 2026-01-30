@@ -22,11 +22,13 @@
            AND MEMBER_DELETED_DTM IS NULL
            AND MEMBER_ST = 'JOIN'::member_st_enum
     </select>
+
     <update id="loginLogUpdate" parameterType="long">
         UPDATE MEMBER_INFO
            SET MEMBER_LAST_LOGIN_DTM = NOW()
          WHERE MEMBER_SEQ = #{member_seq}
     </update>
+
     <insert id="signUp" parameterType="project.member.MemberVO">
         INSERT INTO MEMBER_INFO(
                                  LOGIN_ID, MEMBER_PWD
