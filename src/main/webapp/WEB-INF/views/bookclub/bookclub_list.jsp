@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+            <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
             <!DOCTYPE html>
             <html lang="ko">
 
@@ -8,8 +9,8 @@
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <c:if test="${not empty _csrf}">
-                    <meta name="_csrf" content="${_csrf.token}">
-                    <meta name="_csrf_header" content="${_csrf.headerName}">
+                    <meta name="_csrf" content="${fn:escapeXml(_csrf.token)}">
+                    <meta name="_csrf_header" content="${fn:escapeXml(_csrf.headerName)}">
                 </c:if>
                 <title>독서모임 목록 - 신한북스</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub.css">
@@ -141,7 +142,7 @@
                                     <c:set var="currentPage" value="${bookclubList.page}" />
 
                                     <c:if test="${currentPage > 1}">
-                                        <a href="?page=${currentPage - 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${bookclubList.sort}"
+                                        <a href="?page=${currentPage - 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${fn:escapeXml(bookclubList.sort)}"
                                             class="page-link">이전</a>
                                     </c:if>
 
@@ -150,7 +151,7 @@
                                     </span>
 
                                     <c:if test="${currentPage < totalPages}">
-                                        <a href="?page=${currentPage + 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${bookclubList.sort}"
+                                        <a href="?page=${currentPage + 1}&keyword=<c:out value='${keyword}'/>&region=<c:out value='${bookclubList.region}'/>&sort=${fn:escapeXml(bookclubList.sort)}"
                                             class="page-link">다음</a>
                                     </c:if>
                                 </div>
@@ -306,7 +307,7 @@
                 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
                 <!-- 카카오 지도 SDK -->
-                <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
+                <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${fn:escapeXml(kakaoJsKey)}&libraries=services"></script>
                 <script src="${pageContext.request.contextPath}/resources/js/bookclub/kakaoPlaceSearch.js"></script>
                 <script src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub.js"></script>
                 <script>

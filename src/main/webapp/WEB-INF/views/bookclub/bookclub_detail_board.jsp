@@ -217,11 +217,11 @@
                                                     <div style="flex-shrink: 0; width: 80px; height: 80px; border-radius: 0.5rem; overflow: hidden; background: #f7fafc;">
                                                         <c:choose>
                                                             <c:when test="${board.board_img_url.startsWith('http://') or board.board_img_url.startsWith('https://')}">
-                                                                <img src="${board.board_img_url}" alt="게시글 이미지"
+                                                                <img src="${fn:escapeXml(board.board_img_url)}" alt="게시글 이미지"
                                                                     style="width: 100%; height: 100%; object-fit: cover;">
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <img src="${pageContext.request.contextPath}${board.board_img_url}" alt="게시글 이미지"
+                                                                <img src="${pageContext.request.contextPath}${fn:escapeXml(board.board_img_url)}" alt="게시글 이미지"
                                                                     style="width: 100%; height: 100%; object-fit: cover;">
                                                             </c:otherwise>
                                                         </c:choose>
@@ -230,7 +230,7 @@
                                                 <%-- 2순위: 책 API 사진 --%>
                                                 <c:when test="${not empty board.book_img_url}">
                                                     <div style="flex-shrink: 0; width: 60px; height: 80px; border-radius: 0.375rem; overflow: hidden; background: #f7fafc; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                                        <img src="${board.book_img_url}" alt="책 표지"
+                                                        <img src="${fn:escapeXml(board.book_img_url)}" alt="책 표지"
                                                             style="width: 100%; height: 100%; object-fit: cover;">
                                                     </div>
                                                 </c:when>

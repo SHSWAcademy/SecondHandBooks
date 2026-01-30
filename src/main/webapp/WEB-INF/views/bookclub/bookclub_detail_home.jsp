@@ -16,7 +16,7 @@
         <p class="bc-intro-text">
             <c:choose>
                 <c:when test="${not empty bookClub.book_club_desc}">
-                    ${bookClub.book_club_desc}
+                    <c:out value="${bookClub.book_club_desc}"/>
                 </c:when>
                 <c:otherwise>소개글이 없습니다.</c:otherwise>
             </c:choose>
@@ -25,7 +25,7 @@
         <c:if test="${not empty bookClub.book_club_schedule}">
             <div class="bc-schedule-box">
                 <div class="bc-schedule-label">정기 모임 일정</div>
-                <div class="bc-schedule-text">${bookClub.book_club_schedule}</div>
+                <div class="bc-schedule-text"><c:out value="${bookClub.book_club_schedule}"/></div>
             </div>
         </c:if>
     </div>
@@ -53,7 +53,7 @@
                             <div class="bc-member-avatar">
                                 <c:choose>
                                     <c:when test="${not empty member.profileImgUrl}">
-                                        <img src="${member.profileImgUrl}" alt="${member.nickname}"
+                                        <img src="${fn:escapeXml(member.profileImgUrl)}" alt="${fn:escapeXml(member.nickname)}"
                                              style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                                     </c:when>
                                     <c:otherwise>

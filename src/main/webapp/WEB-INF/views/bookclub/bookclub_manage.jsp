@@ -456,7 +456,7 @@
                             window.contextPath = '${pageContext.request.contextPath}';
                         </script>
                         <!-- 카카오 지도 SDK -->
-                        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
+                        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${fn:escapeXml(kakaoJsKey)}&libraries=services"></script>
                         <script src="${pageContext.request.contextPath}/resources/js/bookclub/kakaoPlaceSearch.js"></script>
                         <script
                             src="${pageContext.request.contextPath}/resources/js/bookclub/bookclub_manage.js"></script>
