@@ -10,7 +10,7 @@ import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 
-import project.bookclub.dto.BookClubPageResponse;
+import project.bookclub.dto.BookClubPageResponseDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class BookClubService {
     }
 
     // #1-2. 독서모임 검색 (정렬 + 페이징)
-    public BookClubPageResponse searchBookClubs(String keyword, String sort, int page) {
+    public BookClubPageResponseDTO searchBookClubs(String keyword, String sort, int page) {
         // 정렬 옵션 검증 (기본값: latest)
         if (sort == null || (!sort.equals("latest") && !sort.equals("activity"))) {
             sort = "latest";
@@ -74,7 +74,7 @@ public class BookClubService {
 
         int totalPages = (int) Math.ceil((double) totalElements / DEFAULT_PAGE_SIZE);
 
-        return BookClubPageResponse.builder()
+        return BookClubPageResponseDTO.builder()
                 .content(content)
                 .page(page)
                 .size(DEFAULT_PAGE_SIZE)
