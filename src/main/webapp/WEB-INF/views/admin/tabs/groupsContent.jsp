@@ -118,7 +118,7 @@ function searchGroups(page) {
                 tr.className = 'hover:bg-gray-50/50 transition-colors cursor-pointer';
 
                 tr.onclick = function() {
-                  window.location.href = '/bookclubs/' + g.book_club_seq;
+                  window.location.href = '/admin/bookclubs/' + g.book_club_seq;
                 };
 
                 const tdTitle = document.createElement('td');

@@ -246,6 +246,12 @@ function initCreateModal() {
     bannerImgInput?.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (file) {
+            // 이미지 파일인지 검증
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 선택할 수 있습니다.');
+                bannerImgInput.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (event) => {
                 // 기존 미리보기 이미지 제거
@@ -269,30 +275,10 @@ function initCreateModal() {
         }
     });
 
-    // 오프라인/온라인 토글 버튼
-    const regionToggleBtns = document.querySelectorAll(".toggle-group:not(.schedule-cycle) .toggle-btn");
+    // 오프라인/온라인 토글 버튼 - 카카오 지도 연동 방식으로 변경됨
+    // 토글 로직은 initModalPlaceSearch()에서 처리함
     const bookClubType = document.getElementById("bookClubType");
-    const detailRegion = document.getElementById("detailRegion");
-    const regionInput = detailRegion?.querySelector("input[name='book_club_rg']");
-
-    regionToggleBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            regionToggleBtns.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-
-            const value = btn.dataset.value;
-            bookClubType.value = value;
-
-            if (value === "offline") {
-                detailRegion.classList.add("show");
-                regionInput.required = true;
-            } else {
-                detailRegion.classList.remove("show");
-                regionInput.required = false;
-                regionInput.value = "온라인";
-            }
-        });
-    });
+    const bookClubRegion = document.getElementById("bookClubRegion");
 
     // 정기 일정 선택
     const cycleBtns = document.querySelectorAll(".cycle-btn");
@@ -391,12 +377,21 @@ function initCreateModal() {
         if (text) text.style.display = "";
         imageUploadArea.classList.remove("has-image");
         // 활동 지역 토글 버튼 초기화
-        regionToggleBtns.forEach(b => b.classList.remove("active"));
-        document.querySelector(".toggle-btn[data-value='offline']")?.classList.add("active");
-        bookClubType.value = "offline";
-        detailRegion.classList.add("show");
-        regionInput.required = true;
-        regionInput.value = "";
+        const offlineToggle = document.getElementById("offlineToggle");
+        const onlineToggle = document.getElementById("onlineToggle");
+        offlineToggle?.classList.add("active");
+        onlineToggle?.classList.remove("active");
+        if (bookClubType) bookClubType.value = "offline";
+        if (bookClubRegion) bookClubRegion.value = "";
+        // 장소 검색 영역 초기화
+        const placeSearchContainer = document.getElementById("modalPlaceSearchContainer");
+        const selectedPlaceDiv = document.getElementById("modalSelectedPlace");
+        const placeSearchResults = document.getElementById("modalPlaceSearchResults");
+        const placeSearchInput = document.getElementById("modalPlaceSearchInput");
+        if (placeSearchContainer) placeSearchContainer.style.display = "block";
+        if (selectedPlaceDiv) selectedPlaceDiv.style.display = "none";
+        if (placeSearchResults) placeSearchResults.style.display = "none";
+        if (placeSearchInput) placeSearchInput.value = "";
         // 정기 일정 초기화
         cycleBtns.forEach(b => b.classList.remove("active"));
         dayBtns.forEach(b => b.classList.remove("active"));
@@ -414,6 +409,10 @@ function initCreateModal() {
     form.addEventListener("submit", e => {
         e.preventDefault();
 
+        // [수정 1] CSRF 토큰과 헤더 이름 가져오기
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
         const formData = new FormData(form);
 
         // 온라인인 경우 지역을 "온라인"으로 설정
@@ -428,6 +427,9 @@ function initCreateModal() {
 
         fetch("/bookclubs", {
             method: "POST",
+            headers: {
+                [csrfHeader]: csrfToken
+            },
             body: formData
         })
         .then(async res => {

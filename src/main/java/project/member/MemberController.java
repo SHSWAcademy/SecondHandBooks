@@ -75,7 +75,7 @@ public class MemberController {
 
     @GetMapping("/login")
     public String login(@RequestParam(required = false) String redirect,
-                        Model model, HttpSession session) {        // JSP의 ${kakaoClientId} 등에 전달할 값 설정
+                        Model model, HttpSession session) {      // JSP의 ${kakaoClientId} 등에 전달할 값 설정
         model.addAttribute("kakaoClientId", kakaoClientId);
         model.addAttribute("kakaoRedirectUri", kakaoRedirectUri);
 
@@ -103,6 +103,8 @@ public class MemberController {
             model.addAttribute("cmd", "back");
             return "common/return";
         } else {
+            sess.removeAttribute("adminSess");
+
             System.out.println("로그인 성공");
             sess.setAttribute("loginSess", memberVO);
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
@@ -433,12 +435,13 @@ public class MemberController {
         // 2. pk(seq) 설정
         vo.setMember_seq(loginUser.getMember_seq());
 
+        vo.setMember_email(loginUser.getMember_email()); // 이메일 수정 방지
         // 3. DB 업데이트
         boolean result = memberService.updateMember(vo);
         if (result) {
             // 4. 업데이트 성공 시 세션 정보도 최신화
             loginUser.setMember_nicknm(vo.getMember_nicknm());
-            loginUser.setMember_email(vo.getMember_email());
+//          loginUser.setMember_email(vo.getMember_email()); // 이메일은 변경되지 않았으므로 그대로 두기
             loginUser.setMember_tel_no(vo.getMember_tel_no());
             sess.setAttribute("loginSess", loginUser); // 세션 갱신
 
@@ -545,8 +548,7 @@ public class MemberController {
     @PostMapping("/auth/ajax/resetPassword")
     @ResponseBody
     public String resetPassword(@RequestParam String login_id, @RequestParam String new_pwd) {
-        boolean result = memberService.resetPassword(login_id, new_pwd);
-        return result ? "success" : "fail";
+        return memberService.resetPassword(login_id, new_pwd);
     }
 
 }

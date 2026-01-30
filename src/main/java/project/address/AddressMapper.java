@@ -11,4 +11,5 @@ public interface AddressMapper {
     int resetDefaultAddress(long member_seq);
     int setDefaultAddress(long addr_seq);
     int updateAddress(AddressVO vo);
+    int countAddress(long member_seq); // 주소 갯수 제한 (5개)
 }
