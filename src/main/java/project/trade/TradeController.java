@@ -12,16 +12,14 @@ import project.member.MemberService;
 import project.member.MemberVO;
 import project.trade.ENUM.SaleStatus;
 import project.util.Const;
+import project.util.S3Service;
 import project.util.book.BookApiService;
 import project.util.book.BookVO;
 import project.util.exception.NoSessionException;
 import project.util.exception.TradeNotFoundException;
 import project.util.imgUpload.FileStore;
-import project.util.imgUpload.UploadFile;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +32,7 @@ public class TradeController {
     private final TradeService tradeService;
     private final BookApiService bookApiService;
     private final FileStore fileStore; // 이미지 저장 기능을 수행하는 객체
+    private final S3Service s3Service; // 이미지 저장
 
     // 판매글 단일 조회
     @GetMapping("/trade/{tradeSeq}")
@@ -105,17 +104,7 @@ public class TradeController {
         log.info("uploadFiles: {}", uploadFiles);
 
         if (uploadFiles != null && !uploadFiles.isEmpty()) {
-            List<UploadFile> storeImgFiles = fileStore.storeFiles(uploadFiles); // 서버 저장용, 내부에 multipartFile.transferTo로 서버 경로에 저장
-            log.info("storeImgFiles: {}", storeImgFiles);
-
-            List<String> imgUrls = new ArrayList<>(); // db 저장용
-
-            // storeImgFiles 리스트 반복
-            for (UploadFile file : storeImgFiles) {
-                String storeFileName = file.getStoreFileName();
-                imgUrls.add(storeFileName);
-            }
-
+            List<String> imgUrls = s3Service.storeFiles(uploadFiles);  // S3에 업로드, URL 리스트 반환
             log.info("imgUrls: {}", imgUrls);
             tradeVO.setImgUrls(imgUrls);
         }
@@ -175,8 +164,7 @@ public class TradeController {
 
         // 검증 - PENDING 상태일 때는 수정 불가
         String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
-        if ("PENDING".equals(safePaymentStatus) ||
-                "COMPLETED".equals(safePaymentStatus)) {
+        if ("PENDING".equals(safePaymentStatus) || "COMPLETED".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
@@ -195,25 +183,35 @@ public class TradeController {
         updateTrade.setMember_seller_seq(sessionMember.getMember_seq());
 
 
-        // 이미지 파일 처리 (서버에 uuid 이름으로 저장, db 에 실제 이름으로 저장)
-        List<MultipartFile> uploadFiles = updateTrade.getUploadFiles(); // form 에서 받은 데이터 조회
-        log.info("uploadFiles: {}", uploadFiles);
+        // 이미지 파일 처리
+        List<MultipartFile> uploadFiles = updateTrade.getUploadFiles();
+        List<String> keepImageUrls = updateTrade.getKeepImageUrls(); // 유지할 기존 이미지
+        List<String> finalImgUrls = new ArrayList<>();
 
-        if (uploadFiles != null && !uploadFiles.isEmpty()) {
-            List<UploadFile> storeImgFiles = fileStore.storeFiles(uploadFiles); // 서버 저장용, 내부에 multipartFile.transferTo로 서버 경로에 저장
-            log.info("storeImgFiles: {}", storeImgFiles);
-
-            List<String> imgUrls = new ArrayList<>(); // db 저장용
-
-            // storeImgFiles 리스트 반복
-            for (UploadFile file : storeImgFiles) {
-                String storeFileName = file.getStoreFileName();
-                imgUrls.add(storeFileName);
-            }
-
-            log.info("imgUrls: {}", imgUrls);
-            updateTrade.setImgUrls(imgUrls);
+        // 1. 유지할 기존 이미지 추가
+        if (keepImageUrls != null && !keepImageUrls.isEmpty()) {
+            finalImgUrls.addAll(keepImageUrls);
+            log.info("keepImageUrls: {}", keepImageUrls);
         }
+
+        // 2. 새로 업로드된 이미지 추가
+        if (uploadFiles != null && !uploadFiles.isEmpty()) {
+            // 빈 파일 제외하고 실제 파일만 필터링
+            List<MultipartFile> validFiles = new ArrayList<>();
+            for (MultipartFile file : uploadFiles) {
+                if (file != null && !file.isEmpty()) {
+                    validFiles.add(file);
+                }
+            }
+            if (!validFiles.isEmpty()) {
+                List<String> newImgUrls = s3Service.storeFiles(validFiles);  // S3에 업로드
+                finalImgUrls.addAll(newImgUrls);
+                log.info("newImgUrls: {}", newImgUrls);
+            }
+        }
+
+        log.info("finalImgUrls: {}", finalImgUrls);
+        updateTrade.setImgUrls(finalImgUrls.isEmpty() ? null : finalImgUrls);
 
         // 수정에 성공했을 때
         try {
@@ -253,8 +251,7 @@ public class TradeController {
 
         // 검증 - PENDING 상태일 때는 삭제 불가
         String safePaymentStatus = tradeService.getSafePaymentStatus(tradeSeq);
-        if ("PENDING".equals(safePaymentStatus) ||
-                "COMPLETED".equals(safePaymentStatus)) {
+        if ("PENDING".equals(safePaymentStatus) || "COMPLETED".equals(safePaymentStatus)) {
             return "redirect:/";
         }
 
