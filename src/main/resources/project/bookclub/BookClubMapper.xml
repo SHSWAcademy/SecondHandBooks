@@ -11,37 +11,45 @@
     <!-- 독서모임 전체 조회 (정렬 + 페이징) -->
     <select id="searchAllWithSort" resultType="project.bookclub.vo.BookClubVO">
         SELECT
-            book_club_seq,
-            book_club_leader_seq,
-            book_club_name,
-            book_club_desc,
-            book_club_rg,
-            book_club_max_member,
-            book_club_deleted_dt,
-            banner_img_url,
-            book_club_schedule,
-            crt_dtm,
-            upd_dtm,
-            (
-                SELECT COUNT(*)
-                FROM book_club_member
-                WHERE book_club_member.book_club_seq = book_club.book_club_seq
-                AND join_st = 'JOINED'
-            ) AS joined_member_count,
-            (
-                SELECT MAX(crt_dtm)
-                FROM book_club_board
-                WHERE book_club_board.book_club_seq = book_club.book_club_seq
-                AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
-            ) AS last_activity_dtm
-        FROM book_club
+            bc.book_club_seq,
+            bc.book_club_leader_seq,
+            bc.book_club_name,
+            bc.book_club_desc,
+            bc.book_club_rg,
+            bc.book_club_max_member,
+            bc.book_club_deleted_dt,
+            bc.banner_img_url,
+            bc.book_club_schedule,
+            bc.crt_dtm,
+            bc.upd_dtm,
+
+            COALESCE(bcm.joined_cnt, 0) AS joined_member_count,
+            bcb.last_activity_dtm
+
+        FROM book_club bc
+
+        LEFT JOIN (
+            SELECT book_club_seq, COUNT(*) AS joined_cnt
+            FROM book_club_member
+            WHERE join_st='JOINED'
+            GROUP BY book_club_seq
+        ) bcm ON bc.book_club_seq = bcm.book_club_seq
+
+        LEFT JOIN (
+            SELECT book_club_seq, MAX(crt_dtm) AS last_activity_dtm
+            FROM book_club_board
+            WHERE board_deleted_yn IS NULL OR board_deleted_yn = false
+            GROUP BY book_club_seq
+        ) bcb ON bc.book_club_seq = bcb.book_club_seq
+
         WHERE book_club_deleted_dt IS NULL
+
         <choose>
             <when test="sort == 'activity'">
-                ORDER BY last_activity_dtm DESC NULLS LAST, crt_dtm DESC
+                ORDER BY bcb.last_activity_dtm DESC NULLS LAST, bc.crt_dtm DESC
             </when>
             <otherwise>
-                ORDER BY crt_dtm DESC
+                ORDER BY bc.crt_dtm DESC
             </otherwise>
         </choose>
         LIMIT #{limit} OFFSET #{offset}
@@ -61,34 +69,41 @@
             book_club_schedule,
             crt_dtm,
             upd_dtm,
-            (
-                SELECT COUNT(*)
-                FROM book_club_member
-                WHERE book_club_member.book_club_seq = book_club.book_club_seq
-                AND join_st = 'JOINED'
-            ) AS joined_member_count,
-            (
-                SELECT MAX(crt_dtm)
-                FROM book_club_board
-                WHERE book_club_board.book_club_seq = book_club.book_club_seq
-                AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
-            ) AS last_activity_dtm
-        FROM book_club
-        WHERE book_club_deleted_dt IS NULL
+
+            COALESCE(bcm.joined_cnt, 0) AS joined_member_count,
+            bcb.last_activity_dtm
+
+        FROM book_club bc
+
+        LEFT JOIN (
+            SELECT book_club_seq, COUNT(*) AS joined_cnt
+            FROM book_club_member
+            WHERE join_st='JOINED'
+            GROUP BY book_club_seq
+        ) bcm ON bc.book_club_seq = bcm.book_club_seq
+
+        LEFT JOIN (
+            SELECT book_club_seq, MAX(crt_dtm) AS last_activity_dtm
+            FROM book_club_board
+            WHERE board_deleted_yn IS NULL OR board_deleted_yn=false
+            GROUP BY book_club_seq
+        ) bcb ON bc.book_club_seq = bcb.book_club_seq
+
+        WHERE bc.book_club_deleted_dt IS NULL
         AND
         <foreach collection="tokens" item="token" separator="AND">
             (
-                book_club_name LIKE CONCAT('%', #{token}, '%')
-                OR
-                book_club_rg LIKE CONCAT('%', #{token}, '%')
+            bc.book_club_name ILIKE CONCAT('%', #{token}, '%')
+            OR bc.book_club_rg ILIKE CONCAT('%', #{token}, '%')
             )
         </foreach>
+
         <choose>
             <when test="sort == 'activity'">
-                ORDER BY last_activity_dtm DESC NULLS LAST, crt_dtm DESC
+                ORDER BY bcb.last_activity_dtm DESC NULLS LAST, bc.crt_dtm DESC
             </when>
             <otherwise>
-                ORDER BY crt_dtm DESC
+                ORDER BY bc.crt_dtm DESC
             </otherwise>
         </choose>
         LIMIT #{limit} OFFSET #{offset}
