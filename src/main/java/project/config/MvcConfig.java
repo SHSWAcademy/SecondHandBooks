@@ -73,11 +73,11 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     // 이미지 경로 매핑 (임시 S3사용시 필요없음)
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/img/**").
-                addResourceLocations("file:" + uploadPath + "/");
-    }
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/img/**").
+//                addResourceLocations("file:" + uploadPath + "/");
+//    }
 
     // hikaricp
     @Bean

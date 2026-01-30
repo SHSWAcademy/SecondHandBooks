@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.member.MemberVO;
 import project.trade.ENUM.SaleStatus;
+import project.util.S3Service;
 import project.util.exception.TradeNotFoundException;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,6 +21,7 @@ import java.util.List;
 public class TradeService {
     private final TradeMapper tradeMapper;
     private final BookImgMapper bookImgMapper;
+    private final S3Service s3Service;
 
     @Value("${file.dir}")
     private String fileDir;
@@ -83,12 +86,44 @@ public class TradeService {
         int result = tradeMapper.update(updateTrade);
         log.info("Updated result count = {}", result);
 
-        // 업데이트 이미지 처리
-        if (updateTrade.getImgUrls() != null && !updateTrade.getImgUrls().isEmpty()) {
-            bookImgMapper.deleteBySeq(tradeSeq); // 기존 이미지들을 먼저 삭제한다
-            for (String imgUrl : updateTrade.getImgUrls()) {
-                log.info("Updating image: {} for trade_seq: {}", imgUrl, updateTrade.getTrade_seq());
-                bookImgMapper.save(imgUrl, updateTrade.getTrade_seq());
+        // 이미지 처리
+        List<String> newImgUrls = updateTrade.getImgUrls();
+        if (newImgUrls == null) newImgUrls = new ArrayList<>();
+
+        // 기존 이미지 목록 조회
+        List<TradeImageVO> existingImages = tradeMapper.findImgUrl(tradeSeq);
+
+        // S3에서 삭제할 이미지 찾기 (기존 이미지 중 새 목록에 없는 것)
+        if (existingImages != null && !existingImages.isEmpty()) {
+            List<String> urlsToDelete = new ArrayList<>();
+            for (TradeImageVO existingImg : existingImages) {
+                String existingUrl = existingImg.getImg_url();
+                if (!newImgUrls.contains(existingUrl)) {
+                    // S3 이미지인 경우만 삭제 (http로 시작하는 URL)
+                    if (existingUrl != null && existingUrl.startsWith("http")) {
+                        urlsToDelete.add(existingUrl);
+                    }
+                }
+            }
+            // S3에서 삭제
+            if (!urlsToDelete.isEmpty()) {
+                try {
+                    s3Service.deleteFilesByUrls(urlsToDelete);
+                    log.info("Deleted S3 images: {}", urlsToDelete);
+                } catch (Exception e) {
+                    log.error("Failed to delete S3 images: {}", e.getMessage());
+                }
+            }
+        }
+
+        // DB에서 기존 이미지 전부 삭제
+        bookImgMapper.deleteBySeq(tradeSeq);
+
+        // 새 이미지 목록이 있으면 저장 (유지할 이미지 + 새로 업로드한 이미지)
+        if (!newImgUrls.isEmpty()) {
+            for (String imgUrl : newImgUrls) {
+                log.info("Saving image: {} for trade_seq: {}", imgUrl, tradeSeq);
+                bookImgMapper.save(imgUrl, tradeSeq);
             }
         }
         return result > 0;
@@ -102,9 +137,26 @@ public class TradeService {
         // 이미지 url 조회
         List<TradeImageVO> imgUrls = tradeMapper.findImgUrl(tradeSeq);
         if (imgUrls != null && !imgUrls.isEmpty()) {
+            List<String> s3UrlsToDelete = new ArrayList<>();
             for (TradeImageVO vo : imgUrls) {
-                File file = new File(fileDir + "/" + vo.getImg_url());
-                if (file.exists()) file.delete();
+                String imgUrl = vo.getImg_url();
+                if (imgUrl != null && imgUrl.startsWith("http")) {
+                    // S3 이미지
+                    s3UrlsToDelete.add(imgUrl);
+                } else {
+                    // 로컬 이미지 (기존 로직 유지)
+                    File file = new File(fileDir + "/" + imgUrl);
+                    if (file.exists()) file.delete();
+                }
+            }
+            // S3에서 삭제
+            if (!s3UrlsToDelete.isEmpty()) {
+                try {
+                    s3Service.deleteFilesByUrls(s3UrlsToDelete);
+                    log.info("Deleted S3 images on trade removal: {}", s3UrlsToDelete);
+                } catch (Exception e) {
+                    log.error("Failed to delete S3 images on trade removal: {}", e.getMessage());
+                }
             }
         }
 
