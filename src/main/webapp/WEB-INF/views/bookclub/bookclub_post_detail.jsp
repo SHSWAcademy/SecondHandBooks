@@ -753,7 +753,7 @@
                                                 <form action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments/${c.book_club_board_seq}/edit"
                                                       method="post">
                                                     <textarea name="commentCont" class="bc-comment-edit-textarea"
-                                                              required>${fn:escapeXml(c.board_cont)}</textarea>
+                                                              required maxlength="500">${fn:escapeXml(c.board_cont)}</textarea>
                                                     <div class="bc-comment-edit-actions">
                                                         <button type="button" class="bc-comment-edit-cancel-btn"
                                                                 onclick="toggleCommentEdit(${c.book_club_board_seq})">취소</button>
@@ -775,7 +775,7 @@
                                   action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments"
                                   method="post">
                                 <textarea id="bcCommentTextarea" name="commentCont" class="bc-comment-textarea"
-                                          placeholder="댓글을 입력하세요..." required></textarea>
+                                          placeholder="댓글을 입력하세요..." required maxlength="500"></textarea>
                                 <button id="bcCommentSubmit" type="submit" class="bc-comment-submit-btn"
                                         aria-label="댓글 전송" disabled>
                                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">

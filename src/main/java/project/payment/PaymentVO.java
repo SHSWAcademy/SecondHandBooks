@@ -25,4 +25,10 @@ public class PaymentVO {
 
     private LocalDateTime approved_at;  // 결제 승인 시각
     private LocalDateTime created_at;   // 생성일
+
+    // JSP 출력용 배송 정보 필드 (DB 저장 x)
+    private String addr_type;
+    private String post_no;
+    private String addr_h;
+    private String addr_d;
 }

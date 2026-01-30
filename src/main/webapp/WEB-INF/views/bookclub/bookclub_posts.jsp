@@ -488,7 +488,7 @@
 
                 <!-- 내용 입력 -->
                 <textarea name="boardCont" class="bc-post-input bc-post-content-input"
-                          placeholder="내용을 입력하세요." required></textarea>
+                          placeholder="내용을 입력하세요." required maxlength="1000"></textarea>
 
                 <!-- 첨부 이미지 미리보기 -->
                 <div class="bc-attached-image-wrapper" id="attachedImageWrapper">

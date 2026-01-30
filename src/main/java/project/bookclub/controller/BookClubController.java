@@ -29,6 +29,7 @@ import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.member.MemberVO;
 import project.util.LoginUtil;
+import project.util.S3Service;
 import project.util.imgUpload.FileStore;
 
 @Controller
@@ -39,6 +40,7 @@ public class BookClubController {
 
     private final BookClubService bookClubService;
     private final FileStore fileStore;
+    private final S3Service s3Service;
 
     @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
     private String kakaoJsKey;
@@ -1082,7 +1084,8 @@ public class BookClubController {
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 수정에 실패했습니다.");
         }
 
-        return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId;
+        // 게시판 탭으로 리다이렉트
+        return "redirect:/bookclubs/" + bookClubId + "?tab=board";
     }
 
     /**
@@ -1118,7 +1121,7 @@ public class BookClubController {
         BookClubBoardVO post = bookClubService.getBoardDetail(bookClubId, postId);
         if (post == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "게시글을 찾을 수 없거나 이미 삭제되었습니다.");
-            return "redirect:/bookclubs/" + bookClubId;
+            return "redirect:/bookclubs/" + bookClubId + "?tab=board";
         }
 
         // 4. 삭제 권한 확인 (작성자 OR 모임장)
@@ -1139,7 +1142,7 @@ public class BookClubController {
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 삭제에 실패했습니다.");
         }
 
-        // 6. 게시판 목록으로 리다이렉트
-        return "redirect:/bookclubs/" + bookClubId;
+        // 6. 게시판 탭으로 리다이렉트
+        return "redirect:/bookclubs/" + bookClubId + "?tab=board";
     }
 }

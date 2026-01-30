@@ -2,6 +2,7 @@ package project.trade;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 import project.member.MemberVO;
 import project.trade.ENUM.SaleStatus;
 
@@ -74,4 +75,7 @@ public interface TradeMapper {
     int statusUpdate(@Param("trade_seq") long trade_seq, @Param("saleStatus") SaleStatus saleStatus);
 
     int deleteAll(@Param("member_seq") long member_seq);
+
+    void successPurchase(@Param("trade_seq") Long trade_seq, @Param("member_buyer_seq") long member_buyer_seq,
+                         @Param("post_no")String post_no, @Param("addr_h") String addr_h, @Param("addr_d") String addr_d);
 }

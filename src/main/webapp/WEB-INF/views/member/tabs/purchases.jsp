@@ -45,7 +45,28 @@
                     <p class="text-sm font-medium text-gray-500">
                         <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /><span class="text-xs font-normal ml-0.5">원</span>
                     </p>
+                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+                        <c:choose>
+                            <c:when test="${not empty trade.post_no}">
+                                <div class="flex items-start gap-1.5">
+                                    <span class="text-[10px] font-bold bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded shrink-0">배송지</span>
+                                    <p class="text-[11px] text-gray-600 leading-tight">
+                                        (${trade.post_no}) ${trade.addr_h} ${trade.addr_d}
+                                    </p>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="flex items-center gap-1.5 text-orange-600">
+                                    <i data-lucide="info" class="w-3 h-3 shrink-0"></i>
+                                    <p class="text-[11px] font-medium leading-tight">
+                                        직거래/반값택배 판매 내역입니다. 채팅으로 장소를 조율하세요.
+                                    </p>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
+
 
                 <div class="flex flex-col gap-2 min-w-[90px]">
                     <button onclick="location.href='/trade/${trade.trade_seq}'"
