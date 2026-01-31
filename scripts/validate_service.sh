@@ -1,21 +1,24 @@
 #!/bin/bash
+set -e
 
 echo "=== Validating Service ==="
 
-# Tomcat 프로세스 확인
-if pgrep -f "catalina" > /dev/null; then
-    echo "Tomcat is running"
-else
-    echo "WARNING: Tomcat process not found"
-fi
+# Health check
+MAX_RETRIES=30
+RETRY_COUNT=0
 
-# 포트 확인
-sleep 10
-if netstat -tlnp 2>/dev/null | grep -q ":8080"; then
-    echo "Port 8080 is listening"
-else
-    echo "WARNING: Port 8080 not listening yet"
-fi
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || echo "000")
 
-echo "Validation completed"
-exit 0
+    if [ "$HTTP_STATUS" = "200" ]; then
+        echo "Health check passed!"
+        exit 0
+    fi
+
+    echo "Waiting for application to start... (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    sleep 5
+done
+
+echo "ERROR: Health check failed after $MAX_RETRIES attempts"
+exit 1

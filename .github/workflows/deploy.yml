@@ -17,19 +17,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Create application.properties
-        env:
-          APP_PROPS: ${{ secrets.APPLICATION_PROPERTIES }}
-        run: |
-          echo "$APP_PROPS" > src/main/resources/application.properties
+          cache: maven
 
       - name: Build with Maven
         run: mvn clean package -DskipTests
