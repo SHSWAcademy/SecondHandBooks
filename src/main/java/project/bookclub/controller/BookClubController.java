@@ -143,20 +143,10 @@ public class BookClubController {
 
     @GetMapping
     public String getBookClubs(Model model, HttpSession session) {
-        List<BookClubVO> bookClubs = bookClubService.getBookClubList();
-
-        // 로그인 사용자의 찜 여부 설정
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
 
-        for (BookClubVO club : bookClubs) {
-            // 찜 개수 설정
-            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
-            // 로그인 시 찜 여부 설정
-            if (memberSeq != null) {
-                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
-            }
-        }
+        List<BookClubVO> bookClubs = bookClubService.getBookClubList(memberSeq);
 
         model.addAttribute("bookclubList", bookClubs);
         model.addAttribute("kakaoJsKey", kakaoJsKey);
@@ -170,18 +160,10 @@ public class BookClubController {
             @RequestParam(required = false, defaultValue = "latest") String sort,
             @RequestParam(required = false, defaultValue = "0") int page,
             HttpSession session) {
-        BookClubPageResponseDTO response = bookClubService.searchBookClubs(keyword, sort, page);
-
-        // 로그인 사용자의 찜 여부 설정
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
 
-        for (BookClubVO club : response.getContent()) {
-            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
-            if (memberSeq != null) {
-                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
-            }
-        }
+        BookClubPageResponseDTO response = bookClubService.searchBookClubs(keyword, sort, page, memberSeq);
 
         return response;
     }

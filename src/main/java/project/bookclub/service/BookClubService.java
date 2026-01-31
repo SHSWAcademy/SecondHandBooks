@@ -32,12 +32,12 @@ public class BookClubService {
      * #1. 독서모임 메인 페이지
      */
     // #1-1. 전체 독서모임 리스트 조회 (최신순 정렬, 첫 페이지)
-    public List<BookClubVO> getBookClubList() {
-        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+    public List<BookClubVO> getBookClubList(Long memberSeq) {
+        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0, memberSeq);
     }
 
     // #1-2. 독서모임 검색 (정렬 + 페이징)
-    public BookClubPageResponseDTO searchBookClubs(String keyword, String sort, int page) {
+    public BookClubPageResponseDTO searchBookClubs(String keyword, String sort, int page, Long memberSeq) {
         // 정렬 옵션 검증 (기본값: latest)
         if (sort == null || (!sort.equals("latest") && !sort.equals("activity"))) {
             sort = "latest";
@@ -54,7 +54,7 @@ public class BookClubService {
 
         // 키워드 없으면 전체 검색
         if (keyword == null || keyword.isBlank()) {
-            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
             totalElements = bookClubMapper.countAll();
         } else {
             List<String> tokens = new ArrayList<>();
@@ -64,10 +64,10 @@ public class BookClubService {
             }
 
             if (tokens.isEmpty()) {
-                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countAll();
             } else {
-                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countByKeyword(tokens);
             }
         }
