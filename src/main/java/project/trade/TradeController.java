@@ -312,14 +312,14 @@ public class TradeController {
     }
 
     // 판매자 수동 sold 변경 API, 새로 추가
-    @PostMapping("/trade/sold/{trade_seq}")
+    @PostMapping("/trade/sold")
     @ResponseBody
     public Map<String, Object> updateToSold(
-            @PathVariable long trade_seq,
+            @RequestParam long trade_seq,
             HttpSession session
     ) {
         MemberVO member = (MemberVO) session.getAttribute(Const.SESSION);
-
+        System.out.println(member.toString());
         Map<String, Object> result = new HashMap<>();
 
         if (member == null) {
@@ -360,14 +360,6 @@ public class TradeController {
 
         result.put("success", success);
         return result;
-    }
-
-
-    // 판매상태 수동처리, 범근님 추가
-    @PostMapping("/trade/statusUpdate")
-    @ResponseBody
-    public boolean statusUpdate (@RequestParam long trade_seq) {
-        return tradeService.statusUpdate(trade_seq);
     }
 
 }

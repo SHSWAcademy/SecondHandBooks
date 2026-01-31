@@ -17,7 +17,7 @@ import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.util.S3Service;
 
-import project.bookclub.dto.BookClubPageResponse;
+import project.bookclub.dto.BookClubPageResponseDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +42,16 @@ public class BookClubService {
      */
     // #1-1. 전체 독서모임 리스트 조회 (최신순 정렬, 첫 페이지)
     @Cacheable(value = "bookClubList", key = "'latest:first'")
-    public List<BookClubVO> getBookClubList() {
-        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+    public List<BookClubVO> getBookClubList(Long memberSeq) {
+        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0, memberSeq);
     }
+//    public List<BookClubVO> getBookClubList() {
+//        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+//    }
+
 
     // #1-2. 독서모임 검색 (정렬 + 페이징)
-    public BookClubPageResponse searchBookClubs(String keyword, String sort, int page) {
+    public BookClubPageResponseDTO searchBookClubs(String keyword, String sort, int page, Long memberSeq) {
         // 정렬 옵션 검증 (기본값: latest)
         if (sort == null || (!sort.equals("latest") && !sort.equals("activity"))) {
             sort = "latest";
@@ -64,7 +68,7 @@ public class BookClubService {
 
         // 키워드 없으면 전체 검색
         if (keyword == null || keyword.isBlank()) {
-            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
             totalElements = bookClubMapper.countAll();
         } else {
             List<String> tokens = new ArrayList<>();
@@ -74,17 +78,17 @@ public class BookClubService {
             }
 
             if (tokens.isEmpty()) {
-                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countAll();
             } else {
-                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countByKeyword(tokens);
             }
         }
 
         int totalPages = (int) Math.ceil((double) totalElements / DEFAULT_PAGE_SIZE);
 
-        return BookClubPageResponse.builder()
+        return BookClubPageResponseDTO.builder()
                 .content(content)
                 .page(page)
                 .size(DEFAULT_PAGE_SIZE)
@@ -96,10 +100,11 @@ public class BookClubService {
     }
 
     // #1-3. 독서모임 생성 가능 여부 : 로그인 여부, (추후) 생성 개수 제한, 권한
-//    public boolean canCreateBookClub(Long memberId) {
-//        // 비로그인 시 생성 불가
-//        return memberId != null;
-//    }
+    // 이거 안쓰고 있는거같은데 주석 칠까요 ?
+    public boolean canCreateBookClub(Long memberId) {
+        // 비로그인 시 생성 불가
+        return memberId != null;
+    }
 
     /*
      * #2. 독서모임 상세 페이지
@@ -372,7 +377,6 @@ public class BookClubService {
      * #4. 독서모임 생성
      */
     @Transactional
-    @CacheEvict(value = "bookClubList", allEntries = true)
     public void createBookClub(BookClubVO vo) {
         // 1. 값 들어왔는지 확인
         log.info("service create vo = {}", vo);
@@ -613,7 +617,6 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
-    @CacheEvict(value = "bookClub", key = "#bookClubSeq")
     public void kickMember(Long bookClubSeq, Long leaderSeq, Long targetMemberSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || leaderSeq == null || targetMemberSeq == null) {
@@ -676,14 +679,10 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "bookClub", key = "#bookClubSeq"),
-            @CacheEvict(value = "bookClubList", allEntries = true)
-    })
-    public Map<String, Object> updateBookClubSettings(
+    public java.util.Map<String, Object> updateBookClubSettings(
             Long bookClubSeq,
             Long leaderSeq,
-            BookClubUpdateSettingsDTO dto) {
+            project.bookclub.dto.BookClubUpdateSettingsDTO dto) {
 
         // 1. 파라미터 검증
         if (bookClubSeq == null || leaderSeq == null || dto == null) {
@@ -855,11 +854,7 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "bookClub", key = "#bookClubSeq"),
-            @CacheEvict(value = "bookClubList", allEntries = true)
-    })
-    public Map<String, Object> leaveBookClub(Long bookClubSeq, Long memberSeq) {
+    public java.util.Map<String, Object> leaveBookClub(Long bookClubSeq, Long memberSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || memberSeq == null) {
             log.warn("멤버 탈퇴 실패: 잘못된 파라미터 - bookClubSeq={}, memberSeq={}",

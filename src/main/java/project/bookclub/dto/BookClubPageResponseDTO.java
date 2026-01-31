@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookClubPageResponse {
+public class BookClubPageResponseDTO {
     private List<BookClubVO> content;    // 모임 목록
     private int page;                     // 현재 페이지 (0부터 시작)
     private int size;                     // 페이지 크기
