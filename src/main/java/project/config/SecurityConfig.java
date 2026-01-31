@@ -33,6 +33,10 @@ public class SecurityConfig {
                                 .authorizeRequests()
                                 .anyRequest().permitAll()
                                 .and()
+                                // ✅ SockJS iframe 허용 (채팅 WebSocket용)
+                                .headers()
+                                .frameOptions().sameOrigin()
+                                .and()
                                 // ✅ CSRF: /bookclubs/** 경로의 POST/PUT/PATCH/DELETE 요청에만 적용
                                 .csrf()
                                 .requireCsrfProtectionMatcher(request -> {
