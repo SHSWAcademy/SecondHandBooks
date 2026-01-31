@@ -440,35 +440,14 @@
   -->
     <update id="updateToSoldManually">
         UPDATE sb_trade_info
-        SET sale_st = 'sold'::sale_st_enum,
+        SET sale_st = 'SOLD'::sale_st_enum,
         sale_st_dtm = now()
         WHERE trade_seq = #{trade_seq}
         AND member_seller_seq = #{member_seq}
-        AND sale_st = 'sale'::sale_st_enum
+        AND sale_st = 'SALE'::sale_st_enum
         AND (safe_payment_st IS NULL OR safe_payment_st = 'NONE')
     </update>
 
-    <!-- 안전결제 완료 시 (기존 updateStatus 수정) -->
-    <!--
-    <update id="updateStatus">
-        UPDATE sb_trade_info
-        SET
-            sale_st = #{sold}::sale_st_enum,
-            sale_st_dtm = now(),
-            book_sale_dtm = now(),
-            member_buyer_seq = #{member_buyer_seq}
-        WHERE trade_seq = #{trade_seq}
-    </update>
-    -->
-    <update id="updateStatus">
-        UPDATE sb_trade_info
-        SET sale_st = #{sold}::sale_st_enum,
-        sale_st_dtm = now(),
-        book_sale_dtm = now(),
-        member_buyer_seq = #{member_buyer_seq},
-        confirm_purchase = false   <!-- 안전결제 완료 시 false로 설정 -->
-        WHERE trade_seq = #{trade_seq}
-    </update>
 
     <!-- 구매 확정 -->
     <update id="confirmPurchase">

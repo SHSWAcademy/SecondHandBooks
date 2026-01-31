@@ -9,6 +9,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
@@ -20,69 +22,66 @@ import java.util.List;
 @Slf4j
 public class BookApiService {
 
-    @Value("${api.kakao.rest-api-key}")
-    private String kakaoApiKey;
-
     @Value("${api.kakao.book-url}")
     private String kakaoBookUrl;
 
-    // AppConfig 에서 수동으로 빈 등록해주었습니다 !
-    private final RestTemplate restTemplate;
+    // AppConfig 에서 등록한 WebClient 주입
+    private final WebClient kakaoBookWebClient;
     private final ObjectMapper objectMapper;
 
     public List<BookVO> searchBooks(String query) {
         List<BookVO> books = new ArrayList<>();
 
         try {
-            // url 생성, UriComponentsBuilder.fromHttpUrl : 스프링 종속 클래스, URL을 안전하게 조립하기 위해 사용
-            // https://dapi.kakao.com/v3/search/book?query=java&size=10 예시와 같이 쿼리 파라미터들을 안전하게 조립하기 위해 사용
-
-            String url = UriComponentsBuilder.fromHttpUrl(kakaoBookUrl)
+            String uri = UriComponentsBuilder.fromHttpUrl(kakaoBookUrl)
                     .queryParam("query", query)
-                    .queryParam("size", 10)  // 최대 10개 결과 (10개 페이징 처리)
+                    .queryParam("size", 10)
                     .build()
                     .toUriString();
-            /*
-            카카오 개발자 센터
-            query	String	검색을 원하는 질의어	O
-            sort	String	결과 문서 정렬 방식, accuracy(정확도순) 또는 latest(발간일순), 기본값 accuracy	X
-            page	Integer	결과 페이지 번호, 1~50 사이의 값, 기본 값 1	X
-            size	Integer	한 페이지에 보여질 문서 수, 1~50 사이의 값, 기본 값 10	X
-            target	String	검색 필드 제한, 사용 가능한 값: title(제목), isbn (ISBN), publisher(출판사), person(인명)	X
-             */
 
-            log.info("Kakao API 호출: {}", url);
+            log.info("Kakao API 호출: {}", uri);
 
-            // http 헤더 설정
-            HttpHeaders headers = new HttpHeaders(); // 스프링이 제공하는 http 요청/응답 헤더를 담는 객체
-            headers.set("Authorization", "KakaoAK " + kakaoApiKey); // 헤더 설정 (카카오 스펙에 맞추어야 한다) Authorization: KakaoAK ${REST_API_KEY}
-            HttpEntity<?> entity = new HttpEntity<>(headers); // Spring 에서 http 요청/응답 헤더를 담는 객체
+            // WebClient 호출 (동기 처리)
+            String responseBody = kakaoBookWebClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(
+                            HttpStatus::isError,
+                            response -> response.bodyToMono(String.class)
+                                    .map(body -> {
+                                        log.error("Kakao API 오류 응답: status={}, body={}",
+                                                response.statusCode(), body);
+                                        return new RuntimeException("Kakao API 호출 실패");
+                                    })
+                    )
+                    .bodyToMono(String.class)
+                    .block();
 
-            // api 호출, Spring 에서 REST API 호출 + 응답 받기 담당
-            // restTemplate : API 호출, 응답 담당, Jackson : json 변환 담당
-            ResponseEntity<String> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    entity,
-                    String.class
-            );
-
-            // 응답 파싱
-            if (response.getStatusCode() == HttpStatus.OK) {
-                JsonNode root = objectMapper.readTree(response.getBody());
-                JsonNode documents = root.get("documents");
-
-                if (documents != null && documents.isArray()) {
-                    for (JsonNode doc : documents) {
-                        BookVO book = parseBookFromJson(doc); // json -> book
-                        books.add(book);
-                    }
-                }
-                log.info("검색 결과: {}건", books.size());
+            if (responseBody == null) {
+                log.warn("Kakao API 응답이 비어있음");
+                return books;
             }
 
+            JsonNode root = objectMapper.readTree(responseBody);
+            JsonNode documents = root.get("documents");
+
+            if (documents != null && documents.isArray()) {
+                for (JsonNode doc : documents) {
+                    BookVO book = parseBookFromJson(doc);
+                    books.add(book);
+                }
+            }
+
+            log.info("검색 결과: {}건", books.size());
+
+        } catch (WebClientResponseException e) {
+            // HTTP 에러 (4xx, 5xx)
+            log.error("Kakao API HTTP 오류: status={}, body={}",
+                    e.getStatusCode(), e.getResponseBodyAsString());
+
         } catch (Exception e) {
-            log.error("Kakao API 호출 실패: {}", e.getMessage()); // 빈 리스트 반환
+            // 기타 오류
+            log.error("Kakao API 호출 실패", e);
         }
 
         return books;
