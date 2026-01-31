@@ -163,32 +163,46 @@
 
 <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-12 min-h-[calc(100vh-200px)]">
 
+
+
+
+
 <c:if test="${not empty sessionScope.adminSess or not empty sessionScope.loginSess}">
-  <script>
-  (function() {
-      // 1. 페이지 로드 시: 관리자든 회원이든 일단 펜딩된 로그아웃을 취소함
-      document.addEventListener('DOMContentLoaded', function() {
-          // 관리자 세션이 있을 때는 관리자용 취소 API 호출
-          <c:if test="${not empty sessionScope.adminSess}">
-          fetch('/admin/api/cancel-logout', { method: 'POST', credentials: 'same-origin' });
-          </c:if>
+<script>var isAdmin = false;</script>
+<c:if test="${not empty sessionScope.adminSess}"><script>isAdmin = true;</script></c:if>
+<script>var isMember = false;</script>
+<c:if test="${not empty sessionScope.loginSess}"><script>isMember = true;</script></c:if>
+<script>
+(function() {
+    function getCsrf() {
+        const tokenMeta = document.querySelector('meta[name=\"_csrf\"]');
+        const headerMeta = document.querySelector('meta[name=\"_csrf_header\"]');
+        return {
+            token: tokenMeta ? tokenMeta.getAttribute('content') : null,
+            header: headerMeta ? headerMeta.getAttribute('content') : null
+        };
+    }
 
-          // 일반 회원 세션이 있을 때는 회원용 취소 API 호출
-          <c:if test="${not empty sessionScope.loginSess}">
-          fetch('/api/member/cancel-logout', { method: 'POST', credentials: 'same-origin' });
-          </c:if>
-      });
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrf = getCsrf();
+        const headers = {};
+        if (csrf.token && csrf.header) headers[csrf.header] = csrf.token;
 
-      // 2. 페이지 떠날 때: 일단 펜딩 신호를 보냄
-      window.addEventListener('pagehide', function() {
-          <c:if test="${not empty sessionScope.adminSess}">
-          navigator.sendBeacon('/admin/api/logout-pending');
-          </c:if>
-
-          <c:if test="${not empty sessionScope.loginSess}">
-          navigator.sendBeacon('/api/member/logout-pending');
-          </c:if>
-      });
-  })();
-  </script>
+        if (isAdmin) {
+            fetch('/admin/api/cancel-logout', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers
+            });
+        }
+        if (isMember) {
+            fetch('/api/member/cancel-logout', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers
+            });
+        }
+    });
+})();
+</script>
 </c:if>
