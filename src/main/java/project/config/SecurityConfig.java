@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class SecurityConfig {
          * 통합 보안 설정
          * - CSRF: 기본 활성화 (세션 기반)
          * - 기존 기능(/login, /member, /trade 등)은 CSRF 예외 처리
-         * - 북클럽(/bookclubs)은 CSRF 보호 적용
+         * - 북클럽(/bookclubs)은 CSRF 보호 적용 (상태 변경 요청만)
          */
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,19 +33,28 @@ public class SecurityConfig {
                                 .authorizeRequests()
                                 .anyRequest().permitAll()
                                 .and()
-                                // ✅ CSRF 기본 ON (세션 기반) + 기존 기능은 예외 처리
+                                // ✅ CSRF: /bookclubs/** 경로의 POST/PUT/PATCH/DELETE 요청에만 적용
                                 .csrf()
-                                .ignoringAntMatchers(
-                                                "/login", // 로그인
-                                                "/member/**", // 회원가입, 마이페이지 등
-                                                "/trade/**", // 중고거래
-                                                "/chat/**", // 채팅
-                                                "/payment/**", // 결제
-                                                "/admin/**", // 관리자
-                                                "/notice/**", // 공지사항
-                                                "/api/**" // API (있다면)
-                                )
-                                // 북클럽은 위 예외에 포함 안 됨 → CSRF 보호 적용
+                                .requireCsrfProtectionMatcher(request -> {
+                                        String uri = request.getRequestURI();
+                                        String contextPath = request.getContextPath();
+
+                                        // contextPath 제거
+                                        if (contextPath != null && !contextPath.isEmpty()) {
+                                                uri = uri.substring(contextPath.length());
+                                        }
+
+                                        // /bookclubs/** 경로 체크
+                                        if (!uri.startsWith("/bookclubs")) {
+                                                return false;
+                                        }
+
+                                        // 상태 변경 메소드만 CSRF 적용 (POST, PUT, PATCH, DELETE)
+                                        // GET은 조회 요청이므로 CSRF 불필요
+                                        String method = request.getMethod();
+                                        return "POST".equals(method) || "PUT".equals(method) ||
+                                                        "PATCH".equals(method) || "DELETE".equals(method);
+                                })
                                 .and()
                                 .exceptionHandling(ex -> ex
                                                 .accessDeniedHandler(csrfAccessDeniedHandler()))
