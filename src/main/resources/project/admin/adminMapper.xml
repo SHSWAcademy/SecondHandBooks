@@ -4,8 +4,12 @@
 
 <mapper namespace="project.admin.AdminMapper">
 
-    <select id="loginAdmin" resultType="project.admin.AdminVO">
-        SELECT * FROM ADMIN WHERE ADMIN_LOGIN_ID = #{id} AND ADMIN_PASSWORD = #{pwd}
+    <select id="getAdminById" resultType="project.admin.AdminVO">
+        SELECT ADMIN_SEQ
+             , ADMIN_LOGIN_ID
+             , ADMIN_PASSWORD
+          FROM ADMIN
+         WHERE ADMIN_LOGIN_ID = #{id}
     </select>
 
     <select id="countAllMembers" resultType="int">

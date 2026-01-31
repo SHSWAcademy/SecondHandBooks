@@ -404,11 +404,10 @@ public class BookClubManageController {
         String finalBannerUrl = bannerImgUrl;
         if (bannerFile != null && !bannerFile.isEmpty()) {
             try {
-                String savedFileName = saveUploadedFile(bannerFile);
-                finalBannerUrl = "/img/" + savedFileName;
-                log.info("배너 이미지 업로드 완료: bookClubId={}, path={}", bookClubId, finalBannerUrl);
+                finalBannerUrl = saveUploadedFile(bannerFile);  // S3 URL 직접 저장
+                log.info("배너 이미지 S3 업로드 완료: bookClubId={}, url={}", bookClubId, finalBannerUrl);
             } catch (IOException e) {
-                log.error("파일 업로드 실패: bookClubId={}, error={}", bookClubId, e.getMessage());
+                log.error("S3 업로드 실패: bookClubId={}, error={}", bookClubId, e.getMessage());
                 return Map.of("success", false, "message", "파일 업로드에 실패했습니다.");
             }
         }
@@ -421,7 +420,7 @@ public class BookClubManageController {
         dto.setSchedule(schedule);
         dto.setBannerImgUrl(finalBannerUrl);
 
-        // 6. Service 호출 (비즈니스 로직 위임)
+        // 6. Service 호출 (비즈니스 로직 위임 + afterCommit S3 삭제는 Service에서 처리)
         try {
             Map<String, Object> updated = bookClubService.updateBookClubSettings(bookClubId, loginMemberSeq, dto);
 
@@ -439,43 +438,48 @@ public class BookClubManageController {
     }
 
     /**
-     * 업로드된 파일을 서버에 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
+     * 업로드된 파일을 S3에 저장
      *
      * @param file 업로드 파일
-     * @return 저장된 파일명 (UUID + 확장자)
+     * @return S3 전체 URL (예: https://secondarybooksimages.s3.ap-northeast-2.amazonaws.com/images/{UUID}.jpg)
      * @throws IOException 파일 저장 실패 시
      */
     private String saveUploadedFile(MultipartFile file) throws IOException {
         // 1. 파일명 유효성 검사
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isBlank()) {
-            throw new IllegalArgumentException("파일명이 유효하지 않습니다.");
+            throw new IOException("파일명이 유효하지 않습니다.");
         }
         if (!originalFilename.contains(".")) {
-            throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없습니다.");
+            throw new IOException("확장자가 없는 파일은 업로드할 수 없습니다.");
         }
 
         // 2. 확장자 화이트리스트 검증
         String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
         if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+            throw new IOException("허용되지 않는 파일 형식입니다.");
         }
 
         // 3. MIME 타입 검증
         String contentType = file.getContentType();
         if (contentType == null) {
-            throw new IllegalArgumentException("파일 형식을 확인할 수 없습니다.");
+            throw new IOException("파일 형식을 확인할 수 없습니다.");
         }
         if (!ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
-            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+            throw new IOException("허용되지 않는 파일 형식입니다.");
         }
 
         // 4. 파일 크기 검증
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException("파일 크기는 5MB를 초과할 수 없습니다.");
+            throw new IOException("파일 크기는 5MB를 초과할 수 없습니다.");
         }
 
-        var uploadFile = fileStore.storeFile(file);
-        return uploadFile.getStoreFileName();
+        // 5. S3 업로드 (전체 URL 반환)
+        try {
+            return s3Service.uploadFile(file);
+        } catch (Exception e) {
+            // S3 업로드 실패 (SdkClientException 등) → IOException으로 래핑
+            throw new IOException("S3 업로드 실패: " + e.getMessage(), e);
+        }
     }
 }

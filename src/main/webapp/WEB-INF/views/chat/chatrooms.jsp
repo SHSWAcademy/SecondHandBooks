@@ -284,12 +284,15 @@
                             <div class="chatroom-item px-5 py-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 border-l-4 border-l-transparent ${room.chat_room_seq == trade_chat_room.chat_room_seq ? 'active' : ''}"
                                  data-chat-room-seq="${room.chat_room_seq}">
                                 <div class="flex items-start gap-3">
-                                    <div class="relative w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                                    <div class="relative w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="text-primary-500 block" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                                        </svg>
                                         <c:if test="${room.msg_unread}">
-                                                <span class="unread-dot absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-                                         </c:if>
+                                            <span class="unread-dot absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+                                        </c:if>
                                     </div>
+
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between gap-2">
                                             <div class="font-semibold text-gray-900 text-sm truncate flex items-center gap-2">
@@ -309,6 +312,18 @@
                                                 </span>
                                             </c:if>
                                         </div>
+
+                                        <div class="text-xs text-primary-600 font-medium mt-1 truncate room-nickname">
+                                            <c:choose>
+                                                <c:when test="${sessionScope.loginSess.member_seq == room.member_seller_seq}">
+                                                    ${room.member_buyer_nicknm}
+                                                </c:when>
+                                                <c:otherwise>
+                                                    ${room.member_seller_nicknm}
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+
                                         <div class="text-xs text-gray-500 mt-1 truncate">
                                             <c:choose>
                                                 <c:when test="${not empty room.last_msg}">${room.last_msg}</c:when>

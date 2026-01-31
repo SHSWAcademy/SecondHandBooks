@@ -232,4 +232,15 @@ public interface BookClubMapper {
                         @Param("memberSeq") Long memberSeq);
 
     int signOutAll(@Param("member_seq") long member_seq);
+
+    // ===================================
+    // Stage 4: 삭제 시 S3 정리용
+    // ===================================
+
+    /**
+     * 모임의 모든 게시글 이미지 URL 조회 (삭제되지 않은 게시글만)
+     * 모임 종료 시 S3 정리용
+     * @return board_img_url 리스트 (NULL이 아닌 것만)
+     */
+    List<String> selectAllBoardImageUrls(@Param("bookClubSeq") Long bookClubSeq);
 }
