@@ -26,10 +26,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Create application.properties
+        env:
+          APP_PROPS: ${{ secrets.APPLICATION_PROPERTIES }}
         run: |
-          cat > src/main/resources/application.properties << 'EOF'
-          ${{ secrets.APPLICATION_PROPERTIES }}
-          EOF
+          echo "$APP_PROPS" > src/main/resources/application.properties
 
       - name: Build with Maven
         run: mvn clean package -DskipTests
