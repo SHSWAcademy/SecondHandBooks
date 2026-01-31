@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import project.admin.AdminVO;
 import project.bookclub.ENUM.JoinRequestResult;
 import project.bookclub.dto.BookClubPageResponseDTO;
 import project.bookclub.service.BookClubService;
@@ -67,12 +68,15 @@ public class BookClubController {
 
         // 3. 세션에서 로그인 멤버 정보 가져오기
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
+
         boolean isLogin = (loginMember != null);
+
         model.addAttribute("isLogin", isLogin);
 
         // 4. 로그인 상태일 때만 추가 상태 계산
         if (isLogin) {
             Long loginMemberSeq = loginMember.getMember_seq();
+
             model.addAttribute("loginMemberSeq", loginMemberSeq);
 
             // 4-1. 모임장 여부 판단
