@@ -64,20 +64,20 @@ public class RedisCacheConfig {
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
 
         // 카테고리: 1시간 (거의 안 변함)
-        cacheConfigs.put("category",
-                defaultConfig.entryTtl(Duration.ofHours(1)));
+//        cacheConfigs.put("category",
+//                defaultConfig.entryTtl(Duration.ofHours(1)));
 
         // 배너: 30분
-        cacheConfigs.put("banners",
-                defaultConfig.entryTtl(Duration.ofMinutes(30)));
+//        cacheConfigs.put("banners",
+//                defaultConfig.entryTtl(Duration.ofMinutes(30)));
 
         // 상품 상세: 5분
         cacheConfigs.put("trade",
-                defaultConfig.entryTtl(Duration.ofMinutes(5)));
+                defaultConfig.entryTtl(Duration.ofMinutes(10)));
 
         // 상품 목록: 3분 (자주 변경됨)
         cacheConfigs.put("tradeList",
-                defaultConfig.entryTtl(Duration.ofMinutes(3)));
+                defaultConfig.entryTtl(Duration.ofMinutes(5)));
 
         // 독서모임 상세: 10분
         cacheConfigs.put("bookClub",
@@ -85,11 +85,11 @@ public class RedisCacheConfig {
 
         // 독서모임 목록: 5분
         cacheConfigs.put("bookClubList",
-                defaultConfig.entryTtl(Duration.ofMinutes(5)));
+                defaultConfig.entryTtl(Duration.ofMinutes(10)));
 
         // 공지사항: 30분
-        cacheConfigs.put("notices",
-                defaultConfig.entryTtl(Duration.ofMinutes(30)));
+//        cacheConfigs.put("notices",
+//                defaultConfig.entryTtl(Duration.ofMinutes(30)));
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig)

@@ -547,5 +547,12 @@
         WHERE t.trade_seq = #{trade_seq}
         FOR UPDATE
     </select>
+    <select id="findAllImageUrlsByMember" resultType="java.lang.String">
+        SELECT bi.img_url
+        FROM book_img bi
+        JOIN trade t ON bi.trade_seq = t.trade_seq
+        WHERE t.member_seller_seq = #{member_seq}
+        AND t.deleted_yn = false
+    </select>
 
 </mapper>

@@ -2,12 +2,16 @@ package project.bookclub.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import project.bookclub.ENUM.JoinRequestResult;
+import project.bookclub.dto.BookClubUpdateSettingsDTO;
 import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
@@ -17,6 +21,7 @@ import project.bookclub.dto.BookClubPageResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 
@@ -36,6 +41,7 @@ public class BookClubService {
      * #1. 독서모임 메인 페이지
      */
     // #1-1. 전체 독서모임 리스트 조회 (최신순 정렬, 첫 페이지)
+    @Cacheable(value = "bookClubList", key = "'latest:first'")
     public List<BookClubVO> getBookClubList() {
         return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
     }
@@ -90,18 +96,20 @@ public class BookClubService {
     }
 
     // #1-3. 독서모임 생성 가능 여부 : 로그인 여부, (추후) 생성 개수 제한, 권한
-    public boolean canCreateBookClub(Long memberId) {
-        // 비로그인 시 생성 불가
-        return memberId != null;
-    }
+//    public boolean canCreateBookClub(Long memberId) {
+//        // 비로그인 시 생성 불가
+//        return memberId != null;
+//    }
 
     /*
      * #2. 독서모임 상세 페이지
      */
     // #2-1. 독서모임 1건 조회 (상세 페이지)
+    @Cacheable(value = "bookClub", key = "#bookClubSeq", unless = "#result ==null")
     public BookClubVO getBookClubById(Long bookClubSeq) {
         return bookClubMapper.selectById(bookClubSeq);
     }
+
 
     // #2-2. 특정 멤버가 JOINED 상태로 가입되어 있는지 확인
     public boolean isMemberJoined(Long bookClubSeq, Long memberSeq) {
@@ -364,6 +372,7 @@ public class BookClubService {
      * #4. 독서모임 생성
      */
     @Transactional
+    @CacheEvict(value = "bookClubList", allEntries = true)
     public void createBookClub(BookClubVO vo) {
         // 1. 값 들어왔는지 확인
         log.info("service create vo = {}", vo);
@@ -454,6 +463,7 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
+    @CacheEvict(value = "bookClub", key = "#bookClubSeq")
     public void approveJoinRequest(Long bookClubSeq, Long requestSeq, Long leaderSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || requestSeq == null || leaderSeq == null) {
@@ -603,6 +613,7 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
+    @CacheEvict(value = "bookClub", key = "#bookClubSeq")
     public void kickMember(Long bookClubSeq, Long leaderSeq, Long targetMemberSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || leaderSeq == null || targetMemberSeq == null) {
@@ -665,10 +676,14 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
-    public java.util.Map<String, Object> updateBookClubSettings(
+    @Caching(evict = {
+            @CacheEvict(value = "bookClub", key = "#bookClubSeq"),
+            @CacheEvict(value = "bookClubList", allEntries = true)
+    })
+    public Map<String, Object> updateBookClubSettings(
             Long bookClubSeq,
             Long leaderSeq,
-            project.bookclub.dto.BookClubUpdateSettingsDTO dto) {
+            BookClubUpdateSettingsDTO dto) {
 
         // 1. 파라미터 검증
         if (bookClubSeq == null || leaderSeq == null || dto == null) {
@@ -840,7 +855,11 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
-    public java.util.Map<String, Object> leaveBookClub(Long bookClubSeq, Long memberSeq) {
+    @Caching(evict = {
+            @CacheEvict(value = "bookClub", key = "#bookClubSeq"),
+            @CacheEvict(value = "bookClubList", allEntries = true)
+    })
+    public Map<String, Object> leaveBookClub(Long bookClubSeq, Long memberSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || memberSeq == null) {
             log.warn("멤버 탈퇴 실패: 잘못된 파라미터 - bookClubSeq={}, memberSeq={}",
