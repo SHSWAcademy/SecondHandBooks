@@ -815,6 +815,20 @@
         WHERE book_club_member_seq = #{member_seq}
     </update>
 
+    <!-- ===================================
+         Stage 4: 삭제 시 S3 정리용
+         =================================== -->
+
+    <!-- 모임의 모든 게시글 이미지 URL 조회 (삭제되지 않은 게시글만, NULL 제외) -->
+    <select id="selectAllBoardImageUrls" resultType="string">
+        SELECT board_img_url
+        FROM book_club_board
+        WHERE book_club_seq = #{bookClubSeq}
+        AND (board_deleted_yn IS NULL OR board_deleted_yn = false)
+        AND board_img_url IS NOT NULL
+        AND board_img_url != ''
+    </select>
+
     <!-- 내 멤버 상태 조회 (요구사항 SQL #1) -->
     <select id="selectMyMemberStatus" resultType="java.util.HashMap">
         SELECT leader_yn, join_st

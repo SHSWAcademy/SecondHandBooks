@@ -28,13 +28,15 @@
                             <img id="mainImage"
                                  src="${firstImg.startsWith('http') ? firstImg : pageContext.request.contextPath.concat('/img/').concat(firstImg)}"
                                  alt="${trade.book_title}"
-                                 class="w-full h-full object-contain p-8 transition-transform duration-500" />
+                                 onclick="openHoloModal(this.src)"
+                                 class="w-full h-full object-contain p-8 transition-transform duration-500 cursor-zoom-in" />
                         </c:when>
                         <c:otherwise>
                             <img id="mainImage"
                                  src="${trade.book_img}"
                                  alt="${trade.book_title}"
-                                 class="w-full h-full object-contain p-8 transition-transform duration-500" />
+                                 onclick="openHoloModal(this.src)"
+                                 class="w-full h-full object-contain p-8 transition-transform duration-500" cursor-zoom-in/>
                         </c:otherwise>
                     </c:choose>
 
@@ -183,8 +185,7 @@
                             </div>
                         </c:if>
 
-                        <!-- 판매자 수정/삭제 -->
-                        <c:if test="${trade.sale_st ne 'SOLD' and ((not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq) or (not empty sessionScope.adminSess))}">
+                        <c:if test="${isAdminView or (trade.sale_st ne 'SOLD' and (not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq))}">
                             <div class="flex gap-3">
                                 <a href="/trade/modify/${trade.trade_seq}"
                                    class="flex-1 h-14 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-bold text-sm transition-all">
@@ -262,29 +263,56 @@ function toggleWish(tradeSeq) {
     const heartIcon = btn.querySelector('svg');
     const formData = new FormData(form);
 
-    fetch("/trade/like", {
-        method: "POST",
-        body: formData,
-        headers: { "X-Requested-With": "XMLHttpRequest" }
-    })
-    .then(async res => { const text = await res.text(); try { return JSON.parse(text); } catch(e){ throw new Error("Server Error"); } })
-    .then(data => {
-        if(!data.success){ alert(data.message || "찜 처리 실패"); return; }
-        if(data.wished){
-            btn.classList.add("border-red-100","bg-red-50","text-red-500");
-            btn.classList.remove("border-gray-100","bg-white","text-gray-400","hover:border-red-100","hover:text-red-400");
-            if(heartIcon) heartIcon.setAttribute('fill','currentColor');
-        } else {
-            btn.classList.remove("border-red-100","bg-red-50","text-red-500");
-            btn.classList.add("border-gray-100","bg-white","text-gray-400","hover:border-red-100","hover:text-red-400");
-            if(heartIcon) heartIcon.setAttribute('fill','none');
-        }
-        if(countSpan) countSpan.innerText = data.wishCount;
-    })
-    .catch(err => console.error(err));
-}
+        fetch("/trade/like", {
+            method: "POST",
+            body: formData,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+            .then(async res => {
+                const text = await res.text();
+                try { return JSON.parse(text); }
+                catch (e) { throw new Error("Server Error"); }
+            })
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || "찜 처리 실패");
+                    return;
+                }
 
-update();
+                // UI 업데이트 (토글)
+                if (data.wished) {
+                    // 찜 설정됨
+                    btn.classList.add("border-red-100", "bg-red-50", "text-red-500");
+                    btn.classList.remove("border-gray-100", "bg-white", "text-gray-400", "hover:border-red-100", "hover:text-red-400");
+                    if (heartIcon) heartIcon.setAttribute('fill', 'currentColor');
+                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
+
+                    // 튀어오르는 애니메이션 효과
+                    btn.animate([
+                        { transform: 'scale(1)' },
+                        { transform: 'scale(1.2)' },
+                        { transform: 'scale(1)' }
+                    ], { duration: 300 });
+
+                } else {
+                    // 찜 해제됨
+                    btn.classList.remove("border-red-100", "bg-red-50", "text-red-500");
+                    btn.classList.add("border-gray-100", "bg-white", "text-gray-400", "hover:border-red-100", "hover:text-red-400");
+                    if (heartIcon) heartIcon.setAttribute('fill', 'none');
+                    countSpan.textContent = parseInt(countSpan.textContent) - 1;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("요청 처리 중 오류가 발생했습니다.");
+            });
+    }
+
+    // 아이콘 초기화
+    document.addEventListener("DOMContentLoaded", () => {
+        if(window.lucide) lucide.createIcons();
+    });
 </script>
 
+<jsp:include page="include/holo_card_modal.jsp" />
 <jsp:include page="../common/footer.jsp" />

@@ -48,23 +48,27 @@
     <select id="findAllByMemberSeqWithPaging"
             resultType="project.chat.chatroom.ChatroomVO">
         SELECT
-            c.*,
-            t.sale_st,
-            EXISTS (
-                SELECT 1
-                FROM chat_msg m
-                WHERE m.chat_room_seq = c.chat_room_seq
-                AND m.read_yn = false
-                AND m.sender_seq != #{member_seq}
-            ) AS msg_unread
+        c.*,
+        t.sale_st,
+        seller.member_nicknm AS member_seller_nicknm,
+        buyer.member_nicknm AS member_buyer_nicknm,
+        COALESCE(unread.unread_count, 0) > 0 AS msg_unread
         FROM chatroom c
         LEFT JOIN sb_trade_info t ON c.trade_seq = t.trade_seq
+        LEFT JOIN member_info seller ON c.member_seller_seq = seller.member_seq
+        LEFT JOIN member_info buyer ON c.member_buyer_seq = buyer.member_seq
+        LEFT JOIN (
+        SELECT chat_room_seq, COUNT(*) AS unread_count
+        FROM chat_msg
+        WHERE read_yn = false
+        AND sender_seq != #{member_seq}
+        GROUP BY chat_room_seq
+        ) unread ON c.chat_room_seq = unread.chat_room_seq
         WHERE (c.member_seller_seq = #{member_seq}
         OR c.member_buyer_seq = #{member_seq})
         <if test="sale_st != null and sale_st != ''">
             AND t.sale_st = #{sale_st}::sale_st_enum
         </if>
-        <!-- ORDER BY c.last_msg_dtm DESC NULLS LAST 로 정렬했다가 채팅방 생성 날짜 순으로 교체-->
         ORDER BY c.crt_dtm DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>

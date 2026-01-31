@@ -103,6 +103,8 @@ public class MemberController {
             model.addAttribute("cmd", "back");
             return "common/return";
         } else {
+            sess.removeAttribute("adminSess");
+
             System.out.println("로그인 성공");
             sess.setAttribute("loginSess", memberVO);
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
