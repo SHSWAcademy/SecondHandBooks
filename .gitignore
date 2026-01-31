@@ -43,7 +43,7 @@ cargo/
 # Compiled
 *.class
 
-pom.xml
+
 .gitignore
 
 bookclubDDL.md
