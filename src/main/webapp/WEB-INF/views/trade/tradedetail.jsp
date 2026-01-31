@@ -183,7 +183,7 @@
                             </div>
                         </c:if>
 
-                        <c:if test="${isAdminView or (trade.sale_st ne 'SOLD' and (not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq))}">
+                        <c:if test="${trade.sale_st ne 'SOLD' and (not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq)}">
                             <div class="flex gap-3">
                                 <a href="/trade/modify/${trade.trade_seq}"
                                    class="flex-1 h-14 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-bold text-sm transition-all">
