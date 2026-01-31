@@ -1,11 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<div class="space-y-6 animate-[fadeIn_0.3s_ease-out]">
-    <div class="flex justify-between items-center mb-2 px-1">
+<div class="space-y-5 animate-[fadeIn_0.3s_ease-out]">
+    <div class="flex justify-between items-center mb-1 px-1">
         <h2 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-            구매 내역 <span class="text-sm font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">${purchaseList != null ? purchaseList.size() : 0}건</span>
+            구매 내역 <span class="text-sm font-bold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">${purchaseList != null ? purchaseList.size() : 0}건</span>
         </h2>
     </div>
 
@@ -34,32 +35,45 @@
                     </c:choose>
                 </div>
 
-                <div class="flex-1 min-w-0 py-1">
-                    <div class="flex items-center gap-2 mb-1">
+                <div class="flex-1 min-w-0 py-0.5">
+                    <div class="flex items-center gap-2 mb-1.5">
                         <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md date-format" data-date="${trade.sale_st_dtm}"></span>
                         <c:if test="${trade.confirm_purchase}">
                             <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-md">구매확정 완료</span>
                         </c:if>
                     </div>
                     <h3 class="font-bold text-gray-900 text-base mb-1 truncate group-hover:text-primary-600 transition-colors">${trade.sale_title}</h3>
-                    <p class="text-sm font-medium text-gray-500">
-                        <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /><span class="text-xs font-normal ml-0.5">원</span>
-                    </p>
-                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+
+                    <div class="mb-2">
+                        <p class="text-sm font-medium text-gray-500">
+                            <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /><span class="text-xs font-normal ml-0.5">원</span>
+                        </p>
+                    </div>
+
+                    <div class="p-2 bg-gray-50/80 rounded-lg border border-gray-100/80">
                         <c:choose>
                             <c:when test="${not empty trade.post_no}">
-                                <div class="flex items-start gap-1.5">
+                                <div class="flex items-center gap-2">
                                     <span class="text-[10px] font-bold bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded shrink-0">배송지</span>
-                                    <p class="text-[11px] text-gray-600 leading-tight">
-                                        (${trade.post_no}) ${trade.addr_h} ${trade.addr_d}
+
+                                    <c:set var="fullAddr" value="${trade.addr_h} ${trade.addr_d}" />
+                                    <p class="text-[11px] text-gray-600 leading-tight truncate" title="${fullAddr}">
+                                        <c:choose>
+                                            <c:when test="${fn:length(fullAddr) > 50}">
+                                                ${fn:substring(fullAddr, 0, 50)}...
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${fullAddr}
+                                            </c:otherwise>
+                                        </c:choose>
                                     </p>
                                 </div>
                             </c:when>
                             <c:otherwise>
                                 <div class="flex items-center gap-1.5 text-orange-600">
                                     <i data-lucide="info" class="w-3 h-3 shrink-0"></i>
-                                    <p class="text-[11px] font-medium leading-tight">
-                                        직거래/반값택배 판매 내역입니다. 채팅으로 장소를 조율하세요.
+                                    <p class="text-[11px] font-medium leading-tight truncate">
+                                        직거래/반값택배 판매 내역입니다.
                                     </p>
                                 </div>
                             </c:otherwise>
@@ -68,9 +82,9 @@
                 </div>
 
 
-                <div class="flex flex-col gap-2 min-w-[90px]">
+                <div class="flex flex-col gap-2 min-w-[90px] justify-center h-full">
                     <button onclick="location.href='/trade/${trade.trade_seq}'"
-                            class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-100 hover:text-gray-900 transition text-center w-full">
+                            class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-100 hover:text-gray-900 transition text-center w-full border border-transparent hover:border-gray-200">
                         상세보기
                     </button>
 
