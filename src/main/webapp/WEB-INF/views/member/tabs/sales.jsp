@@ -30,7 +30,9 @@
                                  onerror="this.src='https://placehold.co/200x300?text=No+Image'"/>
                         </c:when>
                         <c:otherwise>
-                            <div class="w-full h-full flex items-center justify-center text-gray-300"><i data-lucide="book" class="w-8 h-8"></i></div>
+                            <div class="w-full h-full flex items-center justify-center text-gray-300">
+                                <i data-lucide="book" class="w-8 h-8"></i>
+                            </div>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -54,6 +56,8 @@
                     <h3 class="font-bold text-gray-900 text-base mb-1 truncate group-hover:text-primary-600 transition-colors">${trade.sale_title}</h3>
                     <p class="text-sm font-medium text-gray-500">
                         <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" /><span class="text-xs font-normal ml-0.5">원</span>
+                    </p>
+
                     <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-100">
                         <c:choose>
                             <c:when test="${not empty trade.post_no}">
@@ -74,7 +78,6 @@
                             </c:otherwise>
                         </c:choose>
                     </div>
-                    </p>
                 </div>
 
                 <div class="flex flex-col gap-2 min-w-[90px]">
@@ -82,6 +85,7 @@
                             class="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-100 hover:text-gray-900 transition w-full">
                         상세보기
                     </button>
+
                     <c:if test="${trade.sale_st == 'SALE'}">
                         <button type="button"
                                 class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-md hover:shadow-lg w-full"
@@ -96,51 +100,54 @@
 </div>
 
 <script>
-    {
-        const actions = {
-            init: () => {
-                actions.formatDates();
+    (function(){
+        const SalesTab = {
+            init: function() {
+                this.formatDates();
                 if(window.lucide) lucide.createIcons();
             },
 
-            formatDates: () => {
+            formatDates: function() {
                 document.querySelectorAll('.date-format').forEach(el => {
                     const dateStr = el.dataset.date;
-                    if (dateStr) {
-                        const date = dateStr.split('T')[0].replace(/-/g, '.');
+                    if(dateStr) {
+                        const date = dateStr.includes('T') ? dateStr.split('T')[0].replace(/-/g, '.') : dateStr.replace(/-/g, '.');
                         el.textContent = date;
                     }
                 });
             },
 
-            completeSale: (tradeSeq) => {
-                if (!confirm('정말 판매 완료 처리하시겠습니까?\n이후로는 상태를 변경할 수 없습니다.')) return;
+            completeSale: function(tradeSeq) {
+                if(!confirm('정말 판매 완료 처리하시겠습니까?\n이후로는 상태를 변경할 수 없습니다.')) return;
 
-                fetch('/trade/statusUpdate', {
+                fetch('/trade/sold', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'trade_seq=' + encodeURIComponent(tradeSeq)
+                    body: 'trade_seq=' + encodeURIComponent(tradeSeq),
+                    credentials: 'same-origin'
                 })
-                    .then(res => {
-                        if (res.ok) {
-                            alert('판매 완료 처리되었습니다.');
-                            if (typeof loadTab === 'function') {
-                                loadTab(null, 'sales');
-                            } else {
-                                location.reload();
-                            }
-                        } else {
-                            alert('처리 중 오류가 발생했습니다.');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert('네트워크 오류가 발생했습니다.');
-                    });
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        alert('판매 완료 처리되었습니다.');
+                        if(typeof loadTab === 'function') loadTab(null, 'sales');
+                        else location.reload();
+                    } else {
+                        alert('처리 중 오류: ' + (data.message || '알 수 없는 오류'));
+                        console.error('판매 완료 실패:', data);
+                    }
+                })
+                .catch(err => {
+                    console.error('네트워크/서버 오류:', err);
+                    alert('네트워크 오류가 발생했습니다.');
+                });
             }
         };
 
-        window.SalesTab = actions;
-        actions.init();
-    }
+        // 전역에 노출
+        window.SalesTab = SalesTab;
+
+        // 초기화
+        SalesTab.init();
+    })();
 </script>
