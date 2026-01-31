@@ -7,6 +7,7 @@
 <div class="bg-[#F8F9FA] min-h-[calc(100vh-200px)] py-12 animate-[fadeIn_0.5s_ease-out]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
 
+        <!-- Breadcrumb -->
         <div class="flex items-center gap-2 text-xs font-bold text-gray-400 mb-8">
             <a href="/" class="hover:text-gray-900 transition-colors">홈</a>
             <i data-lucide="chevron-right" class="w-3 h-3"></i>
@@ -15,16 +16,19 @@
             <span class="text-primary-600">${trade.category_nm}</span>
         </div>
 
+        <!-- Main grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
+            <!-- 이미지 영역 (64dev) -->
             <div class="lg:col-span-7 space-y-4 select-none">
-                <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] overflow-hidden relative group aspect-[1/1]">
+                <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] overflow-hidden relative group aspect-[1/1.2]">
                     <c:choose>
                         <c:when test="${not empty trade.trade_img && trade.trade_img.size() > 0}">
+                            <c:set var="firstImg" value="${trade.trade_img[0].img_url}" />
                             <img id="mainImage"
-                                 src="${pageContext.request.contextPath}/img/${trade.trade_img[0].img_url}"
+                                 src="${firstImg.startsWith('http') ? firstImg : pageContext.request.contextPath.concat('/img/').concat(firstImg)}"
                                  alt="${trade.book_title}"
-                                 class="w-full h-full object-contain p-8 transition-transform duration-500 />
+                                 class="w-full h-full object-contain p-8 transition-transform duration-500" />
                         </c:when>
                         <c:otherwise>
                             <img id="mainImage"
@@ -34,6 +38,7 @@
                         </c:otherwise>
                     </c:choose>
 
+                    <!-- 좌우 버튼 & 인디케이터 -->
                     <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
                         <button onclick="prevImage()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-md border border-white/50 p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 text-gray-800">
                             <i data-lucide="chevron-left" class="w-5 h-5"></i>
@@ -47,19 +52,21 @@
                     </c:if>
                 </div>
 
+                <!-- 썸네일 -->
                 <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 1}">
                     <div class="flex gap-3 overflow-x-auto py-2 px-1 scrollbar-hide">
                         <c:forEach var="img" items="${trade.trade_img}" varStatus="status">
                             <div onclick="setImage(${status.index})"
                                  id="thumb-${status.index}"
                                  class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all duration-300 ${status.index == 0 ? 'border-primary-500 ring-2 ring-primary-500/20 scale-105' : 'border-transparent hover:border-gray-200'}">
-                                <img src="${pageContext.request.contextPath}/img/${img.img_url}" class="w-full h-full object-cover"/>
+                                <img src="${img.img_url.startsWith('http') ? img.img_url : pageContext.request.contextPath.concat('/img/').concat(img.img_url)}" class="w-full h-full object-cover"/>
                             </div>
                         </c:forEach>
                     </div>
                 </c:if>
             </div>
 
+            <!-- UI 영역 (dev) -->
             <div class="lg:col-span-5 flex flex-col h-full">
                 <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] h-full relative overflow-hidden">
 
@@ -93,6 +100,7 @@
                         </div>
                     </div>
 
+                    <!-- 가격 영역 -->
                     <div class="mb-8 p-5 bg-gray-50 rounded-2xl border border-gray-100">
                         <c:if test="${trade.book_org_price > 0}">
                             <fmt:parseNumber var="discountRate" value="${((trade.book_org_price - trade.sale_price) * 100) / trade.book_org_price}" integerOnly="true" />
@@ -117,6 +125,7 @@
                         </div>
                     </div>
 
+                    <!-- 판매자 영역 -->
                     <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 border border-primary-100 flex items-center justify-center text-primary-600 font-black shadow-inner">
@@ -139,14 +148,17 @@
                         </button>
                     </div>
 
+                    <!-- 상품설명 -->
                     <div class="mb-8">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">상품 설명</h3>
                         <div class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap font-medium">${trade.sale_cont}</div>
                     </div>
 
+                    <!-- 찜 / 채팅 / 수정삭제 -->
                     <div class="mt-auto space-y-3">
                         <c:if test="${not empty sessionScope.loginSess and trade.member_seller_seq != sessionScope.loginSess.member_seq}">
                             <div class="flex gap-3">
+                                <!-- 찜하기 -->
                                 <form id="wishForm-${trade.trade_seq}" class="shrink-0">
                                     <input type="hidden" name="trade_seq" value="${trade.trade_seq}" />
                                     <button type="button" onclick="toggleWish(${trade.trade_seq})"
@@ -158,6 +170,7 @@
                                     </button>
                                 </form>
 
+                                <!-- 채팅 -->
                                 <form action="/chatrooms" method="post" class="flex-1">
                                     <input type="hidden" name="trade_seq" value="${trade.trade_seq}">
                                     <input type="hidden" name="member_seller_seq" value="${trade.member_seller_seq}">
@@ -170,6 +183,7 @@
                             </div>
                         </c:if>
 
+                        <!-- 판매자 수정/삭제 -->
                         <c:if test="${trade.sale_st ne 'SOLD' and ((not empty sessionScope.loginSess and sessionScope.loginSess.member_seq == trade.member_seller_seq) or (not empty sessionScope.adminSess))}">
                             <div class="flex gap-3">
                                 <a href="/trade/modify/${trade.trade_seq}"
@@ -193,129 +207,84 @@
     </div>
 </div>
 
+<!-- JS 영역 -->
 <script>
-    // 이미지 데이터 초기화
-    const images = [
-        <c:choose>
+const images = [
+    <c:choose>
         <c:when test="${not empty trade.trade_img}">
-        <c:forEach var="img" items="${trade.trade_img}" varStatus="s">
-        "${img.img_url}"<c:if test="${!s.last}">,</c:if>
-        </c:forEach>
+            <c:forEach var="img" items="${trade.trade_img}" varStatus="s">
+                "${img.img_url}"<c:if test="${!s.last}">,</c:if>
+            </c:forEach>
         </c:when>
         <c:otherwise>
-        "${trade.book_img}"
+            "${trade.book_img}"
         </c:otherwise>
-        </c:choose>
-    ];
+    </c:choose>
+];
 
-    let idx = 0;
+let idx = 0;
 
-    // 이미지 변경 함수
-    function setImage(i) {
-        idx = i;
-        update();
+function setImage(i) { idx = i; update(); }
+function prevImage() { idx = (idx - 1 + images.length) % images.length; update(); }
+function nextImage() { idx = (idx + 1) % images.length; update(); }
+
+function update() {
+    const mainImg = document.getElementById("mainImage");
+    const currentPath = images[idx];
+
+    if (currentPath.startsWith('http')) {
+        mainImg.src = currentPath;
+    } else {
+        mainImg.src = "${pageContext.request.contextPath}/img/" + currentPath;
     }
 
-    function prevImage() {
-        idx = (idx - 1 + images.length) % images.length;
-        update();
-    }
+    const ind = document.getElementById("imageIndicator");
+    if (ind) ind.innerText = (idx + 1) + " / " + images.length;
 
-    function nextImage() {
-        idx = (idx + 1) % images.length;
-        update();
-    }
-
-    function update() {
-        const mainImg = document.getElementById("mainImage");
-        // 부드러운 전환을 위해 opacity 조절 (선택사항)
-        mainImg.style.opacity = 0.5;
-
-        setTimeout(() => {
-            mainImg.src = "/img/" + images[idx];
-            mainImg.style.opacity = 1;
-        }, 150);
-
-        const ind = document.getElementById("imageIndicator");
-        if (ind) ind.innerText = (idx + 1) + " / " + images.length;
-
-        // 썸네일 스타일 업데이트
-        images.forEach((_, i) => {
-            const t = document.getElementById("thumb-" + i);
-            if (t) {
-                if (i === idx) {
-                    t.classList.add("border-primary-500", "ring-2", "ring-primary-500/20", "scale-105");
-                    t.classList.remove("border-transparent", "hover:border-gray-200");
-                } else {
-                    t.classList.remove("border-primary-500", "ring-2", "ring-primary-500/20", "scale-105");
-                    t.classList.add("border-transparent", "hover:border-gray-200");
-                }
-            }
-        });
-    }
-
-    // 찜하기 AJAX
-    function toggleWish(tradeSeq) {
-        const form = document.getElementById(`wishForm-\${tradeSeq}`);
-        if (!form) return;
-
-        const btn = form.querySelector("button");
-        const countSpan = document.getElementById(`wishCount-\${tradeSeq}`);
-        const heartIcon = btn.querySelector('svg');
-
-        if (!btn || !countSpan) return;
-
-        const formData = new FormData(form);
-
-        fetch("/trade/like", {
-            method: "POST",
-            body: formData,
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-            .then(async res => {
-                const text = await res.text();
-                try { return JSON.parse(text); }
-                catch (e) { throw new Error("Server Error"); }
-            })
-            .then(data => {
-                if (!data.success) {
-                    alert(data.message || "찜 처리 실패");
-                    return;
-                }
-
-                // UI 업데이트 (토글)
-                if (data.wished) {
-                    // 찜 설정됨
-                    btn.classList.add("border-red-100", "bg-red-50", "text-red-500");
-                    btn.classList.remove("border-gray-100", "bg-white", "text-gray-400", "hover:border-red-100", "hover:text-red-400");
-                    if (heartIcon) heartIcon.setAttribute('fill', 'currentColor');
-                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
-
-                    // 튀어오르는 애니메이션 효과
-                    btn.animate([
-                        { transform: 'scale(1)' },
-                        { transform: 'scale(1.2)' },
-                        { transform: 'scale(1)' }
-                    ], { duration: 300 });
-
-                } else {
-                    // 찜 해제됨
-                    btn.classList.remove("border-red-100", "bg-red-50", "text-red-500");
-                    btn.classList.add("border-gray-100", "bg-white", "text-gray-400", "hover:border-red-100", "hover:text-red-400");
-                    if (heartIcon) heartIcon.setAttribute('fill', 'none');
-                    countSpan.textContent = parseInt(countSpan.textContent) - 1;
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("요청 처리 중 오류가 발생했습니다.");
-            });
-    }
-
-    // 아이콘 초기화
-    document.addEventListener("DOMContentLoaded", () => {
-        if(window.lucide) lucide.createIcons();
+    images.forEach((_, i) => {
+        const t = document.getElementById("thumb-" + i);
+        if (t) {
+            t.classList.toggle("border-primary-500", i === idx);
+            t.classList.toggle("ring-2", i === idx);
+            t.classList.toggle("ring-primary-500/20", i === idx);
+            t.classList.toggle("scale-105", i === idx);
+            t.classList.toggle("border-transparent", i !== idx);
+            t.classList.toggle("hover:border-gray-200", i !== idx);
+        }
     });
+}
+
+function toggleWish(tradeSeq) {
+    const form = document.getElementById(`wishForm-${tradeSeq}`);
+    if (!form) return;
+    const btn = form.querySelector("button");
+    const countSpan = document.getElementById(`wishCount-${tradeSeq}`);
+    const heartIcon = btn.querySelector('svg');
+    const formData = new FormData(form);
+
+    fetch("/trade/like", {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+    })
+    .then(async res => { const text = await res.text(); try { return JSON.parse(text); } catch(e){ throw new Error("Server Error"); } })
+    .then(data => {
+        if(!data.success){ alert(data.message || "찜 처리 실패"); return; }
+        if(data.wished){
+            btn.classList.add("border-red-100","bg-red-50","text-red-500");
+            btn.classList.remove("border-gray-100","bg-white","text-gray-400","hover:border-red-100","hover:text-red-400");
+            if(heartIcon) heartIcon.setAttribute('fill','currentColor');
+        } else {
+            btn.classList.remove("border-red-100","bg-red-50","text-red-500");
+            btn.classList.add("border-gray-100","bg-white","text-gray-400","hover:border-red-100","hover:text-red-400");
+            if(heartIcon) heartIcon.setAttribute('fill','none');
+        }
+        if(countSpan) countSpan.innerText = data.wishCount;
+    })
+    .catch(err => console.error(err));
+}
+
+update();
 </script>
 
 <jsp:include page="../common/footer.jsp" />

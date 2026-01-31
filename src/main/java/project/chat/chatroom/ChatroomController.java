@@ -199,8 +199,7 @@ public class ChatroomController {
 
         try {
             // FileStore 사용하여 이미지 저장
-            UploadFile uploadFile = fileStore.storeFile(image);
-            String imageUrl = "/img/" + uploadFile.getStoreFileName();
+            String imageUrl = s3Service.uploadFile(image);
 
             result.put("success", true);
             result.put("imageUrl", imageUrl);
