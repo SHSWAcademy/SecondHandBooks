@@ -409,6 +409,10 @@ function initCreateModal() {
     form.addEventListener("submit", e => {
         e.preventDefault();
 
+        // [수정 1] CSRF 토큰과 헤더 이름 가져오기
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
         const formData = new FormData(form);
 
         // 온라인인 경우 지역을 "온라인"으로 설정
@@ -423,6 +427,9 @@ function initCreateModal() {
 
         fetch("/bookclubs", {
             method: "POST",
+            headers: {
+                [csrfHeader]: csrfToken
+            },
             body: formData
         })
         .then(async res => {

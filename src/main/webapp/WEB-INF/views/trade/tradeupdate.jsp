@@ -107,7 +107,7 @@
                                                 </option>
                                             </c:forEach>
                                         </select>
-                           <input type="hidden" name="category_nm" id="category_nm">
+                           <input type="hidden" name="category_nm" id="category_nm" value="${trade.category_nm}">
                         </div>
 
                 <!-- 판매가격 -->
@@ -212,24 +212,32 @@
             </h2>
 
             <!-- 기존 이미지 표시 -->
-            <c:if test="${not empty trade.imgUrls}">
-                <div class="mb-4">
-                    <p class="text-sm text-gray-600 mb-2">현재 등록된 이미지</p>
-                    <div class="flex gap-2 flex-wrap">
-                        <c:forEach var="img" items="${trade.imgUrls}">
-                            <div class="w-20 h-20 border border-gray-200 rounded overflow-hidden">
-                                <img src="/img/${img}" alt="상품 이미지" class="w-full h-full object-cover" />
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">현재 등록된 이미지 (<span id="existingImageCount">${not empty trade.trade_img ? trade.trade_img.size() : 0}</span>장)</p>
+                <div id="existingImagesContainer" class="flex gap-2 flex-wrap">
+                    <c:if test="${not empty trade.trade_img && trade.trade_img.size() > 0}">
+                        <c:forEach var="img" items="${trade.trade_img}" varStatus="status">
+                            <div class="existing-image-item relative w-24 h-24 border border-gray-200 rounded overflow-hidden group" data-img-url="${img.img_url}">
+                                <img src="${img.img_url.startsWith('http') ? img.img_url : pageContext.request.contextPath.concat('/img/').concat(img.img_url)}"
+                                     alt="상품 이미지" class="w-full h-full object-cover" />
+                                <button type="button" onclick="removeExistingImage(this)"
+                                        class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
+                                    X
+                                </button>
+                                <input type="hidden" name="keepImageUrls" value="${img.img_url}" />
                             </div>
                         </c:forEach>
-                    </div>
-                    <p class="text-xs text-red-500 mt-2">* 새 이미지를 업로드하면 기존 이미지는 삭제됩니다.</p>
+                    </c:if>
                 </div>
-            </c:if>
+                <p class="text-xs text-gray-500 mt-2">* X 버튼을 클릭하면 해당 이미지가 삭제됩니다.</p>
+            </div>
 
+            <!-- 새 이미지 추가 -->
             <div class="space-y-3">
-                <input type="file" name="uploadFiles" accept="image/*" multiple
+                <label class="text-sm font-bold text-gray-700">새 이미지 추가</label>
+                <input type="file" id="uploadFiles" name="uploadFiles" accept="image/*" multiple
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary-500 file:text-white file:font-bold hover:file:bg-primary-600" />
-                <p id="fileMsg" class="text-xs text-gray-500">여러 이미지를 한 번에 선택할 수 있습니다. (Ctrl/Cmd + 클릭)</p>
+                <p id="fileMsg" class="text-xs text-gray-500">기존 이미지 + 새 이미지 합쳐서 최대 3장까지 가능합니다. (총 용량 5MB 이하)</p>
             </div>
         </div>
 
@@ -270,34 +278,72 @@ function bindCategoryName(selectId, hiddenId) {
     });
 }
 
+// 기존 이미지 개수 가져오기
+function getExistingImageCount() {
+    return document.querySelectorAll('.existing-image-item').length;
+}
+
+// 기존 이미지 삭제
+function removeExistingImage(btn) {
+    const imageItem = btn.closest('.existing-image-item');
+    imageItem.remove();
+    updateExistingImageCount();
+    updateFileMsg();
+}
+
+// 기존 이미지 개수 업데이트
+function updateExistingImageCount() {
+    const count = getExistingImageCount();
+    document.getElementById('existingImageCount').textContent = count;
+}
+
+// 파일 메시지 업데이트
+function updateFileMsg() {
+    const existingCount = getExistingImageCount();
+    const remainingSlots = 3 - existingCount;
+    const msgEl = document.getElementById('fileMsg');
+
+    if (remainingSlots <= 0) {
+        msgEl.textContent = '이미지가 최대 3장입니다. 기존 이미지를 삭제해야 새 이미지를 추가할 수 있습니다.';
+        msgEl.style.color = 'red';
+    } else {
+        msgEl.textContent = `새 이미지를 ${remainingSlots}장까지 추가할 수 있습니다. (총 용량 5MB 이하)`;
+        msgEl.style.color = '';
+    }
+}
+
 // 첨부파일 갯수, 용량, img파일 업로드 검증
 function validateImageUpload(inputEl, msgEl) {
     const MAX_COUNT = 3;
-    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+    const MAX_TOTAL_SIZE = 5 * 1024 * 1024; // 총 5MB
 
     inputEl.addEventListener('change', () => {
         const files = Array.from(inputEl.files);
+        const existingCount = getExistingImageCount();
+        const totalCount = existingCount + files.length;
 
-        //개수 제한
-        if (files.length > MAX_COUNT) {
-            showFileError(`최대 ${MAX_COUNT}개까지 업로드 가능합니다.`);
+        // 총 개수 제한 (기존 + 새 이미지)
+        if (totalCount > MAX_COUNT) {
+            showFileError('기존 이미지 ' + existingCount + '장 + 새 이미지 ' + files.length + '장 = ' + totalCount + '장. 최대 3장까지 가능합니다.');
             return;
         }
 
-        //파일별 검사
-        for (let file of files) {
+        let totalSize = 0;
 
+        // 파일별 검사
+        for (let file of files) {
             // 이미지 타입 체크
             if (!file.type.startsWith('image/')) {
                 showFileError('이미지 파일만 업로드 가능합니다.');
                 return;
             }
+            totalSize += file.size;
+        }
 
-            // 용량 체크 (파일 하나당 5MB)
-            if (file.size > MAX_SIZE) {
-                showFileError('이미지 파일은 1개당 5MB 이하만 업로드 가능합니다.');
-                return;
-            }
+        // 총 용량 체크
+        if (totalSize > MAX_TOTAL_SIZE) {
+            showFileError('새로 추가하는 이미지의 총 용량은 5MB 이하여야 합니다.');
+            return;
         }
 
         // 통과 시 메시지 초기화
@@ -313,17 +359,19 @@ function validateImageUpload(inputEl, msgEl) {
     }
 
     function clearFileError() {
-        msgEl.textContent = '여러 이미지를 한 번에 선택할 수 있습니다. (Ctrl/Cmd + 클릭)';
-        msgEl.style.color = '';
+        updateFileMsg();
         msgEl.style.fontWeight = '';
         msgEl.style.fontSize = '';
     }
 }
 
 // 적용
-const fileInput = document.querySelector('input[name="uploadFiles"]');
+const fileInput = document.getElementById('uploadFiles');
 const msg = document.getElementById('fileMsg');
 validateImageUpload(fileInput, msg);
+
+// 초기 메시지 설정
+updateFileMsg();
 
 
 
@@ -508,27 +556,51 @@ document.querySelector('form').addEventListener('submit', function(e) {
         return;
     }
 
+    // 이미지 개수 검증
+    const existingCount = getExistingImageCount();
+    const newFiles = document.getElementById('uploadFiles').files;
+    const totalImageCount = existingCount + newFiles.length;
+
+    if (totalImageCount > 3) {
+        e.preventDefault();
+        alert('이미지는 최대 3장까지 등록 가능합니다. (현재: ' + totalImageCount + '장)');
+        return;
+    }
+
+    // 새 이미지 총 용량 검증
+    if (newFiles.length > 0) {
+        let totalSize = 0;
+        for (let file of newFiles) {
+            totalSize += file.size;
+        }
+        if (totalSize > 5 * 1024 * 1024) {
+            e.preventDefault();
+            alert('새로 추가하는 이미지의 총 용량은 5MB 이하여야 합니다.');
+            return;
+        }
+    }
+
     // 판매 금액
-        const salePriceInput = document.getElementById('sale_price');
-        const salePrice = Number(salePriceInput.value);
+    const salePriceInput = document.getElementById('sale_price');
+    const salePrice = Number(salePriceInput.value);
 
-        if (isNaN(salePrice) || salePrice < 0 || salePrice > 10000000) {
-            e.preventDefault();
-            alert('판매 금액은 0원 이상 10,000,000원 이하로 입력해 주세요.');
-            salePriceInput.focus();
-            return;
-        }
+    if (isNaN(salePrice) || salePrice < 0 || salePrice > 10000000) {
+        e.preventDefault();
+        alert('판매 금액은 0원 이상 10,000,000원 이하로 입력해 주세요.');
+        salePriceInput.focus();
+        return;
+    }
 
-        // 배송비
-        const deliveryCostInput = document.getElementById('delivery_cost');
-        const deliveryCost = Number(deliveryCostInput.value);
+    // 배송비
+    const deliveryCostInput = document.getElementById('delivery_cost');
+    const deliveryCost = Number(deliveryCostInput.value);
 
-        if (isNaN(deliveryCost) || deliveryCost < 0 || deliveryCost > 50000) {
-            e.preventDefault();
-            alert('배송비는 0원 이상 50,000원 이하로 입력해 주세요.');
-            deliveryCostInput.focus();
-            return;
-        }
+    if (isNaN(deliveryCost) || deliveryCost < 0 || deliveryCost > 50000) {
+        e.preventDefault();
+        alert('배송비는 0원 이상 50,000원 이하로 입력해 주세요.');
+        deliveryCostInput.focus();
+        return;
+    }
 });
 
 </script>

@@ -50,8 +50,8 @@ public class MvcConfig implements WebMvcConfigurer {
     private String redisHost;
     @Value("${redis.port}")
     private int redisPort;
-    @Value("${file.dir}")
-    private String uploadPath;
+//    @Value("${file.dir}")
+//    private String uploadPath;
 
     // JSP ViewResolver
     @Override
@@ -73,11 +73,11 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     // 이미지 경로 매핑 (임시 S3사용시 필요없음)
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/img/**").
-                addResourceLocations("file:" + uploadPath + "/");
-    }
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/img/**").
+//                addResourceLocations("file:" + uploadPath + "/");
+//    }
 
     // hikaricp
     @Bean
