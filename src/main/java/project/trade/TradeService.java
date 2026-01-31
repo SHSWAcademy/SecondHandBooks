@@ -3,6 +3,9 @@ package project.trade;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.member.MemberVO;
@@ -16,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,7 +40,9 @@ public class TradeService {
     }
 
     // 판매글 단일 조회
+    @Cacheable(value = "trade", key = "#trade_seq", unless = "#result == null")
     public TradeVO search(long trade_seq) {
+        // 쿼리를 2번 조회하기 때문에 cache
         TradeVO findTrade = tradeMapper.findBySeq(trade_seq);
 
         if (findTrade == null) {
@@ -51,19 +57,24 @@ public class TradeService {
         return findTrade;
     }
 
-    // 페이징 조회
+    // 리스트 : 페이징 조회
+    @Cacheable(value = "tradeList",
+            key = "'page:' + #page + ':size:' + #size + ':cat:' +#searchVO.category_seq + ':word:' + #searchVO.search_word + ':sort:' +#searchVO.sort")
     public List<TradeVO> searchAllWithPaging(int page, int size, TradeVO searchVO) {
         int offset = (page - 1) * size;  // page가 1부터 시작한다고 가정
         return tradeMapper.findAllWithPaging(size, offset, searchVO);
     }
 
     // 전체 개수
+    @Cacheable(value = "tradeList",
+            key = "'count:cat:' + #searchVO.category_seq + ':word:' +#searchVO.search_word")
     public int countAll(TradeVO searchVO) {
         return tradeMapper.countAll(searchVO);
     }
 
     // 판매글 등록
     @Transactional
+    @CacheEvict(value = "tradeList", allEntries = true)
     public boolean upload(TradeVO tradeVO) {
 
         int result = tradeMapper.save(tradeVO);
@@ -81,10 +92,14 @@ public class TradeService {
 
     // 판매글 수정
     @Transactional
-    public boolean modify(Long tradeSeq, TradeVO updateTrade) {
+    @Caching(evict = {
+            @CacheEvict(value = "trade", key = "#trade_seq"),
+            @CacheEvict(value = "tradeList", allEntries = true)
+    })
+    public boolean modify(Long trade_seq, TradeVO updateTrade) {
         // tradeSeq : 기존 trade의 seq, updateTrade : 변경값을 담은 trade 객체
         // 변경하려는 trade에 현재 seq을 넣기
-        updateTrade.setTrade_seq(tradeSeq);
+        updateTrade.setTrade_seq(trade_seq);
 
         int result = tradeMapper.update(updateTrade);
         log.info("Updated result count = {}", result);
@@ -94,7 +109,7 @@ public class TradeService {
         if (newImgUrls == null) newImgUrls = new ArrayList<>();
 
         // 기존 이미지 목록 조회
-        List<TradeImageVO> existingImages = tradeMapper.findImgUrl(tradeSeq);
+        List<TradeImageVO> existingImages = tradeMapper.findImgUrl(trade_seq);
 
         // S3에서 삭제할 이미지 찾기 (기존 이미지 중 새 목록에 없는 것)
         if (existingImages != null && !existingImages.isEmpty()) {
@@ -120,13 +135,13 @@ public class TradeService {
         }
 
         // DB에서 기존 이미지 전부 삭제
-        bookImgMapper.deleteBySeq(tradeSeq);
+        bookImgMapper.deleteBySeq(trade_seq);
 
         // 새 이미지 목록이 있으면 저장 (유지할 이미지 + 새로 업로드한 이미지)
         if (!newImgUrls.isEmpty()) {
             for (String imgUrl : newImgUrls) {
-                log.info("Saving image: {} for trade_seq: {}", imgUrl, tradeSeq);
-                bookImgMapper.save(imgUrl, tradeSeq);
+                log.info("Saving image: {} for trade_seq: {}", imgUrl, trade_seq);
+                bookImgMapper.save(imgUrl, trade_seq);
             }
         }
         return result > 0;
@@ -135,10 +150,14 @@ public class TradeService {
 
     // 판매글 삭제
     @Transactional
-    public boolean remove(Long tradeSeq) {
+    @Caching(evict = {
+            @CacheEvict(value = "trade", key = "#trade_seq"),
+            @CacheEvict(value = "tradeList", allEntries = true)
+    })
+    public boolean remove(Long trade_seq) {
 
         // 이미지 url 조회
-        List<TradeImageVO> imgUrls = tradeMapper.findImgUrl(tradeSeq);
+        List<TradeImageVO> imgUrls = tradeMapper.findImgUrl(trade_seq);
         if (imgUrls != null && !imgUrls.isEmpty()) {
             List<String> s3UrlsToDelete = new ArrayList<>();
             for (TradeImageVO vo : imgUrls) {
@@ -163,9 +182,9 @@ public class TradeService {
             }
         }
 
-        bookImgMapper.deleteBySeq(tradeSeq); // 기존 이미지 url들을 db에서 먼저 삭제
+        bookImgMapper.deleteBySeq(trade_seq); // 기존 이미지 url들을 db에서 먼저 삭제
 
-        int result = tradeMapper.delete(tradeSeq);
+        int result = tradeMapper.delete(trade_seq);
         log.info("Deleted result count = {}", result);
 
         return result > 0;
@@ -178,19 +197,20 @@ public class TradeService {
     //public List<TradeVO> selectBookState() { return tradeMapper.findBookState(); }
 
     // 판매글 sale status를 sold로 업데이트
-    @Transactional
-    public void updateStatusToSold(Long trade_seq, String sold, Long member_buyer_seq) {
-        tradeMapper.updateStatus(trade_seq, sold, member_buyer_seq);
-    }
+//    @Transactional
+//    @CacheEvict(value = "trade", key = "#trade_seq")
+//    public void updateStatusToSold(Long trade_seq, String sold, Long member_buyer_seq) {
+//        tradeMapper.updateStatus(trade_seq, sold, member_buyer_seq);
+//    }
 
     // 안전 결제 상태 업데이트
     // 안전 결제 접근 시 인증 후 safe_payment_st를 PENDING으로 업데이트
     // 안전 결제로 판매 완료 시 sale_st를 sold로, safe_payment_st를 COMPLETED로 업데이트
     // 안전 결제로 결제 실패 시 safe_payment_st를 PENDING -> NONE으로 업데이트
-    @Transactional
-    public void updateSafePaymentStatus(long trade_seq, String status) {
-        tradeMapper.updateSafePaymentStatus(trade_seq, status);
-    }
+//    @Transactional
+//    public void updateSafePaymentStatus(long trade_seq, String status) {
+//        tradeMapper.updateSafePaymentStatus(trade_seq, status);
+//    }
 
     // 찜하기 insert
     @Transactional
@@ -314,26 +334,28 @@ public class TradeService {
     // 안전 결제 요청 처리 (트랜잭션으로 상태 체크, 업데이트 원자적 처리), 5분 만료 시간 설정
     // return true : 안전 결제 요청 성공, false : 이미 안전 결제 요청 처리
     @Transactional
+    @CacheEvict(value = "trade", key = "#trade_seq")
     public boolean requestSafePayment(long trade_seq, long pending_buyer_seq) {
         // 안전 결제 진행 중이 아닌 상태라면 PENDING(안전 결제 시작) 으로 변경 + 5분 만료 시간 설정
         tradeMapper.updateSafePaymentWithExpire(trade_seq, "PENDING", 5, pending_buyer_seq);
         return true; // 안전 결제 시작
     }
 
-    public Long getPendingBuyerSeq(long trade_seq) {
-        return tradeMapper.findPendingBuyerSeq(trade_seq);
-    }
+//    public Long getPendingBuyerSeq(long trade_seq) {
+//        return tradeMapper.findPendingBuyerSeq(trade_seq);
+//    }
 
 
     // 안전 결제 상태를 COMPLETED 로 변경
-    @Transactional
-    public void completeSafePayment(long trade_seq) {
-        tradeMapper.updateSafePaymentStatus(trade_seq, "COMPLETED");
-    }
+//    @Transactional
+//    public void completeSafePayment(long trade_seq) {
+//        tradeMapper.updateSafePaymentStatus(trade_seq, "COMPLETED");
+//    }
 
 
     // 안전 결제 실패, NONE 으로 update,  채팅방으로 다시 돌아가도록 하기
     @Transactional
+    @CacheEvict(value = "trade", key = "#trade_seq")
     public void cancelSafePayment(long trade_seq) {
         tradeMapper.updateSafePaymentStatus(trade_seq, "NONE");
     }
@@ -347,6 +369,7 @@ public class TradeService {
     }
 
     @Transactional
+    @CacheEvict(value = "trade", allEntries = true)
     public int resetExpiredSafePayments() {
         return tradeMapper.resetExpiredSafePayments();
     }
@@ -354,61 +377,66 @@ public class TradeService {
 
     // 판매자 수동 sold 변경
     @Transactional
+    @CacheEvict(value = "trade", key = "#trade_seq")
     public boolean updateToSoldManually(long trade_seq, long member_seq) {
         return tradeMapper.updateToSoldManually(trade_seq, member_seq) > 0;
     }
 
     // 구매 확정
     @Transactional
+    @CacheEvict(value = "trade", key = "#trade_seq")
     public boolean confirmPurchase(long trade_seq, long member_seq) {
         return tradeMapper.confirmPurchase(trade_seq, member_seq) > 0;
     }
 
     // 15일 지난 미확정 건 자동 확정
     @Transactional
+    @CacheEvict(value = "trade", allEntries = true)
     public int autoConfirmExpiredPurchases() {
         return tradeMapper.autoConfirmExpiredPurchases();
     }
 
     // 구매자의 안전결제 구매 내역 조회
-    public List<TradeVO> findPurchasesByBuyer(long member_seq) {
-        return tradeMapper.findPurchasesByBuyer(member_seq);
-    }
+//    public List<TradeVO> findPurchasesByBuyer(long member_seq) {
+//        return tradeMapper.findPurchasesByBuyer(member_seq);
+//    }
 
 
 
 
     // 수정 가능 여부 체크
-    public boolean canEdit(TradeVO trade, long member_seq) {
-        // 본인 글이 아니면 불가
-        if (trade.getMember_seller_seq() != member_seq) return false;
-        // sold면 불가
-        if ("sold".equals(trade.getSale_st())) return false;
-        // 안전결제 진행중(PENDING)이면 불가
-        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
-        return true;
-    }
-
-    // 삭제 가능 여부 체크
-    public boolean canDelete(TradeVO trade, long member_seq) {
-        // 본인 글이 아니면 불가
-        if (trade.getMember_seller_seq() != member_seq) return false;
-        // 안전결제 완료(COMPLETED)면 불가
-        if ("COMPLETED".equals(trade.getSafe_payment_st())) return false;
-        // 안전결제 진행중(PENDING)이면 불가
-        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
-        // 수동 sold(confirm_purchase가 null)면 삭제 가능
-        return true;
-    }
+//    public boolean canEdit(TradeVO trade, long member_seq) {
+//        // 본인 글이 아니면 불가
+//        if (trade.getMember_seller_seq() != member_seq) return false;
+//        // sold면 불가
+//        if ("sold".equals(trade.getSale_st())) return false;
+//        // 안전결제 진행중(PENDING)이면 불가
+//        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
+//        return true;
+//    }
+//
+//    // 삭제 가능 여부 체크
+//    public boolean canDelete(TradeVO trade, long member_seq) {
+//        // 본인 글이 아니면 불가
+//        if (trade.getMember_seller_seq() != member_seq) return false;
+//        // 안전결제 완료(COMPLETED)면 불가
+//        if ("COMPLETED".equals(trade.getSafe_payment_st())) return false;
+//        // 안전결제 진행중(PENDING)이면 불가
+//        if ("PENDING".equals(trade.getSafe_payment_st())) return false;
+//        // 수동 sold(confirm_purchase가 null)면 삭제 가능
+//        return true;
+//    }
 
 
     // 판매상태 수동 업데이트
     @Transactional
+    @CacheEvict(value = "trade", key = "#trade_seq")
     public boolean statusUpdate(long trade_seq) {
         return tradeMapper.statusUpdate(trade_seq, SaleStatus.SOLD) > 0;
     }
 
     @Transactional
+    @CacheEvict(value = "trade", key = "#tradeSeq")
     public void successPurchase(Long tradeSeq, long memberSeq, String postNo, String addrH, String addrD) {
         tradeMapper.successPurchase(tradeSeq, memberSeq, postNo, addrH, addrD);
     }
@@ -416,5 +444,37 @@ public class TradeService {
     @Transactional
     public PaymentVO getPaymentCheckInfo(Long trade_seq) {
         return tradeMapper.getPaymentCheckInfo(trade_seq);
+    }
+
+
+    @Caching(evict = {
+            @CacheEvict(value = "trade", allEntries = true),
+            @CacheEvict(value = "tradeList", allEntries = true)
+    })
+    @Transactional
+    public int deleteAllByMember(long member_seq) { // 회원이 탈퇴 시 회원이 작성한 trade 삭제
+        // 1. 해당 회원의 모든 Trade 이미지 URL 한번에 조회
+        List<String> allImageUrls =
+                tradeMapper.findAllImageUrlsByMember(member_seq);
+
+        // 2. S3 이미지 삭제
+        if (allImageUrls != null && !allImageUrls.isEmpty()) {
+            List<String> s3Urls = allImageUrls.stream()
+                    .filter(url -> url != null && url.startsWith("http"))
+                    .collect(Collectors.toList());
+
+            if (!s3Urls.isEmpty()) {
+                try {
+                    s3Service.deleteFilesByUrls(s3Urls);
+                    log.info("Deleted {} S3 images for member: {}", s3Urls.size(),
+                            member_seq);
+                } catch (Exception e) {
+                    log.error("Failed to delete S3 images: {}", e.getMessage());
+                }
+            }
+        }
+
+        // 3. Trade soft delete
+        return tradeMapper.deleteAll(member_seq);
     }
 }

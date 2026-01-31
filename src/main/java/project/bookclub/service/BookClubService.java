@@ -2,21 +2,26 @@ package project.bookclub.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import project.bookclub.ENUM.JoinRequestResult;
+import project.bookclub.dto.BookClubUpdateSettingsDTO;
 import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.util.S3Service;
 
-import project.bookclub.dto.BookClubPageResponse;
+import project.bookclub.dto.BookClubPageResponseDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 
@@ -36,12 +41,17 @@ public class BookClubService {
      * #1. 독서모임 메인 페이지
      */
     // #1-1. 전체 독서모임 리스트 조회 (최신순 정렬, 첫 페이지)
-    public List<BookClubVO> getBookClubList() {
-        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+    @Cacheable(value = "bookClubList", key = "'latest:first'")
+    public List<BookClubVO> getBookClubList(Long memberSeq) {
+        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0, memberSeq);
     }
+//    public List<BookClubVO> getBookClubList() {
+//        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+//    }
+
 
     // #1-2. 독서모임 검색 (정렬 + 페이징)
-    public BookClubPageResponse searchBookClubs(String keyword, String sort, int page) {
+    public BookClubPageResponseDTO searchBookClubs(String keyword, String sort, int page, Long memberSeq) {
         // 정렬 옵션 검증 (기본값: latest)
         if (sort == null || (!sort.equals("latest") && !sort.equals("activity"))) {
             sort = "latest";
@@ -58,7 +68,7 @@ public class BookClubService {
 
         // 키워드 없으면 전체 검색
         if (keyword == null || keyword.isBlank()) {
-            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
             totalElements = bookClubMapper.countAll();
         } else {
             List<String> tokens = new ArrayList<>();
@@ -68,17 +78,17 @@ public class BookClubService {
             }
 
             if (tokens.isEmpty()) {
-                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countAll();
             } else {
-                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countByKeyword(tokens);
             }
         }
 
         int totalPages = (int) Math.ceil((double) totalElements / DEFAULT_PAGE_SIZE);
 
-        return BookClubPageResponse.builder()
+        return BookClubPageResponseDTO.builder()
                 .content(content)
                 .page(page)
                 .size(DEFAULT_PAGE_SIZE)
@@ -90,6 +100,7 @@ public class BookClubService {
     }
 
     // #1-3. 독서모임 생성 가능 여부 : 로그인 여부, (추후) 생성 개수 제한, 권한
+    // 이거 안쓰고 있는거같은데 주석 칠까요 ?
     public boolean canCreateBookClub(Long memberId) {
         // 비로그인 시 생성 불가
         return memberId != null;
@@ -99,9 +110,11 @@ public class BookClubService {
      * #2. 독서모임 상세 페이지
      */
     // #2-1. 독서모임 1건 조회 (상세 페이지)
+    @Cacheable(value = "bookClub", key = "#bookClubSeq", unless = "#result ==null")
     public BookClubVO getBookClubById(Long bookClubSeq) {
         return bookClubMapper.selectById(bookClubSeq);
     }
+
 
     // #2-2. 특정 멤버가 JOINED 상태로 가입되어 있는지 확인
     public boolean isMemberJoined(Long bookClubSeq, Long memberSeq) {
@@ -454,6 +467,7 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
+    @CacheEvict(value = "bookClub", key = "#bookClubSeq")
     public void approveJoinRequest(Long bookClubSeq, Long requestSeq, Long leaderSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || requestSeq == null || leaderSeq == null) {
