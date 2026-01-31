@@ -13,13 +13,15 @@ public interface BookClubMapper {
     List<BookClubVO> searchAllWithSort(
             @Param("sort") String sort,
             @Param("limit") int limit,
-            @Param("offset") int offset);
+            @Param("offset") int offset,
+            @Param("memberSeq") Long memberSeq);
 
     List<BookClubVO> searchByKeywordWithSort(
             @Param("tokens") List<String> tokens,
             @Param("sort") String sort,
             @Param("limit") int limit,
-            @Param("offset") int offset);
+            @Param("offset") int offset,
+            @Param("memberSeq") Long memberSeq);
 
     // 전체 개수 조회 (페이징용)
     long countAll();
