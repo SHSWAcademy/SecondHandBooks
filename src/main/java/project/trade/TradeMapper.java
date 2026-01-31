@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
 import project.member.MemberVO;
+import project.payment.PaymentVO;
 import project.trade.ENUM.SaleStatus;
 
 import java.util.List;
@@ -81,4 +82,6 @@ public interface TradeMapper {
 
     // 이미지 조회
     List<TradeImageVO> findImgUrlByTradeSeqList(@Param("tradeSeqList") List<Long> tradeSeqList);
+
+    PaymentVO getPaymentCheckInfo(@Param("trade_seq") Long trade_seq);
 }

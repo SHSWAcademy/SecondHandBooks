@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.member.MemberVO;
+import project.payment.PaymentVO;
 import project.trade.ENUM.SaleStatus;
 import project.util.S3Service;
 import project.util.exception.TradeNotFoundException;
@@ -231,32 +232,32 @@ public class TradeService {
     // 구매내역
     public List<TradeVO> getPurchaseTrades(long member_seq) {
         List<TradeVO> trades = tradeMapper.selectPurchaseTrades(member_seq);
-
-        // trade_seq 모음
-        List<Long> tradeSeqList = new ArrayList<>();
-        for (TradeVO trade : trades) {
-            tradeSeqList.add(trade.getTrade_seq());
-        }
-
-        // trade_seq기준 이미지 조회
-        List<TradeImageVO> images = tradeMapper.findImgUrlByTradeSeqList(tradeSeqList);
-
-        // Map trade_seq를 키값으로 이미지객체 value에 넣기
-        Map<Long, List<TradeImageVO>> imgMap = new HashMap<>();
-        for (TradeImageVO img : images) {
-            Long trade_seq = img.getTrade_seq();
-            if (!imgMap.containsKey(trade_seq)) {
-                imgMap.put(trade_seq, new ArrayList<>());
-            }
-
-            imgMap.get(trade_seq).add(img);
-        }
-
-        // 위에서 출력된 trade객체의 trade_seq와 map의 key값인 trade_seq 값이 같다면 이미지객체 넣기
-        for (TradeVO trade : trades) {
-            trade.setTrade_img(imgMap.getOrDefault(trade.getTrade_seq(), new ArrayList<>()));
-        }
-
+//
+//        // trade_seq 모음
+//        List<Long> tradeSeqList = new ArrayList<>();
+//        for (TradeVO trade : trades) {
+//            tradeSeqList.add(trade.getTrade_seq());
+//        }
+//
+//        // trade_seq기준 이미지 조회
+//        List<TradeImageVO> images = tradeMapper.findImgUrlByTradeSeqList(tradeSeqList);
+//
+//        // Map trade_seq를 키값으로 이미지객체 value에 넣기
+//        Map<Long, List<TradeImageVO>> imgMap = new HashMap<>();
+//        for (TradeImageVO img : images) {
+//            Long trade_seq = img.getTrade_seq();
+//            if (!imgMap.containsKey(trade_seq)) {
+//                imgMap.put(trade_seq, new ArrayList<>());
+//            }
+//
+//            imgMap.get(trade_seq).add(img);
+//        }
+//
+//        // 위에서 출력된 trade객체의 trade_seq와 map의 key값인 trade_seq 값이 같다면 이미지객체 넣기
+//        for (TradeVO trade : trades) {
+//            trade.setTrade_img(imgMap.getOrDefault(trade.getTrade_seq(), new ArrayList<>()));
+//        }
+//
 //        for (TradeVO trade : trades) {
 //            List<TradeImageVO> images = tradeMapper.findImgUrl(trade.getTrade_seq());
 //            trade.setTrade_img(images);
@@ -269,31 +270,31 @@ public class TradeService {
     public List<TradeVO> getSaleTrades(long member_seq, String status) {
         List<TradeVO> trades =  tradeMapper.selectSaleTrades(member_seq, status);
 
-        // trade_seq 모음
-        List<Long> tradeSeqList = new ArrayList<>();
-        for (TradeVO trade : trades) {
-            tradeSeqList.add(trade.getTrade_seq());
-        }
-
-        // trade_seq기준 이미지 조회
-        List<TradeImageVO> images = tradeMapper.findImgUrlByTradeSeqList(tradeSeqList);
-
-        // Map trade_seq를 키값으로 이미지객체 value에 넣기
-        Map<Long, List<TradeImageVO>> imgMap = new HashMap<>();
-        for (TradeImageVO img : images) {
-            Long trade_seq = img.getTrade_seq();
-            if (!imgMap.containsKey(trade_seq)) {
-                imgMap.put(trade_seq, new ArrayList<>());
-            }
-
-            imgMap.get(trade_seq).add(img);
-        }
-
-        // 위에서 출력된 trade객체의 trade_seq와 map의 key값인 trade_seq 값이 같다면 이미지객체 넣기
-        for (TradeVO trade : trades) {
-            trade.setTrade_img(imgMap.getOrDefault(trade.getTrade_seq(), new ArrayList<>()));
-        }
-
+//        // trade_seq 모음
+//        List<Long> tradeSeqList = new ArrayList<>();
+//        for (TradeVO trade : trades) {
+//            tradeSeqList.add(trade.getTrade_seq());
+//        }
+//
+//        // trade_seq기준 이미지 조회
+//        List<TradeImageVO> images = tradeMapper.findImgUrlByTradeSeqList(tradeSeqList);
+//
+//        // Map trade_seq를 키값으로 이미지객체 value에 넣기
+//        Map<Long, List<TradeImageVO>> imgMap = new HashMap<>();
+//        for (TradeImageVO img : images) {
+//            Long trade_seq = img.getTrade_seq();
+//            if (!imgMap.containsKey(trade_seq)) {
+//                imgMap.put(trade_seq, new ArrayList<>());
+//            }
+//
+//            imgMap.get(trade_seq).add(img);
+//        }
+//
+//        // 위에서 출력된 trade객체의 trade_seq와 map의 key값인 trade_seq 값이 같다면 이미지객체 넣기
+//        for (TradeVO trade : trades) {
+//            trade.setTrade_img(imgMap.getOrDefault(trade.getTrade_seq(), new ArrayList<>()));
+//        }
+//
 //        // 각 거래에 이미지 리스트 채우기
 //        for (TradeVO trade : trades) {
 //            List<TradeImageVO> images = tradeMapper.findImgUrl(trade.getTrade_seq());
@@ -410,5 +411,10 @@ public class TradeService {
     @Transactional
     public void successPurchase(Long tradeSeq, long memberSeq, String postNo, String addrH, String addrD) {
         tradeMapper.successPurchase(tradeSeq, memberSeq, postNo, addrH, addrD);
+    }
+    // 결제창 진입 시 유효성 검사 항목
+    @Transactional
+    public PaymentVO getPaymentCheckInfo(Long trade_seq) {
+        return tradeMapper.getPaymentCheckInfo(trade_seq);
     }
 }
