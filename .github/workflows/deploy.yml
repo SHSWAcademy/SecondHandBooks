@@ -25,6 +25,12 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Create application.properties
+        run: |
+          cat > src/main/resources/application.properties << 'EOF'
+          ${{ secrets.APPLICATION_PROPERTIES }}
+          EOF
+
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
