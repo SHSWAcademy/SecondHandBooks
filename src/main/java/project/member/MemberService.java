@@ -9,6 +9,7 @@ import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
 import project.trade.TradeMapper;
+import project.trade.TradeService;
 
 import java.lang.reflect.Member;
 import java.util.List;
@@ -21,10 +22,10 @@ import java.util.Map;
 public class MemberService{
 
     private final MemberMapper memberMapper;
-    private final TradeMapper tradeMapper;
     private final BookClubMapper bookClubMapper;
 
     private final BookClubService bookClubService;
+    private final TradeService tradeService;
 
     @Transactional
     public boolean signUp(MemberVO vo) {
@@ -100,7 +101,7 @@ public class MemberService{
     public boolean deleteMember(long member_seq) {
         
         // 1. 탈퇴하는 회원이 쓴 Trade soft delete
-        int deleteTradeCount = tradeMapper.deleteAll(member_seq);
+        int deleteTradeCount = tradeService.deleteAllByMember(member_seq);
         log.info("delete trade count : {}", deleteTradeCount);
         
 

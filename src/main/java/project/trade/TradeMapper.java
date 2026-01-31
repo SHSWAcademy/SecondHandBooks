@@ -84,4 +84,6 @@ public interface TradeMapper {
     List<TradeImageVO> findImgUrlByTradeSeqList(@Param("tradeSeqList") List<Long> tradeSeqList);
 
     PaymentVO getPaymentCheckInfo(@Param("trade_seq") Long trade_seq);
+
+    List<String> findAllImageUrlsByMember(@Param("member_seq") long member_seq);
 }
