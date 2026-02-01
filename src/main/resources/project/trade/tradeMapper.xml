@@ -531,7 +531,7 @@
         FROM book_image bi
         JOIN sb_trade_info t ON bi.trade_seq = t.trade_seq
         WHERE t.member_seller_seq = #{member_seq}
-        AND t.del_dtm IS NULL
+        AND t.del_dtm is null
     </select>
 
 </mapper>
