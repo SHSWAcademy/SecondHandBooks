@@ -7,85 +7,114 @@
 
 <jsp:include page="header.jsp" />
 
+<style>
+    /* 3D Carousel Styles */
+    .carousel-container {
+        perspective: 1200px; /* 깊이감 증가 */
+        position: relative;
+        height: 440px; /* 높이 약간 증가 */
+        overflow: hidden; /* 영역 밖 숨김 */
+        padding-top: 40px;
+        padding-bottom: 60px; /* 하단 여백 확보 */
+        user-select: none;
+
+        /* [핵심] 하단 경계선을 부드럽게 만들기 위한 마스크 */
+        mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+    }
+
+    .carousel-item {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 70%; /* 너비 약간 축소하여 양옆 여유 확보 */
+        height: 100%;
+        transform: translateX(-50%) scale(0.85);
+        transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        opacity: 0;
+        z-index: 0;
+        border-radius: 2.5rem; /* 더 둥글게 */
+        box-shadow: 0 25px 60px -15px rgba(0,0,0,0.15); /* 그림자 부드럽게 */
+        overflow: hidden;
+        pointer-events: none;
+    }
+
 <div class="space-y-10 font-sans text-gray-900 animate-fade-in-up">
 
-    <div class="relative overflow-hidden rounded-[2rem] shadow-xl shadow-blue-100 h-[380px] transform transition-all hover:scale-[1.005] duration-500 group" id="bannerCarousel">
-        <div class="flex transition-transform duration-700 cubic-bezier(0.4, 0, 0.2, 1) h-full" id="bannerSlider">
-            <c:choose>
-                <c:when test="${not empty bannerList}">
-                    <c:forEach var="b" items="${bannerList}" varStatus="st">
-                        <div class="w-full flex-shrink-0 px-16 pb-12 flex items-center relative"
-                             style="background: linear-gradient(135deg, ${b.bgColorFrom}, ${b.bgColorTo});">
+    <div class="carousel-container relative" id="bannerContainer">
 
-                            <c:set var="alignClass" value="text-left" />
-                            <c:set var="posClass" value="mr-auto" />
-                            <c:set var="realSubtitle" value="${b.subtitle}" />
+        <c:choose>
+            <c:when test="${not empty bannerList}">
+                <c:forEach var="b" items="${bannerList}" varStatus="st">
+                    <div class="carousel-item flex items-center px-12 relative"
+                         data-index="${st.index}"
+                         style="background: linear-gradient(135deg, ${b.bgColorFrom}, ${b.bgColorTo});">
 
-                            <c:if test="${fn:contains(b.subtitle, '|||')}">
-                                <c:set var="parts" value="${fn:split(b.subtitle, '|')}" />
-                                <c:set var="alignClass" value="${parts[0]}" />
-                                <c:choose>
-                                    <c:when test="${alignClass eq 'text-center'}"><c:set var="posClass" value="mx-auto" /></c:when>
-                                    <c:when test="${alignClass eq 'text-right'}"><c:set var="posClass" value="ml-auto" /></c:when>
-                                </c:choose>
-                                <c:set var="lastIndex" value="${fn:length(parts) - 1}" />
-                                <c:set var="realSubtitle" value="${parts[lastIndex]}" />
-                            </c:if>
+                        <%-- 텍스트 정렬 및 부제목 파싱 로직 --%>
+                        <c:set var="alignClass" value="text-left" />
+                        <c:set var="posClass" value="mr-auto" />
+                        <c:set var="realSubtitle" value="${b.subtitle}" />
 
-                            <div class="z-10 text-white max-w-2xl w-full ${alignClass} ${posClass} space-y-5 mb-8">
-                                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md mb-2 shadow-inner">
-                                    <i data-lucide="${b.iconName != null ? b.iconName : 'star'}" class="w-7 h-7 text-white"></i>
-                                </div>
+                        <c:if test="${fn:contains(b.subtitle, '|||')}">
+                            <c:set var="parts" value="${fn:split(b.subtitle, '|')}" />
+                            <c:set var="alignClass" value="${parts[0]}" />
+                            <c:choose>
+                                <c:when test="${alignClass eq 'text-center'}"><c:set var="posClass" value="mx-auto" /></c:when>
+                                <c:when test="${alignClass eq 'text-right'}"><c:set var="posClass" value="ml-auto" /></c:when>
+                            </c:choose>
+                            <c:set var="lastIndex" value="${fn:length(parts) - 1}" />
+                            <c:set var="realSubtitle" value="${parts[lastIndex]}" />
+                        </c:if>
 
-                                <h1 class="text-5xl font-black tracking-tight leading-tight drop-shadow-sm">${b.title}</h1>
-                                <p class="text-white/90 text-xl font-medium tracking-wide leading-relaxed">${realSubtitle}</p>
-
-                                <c:if test="${not empty b.btnLink}">
-                                    <a href="${b.btnLink}" class="group inline-flex items-center gap-2 bg-white text-blue-900 px-7 py-3.5 rounded-full font-bold text-sm hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-                                            ${b.btnText}
-                                        <i data-lucide="arrow-right" class="w-4 h-4 text-blue-600 transition-transform group-hover:translate-x-1"></i>
-                                    </a>
-                                </c:if>
+                        <div class="z-10 text-white max-w-2xl w-full ${alignClass} ${posClass} space-y-6">
+                            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md mb-2 shadow-inner border border-white/10">
+                                <i data-lucide="${b.iconName != null ? b.iconName : 'star'}" class="w-6 h-6 text-white"></i>
                             </div>
+
+                            <h1 class="text-4xl md:text-5xl font-black tracking-tight leading-tight drop-shadow-sm">${b.title}</h1>
+                            <p class="text-white/90 text-lg font-medium tracking-wide leading-relaxed">${realSubtitle}</p>
+
+                            <c:if test="${not empty b.btnLink}">
+                                <a href="${b.btnLink}" class="inline-flex items-center gap-2 bg-white text-gray-900 px-8 py-3.5 rounded-full font-bold text-sm hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                                        ${b.btnText}
+                                    <i data-lucide="arrow-right" class="w-4 h-4 text-blue-600 transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                            </c:if>
                         </div>
-                    </c:forEach>
-                </c:when>
-                <c:otherwise>
-                    <div class="w-full flex-shrink-0 bg-gradient-to-br from-blue-600 to-blue-800 px-16 pb-12 flex items-center relative">
-                        <div class="z-10 text-white max-w-2xl mb-8">
-                            <h1 class="text-5xl font-black mb-4 tracking-tight">Secondary Books</h1>
-                            <p class="text-white/80 text-xl font-medium">Welcome. Experience better trading.</p>
-                        </div>
+
+                        <div class="absolute -right-20 -bottom-40 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
                     </div>
-                </c:otherwise>
-            </c:choose>
-        </div>
+                </c:forEach>
+            </c:when>
 
-        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-20 px-4 py-2 rounded-full" id="bannerDots">
-            <c:choose>
-                <c:when test="${not empty bannerList}">
-                    <c:forEach var="b" items="${bannerList}" varStatus="st">
-                        <button onclick="setBanner(${st.index})" class="h-1.5 rounded-full transition-all duration-300 shadow-sm ${st.first ? 'bg-white w-8' : 'bg-white/50 w-2 hover:bg-white/80'}"></button>
-                    </c:forEach>
-                </c:when>
-                <c:otherwise>
-                    <button class="w-8 h-1.5 rounded-full bg-white"></button>
-                </c:otherwise>
-            </c:choose>
-        </div>
+            <%-- 배너가 없을 경우 기본 배너 --%>
+            <c:otherwise>
+                <div class="carousel-item flex items-center px-16 relative bg-gradient-to-br from-blue-600 to-indigo-800" data-index="0">
+                    <div class="z-10 text-white max-w-2xl">
+                        <h1 class="text-5xl font-black mb-4 tracking-tight">Secondary Books</h1>
+                        <p class="text-white/80 text-xl font-medium">Welcome. Experience better trading.</p>
+                    </div>
+                </div>
+            </c:otherwise>
+        </c:choose>
 
-        <div class="absolute inset-0 flex justify-between items-center px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-            <button onclick="prevBanner()" class="pointer-events-auto bg-black/20 hover:bg-black/40 backdrop-blur-md p-3 rounded-full text-white transition-all transform hover:scale-110 border border-white/10">
-                <i data-lucide="chevron-left" class="w-6 h-6"></i>
-            </button>
-            <button onclick="nextBanner()" class="pointer-events-auto bg-black/20 hover:bg-black/40 backdrop-blur-md p-3 rounded-full text-white transition-all transform hover:scale-110 border border-white/10">
-                <i data-lucide="chevron-right" class="w-6 h-6"></i>
-            </button>
+        <button onclick="prevBanner()" class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/20 rounded-full text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+        </button>
+        <button onclick="nextBanner()" class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/20 rounded-full text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+        </button>
+
+        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30" id="bannerDots">
+            <c:if test="${not empty bannerList}">
+                <c:forEach var="b" items="${bannerList}" varStatus="st">
+                    <button onclick="setBanner(${st.index})" class="h-1.5 rounded-full transition-all duration-300 shadow-sm ${st.first ? 'bg-white w-8' : 'bg-white/40 w-2 hover:bg-white/60'}"></button>
+                </c:forEach>
+            </c:if>
         </div>
     </div>
 
     <div class="flex flex-col gap-6">
-
         <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-2">
             <div class="flex items-center gap-3">
                 <h2 class="text-3xl font-black text-gray-900 tracking-tight">전체 상품</h2>
@@ -102,9 +131,7 @@
                        placeholder="찾고 싶은 도서나 저자를 검색해보세요"
                        class="w-full pl-6 pr-16 py-4 bg-gray-50 border border-gray-200 rounded-full text-base font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white transition-all shadow-sm hover:shadow-md"
                 />
-
-                <button type="button"
-                        onclick="searchTrade()"
+                <button type="button" onclick="searchTrade()"
                         class="absolute right-2 top-1/2 transform -translate-y-1/2 w-11 h-11 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-md">
                     <i data-lucide="search" class="w-5 h-5"></i>
                 </button>
@@ -121,7 +148,6 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-
             <c:set var="btnBaseClass" value="px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 border border-transparent bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 active:scale-95" />
 
             <div class="relative">
@@ -193,53 +219,96 @@
 </style>
 
 <script>
-    // --- [1. 배너 로직] ---
+    // --- [1. 3D Carousel Logic (Fixed)] ---
     let currentBanner = 0;
-    const totalBanners = ${not empty bannerList ? fn:length(bannerList) : 1};
-    let openDropdown = null;
 
-    function setBanner(index) {
-        currentBanner = index;
-        updateBanner();
-    }
+    function updateCarousel() {
+        const slides = document.querySelectorAll('.carousel-item');
+        if (slides.length === 0) return;
 
-    function prevBanner() {
-        currentBanner = (currentBanner - 1 + totalBanners) % totalBanners;
-        updateBanner();
-    }
+        const count = slides.length;
 
-    function nextBanner() {
-        currentBanner = (currentBanner + 1) % totalBanners;
-        updateBanner();
-    }
+        slides.forEach((slide, index) => {
+            // 1. 모든 스타일 초기화 (Reset)
+            slide.className = 'carousel-item flex items-center px-12 relative';
+            slide.style.opacity = '0';
+            slide.style.zIndex = '0';
+            slide.style.pointerEvents = 'none';
+            slide.style.transform = 'translateX(-50%) scale(0.8)'; // 기본값 (숨김)
 
-    function updateBanner() {
-        const slider = document.getElementById('bannerSlider');
-        if (slider) {
-            slider.style.transform = `translateX(-\${currentBanner * 100}%)`;
-        }
+            // 2. 상태별 스타일 적용 (Apply State)
+            if (index === currentBanner) {
+                // Active (Center)
+                slide.classList.add('active');
+                slide.style.opacity = '1';
+                slide.style.zIndex = '20';
+                slide.style.pointerEvents = 'auto';
+                slide.style.transform = 'translateX(-50%) scale(1)';
+            }
+            else if (index === (currentBanner - 1 + count) % count) {
+                // Prev (Left)
+                slide.classList.add('prev');
+                slide.style.opacity = '0.4';
+                slide.style.zIndex = '10';
+                slide.style.transform = 'translateX(-120%) scale(0.85) rotateY(15deg)';
+            }
+            else if (index === (currentBanner + 1) % count) {
+                // Next (Right)
+                slide.classList.add('next');
+                slide.style.opacity = '0.4';
+                slide.style.zIndex = '10';
+                slide.style.transform = 'translateX(20%) scale(0.85) rotateY(-15deg)';
+            }
+        });
 
+        // 3. Dots 업데이트
         const dotsContainer = document.getElementById('bannerDots');
-        if (dotsContainer) {
+        if (dotsContainer && dotsContainer.children.length === count) {
             const dots = dotsContainer.children;
             for (let i = 0; i < dots.length; i++) {
                 if (i === currentBanner) {
-                    // Active Dot
-                    dots[i].classList.remove('bg-white/50', 'w-2');
+                    dots[i].classList.remove('bg-white/40', 'w-2');
                     dots[i].classList.add('bg-white', 'w-8');
                 } else {
-                    // Inactive Dot
                     dots[i].classList.remove('bg-white', 'w-8');
-                    dots[i].classList.add('bg-white/50', 'w-2');
+                    dots[i].classList.add('bg-white/40', 'w-2');
                 }
             }
         }
     }
 
-    setInterval(nextBanner, 5000);
+    function setBanner(index) {
+        currentBanner = index;
+        updateCarousel();
+    }
+
+    function prevBanner() {
+        const slides = document.querySelectorAll('.carousel-item');
+        if(slides.length === 0) return;
+        currentBanner = (currentBanner - 1 + slides.length) % slides.length;
+        updateCarousel();
+    }
+
+    function nextBanner() {
+        const slides = document.querySelectorAll('.carousel-item');
+        if(slides.length === 0) return;
+        currentBanner = (currentBanner + 1) % slides.length;
+        updateCarousel();
+    }
+
+    // Auto Play with Hover Pause
+    let autoPlayInterval = setInterval(nextBanner, 5000);
+    const container = document.getElementById('bannerContainer');
+    if(container) {
+        container.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+        container.addEventListener('mouseleave', () => {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = setInterval(nextBanner, 5000);
+        });
+    }
 
 
-    // --- [2. 검색 및 필터 로직] ---
+    // --- [2. 검색 및 필터 로직 (기존 유지)] ---
     const tradeFilter = {
         categorySeq: null,
         book_st: null,
@@ -249,9 +318,10 @@
         sort: null
     };
 
+    let openDropdown = null;
+
     function loadTrade() {
         const data = { page: tradeFilter.page };
-
         if (tradeFilter.categorySeq) data.category_seq = tradeFilter.categorySeq;
         if (tradeFilter.book_st) data.book_st = tradeFilter.book_st;
         if (tradeFilter.search_word) data.search_word = tradeFilter.search_word;
@@ -266,13 +336,11 @@
             success: function (html, status, xhr) {
                 $('#tradelist').html(html);
                 const totalCount = xhr.getResponseHeader('X-Total-Count');
-                if(totalCount !== null) {
-                    $('#tradeTotalCount').text(totalCount);
-                }
+                if(totalCount !== null) $('#tradeTotalCount').text(totalCount);
                 openDropdown = null;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             },
-            error: function (xhr, status, error) { console.error('AJAX 오류:', error); }
+            error: function (xhr) { console.error('AJAX 오류:', xhr); }
         });
     }
 
@@ -283,43 +351,26 @@
         loadTrade();
     }
 
-    function goPage(page) {
-        tradeFilter.page = page;
-        loadTrade();
-    }
-
     function updateSortCss() {
-        const allSorts = ['sortNewest', 'sortPrice', 'sortLikes'];
-        allSorts.forEach(id => {
-            const el = document.getElementById(id);
-            // Default Style
-            el.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-900 hover:bg-gray-200/50';
-        });
+        const ids = ['sortNewest', 'sortPrice', 'sortLikes'];
+        ids.forEach(id => document.getElementById(id).className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all text-gray-500 hover:text-gray-900 hover:bg-gray-200/50');
 
-        // Active Style (White bg + Shadow)
         let activeId = 'sortNewest';
         if (tradeFilter.sort === 'priceAsc') activeId = 'sortPrice';
         if (tradeFilter.sort === 'likeDesc') activeId = 'sortLikes';
 
-        const activeEl = document.getElementById(activeId);
-        activeEl.className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-gray-900 shadow-sm ring-1 ring-black/5';
+        document.getElementById(activeId).className = 'px-4 py-2 rounded-lg text-sm font-bold transition-all bg-white text-gray-900 shadow-sm ring-1 ring-black/5';
     }
 
-    // --- 필터 버튼 스타일 관리 (Blue 포인트 적용) ---
     function updateFilterBtnStyle(btnId, isActive) {
         const btn = document.getElementById(btnId);
-        // 기본 클래스
-        let baseClass = "px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 border border-transparent bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 active:scale-95";
-
+        const baseClass = "px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 border border-transparent bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 active:scale-95";
         if (isActive) {
-            // 활성 상태 (Blue Background)
             btn.className = "px-5 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 border border-transparent bg-blue-600 text-white shadow-md hover:bg-blue-700 active:scale-95";
-            const icon = btn.querySelector('svg');
-            if(icon) icon.classList.replace('text-gray-400', 'text-white/80');
+            btn.querySelector('svg')?.classList.replace('text-gray-400', 'text-white/80');
         } else {
             btn.className = baseClass;
-            const icon = btn.querySelector('svg');
-            if(icon) icon.classList.replace('text-white/80', 'text-gray-400');
+            btn.querySelector('svg')?.classList.replace('text-white/80', 'text-gray-400');
         }
     }
 
@@ -329,58 +380,39 @@
         document.getElementById('categoryText').innerText = name;
         document.getElementById('categoryDropdown').classList.add('hidden');
         updateFilterBtnStyle('categoryBtn', seq !== null);
-        openDropdown = null;
         loadTrade();
     }
 
-    function selectBookStatus(book_st, name) {
-        tradeFilter.book_st = book_st;
+    function selectBookStatus(st, name) {
+        tradeFilter.book_st = st;
         tradeFilter.page = 1;
         document.getElementById('conditionText').innerText = name;
         document.getElementById('conditionDropdown').classList.add('hidden');
-        updateFilterBtnStyle('conditionBtn', book_st !== null);
-        openDropdown = null;
+        updateFilterBtnStyle('conditionBtn', st !== null);
         loadTrade();
     }
 
-    function selectSaleStatus(sale_st, name) {
-        tradeFilter.sale_st = sale_st;
+    function selectSaleStatus(st, name) {
+        tradeFilter.sale_st = st;
         tradeFilter.page = 1;
         document.getElementById('saleStatusText').innerText = name;
         document.getElementById('saleStatusDropdown').classList.add('hidden');
-        updateFilterBtnStyle('saleStatusBtn', sale_st !== 'SALE');
-        openDropdown = null;
+        updateFilterBtnStyle('saleStatusBtn', st !== 'SALE');
         loadTrade();
     }
 
     function searchTrade() {
-        const keyword = document.getElementById('searchInput').value;
-        tradeFilter.search_word = keyword;
+        tradeFilter.search_word = document.getElementById('searchInput').value;
         tradeFilter.page = 1;
         loadTrade();
     }
 
-    document.getElementById('searchInput').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') searchTrade();
-    });
-
-    function toggleDropdown(type) {
-        const dropdown = document.getElementById(type + 'Dropdown');
-        if (openDropdown && openDropdown !== dropdown) {
-            openDropdown.classList.add('hidden');
-        }
-        dropdown.classList.toggle('hidden');
-        openDropdown = dropdown.classList.contains('hidden') ? null : dropdown;
+    function toggleDropdown(id) {
+        const el = document.getElementById(id + 'Dropdown');
+        if (openDropdown && openDropdown !== el) openDropdown.classList.add('hidden');
+        el.classList.toggle('hidden');
+        openDropdown = el.classList.contains('hidden') ? null : el;
     }
-
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('.relative')) {
-            if (openDropdown) {
-                openDropdown.classList.add('hidden');
-                openDropdown = null;
-            }
-        }
-    });
 
     function resetFilters() {
         tradeFilter.categorySeq = null;
@@ -395,22 +427,25 @@
         document.getElementById('conditionText').innerText = '상품 상태';
         document.getElementById('saleStatusText').innerText = '판매중';
 
-        updateFilterBtnStyle('categoryBtn', false);
-        updateFilterBtnStyle('conditionBtn', false);
-        updateFilterBtnStyle('saleStatusBtn', false);
-
-        if (openDropdown) {
-            openDropdown.classList.add('hidden');
-            openDropdown = null;
-        }
+        ['categoryBtn', 'conditionBtn', 'saleStatusBtn'].forEach(id => updateFilterBtnStyle(id, false));
+        if(openDropdown) openDropdown.classList.add('hidden');
 
         updateSortCss();
         loadTrade();
     }
 
-    updateSortCss();
+    // Init Logic
+    document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key === 'Enter') searchTrade() });
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.relative') && openDropdown) {
+            openDropdown.classList.add('hidden');
+            openDropdown = null;
+        }
+    });
+
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    $(document).ready(function() { loadTrade(); });
+    updateCarousel();
+    $(document).ready(() => loadTrade());
 
 </script>
 
