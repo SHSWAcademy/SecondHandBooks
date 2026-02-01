@@ -49,6 +49,9 @@ public class WebClientConfig {
     @Value("${api.naver.api-url}") // https://openapi.naver.com (사용자 정보 조회용)
     private String naverApiUrl;
 
+    @Value("${api.kakao.book-url}")
+    private String kakaoBookUrl;
+
     /*
     @Value("${api.kakao.rest-api-key}")
     private String kakaoRestApiKey;
@@ -153,8 +156,7 @@ public class WebClientConfig {
                 .build();
     }
 
-    /*
-    // 2. 카카오 도서 검색 API
+    // 6. 카카오 도서 검색 API
     @Bean
     public WebClient kakaoBookWebClient() {
         // http 커넥션풀 설정
@@ -172,6 +174,8 @@ public class WebClientConfig {
                 .build();
     }
 
+
+    /*
     // 3. 카카오 로그인 API
     // http 커넥션풀 설정
     @Bean

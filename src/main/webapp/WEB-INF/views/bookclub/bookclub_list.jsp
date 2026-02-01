@@ -97,8 +97,20 @@
                                                 <div class="card-banner">
                                                     <c:choose>
                                                         <c:when test="${not empty club.banner_img_url}">
-                                                            <img src="<c:out value='${club.banner_img_url}'/>"
-                                                                alt="<c:out value='${club.book_club_name}'/> 배너">
+                                                            <%-- S3 URL (http/https)는 그대로, 로컬 경로(/)는 contextPath 붙임 --%>
+                                                            <c:choose>
+                                                                <c:when test="${club.banner_img_url.startsWith('http://') or club.banner_img_url.startsWith('https://')}">
+                                                                    <c:set var="bannerSrc" value="${club.banner_img_url}" />
+                                                                </c:when>
+                                                                <c:when test="${club.banner_img_url.startsWith('/')}">
+                                                                    <c:set var="bannerSrc" value="${pageContext.request.contextPath}${club.banner_img_url}" />
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <c:set var="bannerSrc" value="${club.banner_img_url}" />
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                            <img src="${fn:escapeXml(bannerSrc)}"
+                                                                alt="${fn:escapeXml(club.book_club_name)} 배너">
                                                         </c:when>
                                                         <c:otherwise>
                                                             <div class="card-banner-placeholder">
@@ -452,12 +464,18 @@
 
                     // 찜 토글
                     function toggleWish(clubSeq, btn) {
+                        var csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+                        var csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                        var headers = {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        };
+                        if (csrfToken && csrfHeader) {
+                            headers[csrfHeader] = csrfToken;
+                        }
                         fetch('${pageContext.request.contextPath}/bookclubs/' + clubSeq + '/wish', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
+                            headers: headers
                         })
                         .then(function(res) { return res.json(); })
                         .then(function(data) {

@@ -39,6 +39,54 @@
             }
             window.location.href = '/login?redirect=' + encodeURIComponent(currentUrl);
         }
+
+        // 세션 만료(강제 로그아웃) 처리를 위한 전역 fetch 인터셉터
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                return originalFetch.apply(this, args).then(function(response) {
+                    // 401 응답 시 세션 만료 처리
+                    if (response.status === 401) {
+                        // JSON 응답인 경우 파싱 시도
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.clone().json().then(function(data) {
+                                if (data.error === 'SESSION_EXPIRED') {
+                                    alert(data.message || '세션이 만료되었습니다. 다시 로그인해주세요.');
+                                    window.location.href = data.redirectUrl || '/login';
+                                    // 빈 응답 반환하여 후속 처리 방지
+                                    return new Response(JSON.stringify(data), {
+                                        status: 401,
+                                        headers: { 'Content-Type': 'application/json' }
+                                    });
+                                }
+                                return response;
+                            }).catch(function() {
+                                return response;
+                            });
+                        }
+                    }
+                    return response;
+                });
+            };
+
+            // jQuery AJAX도 처리 (있는 경우)
+            if (typeof $ !== 'undefined' && $.ajaxSetup) {
+                $(document).ajaxError(function(event, xhr, settings, error) {
+                    if (xhr.status === 401) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            if (data.error === 'SESSION_EXPIRED') {
+                                alert(data.message || '세션이 만료되었습니다. 다시 로그인해주세요.');
+                                window.location.href = data.redirectUrl || '/login';
+                            }
+                        } catch (e) {
+                            // JSON 파싱 실패 시 무시
+                        }
+                    }
+                });
+            }
+        })();
     </script>
     <style>
         .glass-header {
@@ -115,32 +163,46 @@
 
 <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-12 min-h-[calc(100vh-200px)]">
 
+
+
+
+
 <c:if test="${not empty sessionScope.adminSess or not empty sessionScope.loginSess}">
-  <script>
-  (function() {
-      // 1. 페이지 로드 시: 관리자든 회원이든 일단 펜딩된 로그아웃을 취소함
-      document.addEventListener('DOMContentLoaded', function() {
-          // 관리자 세션이 있을 때는 관리자용 취소 API 호출
-          <c:if test="${not empty sessionScope.adminSess}">
-          fetch('/admin/api/cancel-logout', { method: 'POST', credentials: 'same-origin' });
-          </c:if>
+<script>var isAdmin = false;</script>
+<c:if test="${not empty sessionScope.adminSess}"><script>isAdmin = true;</script></c:if>
+<script>var isMember = false;</script>
+<c:if test="${not empty sessionScope.loginSess}"><script>isMember = true;</script></c:if>
+<script>
+(function() {
+    function getCsrf() {
+        const tokenMeta = document.querySelector('meta[name=\"_csrf\"]');
+        const headerMeta = document.querySelector('meta[name=\"_csrf_header\"]');
+        return {
+            token: tokenMeta ? tokenMeta.getAttribute('content') : null,
+            header: headerMeta ? headerMeta.getAttribute('content') : null
+        };
+    }
 
-          // 일반 회원 세션이 있을 때는 회원용 취소 API 호출
-          <c:if test="${not empty sessionScope.loginSess}">
-          fetch('/api/member/cancel-logout', { method: 'POST', credentials: 'same-origin' });
-          </c:if>
-      });
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrf = getCsrf();
+        const headers = {};
+        if (csrf.token && csrf.header) headers[csrf.header] = csrf.token;
 
-      // 2. 페이지 떠날 때: 일단 펜딩 신호를 보냄
-      window.addEventListener('pagehide', function() {
-          <c:if test="${not empty sessionScope.adminSess}">
-          navigator.sendBeacon('/admin/api/logout-pending');
-          </c:if>
-
-          <c:if test="${not empty sessionScope.loginSess}">
-          navigator.sendBeacon('/api/member/logout-pending');
-          </c:if>
-      });
-  })();
-  </script>
+        if (isAdmin) {
+            fetch('/admin/api/cancel-logout', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers
+            });
+        }
+        if (isMember) {
+            fetch('/api/member/cancel-logout', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers
+            });
+        }
+    });
+})();
+</script>
 </c:if>

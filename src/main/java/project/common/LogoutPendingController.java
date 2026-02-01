@@ -89,6 +89,7 @@ public class LogoutPendingController {
         if (user != null) {
             Long userSeq = extractUserSeq(userType, user);
             logoutPendingManager.removePending(userType, userSeq);
+            logoutPendingManager.removeForceLogout(userType, userSeq);
             result.put("success", true);
         } else {
             result.put("success", false);

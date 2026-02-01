@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import project.admin.AdminVO;
 import project.bookclub.ENUM.JoinRequestResult;
-import project.bookclub.dto.BookClubPageResponse;
+import project.bookclub.dto.BookClubPageResponseDTO;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
@@ -147,20 +147,10 @@ public class BookClubController {
 
     @GetMapping
     public String getBookClubs(Model model, HttpSession session) {
-        List<BookClubVO> bookClubs = bookClubService.getBookClubList();
-
-        // 로그인 사용자의 찜 여부 설정
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
 
-        for (BookClubVO club : bookClubs) {
-            // 찜 개수 설정
-            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
-            // 로그인 시 찜 여부 설정
-            if (memberSeq != null) {
-                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
-            }
-        }
+        List<BookClubVO> bookClubs = bookClubService.getBookClubList(memberSeq);
 
         model.addAttribute("bookclubList", bookClubs);
         model.addAttribute("kakaoJsKey", kakaoJsKey);
@@ -169,23 +159,15 @@ public class BookClubController {
 
     @GetMapping("/search")
     @ResponseBody
-    public BookClubPageResponse searchBookClubs(
+    public BookClubPageResponseDTO searchBookClubs(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false, defaultValue = "latest") String sort,
             @RequestParam(required = false, defaultValue = "0") int page,
             HttpSession session) {
-        BookClubPageResponse response = bookClubService.searchBookClubs(keyword, sort, page);
-
-        // 로그인 사용자의 찜 여부 설정
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
         Long memberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
 
-        for (BookClubVO club : response.getContent()) {
-            club.setWish_count(bookClubService.getWishCount(club.getBook_club_seq()));
-            if (memberSeq != null) {
-                club.setWished(bookClubService.isWished(club.getBook_club_seq(), memberSeq));
-            }
-        }
+        BookClubPageResponseDTO response = bookClubService.searchBookClubs(keyword, sort, page, memberSeq);
 
         return response;
     }
@@ -219,11 +201,11 @@ public class BookClubController {
 
         if (bannerImg != null && !bannerImg.isEmpty()) {
             try {
-                String savedFileName = saveFile(bannerImg);
-                vo.setBanner_img_url("/img/" + savedFileName);
-                log.info("Banner image saved: {}", savedFileName);
+                String s3Url = saveFile(bannerImg);
+                vo.setBanner_img_url(s3Url);  // S3 전체 URL 저장
+                log.info("Banner image uploaded to S3: {}", s3Url);
             } catch (IOException e) {
-                log.error("Failed to save banner image", e);
+                log.error("Failed to upload banner image to S3", e);
                 return Map.of(
                         "status", "fail",
                         "message", "이미지 업로드에 실패했습니다.");
@@ -817,41 +799,47 @@ public class BookClubController {
     }
 
     /**
-     * 이미지 파일 저장 (FileStore 유틸리티 사용 - S3 전환 시 FileStore만 수정하면 됨)
-     * 이미지 파일만 허용 (jpg, jpeg, png, gif, webp, bmp)
+     * 이미지 파일 S3 업로드
+     * 이미지 파일만 허용 (jpg, jpeg, png, gif, webp)
+     * @return S3 전체 URL (예: https://secondarybooksimages.s3.ap-northeast-2.amazonaws.com/images/{UUID}.jpg)
      */
     private String saveFile(MultipartFile file) throws IOException {
         // 1. 파일명 유효성 검사
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isBlank()) {
-            throw new IllegalArgumentException("파일명이 유효하지 않습니다.");
+            throw new IOException("파일명이 유효하지 않습니다.");
         }
         if (!originalFilename.contains(".")) {
-            throw new IllegalArgumentException("확장자가 없는 파일은 업로드할 수 없습니다.");
+            throw new IOException("확장자가 없는 파일은 업로드할 수 없습니다.");
         }
 
         // 2. 확장자 화이트리스트 검증
         String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
         if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+            throw new IOException("허용되지 않는 파일 형식입니다.");
         }
 
         // 3. MIME 타입 검증
         String contentType = file.getContentType();
         if (contentType == null) {
-            throw new IllegalArgumentException("파일 형식을 확인할 수 없습니다.");
+            throw new IOException("파일 형식을 확인할 수 없습니다.");
         }
         if (!ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
-            throw new IllegalArgumentException("허용되지 않는 파일 형식입니다.");
+            throw new IOException("허용되지 않는 파일 형식입니다.");
         }
 
         // 4. 파일 크기 검증
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new IllegalArgumentException("파일 크기는 5MB를 초과할 수 없습니다.");
+            throw new IOException("파일 크기는 5MB를 초과할 수 없습니다.");
         }
 
-        var uploadFile = fileStore.storeFile(file);
-        return uploadFile.getStoreFileName();
+        // 5. S3 업로드 (전체 URL 반환)
+        try {
+            return s3Service.uploadFile(file);
+        } catch (Exception e) {
+            // S3 업로드 실패 (SdkClientException 등) → IOException으로 래핑
+            throw new IOException("S3 업로드 실패: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -940,11 +928,10 @@ public class BookClubController {
         String savedImageUrl = null;
         if (boardImage != null && !boardImage.isEmpty()) {
             try {
-                String savedFileName = saveFile(boardImage);
-                savedImageUrl = "/img/" + savedFileName;
-                log.info("Board image saved: {}", savedFileName);
+                savedImageUrl = saveFile(boardImage);  // S3 URL 직접 저장
+                log.info("Board image uploaded to S3: {}", savedImageUrl);
             } catch (IOException e) {
-                log.error("Failed to save board image", e);
+                log.error("Failed to upload board image to S3", e);
                 redirectAttributes.addFlashAttribute("errorMessage", "이미지 업로드에 실패했습니다.");
                 return "redirect:/bookclubs/" + bookClubId + "/posts";
             }
@@ -1083,16 +1070,16 @@ public class BookClubController {
         }
 
         // 5. 이미지 파일 처리
-        String savedImageUrl = existingPost.getBoard_img_url(); // 기존 이미지 유지 기본값
+        String oldImageUrl = existingPost.getBoard_img_url(); // 기존 이미지 URL (S3 삭제용)
+        String savedImageUrl = oldImageUrl; // 기존 이미지 유지 기본값
 
         if (boardImage != null && !boardImage.isEmpty()) {
             // 새 이미지 업로드
             try {
-                String savedFileName = saveFile(boardImage);
-                savedImageUrl = "/img/" + savedFileName;
-                log.info("Board image updated: {}", savedFileName);
+                savedImageUrl = saveFile(boardImage);  // S3 URL 직접 저장
+                log.info("Board image updated to S3: {}", savedImageUrl);
             } catch (IOException e) {
-                log.error("Failed to save board image", e);
+                log.error("Failed to upload board image to S3", e);
                 redirectAttributes.addFlashAttribute("errorMessage", "이미지 업로드에 실패했습니다.");
                 return "redirect:/bookclubs/" + bookClubId + "/posts/" + postId + "/edit";
             }
@@ -1114,9 +1101,10 @@ public class BookClubController {
         boardVO.setBook_author(bookAuthor);
         boardVO.setBook_img_url(bookImgUrl);
 
-        boolean updated = bookClubService.updateBoardPost(boardVO);
+        boolean updated = bookClubService.updateBoardPost(boardVO, oldImageUrl);
 
         if (updated) {
+
             redirectAttributes.addFlashAttribute("successMessage", "게시글이 수정되었습니다.");
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 수정에 실패했습니다.");

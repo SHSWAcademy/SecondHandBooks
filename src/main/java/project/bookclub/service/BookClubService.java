@@ -2,18 +2,26 @@ package project.bookclub.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import project.bookclub.ENUM.JoinRequestResult;
+import project.bookclub.dto.BookClubUpdateSettingsDTO;
 import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
+import project.util.S3Service;
 
-import project.bookclub.dto.BookClubPageResponse;
+import project.bookclub.dto.BookClubPageResponseDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 
@@ -25,6 +33,7 @@ import java.util.StringTokenizer;
 public class BookClubService {
 
     private final BookClubMapper bookClubMapper;
+    private final S3Service s3Service;
 
     private static final int DEFAULT_PAGE_SIZE = 20; // 5개 x 4줄
 
@@ -32,12 +41,17 @@ public class BookClubService {
      * #1. 독서모임 메인 페이지
      */
     // #1-1. 전체 독서모임 리스트 조회 (최신순 정렬, 첫 페이지)
-    public List<BookClubVO> getBookClubList() {
-        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+    @Cacheable(value = "bookClubList", key = "'latest:first'")
+    public List<BookClubVO> getBookClubList(Long memberSeq) {
+        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0, memberSeq);
     }
+//    public List<BookClubVO> getBookClubList() {
+//        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+//    }
+
 
     // #1-2. 독서모임 검색 (정렬 + 페이징)
-    public BookClubPageResponse searchBookClubs(String keyword, String sort, int page) {
+    public BookClubPageResponseDTO searchBookClubs(String keyword, String sort, int page, Long memberSeq) {
         // 정렬 옵션 검증 (기본값: latest)
         if (sort == null || (!sort.equals("latest") && !sort.equals("activity"))) {
             sort = "latest";
@@ -54,7 +68,7 @@ public class BookClubService {
 
         // 키워드 없으면 전체 검색
         if (keyword == null || keyword.isBlank()) {
-            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+            content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
             totalElements = bookClubMapper.countAll();
         } else {
             List<String> tokens = new ArrayList<>();
@@ -64,17 +78,17 @@ public class BookClubService {
             }
 
             if (tokens.isEmpty()) {
-                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchAllWithSort(sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countAll();
             } else {
-                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset);
+                content = bookClubMapper.searchByKeywordWithSort(tokens, sort, DEFAULT_PAGE_SIZE, offset, memberSeq);
                 totalElements = bookClubMapper.countByKeyword(tokens);
             }
         }
 
         int totalPages = (int) Math.ceil((double) totalElements / DEFAULT_PAGE_SIZE);
 
-        return BookClubPageResponse.builder()
+        return BookClubPageResponseDTO.builder()
                 .content(content)
                 .page(page)
                 .size(DEFAULT_PAGE_SIZE)
@@ -86,6 +100,7 @@ public class BookClubService {
     }
 
     // #1-3. 독서모임 생성 가능 여부 : 로그인 여부, (추후) 생성 개수 제한, 권한
+    // 이거 안쓰고 있는거같은데 주석 칠까요 ?
     public boolean canCreateBookClub(Long memberId) {
         // 비로그인 시 생성 불가
         return memberId != null;
@@ -95,9 +110,11 @@ public class BookClubService {
      * #2. 독서모임 상세 페이지
      */
     // #2-1. 독서모임 1건 조회 (상세 페이지)
+    @Cacheable(value = "bookClub", key = "#bookClubSeq", unless = "#result ==null")
     public BookClubVO getBookClubById(Long bookClubSeq) {
         return bookClubMapper.selectById(bookClubSeq);
     }
+
 
     // #2-2. 특정 멤버가 JOINED 상태로 가입되어 있는지 확인
     public boolean isMemberJoined(Long bookClubSeq, Long memberSeq) {
@@ -321,8 +338,16 @@ public class BookClubService {
 
     // #3-7. 게시글(원글) 수정
     @Transactional
-    public boolean updateBoardPost(BookClubBoardVO boardVO) {
+    public boolean updateBoardPost(BookClubBoardVO boardVO, String oldImageUrl) {
+        // 1. 게시글 UPDATE
         int result = bookClubMapper.updateBoardPost(boardVO);
+
+        // 2. 이미지가 교체/삭제되었으면 기존 S3 이미지 삭제 예약 (afterCommit)
+        String newImageUrl = boardVO.getBoard_img_url();
+        if (result > 0 && oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
+            scheduleS3DeletionAfterCommit(oldImageUrl);
+        }
+
         return result > 0;
     }
 
@@ -332,7 +357,19 @@ public class BookClubService {
         if (bookClubSeq == null || postId == null) {
             return false;
         }
+
+        // 1. 삭제 전에 이미지 URL 조회 (afterCommit 삭제용)
+        BookClubBoardVO boardVO = bookClubMapper.selectBoardDetail(bookClubSeq, postId);
+        String oldImageUrl = (boardVO != null) ? boardVO.getBoard_img_url() : null;
+
+        // 2. 게시글 소프트 딜리트 (board_deleted_yn=true)
         int result = bookClubMapper.deleteBoardPost(bookClubSeq, postId);
+
+        // 3. 삭제 성공 시 S3 이미지 삭제 예약 (afterCommit)
+        if (result > 0 && oldImageUrl != null && !oldImageUrl.isEmpty()) {
+            scheduleS3DeletionAfterCommit(oldImageUrl);
+        }
+
         return result > 0;
     }
 
@@ -430,6 +467,7 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
+    @CacheEvict(value = "bookClub", key = "#bookClubSeq")
     public void approveJoinRequest(Long bookClubSeq, Long requestSeq, Long leaderSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || requestSeq == null || leaderSeq == null) {
@@ -671,6 +709,9 @@ public class BookClubService {
             throw new IllegalStateException("존재하지 않는 모임입니다.");
         }
 
+        // 2-1. 기존 배너 URL 확보 (S3 삭제용)
+        String oldBannerUrl = bookClub.getBanner_img_url();
+
         // 3. 모임장 권한 확인
         if (!bookClub.getBook_club_leader_seq().equals(leaderSeq)) {
             log.warn("모임 설정 업데이트 실패: 모임장 아님 - bookClubSeq={}, leaderSeq={}, actualLeaderSeq={}",
@@ -713,13 +754,19 @@ public class BookClubService {
 
         log.info("모임 설정 업데이트 완료: bookClubSeq={}, newName={}", bookClubSeq, newName);
 
+        // 8. 배너가 교체되었으면 기존 S3 이미지 삭제 예약 (afterCommit)
+        String newBannerUrl = updatedBookClub.getBanner_img_url();
+        if (oldBannerUrl != null && !oldBannerUrl.equals(newBannerUrl)) {
+            scheduleS3DeletionAfterCommit(oldBannerUrl);
+        }
+
         // 프론트에서 사용할 업데이트된 정보 반환
         return java.util.Map.of(
                 "name", updatedBookClub.getBook_club_name(),
                 "description", updatedBookClub.getBook_club_desc(),
                 "region", updatedBookClub.getBook_club_rg() != null ? updatedBookClub.getBook_club_rg() : "",
                 "schedule", updatedBookClub.getBook_club_schedule() != null ? updatedBookClub.getBook_club_schedule() : "",
-                "bannerImgUrl", updatedBookClub.getBanner_img_url() != null ? updatedBookClub.getBanner_img_url() : ""
+                "bannerImgUrl", newBannerUrl != null ? newBannerUrl : ""
         );
     }
 
@@ -733,6 +780,57 @@ public class BookClubService {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /**
+     * afterCommit에서 S3 이미지 삭제 스케줄링 (트랜잭션 커밋 후 실행)
+     *
+     * @param oldUrl 삭제할 기존 S3 URL
+     */
+    private void scheduleS3DeletionAfterCommit(String oldUrl) {
+        // null/empty 체크
+        if (oldUrl == null || oldUrl.trim().isEmpty()) {
+            return;
+        }
+
+        // S3 URL인지 확인 (http/https로 시작하는 경우만)
+        // 로컬 경로(/img/...)는 제외
+        if (!oldUrl.startsWith("http://") && !oldUrl.startsWith("https://")) {
+            log.debug("Skipping non-S3 URL deletion: {}", oldUrl);
+            return;
+        }
+
+        // 트랜잭션이 활성화되어 있는지 확인 (Service 레이어이므로 항상 true)
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    deleteS3ImageSafely(oldUrl);
+                }
+            });
+            log.debug("Scheduled S3 deletion after commit: {}", oldUrl);
+        } else {
+            // Service 레이어에서는 거의 발생하지 않지만, 방어적으로 처리
+            log.warn("No active transaction in Service layer, skipping S3 deletion: {}", oldUrl);
+        }
+    }
+
+    /**
+     * S3 이미지 삭제 실행 (실패해도 예외를 던지지 않음)
+     * 커밋 후 실행되므로 실패해도 DB 트랜잭션에 영향 없음
+     *
+     * @param url 삭제할 S3 URL
+     */
+    private void deleteS3ImageSafely(String url) {
+        try {
+            log.info("Deleting old S3 image after commit: {}", url);
+            s3Service.deleteByUrl(url);
+            log.info("Successfully deleted old S3 image: {}", url);
+        } catch (Exception e) {
+            // 삭제 실패는 기능 실패로 보지 않음 (로그만 남김)
+            // 이미 커밋된 후라서 DB 롤백 불가능
+            log.error("Failed to delete old S3 image: {}, error: {}", url, e.getMessage(), e);
+        }
     }
 
     // #5-7. 멤버 탈퇴 (모임장 탈퇴 시 승계 또는 모임 종료 포함)
@@ -858,6 +956,11 @@ public class BookClubService {
             );
         } else {
             // 승계 대상이 없음 → 모임 종료
+            // 0) S3 삭제를 위해 배너 + 게시글 이미지 URL 미리 조회
+            BookClubVO bookClub = bookClubMapper.selectById(bookClubSeq);
+            String bannerUrl = (bookClub != null) ? bookClub.getBanner_img_url() : null;
+            List<String> postImageUrls = bookClubMapper.selectAllBoardImageUrls(bookClubSeq);
+
             // 1) 모임장 LEFT 처리
             int leaderLeftRows = bookClubMapper.updateMemberToLeft(bookClubSeq, memberSeq);
             if (leaderLeftRows == 0) {
@@ -871,6 +974,14 @@ public class BookClubService {
             if (closeRows == 0) {
                 log.warn("모임 종료 실패: book_club 삭제 실패 - bookClubSeq={}", bookClubSeq);
                 throw new IllegalStateException("모임 종료에 실패했습니다.");
+            }
+
+            // 3) S3 이미지 일괄 삭제 예약 (afterCommit)
+            scheduleS3DeletionAfterCommit(bannerUrl);
+            if (postImageUrls != null && !postImageUrls.isEmpty()) {
+                for (String imageUrl : postImageUrls) {
+                    scheduleS3DeletionAfterCommit(imageUrl);
+                }
             }
 
             log.info("모임장 탈퇴 + 모임 종료 완료: bookClubSeq={}, memberSeq={}", bookClubSeq, memberSeq);

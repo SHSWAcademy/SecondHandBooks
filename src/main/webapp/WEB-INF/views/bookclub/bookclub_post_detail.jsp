@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
 <!-- 독서모임 게시글 상세 페이지 전용 CSS -->
@@ -752,6 +753,7 @@
                                             <div class="bc-comment-edit-form" id="comment-edit-form-${c.book_club_board_seq}">
                                                 <form action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments/${c.book_club_board_seq}/edit"
                                                       method="post">
+                                                    <sec:csrfInput />
                                                     <textarea name="commentCont" class="bc-comment-edit-textarea"
                                                               required maxlength="500">${fn:escapeXml(c.board_cont)}</textarea>
                                                     <div class="bc-comment-edit-actions">
@@ -774,6 +776,7 @@
                             <form id="bcCommentForm" class="bc-comment-form"
                                   action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments"
                                   method="post">
+                                <sec:csrfInput />
                                 <textarea id="bcCommentTextarea" name="commentCont" class="bc-comment-textarea"
                                           placeholder="댓글을 입력하세요..." required maxlength="500"></textarea>
                                 <button id="bcCommentSubmit" type="submit" class="bc-comment-submit-btn"
@@ -795,7 +798,17 @@
 
 <!-- 삭제 폼 (JavaScript에서 동적 제출) -->
 <form id="deletePostForm" method="post" action="${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/delete" style="display: none;">
+    <sec:csrfInput />
 </form>
+
+<!-- CSRF 토큰 JS 전역 변수 (동적 폼/fetch용) -->
+<script>
+    window.CSRF = {
+        param: '${_csrf.parameterName}',
+        token: '${_csrf.token}',
+        header: '${_csrf.headerName}'
+    };
+</script>
 
 <script>
     function confirmDeletePost() {
@@ -825,6 +838,12 @@
             var form = document.createElement('form');
             form.method = 'post';
             form.action = '${pageContext.request.contextPath}/bookclubs/${bookClubId}/posts/${post.book_club_board_seq}/comments/' + commentId + '/delete';
+            // CSRF 토큰 hidden input 추가
+            var csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = window.CSRF.param;
+            csrfInput.value = window.CSRF.token;
+            form.appendChild(csrfInput);
             document.body.appendChild(form);
             form.submit();
         }
@@ -832,11 +851,16 @@
 
     // 좋아요 토글 (게시글/댓글 공통)
     function toggleLike(bookClubId, boardSeq, type) {
+        var headers = {
+            'Content-Type': 'application/json'
+        };
+        // CSRF 헤더 추가
+        if (window.CSRF && window.CSRF.header && window.CSRF.token) {
+            headers[window.CSRF.header] = window.CSRF.token;
+        }
         fetch('${pageContext.request.contextPath}/bookclubs/' + bookClubId + '/boards/' + boardSeq + '/like', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: headers
         })
         .then(response => response.json())
         .then(data => {

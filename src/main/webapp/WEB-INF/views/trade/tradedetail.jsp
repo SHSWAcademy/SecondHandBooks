@@ -28,13 +28,15 @@
                             <img id="mainImage"
                                  src="${firstImg.startsWith('http') ? firstImg : pageContext.request.contextPath.concat('/img/').concat(firstImg)}"
                                  alt="${trade.book_title}"
-                                 class="w-full h-full object-contain p-8 transition-transform duration-500" />
+                                 onclick="openHoloModal(this.src)"
+                                 class="w-full h-full object-contain p-8 transition-transform duration-500 cursor-zoom-in" />
                         </c:when>
                         <c:otherwise>
                             <img id="mainImage"
                                  src="${trade.book_img}"
                                  alt="${trade.book_title}"
-                                 class="w-full h-full object-contain p-8 transition-transform duration-500" />
+                                 onclick="openHoloModal(this.src)"
+                                 class="w-full h-full object-contain p-8 transition-transform duration-500" cursor-zoom-in/>
                         </c:otherwise>
                     </c:choose>
 
@@ -312,4 +314,5 @@ function toggleWish(tradeSeq) {
     });
 </script>
 
+<jsp:include page="include/holo_card_modal.jsp" />
 <jsp:include page="../common/footer.jsp" />
