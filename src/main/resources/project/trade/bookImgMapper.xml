@@ -15,7 +15,7 @@
     </insert>
 
     <select id="findImgUrl" resultType="java.lang.String">
-        SELECT img_url FROM book_img WHERE trade_seq = #{trade_seq}
+        SELECT img_url FROM book_image WHERE trade_seq = #{trade_seq}
     </select>
     <delete id="deleteBySeq" parameterType="long">
         DELETE FROM book_image
