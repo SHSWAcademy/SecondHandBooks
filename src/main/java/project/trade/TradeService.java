@@ -59,7 +59,7 @@ public class TradeService {
 
     // 리스트 : 페이징 조회
     @Cacheable(value = "tradeList",
-            key = "'page:' + #page + ':size:' + #size + ':cat:' +#searchVO.category_seq + ':word:' + #searchVO.search_word + ':sort:' +#searchVO.sort")
+            key = "'page:' + #page + ':size:' + #size + ':cat:' + #searchVO.category_seq + ':word:' +#searchVO.search_word + ':sort:' + #searchVO.sort + ':saleSt:' + #searchVO.sale_st")
     public List<TradeVO> searchAllWithPaging(int page, int size, TradeVO searchVO) {
         int offset = (page - 1) * size;  // page가 1부터 시작한다고 가정
         return tradeMapper.findAllWithPaging(size, offset, searchVO);
@@ -67,7 +67,7 @@ public class TradeService {
 
     // 전체 개수
     @Cacheable(value = "tradeList",
-            key = "'count:cat:' + #searchVO.category_seq + ':word:' +#searchVO.search_word")
+            key = "'count:cat:' + #searchVO.category_seq + ':word:' + #searchVO.search_word + ':saleSt:' +#searchVO.sale_st")
     public int countAll(TradeVO searchVO) {
         return tradeMapper.countAll(searchVO);
     }
