@@ -145,9 +145,6 @@
                                 </p>
                             </div>
                         </div>
-                        <button class="text-xs font-bold text-gray-400 hover:text-gray-900 underline decoration-gray-300 underline-offset-4 transition-colors">
-                            프로필 보기
-                        </button>
                     </div>
 
                     <!-- 상품설명 -->
