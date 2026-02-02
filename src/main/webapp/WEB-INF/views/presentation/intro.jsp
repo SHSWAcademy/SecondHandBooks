@@ -373,7 +373,236 @@
                     </div>
                 </div>
             </section>
+            <section class="py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
+                <div class="max-w-7xl mx-auto px-6 text-center">
+                    <div class="mb-20 reveal-text">
+                        <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">Growth Path</span>
+                        <h2 class="text-4xl font-black mb-4 text-gray-900">Project Evolution</h2>
+                        <p class="text-gray-500 font-medium">단순 구현에서 아키텍처 설계로, 끊임없는 기술적 도전의 여정</p>
+                    </div>
 
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 relative">
+
+                        <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-gray-200 via-green-200 to-orange-200 -translate-y-1/2 z-0 opacity-50"></div>
+
+                        <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 0ms;">
+                            <div class="bento-box p-8 border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 bg-white group">
+                                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-blue-100 text-[10px] font-bold text-blue-400 uppercase tracking-widest shadow-sm">
+                                    Mini
+                                </div>
+                                <div class="w-24 h-24 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                    <i data-lucide="gamepad-2" class="w-10 h-10 text-blue-500"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-6">Omok</h3>
+
+                                <div class="space-y-4 text-sm">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
+                                        <p class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">JDK 1.8</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
+                                        <p class="font-bold text-gray-700">JSP / Servlet</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
+                                        <p class="font-bold text-gray-700">MariaDB</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card relative z-10 w-full max-w-md transform md:-translate-y-4" style="transition-delay: 200ms;">
+                            <div class="absolute -inset-1 bg-gradient-to-br from-green-400 to-emerald-400 rounded-[28px] blur opacity-30 animate-pulse"></div>
+                            <div class="bento-box p-10 border-2 border-green-500 shadow-2xl bg-white relative">
+                                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-green-500 px-6 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">
+                                    First (Current)
+                                </div>
+                                <div class="w-28 h-28 mx-auto rounded-full bg-green-50 flex items-center justify-center mb-8 shadow-inner">
+                                    <i data-lucide="book-open-check" class="w-12 h-12 text-green-600"></i>
+                                </div>
+                                <h3 class="text-3xl font-black text-green-600 mb-8">SecondHand<br>Books</h3>
+
+                                <div class="space-y-5 text-base">
+                                    <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase">Language</span>
+                                        <span class="font-bold text-gray-900">Java 17</span>
+                                    </div>
+                                    <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase">Framework</span>
+                                        <span class="font-bold text-gray-900">Spring Legacy (JSP)</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase">Database</span>
+                                        <span class="font-bold text-gray-900">PostgreSQL</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 400ms;">
+                            <div class="bento-box p-8 border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 bg-white group opacity-80 hover:opacity-100">
+                                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-orange-100 text-[10px] font-bold text-orange-400 uppercase tracking-widest shadow-sm">
+                                    Second
+                                </div>
+                                <div class="w-24 h-24 mx-auto rounded-full bg-orange-50 flex items-center justify-center mb-6 shadow-inner group-hover:rotate-12 transition-transform duration-500">
+                                    <span class="text-4xl font-bold text-orange-400">?</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900 mb-6">Future Project</h3>
+
+                                <div class="space-y-4 text-sm">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
+                                        <p class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">Java 21</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
+                                        <p class="font-bold text-gray-700">SpringBoot / React</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
+                                        <p class="font-bold text-gray-700">MySQL</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            <section class="py-32 bg-gray-50 border-t border-gray-100">
+                <div class="max-w-3xl mx-auto px-6">
+                    <div class="text-center mb-16 reveal-text">
+                        <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">User Journey</span>
+                        <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
+                            구매 프로세스 <span class="text-gradient">Flow</span>
+                        </h2>
+                        <p class="text-gray-500 font-medium text-lg">
+                            사용자 관점의 중고책 거래 및 결제 흐름도
+                        </p>
+                    </div>
+
+                    <div class="w-full max-w-lg mx-auto space-y-2">
+
+                        <div class="reveal-card">
+                            <div class="bento-box p-6 flex items-center gap-6">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="edit-3" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 01</span>
+                                    <h3 class="text-xl font-bold text-gray-900">판매글 등록</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">카카오 REST API를 활용한 도서 정보 자동 입력 및 판매글 작성</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 100ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <div class="reveal-card" style="transition-delay: 200ms;">
+                            <div class="bento-box p-6 flex items-center gap-6">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="eye" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 02</span>
+                                    <h3 class="text-xl font-bold text-gray-900">판매글 확인</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자가 등록된 판매글 목록 및 상세 정보 열람</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 300ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <div class="reveal-card" style="transition-delay: 400ms;">
+                            <div class="bento-box p-6 flex items-center gap-6">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="message-circle" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 03</span>
+                                    <h3 class="text-xl font-bold text-gray-900">채팅 (1:1)</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">판매자와 구매자 간의 실시간 대화 및 거래 조율</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-4" style="transition-delay: 500ms;">
+                            <div class="bg-gray-200 rounded-full px-3 py-1 text-[10px] font-bold text-gray-500 inline-block mb-2">
+                                거래 방식 선택
+                            </div>
+                            <div class="flex justify-center gap-32 text-gray-300">
+                                <i data-lucide="corner-left-down" class="w-6 h-6"></i>
+                                <i data-lucide="corner-right-down" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card grid grid-cols-2 gap-4" style="transition-delay: 600ms;">
+                            <div class="bento-box p-5 flex flex-col items-center text-center hover:border-blue-200 hover:bg-blue-50/30 transition-colors">
+                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-3">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-600 uppercase mb-1">Option A</span>
+                                <h3 class="font-bold text-gray-900">안전결제</h3>
+                                <p class="text-xs text-gray-500 mt-2 leading-relaxed">
+                                    <strong>TossPay</strong> 연동<br>
+                                    에스크로 시스템 보호
+                                </p>
+                            </div>
+
+                            <div class="bento-box p-5 flex flex-col items-center text-center hover:border-green-200 hover:bg-green-50/30 transition-colors">
+                                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-3">
+                                    <i data-lucide="banknote" class="w-5 h-5"></i>
+                                </div>
+                                <span class="text-[10px] font-bold text-green-600 uppercase mb-1">Option B</span>
+                                <h3 class="font-bold text-gray-900">계좌이체</h3>
+                                <p class="text-xs text-gray-500 mt-2 leading-relaxed">
+                                    채팅방 입금 확인<br>
+                                    (판매자 수동 확인)
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 700ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <div class="reveal-card" style="transition-delay: 800ms;">
+                            <div class="bento-box p-6 flex items-center gap-6">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="list-checks" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 04</span>
+                                    <h3 class="text-xl font-bold text-gray-900">판매/구매 내역 확인</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">거래 완료 상태 변경 및 내역 리스트 조회</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 900ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <div class="reveal-card" style="transition-delay: 1000ms;">
+                            <div class="bento-box p-6 flex items-center gap-6 border-blue-100 bg-blue-50/10">
+                                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="check-circle" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest block mb-1">Final Step</span>
+                                    <h3 class="text-xl font-bold text-gray-900">구매 확정</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 (미확정 시 7일 후 자동 확정)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <!-- TECHNICAL DEEP DIVE Section (Light Mode Redesign) -->
             <section class="py-32 px-6 bg-white border-t border-gray-100">
                 <div class="max-w-7xl mx-auto">
