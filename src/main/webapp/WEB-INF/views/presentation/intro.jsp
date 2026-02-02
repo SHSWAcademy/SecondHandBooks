@@ -354,9 +354,9 @@
                                 class="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-6">
                                 <i data-lucide="alert-triangle" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="text-xl font-bold mb-3">거래의 불안감</h3>
+                            <h3 class="text-xl font-bold mb-3">거래의 안정성</h3>
                             <p class="text-gray-500 leading-relaxed text-sm">
-                                "돈을 보냈는데 물건이 안 오면?" 비대면 중고 거래의 가장 큰 진입 장벽입니다.
+                                "돈을 보냈는데 물건이 안 오면?"이라는 걱정이 없도록, 비대면 중고 거래의 진입 장벽을 허물고 신뢰할 수 있는 환경을 만듭니다.
                             </p>
                         </div>
                         <div class="bento-box p-8 reveal-card" style="transition-delay: 200ms;">
@@ -364,9 +364,9 @@
                                 class="w-12 h-12 bg-gray-100 text-gray-600 rounded-2xl flex items-center justify-center mb-6">
                                 <i data-lucide="users" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="text-xl font-bold mb-3">독서의 고립감</h3>
+                            <h3 class="text-xl font-bold mb-3">독서의 연결성</h3>
                             <p class="text-gray-500 leading-relaxed text-sm">
-                                단순 거래를 넘어 취향을 공유하는 커뮤니티가 필요했습니다.
+                                단순 거래를 넘어 취향을 공유하는 커뮤니티를 통해, 혼자 읽는 독서에서 함께 나누는 즐거움으로 경험을 확장합니다.
                             </p>
                         </div>
                     </div>
