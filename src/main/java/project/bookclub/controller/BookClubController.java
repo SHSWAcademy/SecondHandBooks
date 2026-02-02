@@ -274,13 +274,15 @@ public class BookClubController {
         model.addAttribute("bookClubId", bookClubId);
 
         // 1. 로그인 여부 확인
+        AdminVO adminVO = (AdminVO) session.getAttribute("adminSess");
+        boolean isAdmin = (adminVO != null);
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
+        if (loginMember == null && !isAdmin) {
             // fragment에서는 redirect 불가 → forbidden 처리
             return "bookclub/bookclub_board_forbidden";
         }
 
-        Long loginMemberSeq = loginMember.getMember_seq();
+        Long loginMemberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
 
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
@@ -291,10 +293,10 @@ public class BookClubController {
         }
 
         // 3. 권한 판정 (모임장 또는 JOINED 멤버만)
-        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), loginMemberSeq);
-        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
+        boolean isLeader = (loginMemberSeq != null) && Objects.equals(bookClub.getBook_club_leader_seq(), loginMemberSeq);
+        boolean isMember = (loginMemberSeq != null) && bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
 
-        if (!isLeader && !isMember) {
+        if (!isAdmin && !isLeader && !isMember) {
             // 권한 없음 - forbidden fragment 반환
             model.addAttribute("isLogin", true);
             return "bookclub/bookclub_board_forbidden";
@@ -320,12 +322,15 @@ public class BookClubController {
         model.addAttribute("bookClubId", bookClubId);
 
         // 1. 로그인 여부 확인
+        AdminVO adminVO = (AdminVO) session.getAttribute("adminSess");
+        boolean isAdmin = (adminVO != null);
+
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember == null) {
+        if (loginMember == null && !isAdmin) {
             return LoginUtil.redirectToLogin();
         }
 
-        Long loginMemberSeq = loginMember.getMember_seq();
+        Long loginMemberSeq = (loginMember != null) ? loginMember.getMember_seq() : null;
 
         // 2. 모임 조회
         BookClubVO bookClub = bookClubService.getBookClubById(bookClubId);
@@ -336,11 +341,11 @@ public class BookClubController {
         }
 
         // 3. 권한 판정
-        boolean isLeader = Objects.equals(bookClub.getBook_club_leader_seq(), loginMemberSeq);
-        boolean isMember = bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
-        boolean hasPendingRequest = bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
+        boolean isLeader = (loginMemberSeq != null) && Objects.equals(bookClub.getBook_club_leader_seq(), loginMemberSeq);
+        boolean isMember = (loginMemberSeq != null) && bookClubService.isMemberJoined(bookClubId, loginMemberSeq);
+        boolean hasPendingRequest = (loginMemberSeq != null) && bookClubService.hasPendingRequest(bookClubId, loginMemberSeq);
 
-        boolean allow = (isLeader || isMember) && !hasPendingRequest;
+        boolean allow = isAdmin || (isLeader || isMember) && !hasPendingRequest;
 
         // model에 권한 정보 담기
         model.addAttribute("isLogin", true);
@@ -392,7 +397,9 @@ public class BookClubController {
 
         // 좋아요 여부 설정 (로그인 사용자)
         MemberVO loginMember = (MemberVO) session.getAttribute("loginSess");
-        if (loginMember != null) {
+        AdminVO loginAdmin = (AdminVO) session.getAttribute("adminSess");
+
+        if (loginAdmin == null && loginMember != null) {
             Long memberSeq = loginMember.getMember_seq();
             // 게시글 좋아요 여부
             post.setIs_liked(bookClubService.isBoardLiked(post.getBook_club_board_seq(), memberSeq));
