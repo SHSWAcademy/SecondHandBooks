@@ -203,6 +203,14 @@
             });
         }
     });
+
+    // member 브라우저 종료 감지용 Heartbeat
+    if (isMember) {
+         setInterval(function() {
+            const blob = new Blob([JSON.stringify({})], { type: 'application/json' });
+            navigator.sendBeacon('/api/member/logout-pending', blob);
+        }, 500); // 0.5초마다 (테스트용, 타임아웃 1초보다 짧게)
+      }
 })();
 </script>
 </c:if>
