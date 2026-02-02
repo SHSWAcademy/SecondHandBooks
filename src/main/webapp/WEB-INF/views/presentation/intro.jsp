@@ -197,7 +197,8 @@
                         중고 서적 거래 & 로컬 독서 커뮤니티 플랫폼
                     </p>
                     <div class="mt-12 text-sm font-bold text-gray-400">
-                        발표자: 홍길동
+                        Team 범피티
+                        <br>발표자: 이상원
                     </div>
                 </div>
                 <div class="absolute bottom-10 animate-bounce text-gray-300">
@@ -343,9 +344,9 @@
                                 class="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6">
                                 <i data-lucide="keyboard" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="text-xl font-bold mb-3">등록의 번거로움</h3>
+                            <h3 class="text-xl font-bold mb-3">등록의 정확성</h3>
                             <p class="text-gray-500 leading-relaxed text-sm">
-                                책 제목, 저자, 출판사... 하나하나 입력하는 과정은 사용자를 지치게 만듭니다.
+                                책 제목, 저자, 출판사 검색 시 Kakao 도서 API를 이용하여 구매자와 판매자에게 높은 정확도의 경험을 제공합니다.
                             </p>
                         </div>
                         <div class="bento-box p-8 reveal-card" style="transition-delay: 100ms;">
@@ -465,7 +466,7 @@ webClient.get().uri(url)
                                 <span class="text-blue-600 font-bold mb-2 block">01. API Integration</span>
                                 <h3 class="text-3xl font-bold mb-4">1초 자동 등록 (WebClient)</h3>
                                 <p class="text-gray-500 leading-relaxed mb-4">
-                                    ISBN이나 책 제목만 입력하세요. Naver/Kakao Book API를 통해 저자, 출판사, 가격, 표지 이미지를 자동으로 불러옵니다.
+                                    책 제목만 입력하세요. Kakao 도서 API를 이용하여 저자, 출판사, 가격, 표지 이미지를 자동으로 불러옵니다.
                                     Blocking 방식의 RestTemplate 대신 <strong>Non-blocking WebClient</strong>를 사용하여 대량 요청에도
                                     서버 성능 저하 없이 안정적으로 동작합니다.
                                 </p>

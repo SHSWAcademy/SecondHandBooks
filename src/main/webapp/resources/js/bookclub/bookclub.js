@@ -24,25 +24,6 @@ const BookClub = (() => {
         initSortButtons();
     }
 
-    /** 정렬 버튼 초기화 */
-    function initSortButtons() {
-        const sortBtns = document.querySelectorAll(".sort-btn");
-        sortBtns.forEach(btn => {
-            btn.addEventListener("click", () => {
-                // 버튼 활성화 상태 변경
-                sortBtns.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-
-                // 정렬 값 변경 및 재검색 (첫 페이지부터)
-                currentSort = btn.dataset.sort;
-                currentPage = 0;
-                const keywordInput = document.getElementById("keyword");
-                const keyword = keywordInput ? keywordInput.value.trim() : "";
-                search(keyword, currentSort, currentPage);
-            });
-        });
-    }
-
     // 초기 전체 조회
     search("", "latest", 0);
 
@@ -82,6 +63,7 @@ const BookClub = (() => {
         const clubCountEl = document.getElementById("clubCount");
         if (clubCountEl) {
             clubCountEl.textContent = data.totalElements || 0;
+            clubCountEl.classList.remove("invisible");
         }
 
         if (!list || list.length === 0) {
@@ -200,6 +182,51 @@ const BookClub = (() => {
         const keywordInput = document.getElementById("keyword");
         const keyword = keywordInput ? keywordInput.value.trim() : "";
         search(keyword, currentSort, currentPage);
+    }
+
+    function setSort(sort) {
+        currentSort = sort;
+        currentPage = 0;
+
+        updateSortUI();
+
+        const keywordInput = document.getElementById("keyword");
+        const keyword = keywordInput ? keywordInput.value.trim() : "";
+        search(keyword, currentSort, currentPage);
+    }
+
+    function updateSortUI() {
+        const btns = document.querySelectorAll(".club-sort-btn");
+
+        btns.forEach(btn => {
+            btn.className =
+                "club-sort-btn px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 " +
+                "text-gray-500 hover:text-gray-900 hover:bg-gray-200/50";
+        });
+
+        const activeBtn = document.querySelector(
+            `.club-sort-btn[data-sort="${currentSort}"]`
+        );
+
+        if (activeBtn) {
+            activeBtn.className =
+                "club-sort-btn px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 " +
+                "bg-white text-gray-900 shadow-sm ring-1 ring-black/5";
+        }
+    }
+
+    function initSortButtons() {
+        const sortBtns = document.querySelectorAll(".club-sort-btn");
+
+        sortBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const sort = btn.dataset.sort;
+                setSort(sort);
+            });
+        });
+
+        // 초기 활성화
+        updateSortUI();
     }
 
     return {
