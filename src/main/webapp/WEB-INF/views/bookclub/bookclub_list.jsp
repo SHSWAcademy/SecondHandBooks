@@ -8,7 +8,8 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <c:if test="${not empty _csrf}">
+                <c:if test="${no
+                t empty _csrf}">
                     <meta name="_csrf" content="${fn:escapeXml(_csrf.token)}">
                     <meta name="_csrf_header" content="${fn:escapeXml(_csrf.headerName)}">
                 </c:if>

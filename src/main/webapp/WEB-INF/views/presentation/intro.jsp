@@ -1020,7 +1020,7 @@ List<Trade> trades = mapper.findAll(userId);
 
 for(Trade t : trades) {
     // Queries DB loop times (blocking)
-    Image thumb = 
+    Image thumb =
       imgMapper.findById(t.getId());
     t.setThumbnail(thumb);
 }`,
@@ -1029,7 +1029,7 @@ List<Trade> trades = mapper.findAll(userId);
 List<Long> ids = trades.map(Trade::getId);
 
 // Single Query with IN Clause
-List<Image> images = 
+List<Image> images =
   imgMapper.findAllByIds(ids);
 
 matchImagesToTrades(trades, images);`
@@ -1064,7 +1064,7 @@ Addr a = addrMapper.findByUser(uid);
   SELECT *
   FROM book b
   JOIN users u ON u.id = \u0023{uid}
-  LEFT JOIN address a 
+  LEFT JOIN address a
     ON a.user_id = u.id
   WHERE b.id = \u0023{bid}
 </select>
@@ -1076,7 +1076,7 @@ Addr a = addrMapper.findByUser(uid);
                         optimizedTime: '62.0ms',
                         legacy: `public List<Book> getMainBooks() {
     // Always hits Database
-    return bookRepo.findAllDesc(); 
+    return bookRepo.findAllDesc();
 }`,
                         optimized: `@Cacheable(value = "mainBooks")
 public List<Book> getMainBooks() {
@@ -1094,14 +1094,14 @@ List<Trade> trades = mapper.findAll();
 for (Trade t : trades) {
     // Executes 1 query PER iteration
     // Total 20+1 queries responsible for heavy load
-    Image img = imgMapper.findByTradeId(t.getId()); 
+    Image img = imgMapper.findByTradeId(t.getId());
     t.setThumbnail(img);
 }`,
                         optimized: `<!-- MyBatis Mapper (Optimization) -->
 <select id="findAllImagesByTradeIds">
     SELECT * FROM trade_image
     WHERE trade_id IN
-    <foreach item="id" collection="list" 
+    <foreach item="id" collection="list"
              open="(" separator="," close=")">
         \u0023{id}
     </foreach>
@@ -1115,7 +1115,7 @@ for (Trade t : trades) {
                         legacy: `// Service Layer (Race Condition)
 @Transactional
 public void joinClub(Long clubId, User user) {
-    Club club = mapper.findById(clubId); 
+    Club club = mapper.findById(clubId);
     // If 2 users read same 'currentCount' here...
     if (club.getCurrentCount() < club.getMaxCount()) {
         mapper.insertMember(clubId, user.getId());
@@ -1125,10 +1125,10 @@ public void joinClub(Long clubId, User user) {
 // Result: 5/5 capacity becomes 6/5`,
                         optimized: `<!-- PostgreSQL: Pessimistic Lock -->
 <select id="findByIdForUpdate" resultType="Club">
-    SELECT * FROM club 
-    WHERE id = \u0023{id} 
+    SELECT * FROM club
+    WHERE id = \u0023{id}
     FOR UPDATE
-</select> 
+</select>
 <!-- Locks row until transaction commit.
 Other transactions wait here. -->`
                     }
@@ -1236,7 +1236,8 @@ Other transactions wait here. -->`
                 <!-- Spline 3D Background (Glassmorph Landing Page) -->
                 <div class="absolute inset-0 z-0">
                     <iframe src='https://my.spline.design/glassmorphlandingpage-90h3MsIfBV9EbtGXOm6Tt8iP/'
-                        frameborder='0' width='100%' height='100%' class="w-full h-full scale-105"></iframe>
+                        frameborder='0' width='100%' height='100%'
+                        class="w-full h-full scale-125 origin-center"></iframe>
                     <!-- Light Overlay for Glass Effect -->
                     <div class="absolute inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none"></div>
                 </div>
@@ -1253,6 +1254,9 @@ Other transactions wait here. -->`
                     <p class="text-xl text-gray-500 mb-12 max-w-2xl mx-auto">
                         기술적 고민을 통해, 책과 사람을 잇는 가장 안전하고 따뜻한 방법을 만들었습니다.
                     </p>
+                </div>
+
+                <div class="reveal-text relative z-10 transition-all duration-1000 delay-300">
                     <a href="/home"
                         class="group inline-flex items-center gap-3 bg-gray-900 text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-black transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
                         서비스 시연 시작하기
