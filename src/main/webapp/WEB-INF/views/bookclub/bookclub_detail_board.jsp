@@ -92,6 +92,7 @@
                             </svg>
                             게시판
                         </h2>
+                        <c:if test="${empty adminSess}">
                         <button type="button" onclick="location.href='${pageContext.request.contextPath}/bookclubs/${bookClub.book_club_seq}/posts'"
                             style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; background: #4299e1; color: white; border: none; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.2s;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,6 +101,7 @@
                             </svg>
                             글쓰기
                         </button>
+                        </c:if>
                     </div>
 
                     <!-- 게시글 목록 -->
