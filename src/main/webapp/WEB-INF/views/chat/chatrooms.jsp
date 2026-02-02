@@ -1597,9 +1597,24 @@ fetchMessages = function(roomSeq) {
                 }
             }
 
-            // 메시지 렌더링
+            // 메시지 렌더링 전에 결제 완료/실패 메시지가 있는지 확인
             if (Array.isArray(messages)) {
-                messages.forEach(msg => showMessage(msg));
+                const hasPaymentComplete = messages.some(m => m.chat_cont === '[SAFE_PAYMENT_COMPLETE]');
+                const hasPaymentFailed = messages.some(m => m.chat_cont === '[SAFE_PAYMENT_FAILED]');
+
+                messages.forEach(msg => {
+                    const content = msg.chat_cont || '';
+
+                    // 결제 완료/실패가 있으면 요청/수락 카드는 건너뛰기
+                    if (hasPaymentComplete || hasPaymentFailed) {
+                        if (content === '[SAFE_PAYMENT_REQUEST]' ||
+                            content === '[SAFE_PAYMENT_ACCEPT]') {
+                            return; // 이 메시지는 렌더링하지 않음
+                        }
+                    }
+
+                    showMessage(msg);
+                });
             }
         } else if (Array.isArray(data)) {
             // 기존 형식 호환 (단일 배열)
