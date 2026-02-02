@@ -1,30 +1,25 @@
 package project.bookclub.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import project.bookclub.ENUM.JoinRequestResult;
-import project.bookclub.dto.BookClubUpdateSettingsDTO;
+import project.bookclub.dto.BookClubPageResponseDTO;
 import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.vo.BookClubBoardVO;
 import project.bookclub.vo.BookClubVO;
 import project.util.S3Service;
-
-import project.bookclub.dto.BookClubPageResponseDTO;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-
 
 @Service
 @RequiredArgsConstructor
@@ -45,10 +40,9 @@ public class BookClubService {
     public List<BookClubVO> getBookClubList(Long memberSeq) {
         return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0, memberSeq);
     }
-//    public List<BookClubVO> getBookClubList() {
-//        return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
-//    }
-
+    // public List<BookClubVO> getBookClubList() {
+    // return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0);
+    // }
 
     // #1-2. 독서모임 검색 (정렬 + 페이징)
     public BookClubPageResponseDTO searchBookClubs(String keyword, String sort, int page, Long memberSeq) {
@@ -114,7 +108,6 @@ public class BookClubService {
     public BookClubVO getBookClubById(Long bookClubSeq) {
         return bookClubMapper.selectById(bookClubSeq);
     }
-
 
     // #2-2. 특정 멤버가 JOINED 상태로 가입되어 있는지 확인
     public boolean isMemberJoined(Long bookClubSeq, Long memberSeq) {
@@ -407,7 +400,8 @@ public class BookClubService {
             bookClubMapper.insertLeaderMember(bookClubSeq, leaderSeq);
             log.info("모임장을 book_club_member에 등록 완료: bookClubSeq={}, leaderSeq={}", bookClubSeq, leaderSeq);
         } else {
-            log.warn("모임장 자동 등록 실패: bookClubSeq 또는 leaderSeq가 null - bookClubSeq={}, leaderSeq={}", bookClubSeq, leaderSeq);
+            log.warn("모임장 자동 등록 실패: bookClubSeq 또는 leaderSeq가 null - bookClubSeq={}, leaderSeq={}", bookClubSeq,
+                    leaderSeq);
         }
     }
 
@@ -418,6 +412,7 @@ public class BookClubService {
     public List<BookClubVO> getMyBookClubs(long member_seq) {
         return bookClubMapper.selectMyBookClubs(member_seq);
     }
+
     public List<BookClubVO> getWishBookClubs(long member_seq) {
         return bookClubMapper.selectWishBookClubs(member_seq);
     }
@@ -451,9 +446,9 @@ public class BookClubService {
      * 3. request 조회 및 WAIT 상태 검증
      * 4. 정원 초과 방지 (JOINED 멤버 수 < max_member) - 락 보호 하에 체크
      * 5. 멤버 상태 확인:
-     *    - 멤버 row 없음 → INSERT (신규 가입)
-     *    - join_st='JOINED' → 승인 실패 (이미 가입된 멤버)
-     *    - join_st='LEFT/KICKED/REJECTED/WAIT' → UPDATE (재가입 복구)
+     * - 멤버 row 없음 → INSERT (신규 가입)
+     * - join_st='JOINED' → 승인 실패 (이미 가입된 멤버)
+     * - join_st='LEFT/KICKED/REJECTED/WAIT' → UPDATE (재가입 복구)
      * 6. book_club_request UPDATE (request_st='APPROVED', request_processed_dt=오늘)
      *
      * 동시성 제어:
@@ -608,10 +603,11 @@ public class BookClubService {
      * 1. 파라미터 null 체크
      * 2. 타겟 멤버 조회 및 JOINED 상태 검증
      * 3. 모임장 강퇴 방지 (leader_yn=true 체크)
-     * 4. book_club_member UPDATE (join_st='KICKED', join_st_update_dtm=CURRENT_TIMESTAMP)
+     * 4. book_club_member UPDATE (join_st='KICKED',
+     * join_st_update_dtm=CURRENT_TIMESTAMP)
      *
-     * @param bookClubSeq    독서모임 ID
-     * @param leaderSeq      모임장 ID (권한 체크는 Controller에서 이미 완료)
+     * @param bookClubSeq     독서모임 ID
+     * @param leaderSeq       모임장 ID (권한 체크는 Controller에서 이미 완료)
      * @param targetMemberSeq 강퇴 대상 멤버 ID
      * @throws IllegalArgumentException 파라미터가 null인 경우
      * @throws IllegalStateException    비즈니스 규칙 위반 시
@@ -626,7 +622,8 @@ public class BookClubService {
         }
 
         // 2. 타겟 멤버 조회 및 상태 검증
-        project.bookclub.dto.BookClubManageMemberDTO member = bookClubMapper.selectMemberBySeq(bookClubSeq, targetMemberSeq);
+        project.bookclub.dto.BookClubManageMemberDTO member = bookClubMapper.selectMemberBySeq(bookClubSeq,
+                targetMemberSeq);
         if (member == null) {
             log.warn("멤버 강퇴 실패: 존재하지 않는 멤버 - bookClubSeq={}, targetMemberSeq={}",
                     bookClubSeq, targetMemberSeq);
@@ -679,6 +676,10 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
+    @org.springframework.cache.annotation.Caching(evict = {
+            @org.springframework.cache.annotation.CacheEvict(value = "bookClub", key = "#bookClubSeq"),
+            @org.springframework.cache.annotation.CacheEvict(value = "bookClubList", allEntries = true)
+    })
     public java.util.Map<String, Object> updateBookClubSettings(
             Long bookClubSeq,
             Long leaderSeq,
@@ -740,8 +741,7 @@ public class BookClubService {
                 newDescription,
                 trimToNull(dto.getRegion()),
                 trimToNull(dto.getSchedule()),
-                trimToNull(dto.getBannerImgUrl())
-        );
+                trimToNull(dto.getBannerImgUrl()));
 
         // 6. 업데이트 성공 확인
         if (updatedRows == 0) {
@@ -765,9 +765,9 @@ public class BookClubService {
                 "name", updatedBookClub.getBook_club_name(),
                 "description", updatedBookClub.getBook_club_desc(),
                 "region", updatedBookClub.getBook_club_rg() != null ? updatedBookClub.getBook_club_rg() : "",
-                "schedule", updatedBookClub.getBook_club_schedule() != null ? updatedBookClub.getBook_club_schedule() : "",
-                "bannerImgUrl", newBannerUrl != null ? newBannerUrl : ""
-        );
+                "schedule",
+                updatedBookClub.getBook_club_schedule() != null ? updatedBookClub.getBook_club_schedule() : "",
+                "bannerImgUrl", newBannerUrl != null ? newBannerUrl : "");
     }
 
     /**
@@ -844,12 +844,13 @@ public class BookClubService {
      * 4. join_st 상태 검증
      * 5-A. 일반 멤버 탈퇴: join_st='LEFT' 업데이트
      * 5-B. 모임장 탈퇴:
-     *      - JOINED 멤버가 있으면 자동 승계 (가장 오래된 멤버)
-     *      - JOINED 멤버가 없으면 모임 종료 (soft delete)
+     * - JOINED 멤버가 있으면 자동 승계 (가장 오래된 멤버)
+     * - JOINED 멤버가 없으면 모임 종료 (soft delete)
      *
      * @param bookClubSeq 독서모임 ID
      * @param memberSeq   탈퇴하려는 멤버 ID
-     * @return 탈퇴 결과 Map (success, message, leaderChanged, newLeaderSeq, clubClosed, ctaStatus)
+     * @return 탈퇴 결과 Map (success, message, leaderChanged, newLeaderSeq, clubClosed,
+     *         ctaStatus)
      * @throws IllegalArgumentException 파라미터가 null인 경우
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
@@ -910,8 +911,7 @@ public class BookClubService {
             return java.util.Map.of(
                     "success", true,
                     "message", "탈퇴했습니다.",
-                    "ctaStatus", "NONE"
-            );
+                    "ctaStatus", "NONE");
         }
 
         // 4-B. 모임장 탈퇴
@@ -952,8 +952,7 @@ public class BookClubService {
                     "message", "탈퇴했고 모임장이 승계되었습니다.",
                     "leaderChanged", true,
                     "newLeaderSeq", newLeaderSeq,
-                    "ctaStatus", "NONE"
-            );
+                    "ctaStatus", "NONE");
         } else {
             // 승계 대상이 없음 → 모임 종료
             // 0) S3 삭제를 위해 배너 + 게시글 이미지 URL 미리 조회
@@ -989,8 +988,7 @@ public class BookClubService {
             return java.util.Map.of(
                     "success", true,
                     "message", "모임이 종료되었습니다.",
-                    "clubClosed", true
-            );
+                    "clubClosed", true);
         }
     }
 

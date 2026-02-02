@@ -147,15 +147,12 @@
                                         <!-- CTA 버튼 분기 처리 (ctaStatus 기반) -->
                                         <div class="bc-bottom-actions">
                                             <c:choose>
-                                            <%-- Admin 모드 --%>
-                                                  <c:when test="${isAdminView}">
-                                                        <a href="/admin/bookclubs/${bookClub.book_club_seq}/manage"
-                                                           class="bc-btn bc-btn-primary">
-                                                           모임 관리하기 (Admin)
-                                                        </a>
-                                                   </c:when>
+                                            <%-- 1. 관리자 세션이 있는 경우: 버튼을 아예 표시하지 않음 --%>
+                                                    <c:when test="${not empty adminSess}">
+                                                        </c:when>
+
                                                 <%-- 1. 비로그인 (관리자도 아니고 일반 회원도 아님) --%>
-                                                    <c:when test="${(not isLogin) and (empty sessionScope.adminSess)}">
+                                                    <c:when test="${(not isLogin) and (empty adminSess)}">
                                                         <button type="button" onclick="redirectToLogin()"
                                                             class="bc-btn bc-btn-secondary">
                                                             로그인 후 이용

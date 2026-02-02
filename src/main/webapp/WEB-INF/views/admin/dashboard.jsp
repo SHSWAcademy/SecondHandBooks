@@ -138,6 +138,7 @@
 <script>
   (function() {
   const RELOAD_KEY = 'member_page_unload_time';
+  const SESSION_CHECK_INTERVAL = 300000;
 
       document.addEventListener('DOMContentLoaded', function() {
 

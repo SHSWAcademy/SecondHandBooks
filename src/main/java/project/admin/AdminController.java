@@ -158,10 +158,8 @@ public class AdminController {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
             return "admin/adminLogin";
         }
-        if (code1 != null && code2 != null) {
-            if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) {
-                return "error/400";
-            }
+        if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) {
+            return "error/400";
         }
 
         return "admin/adminLogin";
@@ -176,11 +174,8 @@ public class AdminController {
         AdminVO admin = adminService.login(id, pwd);
 
         if (admin != null) {
-            if (logoutPendingManager.isForceLogout(UserType.ADMIN, admin.getAdmin_seq())) {
-                logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
-                return "redirect:/admin/login?code1=qorhqtlrp&code2=rptlrhqqo&msg=forced";
+            logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
 
-            }
             sess.removeAttribute("loginSess");
 
             sess.setAttribute("adminSess", admin);
@@ -328,15 +323,12 @@ public class AdminController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-
-
             AdminVO adminVO = (AdminVO) sess.getAttribute("adminSess");
             if (adminVO == null) {
                 response.put("success", false);
                 response.put("message", "로그인이 필요합니다.");
                 return response;
             }
-
 
             NoticeVO noticeVO = new NoticeVO();
             noticeVO.setAdmin_seq(adminVO.getAdmin_seq());
@@ -419,10 +411,6 @@ public class AdminController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            log.info("=== 공지사항 수정 시작 ===");
-            log.info("notice_seq: " + notice_seq);
-            log.info("제목: " + notice_title);
-
             AdminVO admin = (AdminVO) sess.getAttribute("adminSess");
             if (admin == null) {
                 response.put("success", false);
@@ -442,10 +430,7 @@ public class AdminController {
             response.put("success", true);
             response.put("message", "공지사항이 수정되었습니다.");
 
-            log.info("=== 공지사항 수정 성공 ===");
-
         } catch (Exception e) {
-            log.error("공지사항 수정 실패", e);
             response.put("success", false);
             response.put("message", "수정 중 오류가 발생했습니다: " + e.getMessage());
         }

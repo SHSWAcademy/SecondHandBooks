@@ -378,6 +378,9 @@ const BookClubManage = (() => {
                         // 배너 이미지 미리보기 갱신
                         updateBannerPreview(result.updated.bannerImgUrl);
                     }
+
+                    // DB 변경사항 확실히 반영 위해 페이지 새로고침
+                    setTimeout(() => location.reload(), 600);
                 } else {
                     showAlert(result.message, 'error');
                 }
