@@ -185,7 +185,7 @@ public class MemberController {
     @GetMapping("/auth/kakao/callback")
     public String kakaoCallBack(@RequestParam String code, HttpSession sess,
                                 Model model, HttpServletRequest request) {
-        log.info("Kakao Login Code: {}", code);
+        log.info("Kakao Login Code: {}", code); // kakao login
 
         // 1. 액세스 토큰 받기 (WebClient)
         String accessToken = getKakaoAccessTokenWebClient(code);
