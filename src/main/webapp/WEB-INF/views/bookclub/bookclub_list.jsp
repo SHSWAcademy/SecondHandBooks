@@ -15,6 +15,7 @@
                 <title>독서모임 목록 - 신한북스</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/bookclub.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bookclub/place_search.css">
+                <style>html { scrollbar-gutter: stable; }</style>
             </head>
 
             <body>
@@ -23,13 +24,20 @@
                 <main class="bookclub-main">
                     <div class="container">
                         <div class="page-header">
+                            <%--
                             <div class="page-title">
                                 <h1>독서모임</h1>
                                 <p class="page-subtitle">
                                     함께 읽고, 나누고, 성장하는 즐거움
                                 </p>
                             </div>
-
+                            --%>
+                            <div>
+                                <h1 class="text-5xl md:text-6xl font-black tracking-tight text-[#1D1D1F] mb-3">Book Clubs</h1>
+                                <p class="text-xl text-[#86868b] font-medium max-w-2xl">
+                                    함께 읽고, 나누고, 성장하는 즐거움. <br class="hidden md:block">당신의 취향에 맞는 독서 모임을 찾아보세요.
+                                </p>
+                            </div>
                             <div class="page-action">
                                 <c:if test="${not empty sessionScope.loginSess}">
                                     <button id="openCreateModal" class="btn-primary">
@@ -44,23 +52,44 @@
                             </div>
                         </div>
 
-                        <div class="search-bar">
-                            <%--
-                            <form action="/bookclub/search" method="get">
-                            --%>
-                            <form onsubmit="return false;">
-                                <input type="text" id="keyword" placeholder="지역, 모임명으로 검색해 보세요." />
-                            </form>
-                        </div>
+                        <div class="flex flex-col gap-6 mb-6">
+                            <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-2">
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <h2 class="text-3xl font-black text-gray-900 tracking-tight">모임</h2>
+                                    <span id="clubCount" class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full shadow-sm border border-blue-100 min-w-[2.5rem] text-center invisible">
+                                        0
+                                    </span>
+                                </div>
 
-                        <!-- 결과 정보 및 정렬 -->
-                        <div class="result-info">
-                            <p id="resultCount">
-                                모임 <span id="clubCount">0</span>개
-                            </p>
-                            <div class="sort-toggle">
-                                <button type="button" class="sort-btn active" data-sort="latest">최신순</button>
-                                <button type="button" class="sort-btn" data-sort="activity">최근 활동순</button>
+                                <div class="flex-1 max-w-3xl relative group">
+                                    <input type="text"
+                                           id="keyword"
+                                           placeholder="지역, 모임명으로 검색해 보세요"
+                                           class="w-full pl-6 pr-16 py-4 bg-gray-50 border border-gray-200 rounded-full text-base font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white transition-all shadow-sm hover:shadow-md"
+                                    />
+                                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 w-11 h-11 bg-blue-600 rounded-full flex items-center justify-center text-white pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div class="flex bg-gray-100 p-1.5 rounded-xl shrink-0 self-start xl:self-center whitespace-nowrap">
+                                    <a href="javascript:void(0)"
+                                       class="club-sort-btn px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 bg-white text-gray-900 shadow-sm ring-1 ring-black/5"
+                                       data-sort="latest"
+                                       id="sortLatest">
+                                       최신순
+                                    </a>
+
+                                    <a href="javascript:void(0)"
+                                       class="club-sort-btn px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 text-gray-500 hover:text-gray-900 hover:bg-gray-200/50"
+                                       data-sort="activity"
+                                       id="sortActivity">
+                                       최근 활동순
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
