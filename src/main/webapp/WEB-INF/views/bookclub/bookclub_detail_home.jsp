@@ -14,12 +14,15 @@
             모임 소개
         </h2>
         <p class="bc-intro-text">
+            <%--
             <c:choose>
                 <c:when test="${not empty bookClub.book_club_desc}">
                     <c:out value="${bookClub.book_club_desc}"/>
                 </c:when>
                 <c:otherwise>소개글이 없습니다.</c:otherwise>
             </c:choose>
+            --%>
+            <c:out value="${empty bookClub.book_club_desc ? '소개글이 없습니다.' : fn:trim(bookClub.book_club_desc)}" />
         </p>
 
         <c:if test="${not empty bookClub.book_club_schedule}">
