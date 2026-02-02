@@ -1,6 +1,37 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+  <%-- 이미 로그인된 경우 홈으로 리다이렉트 --%>
+  <c:if test="${not empty sessionScope.loginSess}">
+      <c:redirect url="/"/>
+  </c:if>
+
+  <%-- 캐시 방지 --%>
+  <%
+      response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      response.setHeader("Pragma", "no-cache");
+      response.setDateHeader("Expires", 0);
+  %>
 <jsp:include page="../common/header.jsp" />
+
+<%-- JavaScript로 세션 체크 (캐시된 페이지에서도 동작) --%>
+<script>
+(function() {
+    fetch('/api/session-check', {
+        method: 'GET',
+        credentials: 'same-origin'
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.loggedIn) {
+            window.location.replace('/');
+        }
+    })
+    .catch(function(err) {
+        console.log('세션 체크 실패:', err);
+    });
+})();
+</script>
 
 <div class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 animate-[fadeIn_0.5s_ease-out]">
     <div class="bg-white p-10 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] w-full max-w-[420px] border border-gray-100 relative overflow-hidden">

@@ -520,6 +520,16 @@ public class MemberController {
         return "member/findAccount";
     }
 
+    // 세션 체크 API (로그인 페이지 뒤로가기 처리용)
+    @GetMapping("/api/session-check")
+    @ResponseBody
+    public Map<String, Object> sessionCheck(HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+        MemberVO member = (MemberVO) session.getAttribute("loginSess");
+        result.put("loggedIn", member != null);
+        return result;
+    }
+
     // [AJAX] 아이디 찾기 (전화번호 이용)
     @PostMapping("/auth/ajax/findId")
     @ResponseBody
