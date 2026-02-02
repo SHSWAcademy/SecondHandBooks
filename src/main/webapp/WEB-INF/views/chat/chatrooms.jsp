@@ -543,7 +543,7 @@
                             메시지는 최대 1000자까지 입력할 수 있습니다.
                         </p>
                     </div>
-                    <button id="sendBtn" class="px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2">
+                    <button id="sendBtn" type="button" class="px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2">
                         전송
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
@@ -1597,24 +1597,9 @@ fetchMessages = function(roomSeq) {
                 }
             }
 
-            // 메시지 렌더링 전에 결제 완료/실패 메시지가 있는지 확인
+            // 메시지 렌더링
             if (Array.isArray(messages)) {
-                const hasPaymentComplete = messages.some(m => m.chat_cont === '[SAFE_PAYMENT_COMPLETE]');
-                const hasPaymentFailed = messages.some(m => m.chat_cont === '[SAFE_PAYMENT_FAILED]');
-
-                messages.forEach(msg => {
-                    const content = msg.chat_cont || '';
-
-                    // 결제 완료/실패가 있으면 요청/수락 카드는 건너뛰기
-                    if (hasPaymentComplete || hasPaymentFailed) {
-                        if (content === '[SAFE_PAYMENT_REQUEST]' ||
-                            content === '[SAFE_PAYMENT_ACCEPT]') {
-                            return; // 이 메시지는 렌더링하지 않음
-                        }
-                    }
-
-                    showMessage(msg);
-                });
+                messages.forEach(msg => showMessage(msg));
             }
         } else if (Array.isArray(data)) {
             // 기존 형식 호환 (단일 배열)
