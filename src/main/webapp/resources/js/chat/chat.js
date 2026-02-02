@@ -265,13 +265,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const messageInput = document.getElementById("message"); // 입력창 id
 
     // 버튼 클릭
-    sendBtn.addEventListener("click", sendMessage);
+    sendBtn.addEventListener("click", () => {
+        console.log("버튼 클릭 이벤트");
+        sendMessage();
+    });
 
     // Enter 키 전송
     messageInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault(); // 줄바꿈 방지
             sendMessage();      // 버튼 클릭과 동일
+            console.log("Enter 이벤트");
         }
     });
 });
