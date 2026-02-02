@@ -19,6 +19,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Create application.properties
+        run: |
+          echo "${{ secrets.APPLICATION_PROPERTIES }}" > src/main/resources/application.properties
+
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
