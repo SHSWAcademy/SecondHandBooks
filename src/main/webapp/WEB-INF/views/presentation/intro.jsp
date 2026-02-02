@@ -12,6 +12,7 @@
                 href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="https://unpkg.com/lucide@latest"></script>
+            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
             <style>
                 body {
                     font-family: 'Pretendard', sans-serif;
@@ -696,6 +697,27 @@ webClient.get().uri(url)
                             <span class="text-sm font-mono">Loading Redis Strategy Data...</span>
                         </div>
                     </div>
+            </section>
+
+            <!-- Load Test Visualizer (AJAX) -->
+            <section class="py-32 bg-white border-t border-gray-100 relative overflow-hidden"
+                id="loadtest-visualizer-section">
+                <!-- Background Elements -->
+                <div
+                    class="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none">
+                </div>
+                <div class="max-w-7xl mx-auto px-6 relative z-10">
+                    <h2 class="text-3xl font-bold mb-8 text-center text-gray-900 reveal-text">Performance Verification
+                    </h2>
+                    <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto reveal-text">
+                        k6와 CloudWatch를 활용하여 단계별(Smoke/Load/Stress/Spike) 부하 테스트를 수행하고 안정성을 검증했습니다.
+                    </p>
+                    <div id="loadtest-ajax-container" class="min-h-[800px] flex items-center justify-center">
+                        <div class="flex flex-col items-center gap-4 text-gray-500">
+                            <i data-lucide="loader-2" class="w-10 h-10 animate-spin"></i>
+                            <span class="text-sm font-mono">Loading Performance Data...</span>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1304,6 +1326,7 @@ Other transactions wait here. -->`
                     new InteractiveManager();
                     loadInfrastructure();
                     loadRedisVisualizer();
+                    loadLoadTestVisualizer();
                 });
 
                 /* --- ARCHITECTURE VISUALIZER (AJAX) --- */
@@ -1344,6 +1367,295 @@ Other transactions wait here. -->`
                             console.error('Failed to load redis visualizer', err);
                             container.innerHTML = '<div class="text-red-500 text-center">Failed to load Redis strategy data.</div>';
                         });
+                }
+
+                /* --- LOAD TEST VISUALIZER (AJAX & CHARTS) --- */
+                function loadLoadTestVisualizer() {
+                    const container = document.getElementById('loadtest-ajax-container');
+                    if (!container) return;
+
+                    fetch('${pageContext.request.contextPath}/resources/presentation/loadtest_visualizer.html')
+                        .then(response => {
+                            if (!response.ok) throw new Error("Network response was not ok");
+                            return response.text();
+                        })
+                        .then(html => {
+                            container.innerHTML = html;
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                            // Initialize Chart after HTML injection
+                            initLoadTestCharts('smoke');
+                        })
+                        .catch(err => {
+                            console.error('Failed to load loadtest visualizer', err);
+                            container.innerHTML = '<div class="text-red-500 text-center">Failed to load Performance data.</div>';
+                        });
+                }
+
+                /* --- LOAD TEST DATA & CHART LOGIC --- */
+                let activeChart = null;
+
+                const loadTestData = {
+                    'smoke': {
+                        title: '서비스 안정성 검증',
+                        desc: '인프라 개선 과정을 포함한 최소 사양 및 기초 안정성 테스트입니다.',
+                        badge: '인프라 개선 완료',
+                        badgeColor: 'text-green-700 bg-green-100 border-green-200',
+                        duration: '2m 30s',
+                        totalReq: '893',
+                        instance: 't3.small (Scaled Up)',
+                        scaling: 'Min 2 / Max 8',
+                        metrics: {
+                            vus: '5',
+                            latency: '73.0',
+                            latencyUnit: 'ms',
+                            success: '100',
+                            rps: '1.54'
+                        },
+                        infraColor: 'from-slate-800 to-slate-900',
+                        conclusion: {
+                            summary: 't3.micro 환경의 한계를 확인하고 t3.small로 스케일업 및 오토스케일링 확장을 결정했습니다. 초기 불안정성을 완전히 해소하고 안정적인 베이스라인을 확보했습니다.',
+                            tech: '서버 사양뿐만 아니라 최소 가용 인스턴스(Min Size) 확보가 초기 트래픽 급증 대응(Warm-up)에 얼마나 중요한지 확인하였습니다.'
+                        },
+                        series: [{
+                            name: 'CPU Usage (%)',
+                            type: 'area',
+                            data: [5, 78.5, 15, 8]
+                        }, {
+                            name: 'Latency (ms)',
+                            type: 'line',
+                            data: [150, 2200, 44, 30]
+                        }],
+                        categories: ['10:15', '10:30', '10:45', '11:00'],
+                        colors: ['#6366f1', '#f59e0b']
+                    },
+                    'load': {
+                        title: '시스템 한계 성능 측정',
+                        desc: '초기 인프라 환경(t3.micro)에서 50명의 동시 사용자를 수용하는 부하 테스트입니다.',
+                        badge: '성능 기준 충족',
+                        badgeColor: 'text-blue-700 bg-blue-100 border-blue-200',
+                        duration: '2m 30s',
+                        totalReq: '2,450',
+                        instance: 't3.micro (1GB)',
+                        scaling: 'Min 1 / Max 2',
+                        metrics: {
+                            vus: '50',
+                            latency: '44.7',
+                            latencyUnit: 'ms',
+                            success: '100',
+                            rps: '18.2'
+                        },
+                        infraColor: 'from-indigo-900 to-slate-900',
+                        conclusion: {
+                            summary: '초기 t3.micro 환경에서는 50명의 사용자 부하에도 CPU 점유율이 급증하며 불안정한 모습을 보였습니다. 이를 통해 서버 스케일업의 필요성을 정량적 데이터로 입증하였습니다.',
+                            tech: 't3.micro(1GB RAM) 사양은 단일 인스턴스에서 JVM Heap과 OS 영역을 포함해 동시 접속자 50명을 처리하기에는 메모리 여유가 부족함을 확인했습니다.'
+                        },
+                        series: [{
+                            name: 'VUs',
+                            type: 'area',
+                            data: [0, 10, 50, 50, 10, 0]
+                        }, {
+                            name: 'Latency (ms)',
+                            type: 'line',
+                            data: [25, 32, 38, 44.7, 30, 25]
+                        }],
+                        categories: ['0s', '30s', '60s', '90s', '120s', '135s'],
+                        colors: ['#3b82f6', '#f59e0b']
+                    },
+                    'stress': {
+                        title: '극한 부하 한계 테스트',
+                        desc: '1500명의 동시 사용자를 투입하여 시스템의 붕괴 지점과 오토스케일링 성능을 검증합니다.',
+                        badge: '극한 부하 견딤',
+                        badgeColor: 'text-red-700 bg-red-100 border-red-200',
+                        duration: '10m 00s',
+                        totalReq: '380,866',
+                        instance: 't3.small (Autoscaling)',
+                        scaling: 'Min 2 / Max 8',
+                        metrics: {
+                            vus: '1,500',
+                            latency: '5.05',
+                            latencyUnit: 's',
+                            success: '99.98',
+                            rps: '667.9'
+                        },
+                        infraColor: 'from-red-900 to-slate-900',
+                        conclusion: {
+                            summary: '1500명의 극한 부하에서도 0.02%라는 경이로운 에러율을 기록했습니다. 지연 시간이 5.05초로 임계값을 미세하게 넘었으나, 시스템 전체 가용성은 성공적으로 유지되었습니다.',
+                            tech: 'CPU 70% 기반 오토스케일링이 1500명의 유입 속도를 완벽히 따라가기에는 다소 지연(Scale-out Lag)이 발생했으나, 서킷 브레이커 없이도 DB 커넥션 풀이 고갈되지 않고 버텨냈습니다.'
+                        },
+                        series: [{
+                            name: 'VUs',
+                            type: 'area',
+                            data: [0, 200, 500, 800, 1200, 1200, 1500, 1500, 0]
+                        }, {
+                            name: 'Latency (ms)',
+                            type: 'line',
+                            data: [50, 120, 450, 800, 1800, 2100, 4200, 5050, 100]
+                        }],
+                        categories: ['0m', '1m', '2m', '3m', '4m', '6m', '7m', '9m', '10m'],
+                        colors: ['#ef4444', '#f59e0b']
+                    },
+                    'spike': {
+                        title: '순간 부하 대응력 테스트',
+                        desc: '사용자 수가 갑작스럽게 300명으로 급증할 때 서버의 복구 능력과 안정성을 확인합니다.',
+                        badge: '순간 부하 방어 성공',
+                        badgeColor: 'text-purple-700 bg-purple-100 border-purple-200',
+                        duration: '3m 20s',
+                        totalReq: '28,629',
+                        instance: 't3.small (Autoscaling)',
+                        scaling: 'Min 2 / Max 8',
+                        metrics: {
+                            vus: '300',
+                            latency: '2.45',
+                            latencyUnit: 's',
+                            success: '99.99',
+                            rps: '167.5'
+                        },
+                        infraColor: 'from-purple-900 to-slate-900',
+                        conclusion: {
+                            summary: '300명으로의 급격한 사용자 유입 상황에서 p95 응답 속도가 2.45초로 안정권에 머물렀습니다. 단 1회의 타임아웃만 발생하여 뛰어난 스파이크 대응력을 보여주었습니다.',
+                            tech: '메인 엔드포인트에서 1건의 타임아웃이 발생했으며, 최대 응답 시간이 일시적으로 상승한 지점이 발견되었습니다. 이는 순간적인 네트워크/스레드 풀 경합일 가능성이 있어 큐 튜닝이 필요할 수 있습니다.'
+                        },
+                        series: [{
+                            name: 'VUs',
+                            type: 'area',
+                            data: [0, 10, 300, 300, 10, 10, 0]
+                        }, {
+                            name: 'Latency (ms)',
+                            type: 'line',
+                            data: [40, 60, 1200, 2450, 500, 80, 50]
+                        }],
+                        categories: ['0s', '30s', '40s', '100s', '110s', '140s', '170s'],
+                        colors: ['#8b5cf6', '#f59e0b']
+                    }
+                };
+
+                window.switchLoadTestTab = function (type) {
+                    document.querySelectorAll('.load-tab-btn').forEach(btn => {
+                        if (btn.id === 'load-tab-btn-' + type) {
+                            // Active Style
+                            btn.classList.add('bg-white', 'shadow-sm', 'border-gray-200');
+                            btn.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-100');
+
+                            if (type === 'stress') btn.classList.add('text-red-600');
+                            else if (type === 'spike') btn.classList.add('text-purple-600');
+                            else btn.classList.add('text-indigo-600');
+                        } else {
+                            // Inactive Style
+                            btn.classList.remove('bg-white', 'text-indigo-600', 'text-red-600', 'text-purple-600', 'shadow-sm', 'border-gray-200');
+                            btn.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-100');
+                        }
+                    });
+
+                    initLoadTestCharts(type);
+                };
+
+                function initLoadTestCharts(type) {
+                    const data = loadTestData[type];
+                    if (!data) return;
+
+                    // Update Text Content
+                    document.getElementById('load-test-title').innerText = data.title;
+                    document.getElementById('load-test-desc').innerText = data.desc;
+
+                    const badge = document.getElementById('load-test-badge');
+                    badge.innerText = data.badge;
+                    badge.className = `px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm border shrink-0 ${data.badgeColor}`;
+
+                    // Stats
+                    document.getElementById('load-stat-duration').innerText = data.duration;
+                    document.getElementById('load-stat-reqs').innerText = data.totalReq;
+
+                    // Infra
+                    document.getElementById('infra-instance').innerText = data.instance;
+                    document.getElementById('infra-scaling').innerText = data.scaling;
+                    // Infra Card BG Update
+                    document.getElementById('infra-card-bg').className = `bg-gradient-to-br p-6 rounded-2xl shadow-lg text-white h-full relative overflow-hidden group ${data.infraColor}`;
+
+                    // Key Metrics
+                    document.getElementById('metric-vus').innerText = data.metrics.vus;
+                    document.getElementById('metric-latency').innerText = data.metrics.latency;
+                    document.getElementById('unit-latency').innerText = data.metrics.latencyUnit;
+                    document.getElementById('metric-success').innerText = data.metrics.success;
+                    document.getElementById('metric-rps').innerText = data.metrics.rps;
+
+                    // Conclusion
+                    document.getElementById('conclusion-summary').innerText = data.conclusion.summary;
+                    document.getElementById('conclusion-tech').innerText = data.conclusion.tech;
+
+                    // Conclusion Box Color
+                    const conclusionBox = document.getElementById('conclusion-box');
+                    if (type === 'stress') conclusionBox.className = "p-8 rounded-[2rem] shadow-lg text-white relative overflow-hidden transition-colors duration-500 bg-red-900";
+                    else if (type === 'spike') conclusionBox.className = "p-8 rounded-[2rem] shadow-lg text-white relative overflow-hidden transition-colors duration-500 bg-purple-900";
+                    else if (type === 'load') conclusionBox.className = "p-8 rounded-[2rem] shadow-lg text-white relative overflow-hidden transition-colors duration-500 bg-indigo-900";
+                    else conclusionBox.className = "p-8 rounded-[2rem] shadow-lg text-white relative overflow-hidden transition-colors duration-500 bg-slate-800";
+
+                    // Chart Rendering
+                    if (activeChart) {
+                        activeChart.destroy();
+                    }
+
+                    const options = {
+                        series: data.series,
+                        chart: {
+                            height: 350,
+                            type: 'area', // default, mixed in series
+                            toolbar: { show: false },
+                            zoom: { enabled: false }
+                        },
+                        dataLabels: { enabled: false },
+                        stroke: {
+                            curve: 'smooth',
+                            width: [3, 3]
+                        },
+                        colors: data.colors,
+                        fill: {
+                            type: ['gradient', 'solid'],
+                            gradient: {
+                                shadeIntensity: 1,
+                                opacityFrom: 0.3,
+                                opacityTo: 0.05,
+                                stops: [0, 90, 100]
+                            }
+                        },
+                        xaxis: {
+                            categories: data.categories,
+                            axisBorder: { show: false },
+                            axisTicks: { show: false }
+                        },
+                        yaxis: [
+                            {
+                                axisTicks: { show: true },
+                                axisBorder: { show: true, color: data.colors[0] },
+                                labels: { style: { colors: data.colors[0] } },
+                                title: { text: "VUs / CPU", style: { color: data.colors[0] } }
+                            },
+                            {
+                                opposite: true,
+                                axisTicks: { show: true },
+                                axisBorder: { show: true, color: data.colors[1] },
+                                labels: { style: { colors: data.colors[1] } },
+                                title: { text: "Latency (ms)", style: { color: data.colors[1] } }
+                            }
+                        ],
+                        tooltip: {
+                            shared: true,
+                            intersect: false,
+                            y: {
+                                formatter: function (y) {
+                                    if (typeof y !== "undefined") {
+                                        return y.toFixed(0);
+                                    }
+                                    return y;
+                                }
+                            }
+                        },
+                        grid: {
+                            borderColor: '#f1f5f9'
+                        }
+                    };
+
+                    activeChart = new ApexCharts(document.querySelector("#loadTestChart"), options);
+                    activeChart.render();
                 }
 
                 // Global functions for Redis Visualizer Interactivity
