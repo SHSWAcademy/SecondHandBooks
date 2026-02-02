@@ -140,11 +140,11 @@
                 </div>
             </section>
 
-            <!-- New Partitioned TEAM Section -->
+            <!-- Partitioned TEAM Section -->
             <section class="py-32 bg-white border-y border-gray-100">
                 <div class="max-w-7xl mx-auto px-6 text-center">
                     <h2 class="text-4xl font-bold mb-4 reveal-text">Our Team</h2>
-                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈을지도...?</p>
+                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈습니다.</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
                         <!-- Group 1 -->
@@ -166,7 +166,7 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김규태</p>
-                                        <p class="text-xs text-blue-600 font-bold">Qmini</p>
+                                        <p class="text-xs text-blue-600 font-bold">Team Leader</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -175,7 +175,7 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이승환</p>
-                                        <p class="text-xs text-gray-500">DBA</p>
+                                        <p class="text-xs text-gray-500">Backend Dev</p>
                                     </div>
                                 </div>
                             </div>
@@ -205,7 +205,7 @@
                                         C</div>
                                     <div>
                                         <p class="font-bold text-gray-900">최범근</p>
-                                        <p class="text-xs text-gray-500">일용직</p>
+                                        <p class="text-xs text-gray-500">Full Stack</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -214,7 +214,7 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이상원</p>
-                                        <p class="text-xs text-gray-500">Tech Leader</p>
+                                        <p class="text-xs text-gray-500">Backend Dev</p>
                                     </div>
                                 </div>
                             </div>
@@ -244,7 +244,7 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김도연</p>
-                                        <p class="text-xs text-gray-500">Team Leader</p>
+                                        <p class="text-xs text-gray-500">Frontend</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -253,7 +253,7 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이동희</p>
-                                        <p class="text-xs text-gray-500">ACE</p>
+                                        <p class="text-xs text-gray-500">Frontend</p>
                                     </div>
                                 </div>
                             </div>
@@ -267,7 +267,7 @@
                 </div>
             </section>
 
-            <!-- MOTIVATION Section (Kept from Original/Prev) -->
+            <!-- MOTIVATION Section -->
             <section class="py-32 bg-gray-50">
                 <div class="max-w-5xl mx-auto px-6">
                     <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Why SecondHand Books?</h2>
@@ -307,7 +307,7 @@
                 </div>
             </section>
 
-            <!-- TECHNICAL DEEP DIVE Section (Dark Mode) - NEW -->
+            <!-- TECHNICAL DEEP DIVE Section (Dark Mode) -->
             <section class="py-32 px-6 bg-[#0d1117] text-white">
                 <div class="max-w-7xl mx-auto">
                     <div class="text-center mb-20 reveal-text">
@@ -468,8 +468,8 @@ webClient.get()
                                     팀원 간의 진행 상황을 실시간으로 동기화했습니다.
                                 </p>
                             </div>
-                            <div
-                                class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500">
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
+                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/github_board.png')">
                                 <img src="${pageContext.request.contextPath}/resources/presentation/img/github_board.png"
                                     alt="GitHub Project Board" class="w-full h-auto">
                             </div>
@@ -489,8 +489,8 @@ webClient.get()
                                     개발의 방향성을 명확히 했습니다. PR과 이슈를 연동하여 코드 변경 사항을 히스토리로 남겼습니다.
                                 </p>
                             </div>
-                            <div
-                                class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500">
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
+                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/github_table.png')">
                                 <img src="${pageContext.request.contextPath}/resources/presentation/img/github_table.png"
                                     alt="GitHub Issue Table" class="w-full h-auto">
                             </div>
@@ -604,11 +604,14 @@ webClient.get()
                             <h3 class="text-xl font-bold mb-3">Strong Security</h3>
                             <ul class="space-y-3 text-sm text-gray-600">
                                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
-                                    <strong>BCrypt</strong> 비밀번호 암호화</li>
+                                    <strong>BCrypt</strong> 비밀번호 암호화
+                                </li>
                                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
-                                    <strong>XSS</strong> 방지 필터 적용</li>
+                                    <strong>XSS</strong> 방지 필터 적용
+                                </li>
                                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
-                                    <strong>CSRF</strong> 토큰 검증</li>
+                                    <strong>CSRF</strong> 토큰 검증
+                                </li>
                             </ul>
                         </div>
 
@@ -656,6 +659,386 @@ webClient.get()
                     </div>
                 </div>
             </section>
+
+            <!-- QA Reports Section (Separated) -->
+            <section class="py-32 bg-gray-50 border-t border-gray-200">
+                <div class="max-w-7xl mx-auto px-6">
+                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Quality Assurance</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <!-- Functional Test -->
+                        <div class="cursor-pointer reveal-card group"
+                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
+                            <div class="overflow-hidden rounded-2xl shadow-xl border border-gray-200 bg-white">
+                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
+                                    alt="Functional Test Report"
+                                    class="w-full h-64 object-cover object-top transform group-hover:scale-105 transition-transform duration-500">
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">기능 테스트 리포트</h3>
+                                    <p class="text-gray-500 text-sm">기능별 성공/실패 내역과 해결 방안을 엑셀로 상세히 관리했습니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UI/UX Test -->
+                        <div class="cursor-pointer reveal-card group"
+                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')"
+                            style="transition-delay: 100ms;">
+                            <div class="overflow-hidden rounded-2xl shadow-xl border border-gray-200 bg-white">
+                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
+                                    alt="UI/UX Test Report"
+                                    class="w-full h-64 object-cover object-top transform group-hover:scale-105 transition-transform duration-500">
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold mb-2">UI/UX 개선 내역</h3>
+                                    <p class="text-gray-500 text-sm">사용자 피드백을 반영한 화면 개선 사항을 기록하고 추적했습니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Query Optimization Section -->
+            <section class="py-32 bg-white">
+                <div class="max-w-7xl mx-auto px-6">
+                    <h3 class="text-2xl font-bold mb-8 pl-4 border-l-4 border-green-500">Query Optimization Data
+                    </h3>
+                    <div class="overflow-x-auto rounded-2xl shadow-xl border border-gray-200">
+                        <table class="w-full text-sm text-left bg-white">
+                            <thead class="text-xs text-gray-500 uppercase bg-gray-100 border-b">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold">기능명</th>
+                                    <th class="px-6 py-4 font-bold">Mapper ID</th>
+                                    <th class="px-6 py-4 font-bold">기존 성능 (ms)</th>
+                                    <th class="px-6 py-4 font-bold">개선 성능 (ms)</th>
+                                    <th class="px-6 py-4 font-bold text-center">Efficiency</th>
+                                    <th class="px-6 py-4 font-bold">Improvement Key</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <!-- Row 1: Main Page -->
+                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
+                                    onclick="openDiffModal('main')">
+                                    <td class="px-6 py-4 font-bold text-gray-900">메인 페이지 조회</td>
+                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">findAllWithPaging</td>
+                                    <td class="px-6 py-4 text-red-500 font-medium">150.4</td>
+                                    <td class="px-6 py-4 text-blue-600 font-bold">128.4</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            +14.6%
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500">서브쿼리 제거 (SELECT COUNT -> LEFT JOIN)</td>
+                                </tr>
+
+                                <!-- Row 3: Purchase History -->
+                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
+                                    onclick="openDiffModal('purchase')">
+                                    <td class="px-6 py-4 font-bold text-gray-900">구매내역 조회</td>
+                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">selectPurchase...</td>
+                                    <td class="px-6 py-4 text-red-500 font-medium">4,885.0</td>
+                                    <td class="px-6 py-4 text-blue-600 font-bold">355.0</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            +1376%
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500">N번 호출 → IN 절 단일 호출 (Bulk Select)</td>
+                                </tr>
+
+                                <!-- Row 4: Chat Room -->
+                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
+                                    onclick="openDiffModal('chat')">
+                                    <td class="px-6 py-4 font-bold text-gray-900">채팅방 목록</td>
+                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">findAllByMember...</td>
+                                    <td class="px-6 py-4 text-red-500 font-medium">143.0</td>
+                                    <td class="px-6 py-4 text-blue-600 font-bold">140.3</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            -
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500">닉네임 서브쿼리 → JOIN, EXISTS → GroupBy</td>
+                                </tr>
+
+                                <!-- Row 5: Payment Entry -->
+                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
+                                    onclick="openDiffModal('payment')">
+                                    <td class="px-6 py-4 font-bold text-gray-900">결제창 진입</td>
+                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">getPaymentCheckInfo</td>
+                                    <td class="px-6 py-4 text-red-500 font-medium">168.0</td>
+                                    <td class="px-6 py-4 text-blue-600 font-bold">132.0</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            +21%
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500">3회 Select → 1회 통합 조회</td>
+                                </tr>
+
+                                <!-- Row 6: Redis -->
+                                <tr class="hover:bg-blue-50/50 transition-colors bg-purple-50/30 cursor-pointer"
+                                    onclick="openDiffModal('redis')">
+                                    <td class="px-6 py-4 font-bold text-gray-900">메인(Redis)</td>
+                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">Cacheable</td>
+                                    <td class="px-6 py-4 text-red-500 font-medium">111.0</td>
+                                    <td class="px-6 py-4 text-blue-600 font-bold">62.0</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            +44%
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500">Local Cache (Redis Look-aside)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+            </section>
+
+            <!-- Responsive Holo Lightbox (Inline Implementation) -->
+            <!-- Simple Fullscreen Lightbox -->
+            <div id="simpleLightbox"
+                class="fixed inset-0 z-[99999] hidden flex items-center justify-center bg-black/95 transition-opacity duration-300 opacity-0"
+                onclick="closeLightbox()">
+                <button onclick="closeLightbox()"
+                    class="absolute top-6 right-8 text-white/50 hover:text-white transition-colors z-[100000]">
+                    <i data-lucide="x" class="w-12 h-12"></i>
+                </button>
+                <div class="relative w-full h-full p-4 flex items-center justify-center">
+                    <img id="lightboxImg" src="" alt="Full Screen View"
+                        class="max-w-full max-h-full object-contain shadow-2xl select-none">
+                </div>
+            </div>
+
+            <!-- Code Diff Modal -->
+            <div id="diffModal"
+                class="fixed inset-0 z-[99990] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+                onclick="closeDiffModal(event)">
+                <div class="bg-[#1e1e1e] w-[90vw] max-w-6xl rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 flex flex-col max-h-[90vh]"
+                    id="diffModalContent">
+
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-[#252526]">
+                        <div class="flex items-center gap-4">
+                            <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                                <i data-lucide="git-compare" class="w-5 h-5 text-blue-400"></i>
+                                Code Optimization Diff
+                            </h3>
+                            <span id="diffTitle"
+                                class="px-3 py-1 bg-gray-700 text-gray-300 text-xs rounded-full font-mono"></span>
+                        </div>
+                        <button onclick="closeDiffModal()" class="text-gray-400 hover:text-white transition-colors">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+
+                    <!-- Diff Content -->
+                    <div
+                        class="flex-1 overflow-auto p-0 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-800">
+
+                        <!-- Legacy Code -->
+                        <div class="flex flex-col">
+                            <div
+                                class="px-4 py-2 bg-[#2d2d2d] border-b border-gray-800 flex justify-between items-center sticky top-0">
+                                <span class="text-red-400 text-xs font-bold uppercase tracking-wider">Before
+                                    (Legacy)</span>
+                                <span class="text-gray-500 text-xs font-mono" id="legacyTime"></span>
+                            </div>
+                            <pre
+                                class="p-6 text-sm font-mono text-gray-300 overflow-x-auto bg-[#1e1e1e] leading-relaxed"><code id="legacyCode"></code></pre>
+                        </div>
+
+                        <!-- Optimized Code -->
+                        <div class="flex flex-col">
+                            <div
+                                class="px-4 py-2 bg-[#2d2d32] border-b border-gray-800 flex justify-between items-center sticky top-0">
+                                <span class="text-green-400 text-xs font-bold uppercase tracking-wider">After
+                                    (Optimized)</span>
+                                <span class="text-gray-500 text-xs font-mono" id="optimizedTime"></span>
+                            </div>
+                            <pre
+                                class="p-6 text-sm font-mono text-gray-300 overflow-x-auto bg-[#1e1e1e] leading-relaxed"><code id="optimizedCode"></code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Footer hint -->
+                    <div class="px-6 py-3 bg-[#252526] border-t border-gray-800 text-right">
+                        <span class="text-xs text-gray-500">Press ESC to close</span>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Simple Lightbox Logic
+                const sLightbox = document.getElementById('simpleLightbox');
+                const sLbImg = document.getElementById('lightboxImg');
+
+                window.openLightbox = function (src) {
+                    sLbImg.src = src;
+                    sLightbox.classList.remove('hidden');
+                    void sLightbox.offsetWidth;
+                    sLightbox.classList.remove('opacity-0');
+                    document.body.style.overflow = 'hidden';
+                };
+
+                window.closeLightbox = function () {
+                    sLightbox.classList.add('opacity-0');
+                    setTimeout(() => {
+                        sLightbox.classList.add('hidden');
+                        sLbImg.src = '';
+                        document.body.style.overflow = '';
+                    }, 300);
+                };
+
+                // Diff Modal Logic
+                const diffModal = document.getElementById('diffModal');
+                const diffModalContent = document.getElementById('diffModalContent');
+
+                const diffData = {
+                    'main': {
+                        title: 'Main Page List Query',
+                        legacyTime: '150.4ms',
+                        optimizedTime: '128.4ms',
+                        legacy: `SELECT b.*,
+  (SELECT count(*) 
+   FROM review r 
+   WHERE r.book_id = b.id) as r_cnt
+FROM book b
+ORDER BY b.id DESC
+LIMIT 20 OFFSET 0`,
+                        optimized: `SELECT b.*, count(r.id) as r_cnt
+FROM book b
+LEFT JOIN review r 
+  ON b.id = r.book_id
+GROUP BY b.id
+ORDER BY b.id DESC
+LIMIT 20 OFFSET 0`
+                    },
+                    'purchase': {
+                        title: 'Purchase History N+1',
+                        legacyTime: '4,885ms',
+                        optimizedTime: '355ms',
+                        legacy: `// Service Layer (N+1 Problem)
+List<Trade> trades = mapper.findAll(userId);
+
+for(Trade t : trades) {
+    // Queries DB loop times (blocking)
+    Image thumb = 
+      imgMapper.findById(t.getId());
+    t.setThumbnail(thumb);
+}`,
+                        optimized: `// Service Layer (Bulk Select)
+List<Trade> trades = mapper.findAll(userId);
+List<Long> ids = trades.map(Trade::getId);
+
+// Single Query with IN Clause
+List<Image> images = 
+  imgMapper.findAllByIds(ids);
+
+matchImagesToTrades(trades, images);`
+                    },
+                    'chat': {
+                        title: 'Chat Room List',
+                        legacyTime: '143.0ms',
+                        optimizedTime: '140.3ms',
+                        legacy: `SELECT c.*,
+  (SELECT nick FROM member m 
+   WHERE m.id = c.partner_id) as nick
+FROM chat_room c
+WHERE c.owner_id = ?`,
+                        optimized: `SELECT c.*, m.nick
+FROM chat_room c
+INNER JOIN member m 
+  ON c.partner_id = m.id
+WHERE c.owner_id = ?
+-- Converted Subquery to Join`
+                    },
+                    'payment': {
+                        title: 'Payment Page Entry',
+                        legacyTime: '168.0ms',
+                        optimizedTime: '132.0ms',
+                        legacy: `// Controller
+User u = userMapper.findById(uid);
+Book b = bookMapper.findById(bid);
+Addr a = addrMapper.findByUser(uid);
+
+// 3 Separate Round-trips to DB`,
+                        optimized: `<select id="getPaymentCheckInfo">
+  SELECT *
+  FROM book b
+  JOIN users u ON u.id = \u0023{uid}
+  LEFT JOIN address a 
+    ON a.user_id = u.id
+  WHERE b.id = \u0023{bid}
+</select>
+<!-- Single Round-trip -->`
+                    },
+                    'redis': {
+                        title: 'Main Page Caching',
+                        legacyTime: '111.0ms',
+                        optimizedTime: '62.0ms',
+                        legacy: `public List<Book> getMainBooks() {
+    // Always hits Database
+    return bookRepo.findAllDesc(); 
+}`,
+                        optimized: `@Cacheable(value = "mainBooks")
+public List<Book> getMainBooks() {
+    // Hits Redis first (Look-aside)
+    // Only hits DB on cache miss
+    return bookRepo.findAllDesc();
+}`
+                    }
+                };
+
+                window.openDiffModal = function (key) {
+                    const data = diffData[key];
+                    if (!data) return;
+
+                    document.getElementById('diffTitle').innerText = data.title;
+                    document.getElementById('legacyTime').innerText = data.legacyTime;
+                    document.getElementById('optimizedTime').innerText = data.optimizedTime;
+                    document.getElementById('legacyCode').innerText = data.legacy;
+                    document.getElementById('optimizedCode').innerText = data.optimized;
+
+                    diffModal.classList.remove('hidden');
+                    // Force reflow
+                    void diffModal.offsetWidth;
+                    diffModal.classList.remove('opacity-0');
+                    diffModalContent.classList.remove('scale-95', 'opacity-0');
+                    diffModalContent.classList.add('scale-100', 'opacity-100');
+
+                    document.body.style.overflow = 'hidden';
+
+                    if (window.lucide) lucide.createIcons();
+                };
+
+                window.closeDiffModal = function (e) {
+                    if (e && e.target !== diffModal && !e.target.closest('button')) return;
+
+                    diffModal.classList.add('opacity-0');
+                    diffModalContent.classList.remove('scale-100', 'opacity-100');
+                    diffModalContent.classList.add('scale-95', 'opacity-0');
+
+                    setTimeout(() => {
+                        diffModal.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }, 300);
+                };
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === "Escape") {
+                        closeLightbox();
+                        closeDiffModal();
+                    }
+                });
+            </script>
 
             <!-- Original FOOTER Section -->
             <section
