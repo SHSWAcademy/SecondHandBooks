@@ -660,91 +660,23 @@ webClient.get().uri(url)
                 </div>
             </section>
 
-            <!-- Expanded Usage & Infrastructure Section -->
-            <section class="py-32 bg-gray-50">
-                <div class="max-w-6xl mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 reveal-text">Infrastructure & Reliability</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
+            <!-- Dynamic Architecture Visualizer (AJAX) -->
+            <section class="py-32 bg-white border-t border-gray-100 relative overflow-hidden"
+                id="infra-visualizer-section">
+                <!-- Background Glow -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
+                    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]">
+                    </div>
+                    <div
+                        class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px]">
+                    </div>
+                </div>
 
-                        <!-- DevOps -->
-                        <div class="bento-box md:col-span-2 p-8 reveal-card flex flex-col justify-between">
-                            <div>
-                                <div
-                                    class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center mb-6">
-                                    <i data-lucide="git-merge" class="w-6 h-6"></i>
-                                </div>
-                                <h3 class="text-2xl font-bold mb-2">Automated CI/CD</h3>
-                                <p class="text-gray-500 leading-relaxed mb-6">
-                                    GitHub Actions와 AWS CodeDeploy로 배포 자동화를 구축했습니다. 개발자는 코드 작성에만 집중할 수 있으며,
-                                    <code>start_server.sh</code> 스크립트를 통해 무중단 배포를 지향합니다.
-                                </p>
-                            </div>
-                            <div class="p-4 bg-gray-100 rounded-xl text-sm font-mono text-gray-600">
-                                git push origin main -> Build -> Deploy to EC2
-                            </div>
-                        </div>
-
-                        <!-- Security -->
-                        <div class="bento-box p-8 reveal-card border border-green-100 bg-green-50/50">
-                            <div
-                                class="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6">
-                                <i data-lucide="lock" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">Strong Security</h3>
-                            <ul class="space-y-3 text-sm text-gray-600">
-                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
-                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
-                                    <strong>BCrypt</strong> 비밀번호 암호화
-                                </li>
-                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
-                                    <strong>XSS</strong> 방지 필터 적용
-                                </li>
-                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
-                                    <strong>CSRF</strong> 토큰 검증
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- AWS S3 -->
-                        <div class="bento-box p-8 reveal-card">
-                            <div
-                                class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-6">
-                                <i data-lucide="cloud" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">AWS S3 Storage</h3>
-                            <p class="text-gray-500 text-sm leading-relaxed">
-                                이미지 파일은 DB가 아닌 S3에 저장하여 웹 서버 부하를 줄이고 확장성을 확보했습니다. 트랜잭션 롤백 시 S3 이미지를 정리하는 로직도 포함되어 있습니다.
-                            </p>
-                        </div>
-
-                        <!-- Scheduler -->
-                        <div class="bento-box md:col-span-2 p-8 reveal-card bg-[#111] text-white">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <div
-                                        class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
-                                        <i data-lucide="clock" class="w-6 h-6 text-white"></i>
-                                    </div>
-                                    <h3 class="text-2xl font-bold mb-2">Background Scheduler</h3>
-                                    <p class="text-gray-400 text-sm leading-relaxed mb-4 max-w-lg">
-                                        시스템 신뢰성을 위해 24시간 작동하는 스케줄러를 구현했습니다.
-                                    </p>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs font-mono text-gray-500 mb-1">TASK MONITOR</div>
-                                    <div class="text-green-400 font-bold animate-pulse">RUNNING</div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4 mt-4">
-                                <div class="p-3 bg-white/10 rounded-lg">
-                                    <div class="text-xs text-gray-400 mb-1">Every 1 min</div>
-                                    <div class="font-bold text-sm">Expired Pay Cleanup</div>
-                                </div>
-                                <div class="p-3 bg-white/10 rounded-lg">
-                                    <div class="text-xs text-gray-400 mb-1">Daily 00:00</div>
-                                    <div class="font-bold text-sm">Auto Purchase Confirm</div>
-                                </div>
-                            </div>
+                <div class="max-w-7xl mx-auto px-6 relative z-10">
+                    <div id="infra-ajax-container" class="min-h-[600px] flex items-center justify-center">
+                        <div class="flex flex-col items-center gap-4 text-gray-500">
+                            <i data-lucide="loader-2" class="w-10 h-10 animate-spin"></i>
+                            <span class="text-sm font-mono">Loading Infrastructure Data...</span>
                         </div>
                     </div>
                 </div>
@@ -1353,7 +1285,50 @@ Other transactions wait here. -->`
                 // Initialize after DOM load
                 document.addEventListener('DOMContentLoaded', () => {
                     new InteractiveManager();
+                    loadInfrastructure();
                 });
+
+                /* --- ARCHITECTURE VISUALIZER (AJAX) --- */
+                function loadInfrastructure() {
+                    const container = document.getElementById('infra-ajax-container');
+                    if (!container) return;
+
+                    fetch('${pageContext.request.contextPath}/resources/presentation/infra_visualizer.html')
+                        .then(response => {
+                            if (!response.ok) throw new Error("Network response was not ok");
+                            return response.text();
+                        })
+                        .then(html => {
+                            container.innerHTML = html;
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        })
+                        .catch(err => {
+                            console.error('Failed to load infra visualizer', err);
+                            container.innerHTML = '<div class="text-red-500 text-center">Failed to load infrastructure data.</div>';
+                        });
+                }
+
+                window.switchInfraTab = function (tabName) {
+                    // Toggle buttons
+                    document.querySelectorAll('.infra-tab-btn').forEach(btn => {
+                        if (btn.id === 'tab-btn-' + tabName) {
+                            btn.classList.add('bg-white', 'text-gray-900', 'shadow-md', 'border-gray-100');
+                            btn.classList.remove('text-gray-400', 'hover:text-gray-600', 'hover:bg-gray-100');
+                        } else {
+                            btn.classList.remove('bg-white', 'text-gray-900', 'shadow-md', 'border-gray-100');
+                            btn.classList.add('text-gray-400', 'hover:text-gray-600', 'hover:bg-gray-100');
+                        }
+                    });
+
+                    // Toggle content
+                    document.querySelectorAll('.infra-tab-content').forEach(content => {
+                        if (content.id === 'infra-content-' + tabName) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                };
             </script>
         </body>
 
