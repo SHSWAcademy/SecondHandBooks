@@ -47,8 +47,12 @@
                             <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">예약중</span>
                         </c:otherwise>
                     </c:choose>
+                    <c:if test="${trade.settled_yn}">
+                        <span class="text-[10px] font-bold text-black-400 bg-green-100 px-2 py-0.5">
+                            정산완료
+                        </span>
+                    </c:if>
                 </div>
-
                     <h3 class="font-bold text-gray-900 text-base mb-1 truncate group-hover:text-primary-600 transition-colors">${trade.sale_title}</h3>
 
                     <div class="mb-2"> <p class="text-sm font-medium text-gray-500">
@@ -97,8 +101,79 @@
                             판매 완료
                         </button>
                     </c:if>
+                    <c:if test="${trade.settled_yn}">
+                        <button type="button"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-md hover:shadow-lg w-full"
+                                onclick="toggleSettlementPopup(${trade.trade_seq})">
+                                    정산내역 확인
+                        </button>
+                    </c:if>
                 </div>
             </div>
+
+            <div id="settlement-popup-${trade.trade_seq}"
+                                 class="hidden absolute z-50 mt-2 right-0 w-72 bg-white rounded-xl shadow-xl border border-gray-200 p-5 animate-in fade-in zoom-in-95 duration-200"
+                                 style="left: 50%; top: 50%; transform: translate(-50%, -50%); position: fixed;">
+
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="font-bold text-gray-900 text-sm">정산 상세 내역</h4>
+                                    <button onclick="toggleSettlementPopup(${trade.trade_seq})" class="text-gray-400 hover:text-gray-600">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3 text-sm">
+                                    <!-- 상품금액 -->
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500">상품금액</span>
+                                        <span class="font-medium text-gray-900">
+                                            <fmt:formatNumber value="${trade.sale_price}" pattern="#,###" />원
+                                        </span>
+                                    </div>
+
+                                    <!-- 배송비 -->
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500">배송비</span>
+                                        <span class="font-medium text-gray-900">
+                                            <fmt:formatNumber value="${trade.delivery_cost}" pattern="#,###" />원
+                                        </span>
+                                    </div>
+
+                                    <!-- 수수료 (총 금액의 1%) -->
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500">수수료 (1%)</span>
+                                        <span class="font-medium text-red-500">
+                                            <fmt:formatNumber value="${(trade.sale_price + trade.delivery_cost) * 0.01}" pattern="#,###" />원
+                                        </span>
+                                    </div>
+
+                                    <div class="h-px bg-gray-100 my-1"></div>
+
+                                    <!-- 총금액 -->
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-bold text-gray-900">총금액</span>
+                                        <span class="font-bold text-primary-600 text-lg">
+                                            <fmt:formatNumber value="${(trade.sale_price + trade.delivery_cost) - ((trade.sale_price + trade.delivery_cost) * 0.01)}" pattern="#,###" />원
+                                        </span>
+                                    </div>
+
+                                    <!-- 정산일 -->
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-500">정산일</span>
+                                        <span class="date-format" data-date="${trade.sale_st_dtm}"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-gray-100 text-center">
+                                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded-full font-medium">정산 완료</span>
+                                </div>
+                            </div>
+
+                            <div id="settlement-backdrop-${trade.trade_seq}"
+                                 class="hidden fixed inset-0 bg-black/20 z-40"
+                                 onclick="toggleSettlementPopup(${trade.trade_seq})">
+                            </div>
+                        </div>
         </c:forEach>
     </div>
 </div>
@@ -149,8 +224,18 @@
 
         // 전역에 노출
         window.SalesTab = SalesTab;
+            window.toggleSettlementPopup = function(id) {
+                const popup = document.getElementById('settlement-popup-' + id);
+                const backdrop = document.getElementById('settlement-backdrop-' + id);
 
+                if (popup && backdrop) {
+                    const isHidden = popup.classList.contains('hidden');
+                    popup.classList.toggle('hidden', !isHidden);
+                    backdrop.classList.toggle('hidden', !isHidden);
+                }
+            };
         // 초기화
         SalesTab.init();
+
     })();
 </script>
