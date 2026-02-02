@@ -1107,7 +1107,39 @@ webClient.get().uri(url)
                         class="max-w-full max-h-full object-contain shadow-2xl select-none">
                 </div>
             </div>
+            <section class="py-32 bg-gray-50 border-t border-gray-100">
+                <div class="max-w-[1440px] mx-auto px-6">
+                    <div class="text-center mb-16 reveal-text">
+                        <span class="text-orange-600 font-bold tracking-wider text-sm uppercase mb-2 block">Real-time Monitoring</span>
+                        <h2 class="text-4xl font-black mb-4 text-gray-900">CloudWatch Metrics</h2>
+                        <p class="text-gray-500 font-medium">AWS 인프라의 실시간 상태와 성능 지표를 모니터링합니다.</p>
+                    </div>
 
+                    <div class="reveal-card">
+                        <div class="bento-box overflow-hidden bg-white border border-gray-200 shadow-2xl" style="height: 800px;">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></div>
+                                    <span class="text-sm font-bold text-gray-700">Live Dashboard: SecondaryBook-Dashboard</span>
+                                </div>
+                                <a href="https://cloudwatch.amazonaws.com/dashboard.html?dashboard=SecondaryBook-Dashboard&context=eyJSIjoidXMtZWFzdC0xIiwiRCI6ImN3LWRiLTEzNDA1MTA1MjAyNSIsIlUiOiJ1cy1lYXN0LTFfU3JKVzBoaEZPIiwiQyI6IjFvM3VicjkzNjZyMzZibHI1amFlbmpwazd0IiwiSSI6InVzLWVhc3QtMTpmNDM1NDdmYi01NzQ1LTRlM2ItODIyNS00OTkxYzdhMzhlNWEiLCJNIjoiUHVibGljIn0="
+                                   target="_blank" class="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                                    새 창에서 보기 <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+
+                            <iframe
+                                    src="https://cloudwatch.amazonaws.com/dashboard.html?dashboard=SecondaryBook-Dashboard&context=eyJSIjoidXMtZWFzdC0xIiwiRCI6ImN3LWRiLTEzNDA1MTA1MjAyNSIsIlUiOiJ1cy1lYXN0LTFfU3JKVzBoaEZPIiwiQyI6IjFvM3VicjkzNjZyMzZibHI1amFlbmpwazd0IiwiSSI6InVzLWVhc3QtMTpmNDM1NDdmYi01NzQ1LTRlM2ItODIyNS00OTkxYzdhMzhlNWEiLCJNIjoiUHVibGljIn0="
+                                    width="100%"
+                                    height="100%"
+                                    frameborder="0"
+                                    style="border:0; min-height: 740px;"
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <!-- Code Diff Modal -->
             <div id="diffModal"
                 class="fixed inset-0 z-[99990] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"
