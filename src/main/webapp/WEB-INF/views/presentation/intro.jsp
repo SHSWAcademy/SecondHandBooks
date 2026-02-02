@@ -682,6 +682,23 @@ webClient.get().uri(url)
                 </div>
             </section>
 
+            <!-- Redis Cache Strategy Detail (AJAX) -->
+            <section class="py-32 bg-gray-50 border-t border-gray-100" id="redis-visualizer-section">
+                <div class="max-w-7xl mx-auto px-6">
+                    <h2 class="text-3xl font-bold mb-8 text-center text-gray-900 reveal-text">Redis Caching Strategy
+                        Deep Dive</h2>
+                    <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+                        Spring Cache와 AOP를 활용하여 구현된 고성능 캐싱 레이어의 동작 원리를 시각화했습니다.
+                    </p>
+                    <div id="redis-ajax-container" class="min-h-[600px] flex items-center justify-center">
+                        <div class="flex flex-col items-center gap-4 text-gray-500">
+                            <i data-lucide="loader-2" class="w-10 h-10 animate-spin"></i>
+                            <span class="text-sm font-mono">Loading Redis Strategy Data...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- QA Reports Section (Separated) -->
             <section class="py-32 bg-gray-50 border-t border-gray-200">
                 <div class="max-w-7xl mx-auto px-6">
@@ -1286,6 +1303,7 @@ Other transactions wait here. -->`
                 document.addEventListener('DOMContentLoaded', () => {
                     new InteractiveManager();
                     loadInfrastructure();
+                    loadRedisVisualizer();
                 });
 
                 /* --- ARCHITECTURE VISUALIZER (AJAX) --- */
@@ -1307,6 +1325,144 @@ Other transactions wait here. -->`
                             container.innerHTML = '<div class="text-red-500 text-center">Failed to load infrastructure data.</div>';
                         });
                 }
+
+                /* --- REDIS VISUALIZER (AJAX) --- */
+                function loadRedisVisualizer() {
+                    const container = document.getElementById('redis-ajax-container');
+                    if (!container) return;
+
+                    fetch('${pageContext.request.contextPath}/resources/presentation/redis_visualizer.html')
+                        .then(response => {
+                            if (!response.ok) throw new Error("Network response was not ok");
+                            return response.text();
+                        })
+                        .then(html => {
+                            container.innerHTML = html;
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        })
+                        .catch(err => {
+                            console.error('Failed to load redis visualizer', err);
+                            container.innerHTML = '<div class="text-red-500 text-center">Failed to load Redis strategy data.</div>';
+                        });
+                }
+
+                // Global functions for Redis Visualizer Interactivity
+                window.switchRedisTab = function (tabName) {
+                    // Buttons
+                    document.querySelectorAll('.redis-tab-btn').forEach(btn => {
+                        if (btn.id === 'redis-tab-btn-' + tabName) {
+                            btn.classList.add('bg-white', 'text-blue-600', 'shadow-sm', 'border-gray-200');
+                            btn.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-100');
+                        } else {
+                            btn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm', 'border-gray-200');
+                            btn.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:bg-gray-100');
+                        }
+                    });
+                    // Content
+                    document.querySelectorAll('.redis-tab-content').forEach(content => {
+                        if (content.id === 'redis-content-' + tabName) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                };
+
+                window.setEvictionAction = function (action) {
+                    // Reset all buttons
+                    document.querySelectorAll('.evt-btn').forEach(btn => {
+                        btn.className = "evt-btn px-4 py-2 rounded-xl text-xs font-black transition-all text-gray-500 hover:text-gray-700 flex items-center gap-1";
+                    });
+
+                    const activeBtn = document.getElementById('evt-btn-' + action);
+                    const badge = document.getElementById('evt-badge');
+                    const endpoint = document.getElementById('evt-endpoint');
+                    const iconBox = document.getElementById('evt-icon-box');
+                    const query = document.getElementById('evt-query');
+
+                    let colorClass = "";
+                    let endpointText = "";
+                    let queryText = "";
+                    let borderColor = "";
+
+                    if (action === 'INSERT') {
+                        colorClass = "bg-green-500";
+                        endpointText = "POST /bookclubs";
+                        queryText = "INSERT INTO book_clubs ...";
+                        borderColor = "border-green-200";
+                        activeBtn.className = "evt-btn px-4 py-2 rounded-xl text-xs font-black transition-all bg-green-500 text-white shadow-md scale-105 flex items-center gap-1";
+                    } else if (action === 'UPDATE') {
+                        colorClass = "bg-blue-500";
+                        endpointText = "POST /bookclubs/1";
+                        queryText = "UPDATE book_clubs SET ...";
+                        borderColor = "border-blue-200";
+                        activeBtn.className = "evt-btn px-4 py-2 rounded-xl text-xs font-black transition-all bg-blue-500 text-white shadow-md scale-105 flex items-center gap-1";
+                    } else if (action === 'DELETE') {
+                        colorClass = "bg-red-500";
+                        endpointText = "POST /bookclubs/1/delete";
+                        queryText = "DELETE FROM book_clubs WHERE id=1";
+                        borderColor = "border-red-200";
+                        activeBtn.className = "evt-btn px-4 py-2 rounded-xl text-xs font-black transition-all bg-red-500 text-white shadow-md scale-105 flex items-center gap-1";
+                    }
+
+                    badge.className = "px-2 py-0.5 rounded text-[10px] font-black text-white " + colorClass;
+                    endpoint.innerText = endpointText;
+                    query.innerText = queryText;
+                    iconBox.className = `w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg border-2 transition-colors duration-500 ${borderColor} bg-white text-gray-700`;
+                };
+
+                window.setReadFlowHit = function (isHit) {
+                    const btnHit = document.getElementById('btn-hit');
+                    const btnMiss = document.getElementById('btn-miss');
+                    const pulseDot = document.getElementById('read-pulse-dot');
+                    const msgHit = document.getElementById('msg-hit');
+                    const msgMiss = document.getElementById('msg-miss');
+                    const redisBox = document.getElementById('redis-box');
+                    const repoSection = document.getElementById('repo-section');
+                    const returnHit = document.getElementById('return-hit');
+                    const returnMiss = document.getElementById('return-miss');
+
+                    if (isHit) {
+                        btnHit.classList.add('bg-white', 'text-green-600', 'shadow-sm', 'border-gray-100');
+                        btnHit.classList.remove('text-gray-500', 'hover:text-gray-700');
+                        btnMiss.classList.remove('bg-white', 'text-orange-600', 'shadow-sm', 'border-gray-100');
+                        btnMiss.classList.add('text-gray-500', 'hover:text-gray-700');
+
+                        pulseDot.className = "w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]";
+                        msgHit.classList.remove('hidden');
+                        msgMiss.classList.add('hidden');
+
+                        redisBox.className = "p-5 rounded-2xl border-2 transition-all duration-500 border-green-400 bg-green-500 shadow-xl scale-105 flex flex-col items-center";
+                        redisBox.innerHTML = '<i data-lucide="database-zap" class="text-white w-8 h-8"></i><span class="text-[10px] font-black block mt-2 text-center uppercase text-white tracking-wider">Redis Store</span>';
+                        if (typeof lucide !== 'undefined') lucide.createIcons({ root: redisBox });
+
+                        repoSection.classList.add('opacity-0', '-translate-y-4', 'max-h-0');
+                        repoSection.classList.remove('max-h-[1000px]', 'opacity-100', 'translate-y-0');
+
+                        returnHit.classList.remove('hidden');
+                        returnMiss.classList.add('hidden');
+                    } else {
+                        btnHit.classList.remove('bg-white', 'text-green-600', 'shadow-sm', 'border-gray-100');
+                        btnHit.classList.add('text-gray-500', 'hover:text-gray-700');
+                        btnMiss.classList.add('bg-white', 'text-orange-600', 'shadow-sm', 'border-gray-100');
+                        btnMiss.classList.remove('text-gray-500', 'hover:text-gray-700');
+
+                        pulseDot.className = "w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse shadow-[0_0_10px_rgba(251,146,60,0.5)]";
+                        msgHit.classList.add('hidden');
+                        msgMiss.classList.remove('hidden');
+
+                        redisBox.className = "p-5 rounded-2xl border-2 transition-all duration-500 border-white/20 bg-white/5 flex flex-col items-center";
+                        // Note: To keep the icon white/gray when inactive
+                        redisBox.innerHTML = '<i data-lucide="database" class="text-blue-100/50 w-8 h-8"></i><span class="text-[10px] font-black block mt-2 text-center uppercase text-blue-100/50 tracking-wider">Redis Store</span>';
+                        if (typeof lucide !== 'undefined') lucide.createIcons({ root: redisBox });
+
+                        repoSection.classList.remove('opacity-0', '-translate-y-4', 'max-h-0');
+                        repoSection.classList.add('max-h-[1000px]', 'opacity-100', 'translate-y-0');
+
+                        returnHit.classList.add('hidden');
+                        returnMiss.classList.remove('hidden');
+                    }
+                };
 
                 window.switchInfraTab = function (tabName) {
                     // Toggle buttons

@@ -290,7 +290,7 @@
 .page-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: 20px;
 }
 
@@ -350,6 +350,12 @@
     color: #666;
 }
 
+.result-info h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+}
 .sort-toggle {
     display: flex;
     gap: 8px;
@@ -381,6 +387,8 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 24px;
+    margin-top: 32px;
+    min-height: 300px;
 }
 
 /* 카드 스타일 */
