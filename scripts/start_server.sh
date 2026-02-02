@@ -7,6 +7,11 @@ TOMCAT_HOME="/opt/tomcat9"
 DEPLOY_DIR="/opt/codedeploy-agent/deployment-root/secondarybook"
 WAR_FILE="$DEPLOY_DIR/project-1.0.0-BUILD-SNAPSHOT.war"
 
+# macOS 리소스 포크 파일 정리 (._* 파일들이 JAR로 인식되어 에러 발생 방지)
+find $TOMCAT_HOME -name "._*" -delete 2>/dev/null || true
+find $DEPLOY_DIR -name "._*" -delete 2>/dev/null || true
+echo "Cleaned up macOS resource fork files"
+
 # 기존 웹앱 제거
 rm -rf $TOMCAT_HOME/webapps/ROOT
 rm -rf $TOMCAT_HOME/webapps/ROOT.war
