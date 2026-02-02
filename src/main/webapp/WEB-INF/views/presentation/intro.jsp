@@ -116,6 +116,7 @@
                 </div>
             </nav>
 
+            <!-- Original HERO Section -->
             <section class="min-h-screen flex flex-col justify-center items-center text-center px-4 relative pt-10">
                 <div class="reveal-text">
                     <div class="mb-8 inline-block">
@@ -139,67 +140,137 @@
                 </div>
             </section>
 
+            <!-- New Partitioned TEAM Section -->
             <section class="py-32 bg-white border-y border-gray-100">
-                <div class="max-w-6xl mx-auto px-6 text-center">
-                    <h2 class="text-4xl font-bold mb-4 reveal-text">We made this.</h2>
-                    <p class="text-gray-500 mb-20 reveal-text">열정적인 6명의 팀원을 소개합니다.</p>
+                <div class="max-w-7xl mx-auto px-6 text-center">
+                    <h2 class="text-4xl font-bold mb-4 reveal-text">Our Team</h2>
+                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈습니다.</p>
 
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-                        <div class="reveal-card" style="transition-delay: 0ms;">
-                            <div
-                                class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mx-auto mb-4 flex items-center justify-center text-2xl font-black text-gray-400 shadow-inner">
-                                K</div>
-                            <h3 class="font-bold text-lg text-gray-900">김규태</h3>
-                            <p class="text-xs text-blue-600 font-bold mt-1">Team Leader</p>
-                            <p class="text-xs text-gray-400 mt-1">Auth / Admin / MyPage</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
+                        <!-- Group 1 -->
+                        <div
+                            class="reveal-card group p-8 rounded-3xl bg-gray-50 hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-gray-100">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg">Auth & Admin</h3>
+                                    <p class="text-xs text-gray-400">Security / User Mgmt</p>
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
+                                        K</div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">김규태</p>
+                                        <p class="text-xs text-blue-600 font-bold">Team Leader</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
+                                        L</div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">이승환</p>
+                                        <p class="text-xs text-gray-500">Backend Dev</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                <p class="text-xs text-gray-500 leading-relaxed">
+                                    Spring Security 인증/인가 구조 설계, 관리자 운영 대시보드 및 마이페이지 통합 관리를 구현했습니다.
+                                </p>
+                            </div>
                         </div>
-                        <div class="reveal-card" style="transition-delay: 100ms;">
-                            <div
-                                class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mx-auto mb-4 flex items-center justify-center text-2xl font-black text-gray-400 shadow-inner">
-                                L</div>
-                            <h3 class="font-bold text-lg text-gray-900">이승환</h3>
-                            <p class="text-xs text-blue-600 font-bold mt-1">Backend</p>
-                            <p class="text-xs text-gray-400 mt-1">Auth / Admin / MyPage</p>
+
+                        <!-- Group 2 -->
+                        <div class="reveal-card group p-8 rounded-3xl bg-gray-50 hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-gray-100"
+                            style="transition-delay: 100ms;">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="p-3 bg-purple-100 text-purple-600 rounded-xl">
+                                    <i data-lucide="credit-card" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg">Core Business</h3>
+                                    <p class="text-xs text-gray-400">Trade / Pay / Chat</p>
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
+                                        C</div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">최범근</p>
+                                        <p class="text-xs text-gray-500">Full Stack</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
+                                        L</div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">이상원</p>
+                                        <p class="text-xs text-gray-500">Backend Dev</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                <p class="text-xs text-gray-500 leading-relaxed">
+                                    중고 거래 핵심 로직, 에스크로 안전 결제(Scheduler), STOMP 기반 실시간 채팅을 담당했습니다.
+                                </p>
+                            </div>
                         </div>
-                        <div class="reveal-card" style="transition-delay: 200ms;">
-                            <div
-                                class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mx-auto mb-4 flex items-center justify-center text-2xl font-black text-gray-400 shadow-inner">
-                                C</div>
-                            <h3 class="font-bold text-lg text-gray-900">최범근</h3>
-                            <p class="text-xs text-blue-600 font-bold mt-1">Full Stack</p>
-                            <p class="text-xs text-gray-400 mt-1">Main / Pay / Chat</p>
-                        </div>
-                        <div class="reveal-card" style="transition-delay: 300ms;">
-                            <div
-                                class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mx-auto mb-4 flex items-center justify-center text-2xl font-black text-gray-400 shadow-inner">
-                                L</div>
-                            <h3 class="font-bold text-lg text-gray-900">이상원</h3>
-                            <p class="text-xs text-blue-600 font-bold mt-1">Backend</p>
-                            <p class="text-xs text-gray-400 mt-1">Main / Pay / Chat</p>
-                        </div>
-                        <div class="reveal-card" style="transition-delay: 400ms;">
-                            <div
-                                class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mx-auto mb-4 flex items-center justify-center text-2xl font-black text-gray-400 shadow-inner">
-                                K</div>
-                            <h3 class="font-bold text-lg text-gray-900">김도연</h3>
-                            <p class="text-xs text-blue-600 font-bold mt-1">Frontend</p>
-                            <p class="text-xs text-gray-400 mt-1">Book Club</p>
-                        </div>
-                        <div class="reveal-card" style="transition-delay: 500ms;">
-                            <div
-                                class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 mx-auto mb-4 flex items-center justify-center text-2xl font-black text-gray-400 shadow-inner">
-                                L</div>
-                            <h3 class="font-bold text-lg text-gray-900">이동희</h3>
-                            <p class="text-xs text-blue-600 font-bold mt-1">Frontend</p>
-                            <p class="text-xs text-gray-400 mt-1">Book Club</p>
+
+                        <!-- Group 3 -->
+                        <div class="reveal-card group p-8 rounded-3xl bg-gray-50 hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-gray-100"
+                            style="transition-delay: 200ms;">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="p-3 bg-green-100 text-green-600 rounded-xl">
+                                    <i data-lucide="users" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg">Community</h3>
+                                    <p class="text-xs text-gray-400">Book Club / Board</p>
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
+                                        K</div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">김도연</p>
+                                        <p class="text-xs text-gray-500">Frontend</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
+                                        L</div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">이동희</p>
+                                        <p class="text-xs text-gray-500">Frontend</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                <p class="text-xs text-gray-500 leading-relaxed">
+                                    위치 기반 독서 모임 찾기, 커뮤니티 게시판 및 Frontend 전반의 UI/UX를 고도화했습니다.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- MOTIVATION Section (Kept from Original/Prev) -->
             <section class="py-32 bg-gray-50">
                 <div class="max-w-5xl mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">왜 이 프로젝트를 시작했나요?</h2>
+                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Why SecondHand Books?</h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div class="bento-box p-8 reveal-card">
@@ -236,319 +307,349 @@
                 </div>
             </section>
 
+            <!-- TECHNICAL DEEP DIVE Section (Dark Mode) - NEW -->
+            <section class="py-32 px-6 bg-[#0d1117] text-white">
+                <div class="max-w-7xl mx-auto">
+                    <div class="text-center mb-20 reveal-text">
+                        <span class="text-blue-400 font-bold tracking-wider text-sm uppercase mb-2 block">Technical Deep
+                            Dive</span>
+                        <h2 class="text-5xl font-bold">Evolution to Non-Blocking I/O</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div class="reveal-card">
+                            <div class="bg-gray-800/50 p-8 rounded-3xl border border-gray-700/50 mb-8">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-2xl font-bold text-gray-400">Legacy: RestTemplate</h3>
+                                    <span
+                                        class="px-3 py-1 bg-red-500/10 text-red-400 text-xs font-bold rounded-full">Blocking</span>
+                                </div>
+                                <p class="text-gray-400 leading-relaxed mb-6">
+                                    전통적인 동기(Synchronous) 방식입니다. 외부 API 요청 시 응답이 올 때까지 스레드가 대기(Block)합니다.
+                                    만약 카카오 도서 API 응답이 지연되면, 서버 스레드 풀(Thread Pool)이 고갈되어 전체 시스템 장애(Cascading Failure)로
+                                    이어질 위험이 있습니다.
+                                </p>
+                                <div class="font-mono text-xs text-gray-500 bg-black p-4 rounded-xl">
+                                    Thread-1: Wait... (Blocked 3s)<br>
+                                    Thread-2: Wait... (Blocked 3s)<br>
+                                    <span class="text-red-500">Error: Thread Pool Exhausted</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card relative">
+                            <div
+                                class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-3xl opacity-30 blur-lg">
+                            </div>
+                            <div class="relative bg-gray-900 p-8 rounded-3xl border border-blue-500/30">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-2xl font-bold text-white">Adoption: WebClient</h3>
+                                    <span
+                                        class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">Non-Blocking</span>
+                                </div>
+                                <p class="text-gray-300 leading-relaxed mb-6">
+                                    Spring WebFlux의 비동기 클라이언트입니다. 요청 전송 후 스레드는 즉시 반납(Release)되어 다른 작업을 처리합니다.
+                                    응답이 오면 콜백으로 처리하므로, 적은 수의 스레드로 엄청난 양의 동시 요청(Concurrency)을 안정적으로 처리할 수 있습니다.
+                                </p>
+                                <div class="code-window">
+                                    <div class="code-header">
+                                        <div class="dot red"></div>
+                                        <div class="dot yellow"></div>
+                                        <div class="dot green"></div>
+                                        <span class="ml-2 text-xs text-gray-500">BookApiService.java</span>
+                                    </div>
+                                    <div class="p-4 text-xs font-mono text-blue-300 bg-black/50">
+                                        <pre>
+webClient.get()
+    .uri(kakaoApiUrl)
+    .retrieve()
+    .bodyToMono(String.class) <span class="text-gray-500">// 비동기 Mono 반환</span>
+    .subscribe(); <span class="text-green-400">// Non-blocking 실행</span>
+    </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CORE FEATURES Section -->
             <section class="py-32 px-6">
                 <div class="max-w-7xl mx-auto">
                     <div class="text-center mb-24 reveal-text">
                         <h2 class="text-5xl font-bold mb-6">Seamless Solution.</h2>
-                        <p class="text-xl text-gray-500">우리가 제안하는 새로운 중고 거래 경험</p>
+                        <p class="text-xl text-gray-500">기술로 완성된 새로운 경험</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div
-                            class="bento-box p-8 md:col-span-2 flex flex-col md:flex-row items-center gap-8 reveal-card">
+                            class="bento-box p-8 md:col-span-2 flex flex-col md:flex-row items-center gap-8 reveal-card shadow-lg rounded-3xl bg-white border border-gray-100">
                             <div class="flex-1">
                                 <span class="text-blue-600 font-bold mb-2 block">01. API Integration</span>
-                                <h3 class="text-3xl font-bold mb-4">1초 자동 등록</h3>
-                                <p class="text-gray-500 leading-relaxed">
-                                    ISBN 스캔만으로 Naver/Kakao Book API를 통해 도서 정보를 자동으로 불러옵니다.
+                                <h3 class="text-3xl font-bold mb-4">1초 자동 등록 (WebClient)</h3>
+                                <p class="text-gray-500 leading-relaxed mb-4">
+                                    ISBN이나 책 제목만 입력하세요. Naver/Kakao Book API를 통해 저자, 출판사, 가격, 표지 이미지를 자동으로 불러옵니다.
+                                    Blocking 방식의 RestTemplate 대신 <strong>Non-blocking WebClient</strong>를 사용하여 대량 요청에도
+                                    서버 성능 저하 없이 안정적으로 동작합니다.
                                 </p>
                             </div>
                             <div class="flex-1 w-full bg-blue-50 rounded-2xl h-48 flex items-center justify-center">
-                                <i data-lucide="scan-barcode" class="w-16 h-16 text-blue-300"></i>
+                                <i data-lucide="book-open" class="w-16 h-16 text-blue-300"></i>
                             </div>
                         </div>
 
-                        <div class="bento-box p-8 bg-gray-900 text-white reveal-card" style="transition-delay: 100ms;">
+                        <div class="bento-box p-8 bg-gray-900 text-white reveal-card rounded-3xl shadow-lg"
+                            style="transition-delay: 100ms;">
                             <div class="h-full flex flex-col justify-between">
                                 <div>
                                     <span class="text-green-400 font-bold mb-2 block">02. Safe Payment</span>
-                                    <h3 class="text-2xl font-bold mb-2">에스크로 결제</h3>
-                                    <p class="text-gray-400 text-sm">구매 확정 시까지 대금을 안전하게 보호합니다.</p>
+                                    <h3 class="text-2xl font-bold mb-2">Escrow System</h3>
+                                    <p class="text-gray-400 text-sm">
+                                        구매 확정 시까지 대금을 플랫폼 보호합니다.
+                                        <strong>Pessimistic Lock</strong>으로 중복 결제를 방지하고, <strong>Scheduler</strong>로
+                                        미입금/미확정 건을 자동 관리합니다.
+                                    </p>
                                 </div>
                                 <i data-lucide="shield-check" class="w-10 h-10 text-green-400 mt-4"></i>
                             </div>
                         </div>
 
-                        <div class="bento-box p-8 reveal-card" style="transition-delay: 200ms;">
+                        <div class="bento-box p-8 reveal-card border border-gray-200 rounded-3xl bg-white"
+                            style="transition-delay: 200ms;">
                             <div class="h-full flex flex-col justify-between">
                                 <div>
-                                    <span class="text-yellow-500 font-bold mb-2 block">03. Community</span>
-                                    <h3 class="text-2xl font-bold mb-2">로컬 독서 모임</h3>
-                                    <p class="text-gray-500 text-sm">지도 기반으로 내 주변 독서 모임을 탐색합니다.</p>
+                                    <span class="text-yellow-500 font-bold mb-2 block">03. Real-time</span>
+                                    <h3 class="text-2xl font-bold mb-2">WebSocket Chat</h3>
+                                    <p class="text-gray-500 text-sm">STOMP 프로토콜과 Pub/Sub 모델을 적용하여 1:N 실시간 채팅을 지연 없이
+                                        제공합니다.</p>
                                 </div>
-                                <i data-lucide="map-pin" class="w-10 h-10 text-yellow-500 mt-4"></i>
+                                <i data-lucide="message-circle" class="w-10 h-10 text-yellow-500 mt-4"></i>
                             </div>
                         </div>
 
-                        <div class="bento-box p-8 md:col-span-2 flex flex-col md:flex-row-reverse items-center gap-8 reveal-card"
+                        <div class="bento-box p-8 md:col-span-2 flex flex-col md:flex-row-reverse items-center gap-8 reveal-card border border-gray-200 rounded-3xl bg-white"
                             style="transition-delay: 300ms;">
                             <div class="flex-1">
-                                <span class="text-purple-600 font-bold mb-2 block">04. Real-time Chat</span>
-                                <h3 class="text-3xl font-bold mb-4">실시간 채팅</h3>
+                                <span class="text-purple-600 font-bold mb-2 block">04. Performance</span>
+                                <h3 class="text-3xl font-bold mb-4">Redis Caching</h3>
                                 <p class="text-gray-500 leading-relaxed">
-                                    WebSocket(STOMP)을 활용하여 지연 없는 대화 환경을 제공합니다.
+                                    메인 페이지 및 검색 결과에 <strong>Look-aside Caching</strong> 전략을 적용했습니다.
+                                    응답 속도를 <strong>0.5s에서 0.02s</strong>로 96% 단축시켰으며, JSON Serializer를 사용하여 사람이 읽을 수 있는
+                                    데이터로 저장, 디버깅 효율을 높였습니다.
                                 </p>
                             </div>
                             <div class="flex-1 w-full bg-purple-50 rounded-2xl h-48 flex items-center justify-center">
-                                <i data-lucide="message-circle" class="w-16 h-16 text-purple-300"></i>
+                                <i data-lucide="zap" class="w-16 h-16 text-purple-300"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- Project Management (GitHub) -->
             <section class="py-32 bg-gray-50">
-                <div class="max-w-6xl mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 reveal-text">Feature Details</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div class="bento-box p-8 reveal-card">
-                            <div
-                                class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
-                                <i data-lucide="user" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">마이페이지</h3>
-                            <ul class="space-y-2 text-sm text-gray-500">
-                                <li class="flex items-center gap-2"><i data-lucide="check"
-                                        class="w-4 h-4 text-green-500"></i> 구매/판매 내역 통합 관리</li>
-                                <li class="flex items-center gap-2"><i data-lucide="check"
-                                        class="w-4 h-4 text-green-500"></i> 찜한 상품 목록 확인</li>
-                                <li class="flex items-center gap-2"><i data-lucide="check"
-                                        class="w-4 h-4 text-green-500"></i> 회원 정보 및 주소록 관리</li>
-                            </ul>
-                        </div>
-                        <div class="bento-box p-8 reveal-card" style="transition-delay: 100ms;">
-                            <div
-                                class="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-2xl flex items-center justify-center mb-6">
-                                <i data-lucide="star" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">신뢰도 시스템</h3>
-                            <p class="text-gray-500 text-sm mb-4">거래 완료 후 상호 평가를 통해 유저 신뢰도를 측정합니다.</p>
-                            <div class="flex gap-1 text-yellow-400">
-                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
-                                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
-                            </div>
-                        </div>
-                        <div class="bento-box p-8 reveal-card" style="transition-delay: 200ms;">
-                            <div
-                                class="w-12 h-12 bg-gray-800 text-white rounded-2xl flex items-center justify-center mb-6">
-                                <i data-lucide="settings" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">관리자 대시보드</h3>
-                            <p class="text-gray-500 text-sm">
-                                일별 방문자/매출 통계, 신고 접수 처리, 배너 관리 등 서비스 전반을 운영합니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                <div class="max-w-[1440px] mx-auto px-6">
+                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Collaboration & Workflow</h2>
 
-            <section class="py-32 bg-[#111] text-white">
-                <div class="max-w-6xl mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 reveal-text border-l-4 border-blue-500 pl-6">Core Architecture
-                    </h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
-                        <div class="reveal-text">
-                            <div class="mb-6 inline-flex p-3 rounded-2xl bg-gray-800 border border-gray-700">
-                                <i data-lucide="server" class="w-8 h-8 text-blue-400"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold mb-4 text-blue-400">Non-Blocking I/O (WebClient)</h3>
-                            <p class="text-gray-400 mb-6 leading-relaxed">
-                                기존 <code>RestTemplate</code>의 Blocking 방식은 외부 API 지연 시 스레드 점유 문제를 야기합니다.
-                                이를 해결하기 위해 <strong>WebClient</strong>를 도입하여 외부 API(도서, 결제) 통신의 효율성을 극대화했습니다.
-                            </p>
-                            <div class="code-window">
-                                <div class="code-header">
-                                    <div class="dot red"></div>
-                                    <div class="dot yellow"></div>
-                                    <div class="dot green"></div>
-                                </div>
-                                <div class="p-4 text-xs text-green-400 bg-[#1e1e1e] font-mono">
-                                    <pre>
-WebClient.create().get()
-  .uri(naverApiUrl)
-  .retrieve()
-  .bodyToMono(String.class)
-  .subscribe(); // Async Processing
-</pre>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="reveal-text" style="transition-delay: 200ms;">
-                            <div class="mb-6 inline-flex p-3 rounded-2xl bg-gray-800 border border-gray-700">
-                                <i data-lucide="clock" class="w-8 h-8 text-purple-400"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold mb-4 text-purple-400">Reliability (Scheduler)</h3>
-                            <p class="text-gray-400 mb-6 leading-relaxed">
-                                <code>SafePaymentScheduler</code>가 백그라운드에서 실행되며 거래 상태의 무결성을 관리합니다.
-                                결제 미완료 건 자동 취소(5분), 배송 완료 후 자동 구매 확정(15일) 로직을 수행합니다.
-                            </p>
-                            <ul class="space-y-3 text-sm text-gray-500">
-                                <li class="flex items-center gap-2"><i data-lucide="check"
-                                        class="w-4 h-4 text-green-500"></i> 미결제 데이터 자동 정리</li>
-                                <li class="flex items-center gap-2"><i data-lucide="check"
-                                        class="w-4 h-4 text-green-500"></i> 장기 미확정 거래 자동 정산</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="py-32 bg-gray-50">
-                <div class="max-w-6xl mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-4 reveal-text">DevOps & Performance</h2>
-                    <p class="text-gray-500 mb-16 reveal-text">안정적인 서비스 운영을 위한 인프라 및 성능 최적화 전략</p>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[380px]">
-
-                        <div
-                            class="bento-box md:col-span-2 p-10 reveal-card relative overflow-hidden group border border-gray-200">
-                            <div class="relative z-10">
+                    <div class="space-y-24">
+                        <!-- Part 1: Issue & Branch Board -->
+                        <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
                                 <div
-                                    class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                                    <i data-lucide="git-merge" class="w-6 h-6"></i>
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="trello" class="w-4 h-4"></i>
+                                    Kanban Board
                                 </div>
-                                <h3 class="text-2xl font-bold mb-3 text-gray-900">Automated CI/CD Pipeline</h3>
-                                <p class="text-gray-500 leading-relaxed mb-8 max-w-lg">
-                                    <strong>GitHub Actions</strong>와 <strong>AWS CodeDeploy</strong>를 연동하여 코드 푸시부터 배포까지의
-                                    과정을 자동화했습니다.
-                                </p>
-                                <div
-                                    class="flex items-center gap-4 text-sm font-bold text-gray-600 bg-gray-100 p-4 rounded-xl w-fit">
-                                    <span class="flex items-center gap-2"><i data-lucide="github" class="w-4 h-4"></i>
-                                        Push</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400"></i>
-                                    <span class="flex items-center gap-2"><i data-lucide="package" class="w-4 h-4"></i>
-                                        Build (S3)</span>
-                                    <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400"></i>
-                                    <span class="flex items-center gap-2"><i data-lucide="server" class="w-4 h-4"></i>
-                                        Deploy (EC2)</span>
-                                </div>
-                            </div>
-                            <div class="absolute right-[-40px] top-[-40px] opacity-[0.03]">
-                                <i data-lucide="settings" class="w-96 h-96"></i>
-                            </div>
-                        </div>
-
-                        <div
-                            class="bento-box p-8 bg-gradient-to-br from-red-500 to-red-600 text-white reveal-card flex flex-col justify-between shadow-lg shadow-red-500/20">
-                            <div>
-                                <div
-                                    class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4">
-                                    <i data-lucide="zap" class="w-6 h-6 text-white"></i>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2">Redis Caching</h3>
-                                <p class="text-white/80 text-sm leading-relaxed">
-                                    조회 빈도가 높은 데이터를 <strong>Redis</strong>에 캐싱하여 응답 속도를 <strong>0.5s → 0.02s</strong>로
-                                    단축했습니다.
+                                <h3 class="text-3xl font-bold text-gray-900">투명한 진행 상황 공유</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    GitHub Projects를 활용하여 모든 기능을 이슈 단위로 관리했습니다.
+                                    Ready -> In Progress -> In Review -> Done 파이프라인을 구축하여
+                                    팀원 간의 진행 상황을 실시간으로 동기화했습니다.
                                 </p>
                             </div>
-                            <div class="mt-4 p-3 bg-white/10 rounded-lg text-xs font-mono border border-white/20">
-                                @Cacheable(value="books")
+                            <div
+                                class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500">
+                                <img src="${pageContext.request.contextPath}/resources/presentation/img/github_board.png"
+                                    alt="GitHub Project Board" class="w-full h-auto">
                             </div>
                         </div>
 
-                        <div class="bento-box p-8 border border-gray-200 reveal-card flex flex-col justify-between">
-                            <div>
+                        <!-- Part 2: Table View & Labels -->
+                        <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
                                 <div
-                                    class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
-                                    <i data-lucide="database" class="w-6 h-6"></i>
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="table" class="w-4 h-4"></i>
+                                    Structured Issues
                                 </div>
-                                <h3 class="text-xl font-bold mb-2">Query Optimization</h3>
-                                <p class="text-gray-500 text-sm leading-relaxed">
-                                    MyBatis Dynamic SQL 최적화 및 주요 조회 컬럼 인덱싱을 통해 검색 성능을 개선했습니다.
+                                <h3 class="text-3xl font-bold text-gray-900">체계적인 이슈 트래킹</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    P0(Critical), P1(High) 등 우선순위 라벨링과 [FEAT], [FIX] 헤더 규칙을 통해
+                                    개발의 방향성을 명확히 했습니다. PR과 이슈를 연동하여 코드 변경 사항을 히스토리로 남겼습니다.
                                 </p>
                             </div>
-                            <div class="mt-4 flex gap-2">
-                                <span
-                                    class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded font-mono">INDEXING</span>
+                            <div
+                                class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500">
+                                <img src="${pageContext.request.contextPath}/resources/presentation/img/github_table.png"
+                                    alt="GitHub Issue Table" class="w-full h-auto">
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- TROUBLESHOOTING Section -->
             <section class="py-32 bg-white">
                 <div class="max-w-6xl mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 reveal-text">Security & Infrastructure</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div class="bento-box p-8 reveal-card border border-gray-100">
+                    <h2 class="text-4xl font-bold mb-16 reveal-text border-l-4 border-red-500 pl-6">Troubleshooting
+                        Challenges</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <!-- N+1 -->
+                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="p-3 bg-red-100 text-red-600 rounded-xl">
+                                    <i data-lucide="database" class="w-6 h-6"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold">N+1 Problem</h3>
+                            </div>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-sm font-bold text-gray-400 mb-1">ISSUE</p>
+                                    <p class="text-gray-700">판매글 목록 조회 시, 각 책의 썸네일 이미지를 위해 N번의 추가 쿼리 발생</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-blue-500 mb-1">SOLUTION</p>
+                                    <p class="text-gray-700 mb-4">MyBatis <code>&lt;foreach&gt;</code>를 활용한 <strong>IN
+                                            Query</strong> 최적화</p>
+                                    <div class="code-window">
+                                        <div class="p-3 text-xs bg-[#1e1e1e] text-green-400 font-mono">
+                                            SELECT ... WHERE trade_seq IN (1, 2, ..., 20)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="inline-flex items-center gap-2 text-sm font-bold text-green-600 bg-green-50 px-4 py-2 rounded-lg">
+                                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                                    Query Count: 21 → 2
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Concurrency -->
+                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white"
+                            style="transition-delay: 100ms;">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="p-3 bg-orange-100 text-orange-600 rounded-xl">
+                                    <i data-lucide="lock" class="w-6 h-6"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold">Concurrency Control</h3>
+                            </div>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-sm font-bold text-gray-400 mb-1">ISSUE</p>
+                                    <p class="text-gray-700">인기 독서모임(잔여 1석)에 0.01초 차이로 2명 동시 가입 시도 시 정원 초과</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-blue-500 mb-1">SOLUTION</p>
+                                    <p class="text-gray-700 mb-4">PostgreSQL <strong>Pessimistic Lock</strong> 적용</p>
+                                    <div class="code-window">
+                                        <div class="p-3 text-xs bg-[#1e1e1e] text-yellow-400 font-mono">
+                                            SELECT ... FOR UPDATE
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="inline-flex items-center gap-2 text-sm font-bold text-green-600 bg-green-50 px-4 py-2 rounded-lg">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                    Data Integrity 100%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expanded Usage & Infrastructure Section -->
+            <section class="py-32 bg-gray-50">
+                <div class="max-w-6xl mx-auto px-6">
+                    <h2 class="text-4xl font-bold mb-16 reveal-text">Infrastructure & Reliability</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
+
+                        <!-- DevOps -->
+                        <div class="bento-box md:col-span-2 p-8 reveal-card flex flex-col justify-between">
+                            <div>
+                                <div
+                                    class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center mb-6">
+                                    <i data-lucide="git-merge" class="w-6 h-6"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold mb-2">Automated CI/CD</h3>
+                                <p class="text-gray-500 leading-relaxed mb-6">
+                                    GitHub Actions와 AWS CodeDeploy로 배포 자동화를 구축했습니다. 개발자는 코드 작성에만 집중할 수 있으며,
+                                    <code>start_server.sh</code> 스크립트를 통해 무중단 배포를 지향합니다.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-100 rounded-xl text-sm font-mono text-gray-600">
+                                git push origin main -> Build -> Deploy to EC2
+                            </div>
+                        </div>
+
+                        <!-- Security -->
+                        <div class="bento-box p-8 reveal-card border border-green-100 bg-green-50/50">
+                            <div
+                                class="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6">
+                                <i data-lucide="lock" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Strong Security</h3>
+                            <ul class="space-y-3 text-sm text-gray-600">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
+                                    <strong>BCrypt</strong> 비밀번호 암호화</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
+                                    <strong>XSS</strong> 방지 필터 적용</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>
+                                    <strong>CSRF</strong> 토큰 검증</li>
+                            </ul>
+                        </div>
+
+                        <!-- AWS S3 -->
+                        <div class="bento-box p-8 reveal-card">
                             <div
                                 class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-6">
                                 <i data-lucide="cloud" class="w-6 h-6"></i>
                             </div>
-                            <h3 class="text-xl font-bold mb-3">AWS S3 Image Storage</h3>
+                            <h3 class="text-xl font-bold mb-3">AWS S3 Storage</h3>
                             <p class="text-gray-500 text-sm leading-relaxed">
-                                사용자가 업로드한 도서 및 프로필 이미지를 S3 버킷에 안전하게 저장하고 CloudFront로 빠르게 제공합니다.
-                            </p>
-                        </div>
-                        <div class="bento-box p-8 reveal-card border border-gray-100" style="transition-delay: 100ms;">
-                            <div
-                                class="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6">
-                                <i data-lucide="lock" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">Spring Security</h3>
-                            <p class="text-gray-500 text-sm leading-relaxed">
-                                BCrypt 해싱을 이용한 비밀번호 암호화와 XSS 방지 필터를 적용하여 회원 정보를 보호합니다.
-                            </p>
-                        </div>
-                        <div class="bento-box p-8 reveal-card border border-gray-100" style="transition-delay: 200ms;">
-                            <div
-                                class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                                <i data-lucide="map" class="w-6 h-6"></i>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3">Utility API</h3>
-                            <p class="text-gray-500 text-sm leading-relaxed">
-                                Daum 주소 API, Toss Payments API 등 검증된 외부 서비스를 연동하여 사용 편의성을 높였습니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="py-32 px-6 bg-gray-50">
-                <div class="max-w-4xl mx-auto">
-                    <h2 class="text-3xl font-bold mb-12 border-l-4 border-red-500 pl-4 reveal-text">Troubleshooting: 변수
-                        스코프 충돌</h2>
-
-                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 reveal-card">
-                        <div class="mb-8">
-                            <h4 class="font-bold text-red-500 mb-2 flex items-center gap-2">
-                                <i data-lucide="alert-circle" class="w-5 h-5"></i> Problem
-                            </h4>
-                            <p class="text-gray-600 text-sm">
-                                마이페이지 탭을 AJAX로 동적 로딩할 때, 전역 스코프 변수 재선언으로 인한 <strong>SyntaxError</strong> 발생.
+                                이미지 파일은 DB가 아닌 S3에 저장하여 웹 서버 부하를 줄이고 확장성을 확보했습니다. 트랜잭션 롤백 시 S3 이미지를 정리하는 로직도 포함되어 있습니다.
                             </p>
                         </div>
 
-                        <div>
-                            <h4 class="font-bold text-green-600 mb-2 flex items-center gap-2">
-                                <i data-lucide="check-circle" class="w-5 h-5"></i> Solution
-                            </h4>
-                            <p class="text-gray-600 text-sm mb-4">
-                                <strong>IIFE (즉시 실행 함수)</strong> 패턴과 <strong>Namespace</strong> 객체를 도입하여
-                                스크립트의 유효 범위를 격리했습니다.
-                            </p>
-                            <div class="code-window">
-                                <div class="code-header">
-                                    <div class="dot red"></div>
-                                    <div class="dot yellow"></div>
-                                    <div class="dot green"></div>
+                        <!-- Scheduler -->
+                        <div class="bento-box md:col-span-2 p-8 reveal-card bg-[#111] text-white">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div
+                                        class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
+                                        <i data-lucide="clock" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold mb-2">Background Scheduler</h3>
+                                    <p class="text-gray-400 text-sm leading-relaxed mb-4 max-w-lg">
+                                        시스템 신뢰성을 위해 24시간 작동하는 스케줄러를 구현했습니다.
+                                    </p>
                                 </div>
-                                <div class="p-4 text-xs text-gray-300 bg-[#1e1e1e]">
-                                    <pre>
-<span class="text-gray-500">// IIFE로 스코프 격리</span>
-(function() {
-    let localState = [];
-
-    const actions = { ... };
-    <span class="text-blue-400">window.TabName</span> = actions;
-})();
-</pre>
+                                <div class="text-right">
+                                    <div class="text-xs font-mono text-gray-500 mb-1">TASK MONITOR</div>
+                                    <div class="text-green-400 font-bold animate-pulse">RUNNING</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="p-3 bg-white/10 rounded-lg">
+                                    <div class="text-xs text-gray-400 mb-1">Every 1 min</div>
+                                    <div class="font-bold text-sm">Expired Pay Cleanup</div>
+                                </div>
+                                <div class="p-3 bg-white/10 rounded-lg">
+                                    <div class="text-xs text-gray-400 mb-1">Daily 00:00</div>
+                                    <div class="font-bold text-sm">Auto Purchase Confirm</div>
                                 </div>
                             </div>
                         </div>
@@ -556,6 +657,7 @@ WebClient.create().get()
                 </div>
             </section>
 
+            <!-- Original FOOTER Section -->
             <section
                 class="h-screen flex flex-col justify-center items-center text-center bg-white border-t border-gray-100">
                 <div class="mb-8 reveal-text">

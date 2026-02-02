@@ -136,7 +136,12 @@
                     alert("닉네임은 2글자 이상이어야 합니다.");
                     return;
                 }
-
+                if (nick === originalNick) {
+                    msg.textContent = "현재 사용 중인 닉네임입니다.";
+                    msg.className = "text-xs ml-1 font-bold text-green-600";
+                    isNickChecked = true;
+                    return;
+                }
                 $.ajax({
                     url: '/auth/ajax/nicknmCheck',
                     type: 'GET',
