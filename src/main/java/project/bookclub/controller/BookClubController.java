@@ -210,6 +210,10 @@ public class BookClubController {
                         "status", "fail",
                         "message", "이미지 업로드에 실패했습니다.");
             }
+        } else if (vo.getBanner_img_url() == null || vo.getBanner_img_url().trim().isEmpty()) {
+            // 이미지 업로드도 없고 URL도 입력하지 않았다면 Service에서 랜덤 기본 이미지 선택
+            // Service의 createBookClub에서 자동으로 6개 중 1개를 랜덤 선택하여 설정함
+            log.info("No banner provided, Service will set random default banner");
         }
 
         try {

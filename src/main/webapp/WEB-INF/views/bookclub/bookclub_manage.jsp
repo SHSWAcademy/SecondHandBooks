@@ -259,14 +259,31 @@
                                                         <div class="banner-preview-wrapper">
                                                             <c:choose>
                                                                 <c:when test="${not empty bookclub.bannerImgUrl}">
-                                                                    <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
-                                                                        alt="모임 대표 이미지" class="banner-image"
-                                                                        id="bannerPreview">
+                                                                    <c:choose>
+                                                                        <%-- HTTP/HTTPS로 시작하면 그대로 사용 --%>
+                                                                        <c:when test="${bookclub.bannerImgUrl.startsWith('http://') or bookclub.bannerImgUrl.startsWith('https://')}">
+                                                                            <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
+                                                                                alt="모임 대표 이미지" class="banner-image"
+                                                                                id="bannerPreview">
+                                                                        </c:when>
+                                                                        <%-- /로 시작하는 상대경로면 contextPath 붙이기 --%>
+                                                                        <c:when test="${bookclub.bannerImgUrl.startsWith('/')}">
+                                                                            <img src="${pageContext.request.contextPath}<c:out value='${bookclub.bannerImgUrl}'/>"
+                                                                                alt="모임 대표 이미지" class="banner-image"
+                                                                                id="bannerPreview">
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <img src="<c:out value='${bookclub.bannerImgUrl}'/>"
+                                                                                alt="모임 대표 이미지" class="banner-image"
+                                                                                id="bannerPreview">
+                                                                        </c:otherwise>
+                                                                    </c:choose>
                                                                 </c:when>
                                                                 <c:otherwise>
-                                                                    <div class="banner-placeholder" id="bannerPreview">
-                                                                        📚
-                                                                    </div>
+                                                                    <%-- 기본 이미지 표시 --%>
+                                                                    <img src="${pageContext.request.contextPath}/resources/img/bookclub.png"
+                                                                        alt="모임 대표 이미지" class="banner-image"
+                                                                        id="bannerPreview">
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </div>
