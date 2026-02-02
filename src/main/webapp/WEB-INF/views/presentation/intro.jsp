@@ -144,7 +144,7 @@
             <section class="py-32 bg-white border-y border-gray-100">
                 <div class="max-w-7xl mx-auto px-6 text-center">
                     <h2 class="text-4xl font-bold mb-4 reveal-text">Our Team</h2>
-                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈습니다.</p>
+                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈을지도...?</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
                         <!-- Group 1 -->
@@ -166,7 +166,7 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김규태</p>
-                                        <p class="text-xs text-blue-600 font-bold">Team Leader</p>
+                                        <p class="text-xs text-blue-600 font-bold">Qmini</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -175,7 +175,7 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이승환</p>
-                                        <p class="text-xs text-gray-500">Backend Dev</p>
+                                        <p class="text-xs text-gray-500">DBA</p>
                                     </div>
                                 </div>
                             </div>
@@ -205,7 +205,7 @@
                                         C</div>
                                     <div>
                                         <p class="font-bold text-gray-900">최범근</p>
-                                        <p class="text-xs text-gray-500">Full Stack</p>
+                                        <p class="text-xs text-gray-500">일용직</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -214,7 +214,7 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이상원</p>
-                                        <p class="text-xs text-gray-500">Backend Dev</p>
+                                        <p class="text-xs text-gray-500">Tech Leader</p>
                                     </div>
                                 </div>
                             </div>
@@ -244,7 +244,7 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김도연</p>
-                                        <p class="text-xs text-gray-500">Frontend</p>
+                                        <p class="text-xs text-gray-500">Team Leader</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -253,7 +253,7 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이동희</p>
-                                        <p class="text-xs text-gray-500">Frontend</p>
+                                        <p class="text-xs text-gray-500">ACE</p>
                                     </div>
                                 </div>
                             </div>
