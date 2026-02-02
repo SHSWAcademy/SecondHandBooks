@@ -97,7 +97,7 @@ const BookClub = (() => {
             grid.insertAdjacentHTML("beforeend", `
                 <article class="bookclub-card" data-club-seq="${club.book_club_seq}">
                     <!-- 지역 태그 - 왼쪽 상단 -->
-                    <span class="card-region-tag">${club.book_club_rg}</span>
+                    <span class="card-region-tag">${club.book_club_rg ?? '지역 미정'}</span>
                     <!-- 찜 버튼 - 오른쪽 상단 -->
                     <button type="button" class="btn-wish ${club.wished ? 'wished' : ''}"
                         onclick="toggleWish(${club.book_club_seq}, this); event.preventDefault(); event.stopPropagation();"
@@ -120,10 +120,8 @@ const BookClub = (() => {
                                 <h3 class="card-title">${club.book_club_name}</h3>
                                 ${club.book_club_desc ? `<p class="card-desc">${club.book_club_desc}</p>` : ''}
                                 <div class="card-footer">
-                                    <span class="card-schedule">${club.book_club_schedule ?? ""}</span>
-                                    <span class="card-members">
-                                        ${club.joined_member_count} / ${club.book_club_max_member}
-                                    </span>
+                                    <span class="card-schedule">${club.book_club_schedule ?? '일정 미정'}</span>
+                                    <span class="card-members">${club.joined_member_count}/${club.book_club_max_member}</span>
                                 </div>
                             </div>
                         </div>
