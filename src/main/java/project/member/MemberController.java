@@ -24,6 +24,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import project.admin.AdminService;
 import project.bookclub.vo.BookClubVO;
 import project.bookclub.service.BookClubService;
+import project.common.LogoutPendingManager;
+import project.common.UserType;
 import project.util.Const;
 import project.util.LoginUtil;
 
@@ -40,6 +42,7 @@ public class MemberController {
     private final MemberService memberService;
     private final MailService mailService;
     private final AdminService adminService;
+    private final LogoutPendingManager logoutPendingManager;
     private final BookClubService bookClubService;
 
     // WebClient Bean 주입
@@ -107,6 +110,9 @@ public class MemberController {
 
             System.out.println("로그인 성공");
             sess.setAttribute("loginSess", memberVO);
+
+            logoutPendingManager.removeForceLogout(UserType.MEMBER, memberVO.getMember_seq());
+
             boolean logUpdate = memberService.loginLogUpdate(memberVO.getMember_seq());
 
             // admin 로그 기록
@@ -371,6 +377,7 @@ public class MemberController {
 
             // 로그인 성공 처리
             sess.setAttribute("loginSess", memberVO);
+            logoutPendingManager.removeForceLogout(UserType.MEMBER, memberVO.getMember_seq());
             memberService.loginLogUpdate(memberVO.getMember_seq());
 
             // 관리자 로그 기록
