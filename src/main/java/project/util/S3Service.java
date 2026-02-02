@@ -30,6 +30,9 @@ public class S3Service {
     @Value("${AWS_S3_REGION}")
     private String region;
 
+    @Value("${AWS_CLOUDFRONT_DOMAIN:}")
+    private String cloudFrontDomain;
+
     // 단일 파일 업로드
     public String uploadFile(MultipartFile file) throws IOException {
         if (file.isEmpty()) return null;
@@ -53,7 +56,10 @@ public class S3Service {
 
         s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
 
-        // S3 URL 반환
+        // CloudFront URL 반환 (설정되어 있으면), 아니면 S3 URL
+        if (cloudFrontDomain != null && !cloudFrontDomain.isEmpty()) {
+            return String.format("https://%s/%s", cloudFrontDomain, key);
+        }
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
     }
 
@@ -113,13 +119,17 @@ public class S3Service {
             String host = uri.getHost();
             String path = uri.getPath();
 
-            // 보안 검증 1: host가 우리 버킷인지 확인
-            String expectedHost = String.format("%s.s3.%s.amazonaws.com", bucketName, region);
-            if (host == null || !host.equals(expectedHost)) {
-                log.warn("Security violation: Attempted to delete file from unauthorized bucket. " +
-                        "URL={}, expected_host={}, actual_host={}", url, expectedHost, host);
+            // 보안 검증 1: host가 우리 버킷 또는 CloudFront인지 확인
+            String expectedS3Host = String.format("%s.s3.%s.amazonaws.com", bucketName, region);
+            boolean isS3Url = host != null && host.equals(expectedS3Host);
+            boolean isCloudFrontUrl = host != null && cloudFrontDomain != null && host.equals(cloudFrontDomain);
+
+            if (!isS3Url && !isCloudFrontUrl) {
+                log.warn("Security violation: Attempted to delete file from unauthorized source. " +
+                        "URL={}, expected_s3_host={}, cloudfront_domain={}, actual_host={}",
+                        url, expectedS3Host, cloudFrontDomain, host);
                 throw new IllegalArgumentException(
-                    "Only files from bucket '" + bucketName + "' in region '" + region + "' can be deleted"
+                    "Only files from bucket '" + bucketName + "' or CloudFront can be deleted"
                 );
             }
 
