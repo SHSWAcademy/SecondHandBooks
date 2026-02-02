@@ -404,7 +404,7 @@ public class BookClubManageController {
         String finalBannerUrl = bannerImgUrl;
         if (bannerFile != null && !bannerFile.isEmpty()) {
             try {
-                finalBannerUrl = saveUploadedFile(bannerFile);  // S3 URL 직접 저장
+                finalBannerUrl = saveUploadedFile(bannerFile); // S3 URL 직접 저장
                 log.info("배너 이미지 S3 업로드 완료: bookClubId={}, url={}", bookClubId, finalBannerUrl);
             } catch (IOException e) {
                 log.error("S3 업로드 실패: bookClubId={}, error={}", bookClubId, e.getMessage());
@@ -441,7 +441,8 @@ public class BookClubManageController {
      * 업로드된 파일을 S3에 저장
      *
      * @param file 업로드 파일
-     * @return S3 전체 URL (예: https://secondarybooksimages.s3.ap-northeast-2.amazonaws.com/images/{UUID}.jpg)
+     * @return
+     * 
      * @throws IOException 파일 저장 실패 시
      */
     private String saveUploadedFile(MultipartFile file) throws IOException {
