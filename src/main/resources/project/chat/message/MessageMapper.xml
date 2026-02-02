@@ -42,10 +42,10 @@
         cm.read_yn,
         mi.member_nicknm AS member_seller_nicknm
         FROM chat_msg cm
-        JOIN member_info mi
+        LEFT JOIN member_info mi
         ON mi.member_seq = cm.sender_seq
         WHERE cm.chat_room_seq = #{chat_room_seq}
-        ORDER BY cm.sent_dtm ASC
+        ORDER BY cm.sent_dtm ASC;
     </select>
 
 

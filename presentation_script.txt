@@ -1,0 +1,113 @@
+[Presentation Script: SecondHand Books Project]
+
+# 1. Opening
+안녕하세요. "책의 가치를 잇고, 독자를 연결하다"
+중고 서적 거래 및 로컬 독서 커뮤니티 플랫폼, **SecondHand Books** 팀입니다.
+
+저희는 단순히 중고 책을 사고파는 것을 넘어, 책을 매개로 사람과 사람이 만나는 "안전하고 따뜻한 커뮤니티"를 목표로 이 프로젝트를 시작했습니다.
+
+***
+
+# 2. Project Overview (Why SecondHand Books?)
+기존 중고 서적 거래의 불편함을 느껴보신 적 있으신가요?
+1.  **등록의 번거로움**: 책 제목, 저자, 출판사를 일일이 입력해야 하는 귀찮음.
+2.  **거래의 불안감**: "돈을 보냈는데 책이 안 오면 어떡하지?"라는 비대면 거래의 불신.
+3.  **독서의 고립감**: 책을 읽고 난 뒤의 감동을 나눌 곳이 부족한 현실.
+
+저희 **SecondHand Books**는 이 세 가지 문제를 기술로 해결했습니다.
+*   **1초 자동 등록**: 책 제목이나 ISBN만 입력하면 API가 나머지 정보를 자동으로 채워줍니다.
+*   **안전 결제 (Escrow)**: 구매자가 구매 확정을 눌러야 판매자에게 돈이 지급되는 에스크로 시스템을 자체 구현했습니다.
+*   **로컬 북클럽**: 내 주변의 독서 모임을 찾고, 실시간 채팅으로 소통할 수 있습니다.
+
+***
+
+# 3. Core Features & Tech Stack (Deep Dive)
+
+## 3.1 Architecture Overview
+저희는 대용량 트래픽과 동시성 이슈를 고려하여, 안정성과 확장성을 최우선으로 아키텍처를 설계했습니다.
+*   **Language**: Java 17 (Record, Text Block 등 최신 문법 활용)
+*   **Framework**: Spring Framework 5.3, Spring Security 5.7
+*   **Database**: PostgreSQL 14 (MVCC, Transactional DDL)
+*   **ORM**: MyBatis 3.5 (Dynamic SQL Optimization)
+*   **Caching**: Redis (Lettuce Client, Look-aside Strategy)
+*   **Messaging**: WebSocket (STOMP)
+*   **Infrastructure**: AWS EC2, S3, RDS
+*   **CI/CD**: GitHub Actions + AWS CodeDeploy
+
+## 3.2 Key Features & Technical Decisions
+
+### A. Smart Book Registration (WebClient vs RestTemplate)
+*   **User Flow**: 판매자가 ISBN/책 제목 검색 시, Naver/Kakao Book API를 통해 책 정보를 자동 완성합니다.
+*   **Tech Change**: 기존 `RestTemplate`은 Blocking 방식이라 외부 API 지연 시 서버 스레드가 고갈될 위험이 있었습니다.
+    이를 해결하기 위해 **Spring WebClient**를 도입하여 **Non-Blocking I/O**를 구현했습니다.
+    *   **Effect**: 외부 API 응답이 늦어져도 서버의 다른 요청 처리에 영향을 주지 않아 전체적인 시스템 안정성을 확보했습니다.
+
+### B. Reliable Safe Payment (Escrow & Scheduler)
+*   **Logic**: 구매자의 결제 대금은 플랫폼이 임시 보관(Escrow)하며, 배송 완료 후 구매 확정 시 판매자에게 정산됩니다.
+*   **Scheduler (`SafePaymentScheduler`)**:
+    *   **Dead Letter 처리**: 결제 후 5분 내 미입금 시 자동 취소 (1분 주기).
+    *   **자동 확정**: 배송 완료 후 15일 경과 시 자동 구매 확정 (1일 1회).
+    *   모두 `@Scheduled`를 통해 백그라운드에서 신뢰성 있게 처리됩니다.
+
+### C. Performance Optimization (Redis Caching)
+*   **Strategy**: **Look-aside Cache** 전략을 채택했습니다.
+    *   데이터 조회 시 Redis를 먼저 확인(Cache Hit)하고, 없으면 DB 조회 후 적재(Cache Miss)합니다.
+*   **Implementation**:
+    *   `TradeService`의 페이징 조회(`searchAllWithPaging`)와 단건 조회(`search`)에 `@Cacheable` 적용.
+    *   **Serializer**: Binary 포맷 대신 `GenericJackson2JsonRedisSerializer`를 사용하여, 운영 중 캐시 데이터를 눈으로 직접 확인하고 디버깅할 수 있도록 했습니다.
+    *   **Consistency**: 상품 수정/삭제 시 `@CacheEvict`로 캐시를 즉시 날려 데이터 정합성을 보장했습니다.
+    *   **Result**: 메인 페이지 로딩 속도 **0.5s → 0.02s** (96% 개선).
+
+### D. Real-time Communication (WebSocket & STOMP)
+*   **Protocol**: HTTP 폴링 방식의 비효율성을 제거하기 위해 **WebSocket**을 사용했습니다.
+*   **Messaging**: 단순 WebSocket 대신 **STOMP (Simple Text Oriented Messaging Protocol)** 서브 프로토콜을 적용했습니다.
+    *   **Broker**: `/chatroom` 구독(Subscribe) 경로를 통해 Pub/Sub 모델을 구현하여, 1:N 채팅방 브로드캐스팅을 효율적으로 처리했습니다.
+    *   `SimpMessagingTemplate`을 사용하여 코드 레벨에서 메시지 라우팅을 제어했습니다.
+
+### E. Security (XSS & BCrypt)
+*   **XSS Protection**: 사용자가 작성한 독서 모임 소개글이나 채팅 메시지에 악성 스크립트가 포함될 수 있습니다.
+    *   JSP 출력 시 JSTL `<c:out>`과 `fn:escapeXml`을 철저히 적용하여 **Script Executable** 코드를 무력화했습니다.
+*   **Password**: 회원 비밀번호는 **BCrypt Hashing** 알고리즘으로 단방향 암호화하여 DB 유출 사고 시에도 복호화가 불가능하도록 조치했습니다.
+
+***
+
+# 4. Troubleshooting & Engineering Challenges
+
+## 4.1 Solving the N+1 Problem (MyBatis Optimization)
+*   **Problem**: 책 목록 20개를 조회할 때, 각 책의 썸네일 이미지를 가져오기 위해 20번의 추가 쿼리가 발생하는 N+1 문제가 발생했습니다.
+*   **Solution**: **IN Query Optimization**
+    *   `TradeMapper.xml`에서 MyBatis `<foreach>` 태그를 활용했습니다.
+    *   조회된 20개의 `trade_seq`를 `WHERE trade_seq IN (...)` 조건으로 한 번에 조회하여, 이미지를 메모리상에서 매핑했습니다.
+    *   **Result**: 쿼리 횟수 **N+1(21회) → 2회**로 획기적 감소.
+
+## 4.2 Handling Concurrency (Pessimistic Locking)
+*   **Scenario**: 인기 있는 독서 모임(정원 1명 남음)에 2명의 사용자가 0.01초 차이로 '가입 승인'을 받는다면?
+*   **Problem**: 애플리케이션 레벨의 검증(`count < max`)을 통과해 정원이 초과되는 데이터 무결성 훼손 발생.
+*   **Solution**: **Pessimistic Lock (`SELECT ... FOR UPDATE`)**
+    *   `BookClubMapper.lockBookClubForUpdate`에서 해당 모임의 Row에 DB 레벨 잠금(Lock)을 걸었습니다.
+    *   트랜잭션이 끝날 때까지 다른 트랜잭션의 접근을 차단하여, 정확히 한 명만 가입되도록 보장했습니다.
+
+## 4.3 Dynamic SQL for Complex Search
+*   **Challenge**: 카테고리, 책 상태(상/중/하), 판매 상태(판매중/예약중), 정렬(최신/인기/가격) 등 검색 조건 조합이 수십 가지에 달했습니다.
+*   **Solution**: MyBatis의 Dynamic SQL (`<choose>`, `<when>`, `<if>`)
+    *   Java 단의 지저분한 `if-else` 문자열 조합 대신, XML 매퍼에서 우아하게 동적 쿼리를 생성했습니다.
+    *   필요한 조건에만 정확히 인덱스가 적용되도록 쿼리 플랜을 최적화했습니다.
+
+***
+
+# 5. DevOps (CI/CD Pipeline)
+개발자가 코드 작성에만 집중할 수 있도록 "클릭 없는 배포" 환경을 구축했습니다.
+1.  **Code Push**: GitHub Main 브랜치에 머지.
+2.  **Build**: **GitHub Actions**가 Trigger되어 `Maven Build` 및 테스트 수행.
+3.  **Upload**: 빌드된 WAR 파일과 스크립트를 ZIP으로 묶어 **AWS S3**에 업로드.
+4.  **Deploy**: **AWS CodeDeploy**가 EC2 인스턴스에 배포.
+    *   `start_server.sh` 스크립트가 실행되어 톰캣 서버를 재기동하지 않고 핫 스왑하거나 자동 재시작.
+
+***
+
+# 6. Closing (Review)
+SecondHand Books 프로젝트를 통해 저희는 단순한 기능 구현을 넘어,
+**"사용자가 1초라도 더 빨리, 1번이라도 더 안전하게"** 이용할 수 있는 서비스를 고민했습니다.
+N+1 문제 해결, 동시성 제어, 글로벌 캐싱 전략 등 백엔드 개발자의 핵심 역량을 녹여낸 결과물입니다.
+
+경청해 주셔서 감사합니다.
