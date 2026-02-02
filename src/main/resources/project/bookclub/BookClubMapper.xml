@@ -563,7 +563,12 @@
             BC.BOOK_CLUB_MAX_MEMBER,
             BC.BANNER_IMG_URL,
             BC.BOOK_CLUB_SCHEDULE,
-            BC.CRT_DTM
+            BC.CRT_DTM,
+            (SELECT COUNT(*)
+               FROM BOOK_CLUB_MEMBER
+              WHERE BOOK_CLUB_SEQ = BC.BOOK_CLUB_SEQ
+                AND JOIN_ST = 'JOINED'
+            ) AS JOINED_MEMBER_COUNT
         FROM BOOK_CLUB BC
             JOIN BOOK_CLUB_MEMBER BCM ON BC.BOOK_CLUB_SEQ = BCM.BOOK_CLUB_SEQ
         WHERE BCM.MEMBER_SEQ = #{member_seq}
