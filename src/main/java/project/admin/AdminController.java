@@ -158,10 +158,8 @@ public class AdminController {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
             return "admin/adminLogin";
         }
-        if (code1 != null && code2 != null) {
-            if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) {
-                return "error/400";
-            }
+        if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) {
+            return "error/400";
         }
 
         return "admin/adminLogin";
@@ -176,11 +174,8 @@ public class AdminController {
         AdminVO admin = adminService.login(id, pwd);
 
         if (admin != null) {
-            if (logoutPendingManager.isForceLogout(UserType.ADMIN, admin.getAdmin_seq())) {
-                logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
-                return "redirect:/admin/login?code1=qorhqtlrp&code2=rptlrhqqo&msg=forced";
+            logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
 
-            }
             sess.removeAttribute("loginSess");
 
             sess.setAttribute("adminSess", admin);
