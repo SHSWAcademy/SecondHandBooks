@@ -210,6 +210,10 @@ public class BookClubController {
                         "status", "fail",
                         "message", "이미지 업로드에 실패했습니다.");
             }
+        } else if (vo.getBanner_img_url() == null || vo.getBanner_img_url().trim().isEmpty()) {
+            // 이미지 업로드도 없고 URL도 입력하지 않았다면 기본 이미지 사용
+            vo.setBanner_img_url("/resources/img/bookclub.png");
+            log.info("Using default banner image");
         }
 
         try {
