@@ -81,7 +81,14 @@
                                         <article class="bookclub-card" data-club-seq="${club.book_club_seq}">
                                             <!-- 지역 태그 - 왼쪽 상단 -->
                                             <span class="card-region-tag">
-                                                <c:out value="${club.book_club_rg}" />
+                                                <c:choose>
+                                                    <c:when test="${club.book_club_rg == null}">
+                                                        지역 미정
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:out value="${club.book_club_rg}" />
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </span>
                                             <!-- 찜 버튼 - 오른쪽 상단 -->
                                             <button type="button" class="btn-wish ${club.wished ? 'wished' : ''}"
@@ -131,10 +138,17 @@
                                                         </c:if>
                                                         <div class="card-footer">
                                                             <span class="card-schedule">
-                                                                <c:out value="${club.book_club_schedule}" />
+                                                                <c:choose>
+                                                                    <c:when test="${club.book_club_schedule == null}">
+                                                                        일정 미정
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <c:out value="${club.book_club_schedule}" />
+                                                                    </c:otherwise>
+                                                                </c:choose>
                                                             </span>
                                                             <span class="card-members">
-                                                                <c:out value="${club.joined_member_count}"/> / <c:out value="${club.book_club_max_member}"/>
+                                                                <c:out value="${club.joined_member_count}"/>/<c:out value="${club.book_club_max_member}"/>
                                                             </span>
                                                         </div>
                                                     </div>

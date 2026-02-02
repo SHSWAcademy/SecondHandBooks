@@ -111,7 +111,7 @@
                         <div class="hidden sm:block text-right pr-2">
                             <div class="inline-flex items-center gap-1 bg-gray-50 px-2.5 py-1 rounded-full text-xs font-bold text-gray-500">
                                 <i data-lucide="users" class="w-3 h-3"></i>
-                                <span>\${club.memberCnt || 0} / \${club.maxMember || club.book_club_max_member}</span>
+                                <span>\${club.joined_member_count || 0} / \${club.maxMember || club.book_club_max_member}</span>
                             </div>
                         </div>
                     </div>`;

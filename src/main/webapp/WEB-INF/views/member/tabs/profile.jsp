@@ -82,6 +82,7 @@
 <script>
     (function() { // IIFE
         let isNickChecked = true;
+
         const originalNick = "${sessionScope.loginSess.member_nicknm}";
 
         const actions = {
@@ -132,6 +133,13 @@
                 const nick = nickInput.value.trim();
                 const msg = document.getElementById('nickMsg');
 
+                // ★ 추가: 원래 닉네임이면 서버 호출 없이 바로 통과
+                if (nick === originalNick) {
+                    msg.textContent = "현재 사용 중인 닉네임입니다.";
+                    msg.className = "text-xs ml-1 font-bold text-green-600";
+                    isNickChecked = true;
+                    return;
+                }
                 if (nick.length < 2) {
                     alert("닉네임은 2글자 이상이어야 합니다.");
                     return;
