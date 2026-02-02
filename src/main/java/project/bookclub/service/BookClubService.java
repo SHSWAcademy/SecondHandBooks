@@ -387,6 +387,15 @@ public class BookClubService {
             throw new IllegalArgumentException("이미 같은 이름의 독서 모임이 존재합니다.");
         }
 
+        // 3-1. 배너 이미지가 설정되지 않았으면 랜덤으로 기본 이미지 선택 (6개 중 1개)
+        if (vo.getBanner_img_url() == null || vo.getBanner_img_url().trim().isEmpty()) {
+            int randomNum = (int) (Math.random() * 10) + 1;
+            String defaultBanner = "/resources/img/bookclub/banners/bookclub"
+                    + (randomNum == 1 ? "" : String.valueOf(randomNum)) + ".png";
+            vo.setBanner_img_url(defaultBanner);
+            log.info("기본 배너 이미지 설정: {}", defaultBanner);
+        }
+
         // 4. DB 저장 (book_club 테이블)
         bookClubMapper.insertBookClub(vo);
 
