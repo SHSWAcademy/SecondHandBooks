@@ -198,7 +198,7 @@
                         중고 서적 거래 & 로컬 독서 커뮤니티 플랫폼
                     </p>
                     <div class="mt-12 text-sm font-bold text-gray-400">
-                        Team 범피티
+                        Team 배곱시계
                         <br>발표자: 이상원
                     </div>
                 </div>
@@ -211,7 +211,7 @@
             <section class="py-32 bg-white border-y border-gray-100">
                 <div class="max-w-7xl mx-auto px-6 text-center">
                     <h2 class="text-4xl font-bold mb-4 reveal-text">Our Team</h2>
-                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈습니다.</p>
+                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈을지도.......?</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
                         <!-- Group 1 -->
