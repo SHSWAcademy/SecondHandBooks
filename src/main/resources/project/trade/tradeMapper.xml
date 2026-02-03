@@ -368,6 +368,8 @@
         , T.POST_NO
         , T.ADDR_H
         , T.ADDR_D
+        , T.IS_SETTLED AS settled_yn
+        , T.DELIVERY_COST
         FROM SB_TRADE_INFO T
         WHERE T.MEMBER_SELLER_SEQ = #{member_seq}
         AND T.DEL_DTM IS NULL
@@ -452,7 +454,8 @@
     <!-- 구매 확정 -->
     <update id="confirmPurchase">
         UPDATE sb_trade_info
-        SET confirm_purchase = true
+        SET confirm_purchase = true,
+        is_settled = true
         WHERE trade_seq = #{trade_seq}
         AND member_buyer_seq = #{member_seq}
         AND confirm_purchase = false

@@ -564,6 +564,7 @@
             BC.BANNER_IMG_URL,
             BC.BOOK_CLUB_SCHEDULE,
             BC.CRT_DTM,
+            BCM.LEADER_YN,
             (SELECT COUNT(*)
                FROM BOOK_CLUB_MEMBER
               WHERE BOOK_CLUB_SEQ = BC.BOOK_CLUB_SEQ

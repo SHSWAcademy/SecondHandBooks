@@ -55,6 +55,7 @@ public class TradeVO {
     @NotBlank
     private String category_nm; // 카테고리 이름
 
+    private boolean settled_yn; // 정산여부
     // Book 관련 (Join 결과 매핑용)
     private String isbn;            // 책 고유번호
     @NotBlank
