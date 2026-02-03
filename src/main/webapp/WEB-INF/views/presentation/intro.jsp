@@ -442,7 +442,7 @@
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="text-[10px] font-bold text-gray-400 uppercase">Database</span>
-                                        <span class="font-bold text-gray-900">MySQL</span>
+                                        <span class="font-bold text-gray-900">Postgres</span>
                                     </div>
                                 </div>
                             </div>
@@ -474,7 +474,7 @@
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
-                                        <p class="font-bold text-gray-700">Postgres</p>
+                                        <p class="font-bold text-gray-700">MySQL</p>
                                     </div>
                                 </div>
                             </div>
@@ -489,7 +489,7 @@
                         <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">User
                             Journey</span>
                         <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
-                            구매 <span class="text-gradient">Flow</span>
+                            거래 <span class="text-gradient">Flow</span>
                         </h2>
                         <p class="text-gray-500 font-medium text-lg">
                             사용자 관점의 중고책 거래 및 결제 흐름도
@@ -630,8 +630,8 @@
                                         class="text-[10px] font-bold text-green-600 uppercase tracking-widest block mb-1">Final
                                         Step</span>
                                     <h3 class="text-xl font-bold text-gray-900">구매 확정</h3>
-                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 (미확정 시
-                                        15일 후 자동 확정)</p>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 <br>
+                                        (미확정 시 15일 후 자동 확정)</p>
                                 </div>
                             </div>
                         </div>
@@ -646,7 +646,7 @@
                         <span class="text-purple-600 font-bold tracking-wider text-sm uppercase mb-2 block">BookClub
                             Journey</span>
                         <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
-                            독서 모임 참여 <span class="text-gradient">Flow</span>
+                            독서 모임 <span class="text-gradient">Flow</span>
                         </h2>
                         <p class="text-gray-500 font-medium text-lg">
                             검색부터 가입, 활동, 탈퇴까지의 전체 프로세스
@@ -1266,7 +1266,7 @@ webClient.get().uri(url)
             <section class="py-32 px-6">
                 <div class="max-w-7xl mx-auto">
                     <div class="text-center mb-24 reveal-text">
-                        <h2 class="text-5xl font-bold mb-6">Seamless Solution.</h2>
+                        <h2 class="text-5xl font-bold mb-6">Core Business Logic.</h2>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1304,7 +1304,7 @@ webClient.get().uri(url)
                                 <span class="text-yellow-500 font-bold mb-2 block">03. Real-time</span>
                                 <h3 class="text-2xl font-bold mb-4">WebSocket Chat</h3>
                                 <p class="text-gray-500 text-sm leading-relaxed">
-                                    STOMP 프로토콜과 Pub/Sub 모델을 적용하여 1:N 실시간 채팅을 지연 없이 제공합니다.<br><br>
+                                    STOMP 프로토콜과 Pub/Sub 모델을 적용하여 1:1 실시간 채팅을 지연 없이 제공합니다.<br><br>
                                     실시간으로 가격을 흥정하고 거래 약속을 잡으세요.
                                 </p>
                             </div>
@@ -1375,7 +1375,7 @@ webClient.get().uri(url)
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <!-- N+1 -->
-                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all cursor-pointer group"
+                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all cursor-pointer group interactive-3d"
                             onclick="openDiffModal('n1')">
                             <div class="flex items-center justify-between mb-6">
                                 <div class="flex items-center gap-4">
@@ -1413,7 +1413,7 @@ webClient.get().uri(url)
                         </div>
 
                         <!-- Concurrency -->
-                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all cursor-pointer group"
+                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all cursor-pointer group interactive-3d"
                             style="transition-delay: 100ms;" onclick="openCodeModal('concurrency-lock')">
                             <div class="flex items-center justify-between mb-6">
                                 <div class="flex items-center gap-4">
@@ -1725,9 +1725,9 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxMetaspaceSize=128m"
 export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                             isTuning: true,
                             tuningDetails: [
-                                { title: "Heap Memory 고정 (-Xms, -Xmx)", tag: "1024m (1GB)", desc: "JVM 시작 시와 최대 힙 크기를 1GB로 동일하게 설정하여 런타임 중 힙 확장/축소 비용을 제거합니다.", effect: "GC 예측 가능성 향상 및 Stop-The-World 시간 단축" },
-                                { title: "Metaspace 크기 제한", tag: "MaxMetaspaceSize=128m", desc: "클래스 메타데이터 저장 공간을 제한하여 메모리 누수를 방지하고 EC2 전체 메모리 압박을 방어합니다.", effect: "메모리 사용량 예측 가능 및 OOM(Out of Memory) 위험 감소" },
-                                { title: "G1 Garbage Collector 활성화", tag: "-XX:+UseG1GC", desc: "힙을 Region 단위로 나누어 관리하는 서버용 Low-latency GC를 사용하여 긴 Full GC 발생을 억제합니다.", effect: "Tail Latency(p95/p99) 개선 및 응답 스파이크 방지" }
+                                { title: "Heap Memory 고정", icon: "memory-stick", tag: "-Xms1024m", desc: "JVM 힙 크기를 1GB로 고정하여 런타임 확장 비용 제거", effect: "STW 시간 50% 단축" },
+                                { title: "Metaspace 제한", icon: "box-select", tag: "MaxMetaspace=128m", desc: "메타데이터 공간을 제한하여 피지컬 메모리 고갈 방지", effect: "OOM(Kill) 방어" },
+                                { title: "G1GC 활성화", icon: "server-cog", tag: "-XX:+UseG1GC", desc: "대용량 힙에 최적화된 G1 Collector로 지연 시간 개선", effect: "p99 60ms 미만 안정화" }
                             ],
                             conclusion: {
                                 title: "Tail Latency 최적화 성공",
@@ -1821,15 +1821,26 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                                 <h3 class="text-xl font-bold text-slate-900 mb-6">JVM 튜닝 상세 내용 <span class="text-sm font-normal text-slate-500 ml-2">p95 지표 안정화 및 Stop-The-World 최소화 전략</span></h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 \${data.tuningDetails.map(d => `
-                                < div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col h-full shadow-sm hover:border-emerald-200 transition-colors" >
-                                        <div class="flex justify-between items-start mb-4">
-                                            <h3 class="font-bold text-slate-800 leading-snug">\${d.title}</h3>
-                                            <span class="text-[10px] font-black bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded uppercase">\${d.tag}</span>
+                                < div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 group/jvm relative overflow-hidden" >
+                                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover/jvm:opacity-10 transition-opacity">
+                                            <i data-lucide="\${d.icon}" class="w-24 h-24 text-emerald-600"></i>
                                         </div>
-                                        <p class="text-sm text-slate-500 mb-6 flex-grow">\${d.desc}</p>
-                                        <div class="pt-4 border-t border-slate-50">
-                                            <p class="text-[10px] font-bold text-emerald-600 uppercase mb-1">최종 기대 효과</p>
-                                            <p class="text-xs font-semibold text-slate-700">\${d.effect}</p>
+                                        <div class="flex items-center gap-3 mb-4 relative z-10">
+                                            <div class="p-2 bg-emerald-50 rounded-lg group-hover/jvm:bg-emerald-100 transition-colors">
+                                                <i data-lucide="\${d.icon}" class="w-6 h-6 text-emerald-600"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-slate-800 leading-tight text-lg group-hover/jvm:text-emerald-700 transition-colors">\${d.title}</h3>
+                                                <span class="text-[10px] font-mono text-slate-400">\${d.tag}</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-slate-500 mb-6 flex-grow leading-relaxed relative z-10 p-2 bg-slate-50/50 rounded-lg">\${d.desc}</p>
+                                        <div class="pt-4 border-t border-slate-100 mt-auto relative z-10">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                                <p class="text-xs font-bold text-emerald-700 uppercase tracking-wider">최종 기대 효과</p>
+                                            </div>
+                                            <p class="text-sm font-semibold text-slate-700 pl-3.5">\${d.effect}</p>
                                         </div>
                                     </div >
                                 `).join('')}
@@ -1885,7 +1896,7 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                                     성공/실패 여부를 명확히 기록하고, 발견된 버그의 수정 현황을 추적하여 배포 전 시스템의 안정성을 확보했습니다.
                                 </p>
                             </div>
-                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
                                 onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
                                 <div class="relative">
                                     <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
@@ -1912,7 +1923,7 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                                     반응형 레이아웃, 인터랙션 피드백, 에러 메시지 노출 등 디테일한 UI 이슈를 기록하고 개선하여 직관적이고 완성도 높은 경험을 제공합니다.
                                 </p>
                             </div>
-                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
                                 onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')">
                                 <div class="relative">
                                     <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
@@ -2762,8 +2773,8 @@ public void approveJoinRequest(Long clubSeq, Long userId) {
                 /* --- INTERACTIVE 3D ENGINE --- */
                 class InteractiveManager {
                     constructor() {
-                        // Apply to Bento Boxes and Deep Dive Cards
-                        this.targets = document.querySelectorAll('.bento-box, .reveal-card > div');
+                        // Apply to elements explicitly marked with .interactive-3d
+                        this.targets = document.querySelectorAll('.interactive-3d');
                         this.init();
                         this.initCursor();
                     }
