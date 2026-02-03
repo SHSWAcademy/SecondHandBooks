@@ -10,7 +10,7 @@
 
         <div class="mb-10 text-center sm:text-left">
             <h2 class="text-3xl font-black text-gray-900 tracking-tighter">공지사항</h2>
-            <p class="mt-2 text-sm text-gray-500 font-medium">Shinhan Books의 새로운 소식과 안내를 확인하세요.</p>
+            <p class="mt-2 text-sm text-gray-500 font-medium">SecondHand Books의 새로운 소식과 안내를 확인하세요.</p>
         </div>
 
         <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
