@@ -2,16 +2,13 @@ package project.member;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.bookclub.mapper.BookClubMapper;
 import project.bookclub.service.BookClubService;
 import project.bookclub.vo.BookClubVO;
-import project.trade.TradeMapper;
 import project.trade.TradeService;
 
-import java.lang.reflect.Member;
 import java.util.List;
 import java.util.Map;
 
