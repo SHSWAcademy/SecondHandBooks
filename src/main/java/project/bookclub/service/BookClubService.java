@@ -36,7 +36,7 @@ public class BookClubService {
      * #1. 독서모임 메인 페이지
      */
     // #1-1. 전체 독서모임 리스트 조회 (최신순 정렬, 첫 페이지)
-    @Cacheable(value = "bookClubList", key = "'latest:first'")
+    @Cacheable(value = "bookClubList", key = "'latest:first:' + (#p0 != null ? #p0 : 'guest')")
     public List<BookClubVO> getBookClubList(Long memberSeq) {
         return bookClubMapper.searchAllWithSort("latest", DEFAULT_PAGE_SIZE, 0, memberSeq);
     }
@@ -235,6 +235,7 @@ public class BookClubService {
 
     // #2-8. 찜 토글 (찜 추가/취소)
     @Transactional
+    @CacheEvict(value = "bookClubList", key = "'latest:first:' + (#p1 != null ? #p1 : 'guest')")
     public boolean toggleWish(Long bookClubSeq, Long memberSeq) {
         if (bookClubSeq == null || memberSeq == null) {
             return false;
@@ -370,6 +371,7 @@ public class BookClubService {
      * #4. 독서모임 생성
      */
     @Transactional
+    @CacheEvict(value = "bookClubList", allEntries = true)
     public void createBookClub(BookClubVO vo) {
         // 1. 값 들어왔는지 확인
         log.info("service create vo = {}", vo);
@@ -864,6 +866,7 @@ public class BookClubService {
      * @throws IllegalStateException    비즈니스 규칙 위반 시
      */
     @Transactional
+    @CacheEvict(value = "bookClubList", allEntries = true)
     public java.util.Map<String, Object> leaveBookClub(Long bookClubSeq, Long memberSeq) {
         // 1. 파라미터 검증
         if (bookClubSeq == null || memberSeq == null) {
