@@ -666,6 +666,7 @@
             </choose>
         </if>
         ORDER BY sale_st_dtm DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <select id="countAllSafePayListBySearch" resultType="java.lang.Integer">
