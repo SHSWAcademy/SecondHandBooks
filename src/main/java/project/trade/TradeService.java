@@ -35,9 +35,9 @@ public class TradeService {
 
 
     // 판매글 전체 조회
-    public List<TradeVO> searchAll() {
-        return tradeMapper.findAll();
-    }
+    //    public List<TradeVO> searchAll() {
+    //        return tradeMapper.findAll();
+    //    }
 
     // 판매글 단일 조회
     @Cacheable(value = "trade", key = "#trade_seq", unless = "#result == null")
@@ -66,15 +66,18 @@ public class TradeService {
     }
 
     // 전체 개수
-    @Cacheable(value = "tradeList",
-            key = "'page:' + #page + ':size:' + #size + ':cat:' + #searchVO.category_seq + ':word:' +#searchVO.search_word + ':sort:' + #searchVO.sort + ':saleSt:' + #searchVO.sale_st + ':bookSt:' + #searchVO.book_st")
+    @Cacheable(value = "tradeCount",
+            key = "'cat:' + #searchVO.category_seq + ':word:' + #searchVO.search_word + ':saleSt:' + #searchVO.sale_st + ':bookSt:' + #searchVO.book_st")
     public int countAll(TradeVO searchVO) {
         return tradeMapper.countAll(searchVO);
     }
 
     // 판매글 등록
     @Transactional
-    @CacheEvict(value = "tradeList", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "tradeList", allEntries = true),
+            @CacheEvict(value = "tradeCount", allEntries = true)
+    })
     public boolean upload(TradeVO tradeVO) {
 
         int result = tradeMapper.save(tradeVO);
@@ -94,7 +97,8 @@ public class TradeService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "trade", key = "#trade_seq"),
-            @CacheEvict(value = "tradeList", allEntries = true)
+            @CacheEvict(value = "tradeList", allEntries = true),
+            @CacheEvict(value = "tradeCount", allEntries = true)
     })
     public boolean modify(Long trade_seq, TradeVO updateTrade) {
         // tradeSeq : 기존 trade의 seq, updateTrade : 변경값을 담은 trade 객체
@@ -152,7 +156,8 @@ public class TradeService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "trade", key = "#trade_seq"),
-            @CacheEvict(value = "tradeList", allEntries = true)
+            @CacheEvict(value = "tradeList", allEntries = true),
+            @CacheEvict(value = "tradeCount", allEntries = true)
     })
     public boolean remove(Long trade_seq) {
 
@@ -449,7 +454,8 @@ public class TradeService {
 
     @Caching(evict = {
             @CacheEvict(value = "trade", allEntries = true),
-            @CacheEvict(value = "tradeList", allEntries = true)
+            @CacheEvict(value = "tradeList", allEntries = true),
+            @CacheEvict(value = "tradeCount", allEntries = true)
     })
     @Transactional
     public int deleteAllByMember(long member_seq) { // 회원이 탈퇴 시 회원이 작성한 trade 삭제
