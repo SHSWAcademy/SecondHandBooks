@@ -45,7 +45,6 @@ public class BookClubController {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     private final BookClubService bookClubService;
-    private final FileStore fileStore;
     private final S3Service s3Service;
 
     @org.springframework.beans.factory.annotation.Value("${api.kakao.map.js-key}")
