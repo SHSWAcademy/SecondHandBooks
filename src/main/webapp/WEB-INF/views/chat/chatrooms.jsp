@@ -925,6 +925,9 @@ function showSafePaymentInProgress(msg) {
 
 // 안전 결제 요청 UI 표시
 function showSafePaymentRequest(msg) {
+     document.querySelectorAll('.safe-payment-card').forEach(card => {
+            card.remove();
+        });
     const log = document.getElementById("chatContainer");
     const emptyNotice = document.getElementById("emptyNotice");
     if (emptyNotice) emptyNotice.remove();
