@@ -52,7 +52,7 @@ public class RedisCacheConfig {
                 LettuceClientConfiguration.builder();
 
         if (sslEnabled) {
-            builder.useSsl().disablePeerVerification();
+            builder.useSsl();
         }
 
         return new LettuceConnectionFactory(redisConfig, builder.build());
