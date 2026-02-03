@@ -26,6 +26,8 @@ public class BookClubVO {
     private boolean wished; // 현재 로그인 사용자의 찜 여부
     private Integer wish_count; // 찜 개수
 
+    private Boolean leader_yn;
+
     @JsonIgnore  // JSON 변환 시 제외
     private LocalDateTime crt_dtm;
 

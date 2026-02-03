@@ -93,7 +93,7 @@
                     slice.forEach(club => {
                         const img = methods.getImageUrl(club.bannerImgUrl || club.banner_img_url);
                         const link = '/bookclubs/' + (club.bookClubSeq || club.book_club_seq);
-                        const isLeader = club.is_Leader || club.is_leader === 'Y';
+                        const isLeader = club.leader_yn === true;
                         const badge = isLeader
                             ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-900 text-white shadow-sm tracking-wide">LEADER</span>'
                             : '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100">MEMBER</span>';
