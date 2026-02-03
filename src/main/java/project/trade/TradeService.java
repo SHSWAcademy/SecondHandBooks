@@ -477,4 +477,8 @@ public class TradeService {
         // 3. Trade soft delete
         return tradeMapper.deleteAll(member_seq);
     }
+
+    public List<TradeVO> safePayList() {
+        return tradeMapper.safePayList();
+    }
 }

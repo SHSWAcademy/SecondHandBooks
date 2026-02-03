@@ -537,4 +537,22 @@
         AND t.del_dtm is null
     </select>
 
+    <!-- 안전결제 내역 조회 -->
+    <select id="safePayList" resultType="project.trade.TradeVO">
+        SELECT
+            trade_seq,
+            member_seller_seq,
+            member_buyer_seq,
+            (SELECT member_nicknm FROM member_info WHERE member_seq = sb_trade_info.member_seller_seq) AS member_seller_nm,
+            (SELECT member_nicknm FROM member_info WHERE member_seq = sb_trade_info.member_buyer_seq) AS member_buyer_nm,
+            sale_title,
+            sale_price,
+            delivery_cost,
+            book_title,
+            sale_st_dtm
+        FROM sb_trade_info
+        WHERE payment_type = 'tosspay' AND safe_payment_st = 'COMPLETED'
+        AND confirm_purchase = true
+    </select>
+
 </mapper>

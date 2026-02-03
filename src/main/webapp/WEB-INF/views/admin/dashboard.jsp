@@ -59,6 +59,9 @@
     <button onclick="switchView('books', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
       <i data-lucide="shopping-bag" class="w-5 h-5"></i> 상품 관리
     </button>
+    <button onclick="switchView('safePayList', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i> 안전결제 내역
+    </button>
     <button onclick="switchView('groups', this)" class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
       <i data-lucide="book-open" class="w-5 h-5"></i> 모임 관리
     </button>
@@ -110,6 +113,10 @@
 
     <div id="view-books" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
       <%@ include file="tabs/booksContent.jsp" %>
+    </div>
+
+    <div id="view-safePayList" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
+       <%@ include file="tabs/safePayList.jsp" %>
     </div>
 
     <div id="view-groups" class="view-section hidden animate-[fadeIn_0.3s_ease-out]">
@@ -264,13 +271,15 @@
       'groups': 'Group Management',
       'notice': 'Notice Management',
       'notice-write': 'Create Notice',
-      'banner': 'Banner Management' // [추가]
+      'banner': 'Banner Management', // [추가]
+      'safePayList' : 'Safe Payment List'
     };
     document.getElementById('page-title').innerText = titleMap[viewName] || 'Dashboard';
 
     // 탭별 데이터 로드
     if(viewName === 'users' && window.fetchUsers) fetchUsers();
     if(viewName === 'books' && window.fetchTrades) fetchTrades();
+    if(viewName === 'safePayList' && window.fetchGroups) fetchGroups();
     if(viewName === 'groups' && window.fetchGroups) fetchGroups();
     if(viewName === 'banner' && window.loadBannerList) {
       window.loadBannerList(); // 배너 리스트 로드

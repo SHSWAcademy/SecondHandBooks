@@ -36,6 +36,7 @@ public class AdminService {
     // --- 통계 ---
     public int countAllMembers() { return adminMapper.countAllMembers(); }
     public int countAllTrades() { return adminMapper.countAllTrades(); }
+    public int countAllSafePayList() { return adminMapper.countAllTrades(); }
     public int countAllBookClubs() { return adminMapper.countAllBookClubs(); }
 
     // --- 검색 (API) ---
@@ -45,6 +46,10 @@ public class AdminService {
 
     public List<TradeVO> searchTrades(SearchVO searchVO) {
         return adminMapper.searchTrades(searchVO);
+    }
+
+    public List<TradeVO> searchSafePayList(SearchVO searchVO) {
+        return adminMapper.searchSafePayList(searchVO);
     }
 
     public List<BookClubVO> searchBookClubs(SearchVO searchVO) {
@@ -229,6 +234,10 @@ public class AdminService {
 
     public int countAllTradesBySearch(SearchVO searchVO) {
         return adminMapper.countAllTradesBySearch(searchVO);
+    }
+
+    public int countAllSafePayListBySearch(SearchVO searchVO) {
+        return adminMapper.countAllSafePayListBySearch(searchVO);
     }
 
     public int countAllGroupsBySearch(SearchVO searchVO) {
