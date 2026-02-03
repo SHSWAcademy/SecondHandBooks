@@ -246,10 +246,10 @@
         </if>
         <if test="searchVO.search_word != null and searchVO.search_word != ''">
             AND (
-                book_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR sale_title LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR book_author LIKE CONCAT('%', #{searchVO.search_word}, '%')
-                OR book_publisher LIKE CONCAT('%', #{searchVO.search_word}, '%')
+                book_title ILIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR sale_title ILIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_author ILIKE CONCAT('%', #{searchVO.search_word}, '%')
+                OR book_publisher ILIKE CONCAT('%', #{searchVO.search_word}, '%')
             )
         </if>
         <!-- 판매 상태 -->

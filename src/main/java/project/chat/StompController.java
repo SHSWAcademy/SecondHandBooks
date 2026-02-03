@@ -47,10 +47,9 @@ public class StompController {
         MemberVO sessionMember = validateSessionAndMembership(chat_room_seq, headerAccessor);
         long trade_seq = message.getTrade_seq();
         if (sessionMember == null || trade_seq <= 0 ||
-                message.getChat_cont() != null && message.getChat_cont().length() > 1000) {
-            return; // 검증 실패 시 바로 종료
+                (message.getChat_cont() != null && message.getChat_cont().length() > 1000)) {
+            return; // 검증실패 시 종료
         }
-
 
         // 세션 seq기준 닉네임 조회, sender_seq를 세션에서 가져온 값으로 설정
         message.setMember_seller_nicknm(messageService.findBySellerNicknm(sessionMember.getMember_seq()));
