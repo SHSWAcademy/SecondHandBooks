@@ -32,6 +32,59 @@ public class BookClubService {
 
     private static final int DEFAULT_PAGE_SIZE = 20; // 5개 x 4줄
 
+    // 이미지 업로드 검증 상수
+    private static final java.util.Set<String> ALLOWED_IMAGE_EXTENSIONS = java.util.Set.of("jpg", "jpeg", "png", "gif", "webp");
+    private static final java.util.Set<String> ALLOWED_MIME_TYPES = java.util.Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+    /*
+     * #0. 파일 업로드 (컨트롤러에서 이동)
+     */
+    /**
+     * 이미지 파일 S3 업로드
+     * 이미지 파일만 허용 (jpg, jpeg, png, gif, webp)
+     * @return S3 전체 URL (예: https://secondarybooksimages.s3.ap-northeast-2.amazonaws.com/images/{UUID}.jpg)
+     * @throws java.io.IOException 업로드 실패 시
+     */
+    public String uploadFile(org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        // 1. 파일명 유효성 검사
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new java.io.IOException("파일명이 유효하지 않습니다.");
+        }
+        if (!originalFilename.contains(".")) {
+            throw new java.io.IOException("확장자가 없는 파일은 업로드할 수 없습니다.");
+        }
+
+        // 2. 확장자 화이트리스트 검증
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
+            throw new java.io.IOException("허용되지 않는 파일 형식입니다.");
+        }
+
+        // 3. MIME 타입 검증
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            throw new java.io.IOException("파일 형식을 확인할 수 없습니다.");
+        }
+        if (!ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
+            throw new java.io.IOException("허용되지 않는 파일 형식입니다.");
+        }
+
+        // 4. 파일 크기 검증
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new java.io.IOException("파일 크기는 5MB를 초과할 수 없습니다.");
+        }
+
+        // 5. S3 업로드 (전체 URL 반환)
+        try {
+            return s3Service.uploadFile(file);
+        } catch (Exception e) {
+            // S3 업로드 실패 (SdkClientException 등) → IOException으로 래핑
+            throw new java.io.IOException("S3 업로드 실패: " + e.getMessage(), e);
+        }
+    }
+
     /*
      * #1. 독서모임 메인 페이지
      */
