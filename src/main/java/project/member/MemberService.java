@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MemberService{
+public class MemberService {
 
     private final MemberMapper memberMapper;
     private final BookClubMapper bookClubMapper;
@@ -45,19 +45,16 @@ public class MemberService{
 
     // ID 중복체크
     public int idCheck(String login_id) {
-        System.out.println(memberMapper.idCheck(login_id) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.idCheck(login_id);
     }
 
     // NickName 중복체크
     public int nickNmCheck(String member_nicknm) {
-        System.out.println(memberMapper.nickNmCheck(member_nicknm) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.nickNmCheck(member_nicknm);
     }
 
     // Email 중복체크
     public int emailCheck(String member_email) {
-        System.out.println(memberMapper.emailCheck(member_email) > 0 ? "중복" : "사용가능"); // db조회해서 중복 체크 성공 확인
         return memberMapper.emailCheck(member_email);
     }
 
@@ -86,7 +83,7 @@ public class MemberService{
         params.put("nickname", nickname);
 
         // (1) MEMBER_INFO 저장 (Map 사용)
-        //params.put("member_st", "ACTIVE");
+        // params.put("member_st", "ACTIVE");
         String generatedLoginId = params.get("provider") + "_" + params.get("provider_id");
         params.put("login_id", generatedLoginId);
         String generatedPwd = params.get("provider") + "_로그인";
@@ -100,6 +97,7 @@ public class MemberService{
         // 3. 가입된 정보 다시 조회해서 리턴
         return memberMapper.getMemberByOAuth(params);
     }
+
     // 프로필 - 회원 정보 수정
     @Transactional
     public boolean updateMember(MemberVO vo) {
@@ -109,11 +107,10 @@ public class MemberService{
 
     @Transactional
     public boolean deleteMember(long member_seq) {
-        
+
         // 1. 탈퇴하는 회원이 쓴 Trade soft delete
         int deleteTradeCount = tradeService.deleteAllByMember(member_seq);
         log.info("delete trade count : {}", deleteTradeCount);
-        
 
         // 2. 탈퇴한 회원의 Book Club 처리
         // BookClubVO seq 조회를 위한 select 쿼리 전달

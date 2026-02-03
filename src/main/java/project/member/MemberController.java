@@ -47,9 +47,9 @@ public class MemberController {
 
     // WebClient Bean 주입
     private final WebClient kakaoAuthWebClient; // 토큰 발급용
-    private final WebClient kakaoApiWebClient;  // 유저 정보용
+    private final WebClient kakaoApiWebClient; // 유저 정보용
     private final WebClient naverAuthWebClient; // 토큰 발급용
-    private final WebClient naverApiWebClient;  // 유저 정보용
+    private final WebClient naverApiWebClient; // 유저 정보용
     // ----------------------------------
     // 카카오 로그인
     // ----------------------------------
@@ -78,7 +78,7 @@ public class MemberController {
 
     @GetMapping("/login")
     public String login(@RequestParam(required = false) String redirect,
-                        Model model, HttpSession session) {      // JSP의 ${kakaoClientId} 등에 전달할 값 설정
+            Model model, HttpSession session) { // JSP의 ${kakaoClientId} 등에 전달할 값 설정
         model.addAttribute("kakaoClientId", kakaoClientId);
         model.addAttribute("kakaoRedirectUri", kakaoRedirectUri);
 
@@ -98,8 +98,8 @@ public class MemberController {
 
     @PostMapping("/login")
     public String login(MemberVO vo, Model model,
-                        @RequestParam(required = false) String redirect,
-                        HttpSession sess, HttpServletRequest request) {
+            @RequestParam(required = false) String redirect,
+            HttpSession sess, HttpServletRequest request) {
         MemberVO memberVO = memberService.login(vo);
         if (memberVO == null) {
             model.addAttribute("msg", "아이디 또는 비밀번호가 올바르지 않습니다.");
@@ -108,7 +108,6 @@ public class MemberController {
         } else {
             sess.removeAttribute("adminSess");
 
-            System.out.println("로그인 성공");
             sess.setAttribute("loginSess", memberVO);
 
             logoutPendingManager.removeForceLogout(UserType.MEMBER, memberVO.getMember_seq());
@@ -118,11 +117,6 @@ public class MemberController {
             // admin 로그 기록
             String loginIp = getClientIP(request);
             adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
-            if (logUpdate) {
-                System.out.println("로그 찍기 성공");
-            } else {
-                System.out.println("로그 찍기 실패");
-            }
 
             // 세션에 저장된 redirect URL 제거
             sess.removeAttribute(LoginUtil.REDIRECT_SESSION_KEY);
@@ -132,16 +126,17 @@ public class MemberController {
             return "redirect:" + redirectUrl;
         }
     }
-//    @GetMapping("/logout")
-//    public String logout(HttpSession sess) {
-//        // 세션에 저장된 모든 데이터 삭제 (loginSess 포함)
-//        sess.invalidate();
-//
-//        log.info("로그아웃 성공 - 세션 만료됨");
-//
-//        // 메인 화면으로 리다이렉트
-//        return "redirect:/";
-//    }
+
+    // @GetMapping("/logout")
+    // public String logout(HttpSession sess) {
+    // // 세션에 저장된 모든 데이터 삭제 (loginSess 포함)
+    // sess.invalidate();
+    //
+    // log.info("로그아웃 성공 - 세션 만료됨");
+    //
+    // // 메인 화면으로 리다이렉트
+    // return "redirect:/";
+    // }
     @GetMapping("/logout")
     public String logout(HttpSession sess, Model model, HttpServletRequest request) {
 
@@ -184,7 +179,7 @@ public class MemberController {
     // --- 카카오 로그인 콜백 (WebClient 적용) ---
     @GetMapping("/auth/kakao/callback")
     public String kakaoCallBack(@RequestParam String code, HttpSession sess,
-                                Model model, HttpServletRequest request) {
+            Model model, HttpServletRequest request) {
         log.info("Kakao Login Code: {}", code);
 
         // 1. 액세스 토큰 받기 (WebClient)
@@ -363,7 +358,8 @@ public class MemberController {
     }
 
     // [Common] 소셜 로그인 후처리 로직 공통화
-    private String processSocialLoginCommon(Map<String, Object> userInfo, HttpSession sess, Model model, HttpServletRequest request) {
+    private String processSocialLoginCommon(Map<String, Object> userInfo, HttpSession sess, Model model,
+            HttpServletRequest request) {
         try {
             MemberVO memberVO = memberService.processSocialLogin(userInfo);
 
@@ -383,7 +379,6 @@ public class MemberController {
             // 관리자 로그 기록
             String loginIp = getClientIP(request);
             adminService.recordMemberLogin(memberVO.getMember_seq(), loginIp);
-
 
             // 세션에 저장된 redirect URL로 리다이렉트
             String redirect = (String) sess.getAttribute(LoginUtil.REDIRECT_SESSION_KEY);
@@ -448,7 +443,7 @@ public class MemberController {
         if (result) {
             // 4. 업데이트 성공 시 세션 정보도 최신화
             loginUser.setMember_nicknm(vo.getMember_nicknm());
-//          loginUser.setMember_email(vo.getMember_email()); // 이메일은 변경되지 않았으므로 그대로 두기
+            // loginUser.setMember_email(vo.getMember_email()); // 이메일은 변경되지 않았으므로 그대로 두기
             loginUser.setMember_tel_no(vo.getMember_tel_no());
             sess.setAttribute("loginSess", loginUser); // 세션 갱신
 
@@ -569,4 +564,3 @@ public class MemberController {
     }
 
 }
-
