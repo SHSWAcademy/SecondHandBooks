@@ -145,26 +145,26 @@
         WHERE trade_seq = #{trade_seq}
     </update>
 
-    <select id="findAll" resultType="project.trade.TradeVO">
-        SELECT
-        trade_seq,
-        book_title,
-        book_author,
-        book_publisher,
-        book_img,
-        sale_title,
-        sale_price,
-        sale_st,
-        sale_rg,
-        crt_dtm
-        FROM sb_trade_info
-        WHERE
-            del_dtm IS NULL
-            OR
-            book_sale_dtm IS NULL
-        ORDER BY crt_dtm DESC
-    </select>
-    <!-- 쿼리 최적화 기억하기 -->
+<!--    <select id="findAll" resultType="project.trade.TradeVO">-->
+<!--        SELECT-->
+<!--        trade_seq,-->
+<!--        book_title,-->
+<!--        book_author,-->
+<!--        book_publisher,-->
+<!--        book_img,-->
+<!--        sale_title,-->
+<!--        sale_price,-->
+<!--        sale_st,-->
+<!--        sale_rg,-->
+<!--        crt_dtm-->
+<!--        FROM sb_trade_info-->
+<!--        WHERE-->
+<!--            del_dtm IS NULL-->
+<!--            OR-->
+<!--            book_sale_dtm IS NULL-->
+<!--        ORDER BY crt_dtm DESC-->
+<!--    </select>-->
+<!--    &lt;!&ndash; 쿼리 최적화 기억하기 &ndash;&gt;-->
 
     <!-- 페이징 처리 -->
     <select id="findAllWithPaging" resultType="project.trade.TradeVO">

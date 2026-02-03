@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleTradeNotFound(TradeNotFoundException e, Model model) {
         model.addAttribute("errorMessage", e.getMessage());
-        return "error/404";
+        return "error/400";
     }
 
     // 기타 예외 처리
