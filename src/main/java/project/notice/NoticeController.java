@@ -16,7 +16,7 @@ import java.util.List;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
-public class noticeController {
+public class NoticeController {
 
     private final AdminService adminService;
 

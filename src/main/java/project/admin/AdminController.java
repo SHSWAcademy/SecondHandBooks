@@ -3,6 +3,7 @@ package project.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,11 @@ public class AdminController {
     private final TradeService tradeService;
     private final LogoutPendingManager logoutPendingManager;
 
+    @Value("${admin.login.code1}")
+    private String adminCode1;
+
+    @Value("${admin.login.code2}")
+    private String adminCode2;
     // 대시보드 뷰
     @GetMapping("")
     public String dashboard(HttpSession sess, Model model) {
@@ -171,7 +177,7 @@ public class AdminController {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
             return "admin/adminLogin";
         }
-        if (!("qorhqtlrp".equals(code1) && "rptlrhqqo".equals(code2))) {
+        if (!(adminCode1.equals(code1) && adminCode2.equals(code2))) {
             return "error/400";
         }
 
@@ -192,7 +198,7 @@ public class AdminController {
             sess.removeAttribute("loginSess");
 
             sess.setAttribute("adminSess", admin);
-            sess.setMaxInactiveInterval(30 * 60); // 1시간
+            sess.setMaxInactiveInterval(30 * 60); // 30분
 
             // 로그인 기록 추가
             String loginIp = getClientIP(request);

@@ -17,6 +17,7 @@ import project.trade.TradeService;
 import project.trade.TradeVO;
 import project.util.Const;
 import project.util.S3Service;
+import project.util.exception.NoSessionException;
 import project.util.imgUpload.FileStore;
 import project.util.imgUpload.UploadFile;
 
@@ -225,7 +226,11 @@ public class ChatroomController {
     // 채팅방 클릭시 닉네임 조회
     @GetMapping("/chat/memberInfo")
     @ResponseBody
-    public ChatroomVO findMemberInfo (@RequestParam long chat_room_seq) {
+    public ChatroomVO findMemberInfo (@RequestParam long chat_room_seq, HttpSession session) {
+        MemberVO sessionMember = (MemberVO) session.getAttribute(Const.SESSION);
+        if (sessionMember == null) {
+            throw new NoSessionException("로그인이 필요합니다.");
+        }
         return chatroomService.findByChatRoomSeq(chat_room_seq);
     }
 

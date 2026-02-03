@@ -198,7 +198,7 @@
                         중고 서적 거래 & 로컬 독서 커뮤니티 플랫폼
                     </p>
                     <div class="mt-12 text-sm font-bold text-gray-400">
-                        Team 범피티
+                        Team 배곱시계
                         <br>발표자: 이상원
                     </div>
                 </div>
@@ -211,7 +211,7 @@
             <section class="py-32 bg-white border-y border-gray-100">
                 <div class="max-w-7xl mx-auto px-6 text-center">
                     <h2 class="text-4xl font-bold mb-4 reveal-text">Our Team</h2>
-                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈습니다.</p>
+                    <p class="text-gray-500 mb-20 reveal-text">각 분야의 전문가들이 모여 최고의 시너지를 냈을지도.......?</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
                         <!-- Group 1 -->
@@ -233,7 +233,6 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김규태</p>
-                                        <p class="text-xs text-blue-600 font-bold">Team Leader</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -242,7 +241,6 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이승환</p>
-                                        <p class="text-xs text-gray-500">Backend Dev</p>
                                     </div>
                                 </div>
                             </div>
@@ -269,19 +267,17 @@
                                 <div class="flex items-center gap-4">
                                     <div
                                         class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
-                                        C</div>
+                                        L</div>
                                     <div>
-                                        <p class="font-bold text-gray-900">최범근</p>
-                                        <p class="text-xs text-gray-500">Full Stack</p>
+                                        <p class="font-bold text-gray-900">이상원</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <div
                                         class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
-                                        L</div>
+                                        C</div>
                                     <div>
-                                        <p class="font-bold text-gray-900">이상원</p>
-                                        <p class="text-xs text-gray-500">Backend Dev</p>
+                                        <p class="font-bold text-gray-900">최범근</p>
                                     </div>
                                 </div>
                             </div>
@@ -311,7 +307,7 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김도연</p>
-                                        <p class="text-xs text-gray-500">Frontend</p>
+                                        <p class="text-xs text-blue-600 font-bold">Team Leader</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -320,7 +316,6 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이동희</p>
-                                        <p class="text-xs text-gray-500">Frontend</p>
                                     </div>
                                 </div>
                             </div>
@@ -447,7 +442,7 @@
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="text-[10px] font-bold text-gray-400 uppercase">Database</span>
-                                        <span class="font-bold text-gray-900">PostgreSQL</span>
+                                        <span class="font-bold text-gray-900">MySQL</span>
                                     </div>
                                 </div>
                             </div>
@@ -494,7 +489,7 @@
                         <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">User
                             Journey</span>
                         <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
-                            구매 프로세스 <span class="text-gradient">Flow</span>
+                            구매 <span class="text-gradient">Flow</span>
                         </h2>
                         <p class="text-gray-500 font-medium text-lg">
                             사용자 관점의 중고책 거래 및 결제 흐름도
@@ -582,7 +577,6 @@
                                 <h3 class="font-bold text-gray-900">안전결제</h3>
                                 <p class="text-xs text-gray-500 mt-2 leading-relaxed">
                                     <strong>TossPay</strong> 연동<br>
-                                    에스크로 시스템 보호
                                 </p>
                             </div>
 
@@ -637,7 +631,7 @@
                                         Step</span>
                                     <h3 class="text-xl font-bold text-gray-900">구매 확정</h3>
                                     <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 (미확정 시
-                                        7일 후 자동 확정)</p>
+                                        15일 후 자동 확정)</p>
                                 </div>
                             </div>
                         </div>
@@ -839,7 +833,7 @@
                     <div class="text-center mb-20 reveal-text">
                         <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">Technical Deep
                             Dive</span>
-                        <h2 class="text-5xl font-bold text-gray-900">Evolution to Non-Blocking I/O</h2>
+                        <h2 class="text-5xl font-bold text-gray-900">Non-Blocking I/O</h2>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -1150,7 +1144,7 @@ webClient.get().uri(url)
                                     <div class="grid grid-cols-1 gap-3">
                                         <div class="flex items-center gap-3">
                                             <span
-                                                    class="w-6 h-6 bg-white text-gray-500 rounded-lg flex items-center justify-center text-[10px] font-bold border border-gray-200">A</span>
+                                                class="w-6 h-6 bg-white text-gray-500 rounded-lg flex items-center justify-center text-[10px] font-bold border border-gray-200">A</span>
                                             <div>
                                                 <p class="text-xs font-bold text-gray-800">AJAX 요청</p>
                                                 <p class="text-[10px] text-gray-500">401 응답 + JSON (로그인 팝업)</p>
@@ -1158,7 +1152,7 @@ webClient.get().uri(url)
                                         </div>
                                         <div class="flex items-center gap-3">
                                             <span
-                                                    class="w-6 h-6 bg-white text-gray-500 rounded-lg flex items-center justify-center text-[10px] font-bold border border-gray-200">B</span>
+                                                class="w-6 h-6 bg-white text-gray-500 rounded-lg flex items-center justify-center text-[10px] font-bold border border-gray-200">B</span>
                                             <div>
                                                 <p class="text-xs font-bold text-gray-800">일반 요청</p>
                                                 <p class="text-[10px] text-gray-500">로그인 페이지 리다이렉트</p>
@@ -1188,13 +1182,13 @@ webClient.get().uri(url)
                                     <div class="space-y-2">
                                         <div class="flex items-start gap-2">
                                             <i data-lucide="file-code"
-                                               class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i>
+                                                class="w-4 h-4 text-blue-500 mt-0.5 shrink-0"></i>
                                             <p class="text-sm text-gray-600 leading-snug">JSP <code>&lt;c:out&gt;</code>
                                                 태그 사용</p>
                                         </div>
                                         <div class="flex items-start gap-2">
                                             <i data-lucide="alert-triangle"
-                                               class="w-4 h-4 text-orange-500 mt-0.5 shrink-0"></i>
+                                                class="w-4 h-4 text-orange-500 mt-0.5 shrink-0"></i>
                                             <p class="text-sm text-gray-600 leading-snug">HTML 태그 삽입 원천 차단</p>
                                         </div>
                                     </div>
@@ -1219,7 +1213,8 @@ webClient.get().uri(url)
                         </div>
 
                         <div class="md:col-span-2 reveal-card" style="transition-delay: 200ms;">
-                            <div class="bento-box p-8 bg-gray-900 text-white flex flex-col md:flex-row gap-8 items-center">
+                            <div
+                                class="bento-box p-8 bg-gray-900 text-white flex flex-col md:flex-row gap-8 items-center">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-3 mb-4">
                                         <div class="p-2 bg-gray-800 rounded-lg">
@@ -1242,7 +1237,7 @@ webClient.get().uri(url)
                                     </div>
                                 </div>
                                 <div
-                                        class="w-full md:w-auto bg-gray-800 p-5 rounded-2xl border border-gray-700 min-w-[280px]">
+                                    class="w-full md:w-auto bg-gray-800 p-5 rounded-2xl border border-gray-700 min-w-[280px]">
                                     <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-700">
                                         <span class="text-xs font-bold text-gray-400">Security Score</span>
                                         <span class="text-green-400 text-xs font-bold">Safe</span>
@@ -1272,7 +1267,6 @@ webClient.get().uri(url)
                 <div class="max-w-7xl mx-auto">
                     <div class="text-center mb-24 reveal-text">
                         <h2 class="text-5xl font-bold mb-6">Seamless Solution.</h2>
-                        <p class="text-xl text-gray-500">기술로 완성된 새로운 경험</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1496,62 +1490,442 @@ webClient.get().uri(url)
                     </div>
             </section>
 
-            <!-- Load Test Visualizer (AJAX) -->
-            <section class="py-32 bg-white border-t border-gray-100 relative overflow-hidden"
+            <!-- Load Test Visualizer (Ported from React App) -->
+            <section class="py-24 bg-slate-50 border-t border-slate-200 relative overflow-hidden"
                 id="loadtest-visualizer-section">
-                <!-- Background Elements -->
-                <div
-                    class="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none">
-                </div>
+
                 <div class="max-w-7xl mx-auto px-6 relative z-10">
-                    <h2 class="text-3xl font-bold mb-8 text-center text-gray-900 reveal-text">Performance Verification
-                    </h2>
-                    <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto reveal-text">
-                        k6와 CloudWatch를 활용하여 단계별(Smoke/Load/Stress/Spike) 부하 테스트를 수행하고 안정성을 검증했습니다.
-                    </p>
-                    <div id="loadtest-ajax-container" class="min-h-[800px] flex items-center justify-center">
-                        <div class="flex flex-col items-center gap-4 text-gray-500">
-                            <i data-lucide="loader-2" class="w-10 h-10 animate-spin"></i>
-                            <span class="text-sm font-mono">Loading Performance Data...</span>
+                    <!-- Header with Tab Switcher -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-blue-600 p-2 rounded-lg shadow-sm">
+                                <i data-lucide="zap" class="text-white w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">성능 분석 및 최적화 보고서</h2>
+                                <p class="text-xs text-slate-500 font-medium tracking-wide uppercase">Shinhan 6th -
+                                    SecondaryBook Project</p>
+                            </div>
+                        </div>
+
+                        <!-- Tab Switcher -->
+                        <div class="inline-flex p-1 bg-slate-200 rounded-xl border border-slate-300">
+                            <button onclick="switchPerfTab('load')" id="tab-btn-load"
+                                class="px-4 py-2 text-sm font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
+                                Load (30)
+                            </button>
+                            <button onclick="switchPerfTab('stress')" id="tab-btn-stress"
+                                class="px-4 py-2 text-sm font-bold rounded-lg transition-all text-slate-500 hover:text-slate-700">
+                                Stress (500)
+                            </button>
+                            <button onclick="switchPerfTab('tuning')" id="tab-btn-tuning"
+                                class="px-4 py-2 text-sm font-bold rounded-lg transition-all text-slate-500 hover:text-slate-700">
+                                JVM Tuning
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Intro Card -->
+                    <div
+                        class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm mb-12 transition-all duration-300">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div id="perf-indicator"
+                                class="w-2 h-8 rounded-full bg-blue-500 transition-colors duration-300"></div>
+                            <h2 id="perf-title" class="text-2xl font-extrabold text-slate-900">기본 부하 테스트 (30 VU)</h2>
+                        </div>
+                        <p id="perf-desc" class="text-slate-600 max-w-3xl leading-relaxed">
+                            발표 시 예상되는 학급 전원 접속 상황을 재현한 안정성 테스트
+                        </p>
+                    </div>
+
+                    <!-- Environment & Config (Grid) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                        <!-- Infra Config (Static) -->
+                        <div class="lg:col-span-1 space-y-6">
+                            <div class="mb-4">
+                                <h3 class="text-lg font-bold text-slate-900">인프라 구성 환경</h3>
+                                <p class="text-sm text-slate-500">최적화가 적용된 AWS 인프라 리소스</p>
+                            </div>
+                            <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-sm">
+                                <div class="flex items-center justify-between py-2 border-b border-slate-50">
+                                    <div class="flex items-center space-x-3">
+                                        <i data-lucide="server" class="w-4 h-4 text-slate-400"></i>
+                                        <span class="text-sm text-slate-600 font-medium">서버 인스턴스</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-800">AWS EC2 t3.small</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-slate-50">
+                                    <div class="flex items-center space-x-3">
+                                        <i data-lucide="zap" class="w-4 h-4 text-slate-400"></i>
+                                        <span class="text-sm text-slate-600 font-medium">메모리 (RAM)</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-800">2GB</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-slate-50">
+                                    <div class="flex items-center space-x-3">
+                                        <i data-lucide="activity" class="w-4 h-4 text-slate-400"></i>
+                                        <span class="text-sm text-slate-600 font-medium">오토스케일링</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-800 text-right">ALB AutoScaling (Min:
+                                        1, Max: 8)</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-slate-50">
+                                    <div class="flex items-center space-x-3">
+                                        <i data-lucide="database" class="w-4 h-4 text-slate-400"></i>
+                                        <span class="text-sm text-slate-600 font-medium">데이터베이스</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-800">RDS Managed (PostgreSQL)</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <div class="flex items-center space-x-3">
+                                        <i data-lucide="zap" class="w-4 h-4 text-blue-400"></i>
+                                        <span class="text-sm text-slate-600 font-medium">인메모리 DB</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-800">ElastiCache Redis</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Code Block (Dynamic) -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="mb-4">
+                                <h3 id="code-title" class="text-lg font-bold text-slate-900">테스트 시나리오 (k6)</h3>
+                                <p id="code-subtitle" class="text-sm text-slate-500">k6 스크립트 실행 조건</p>
+                            </div>
+                            <div
+                                class="bg-slate-900 rounded-2xl p-6 shadow-xl overflow-hidden relative border border-slate-800 h-[320px] overflow-y-auto custom-scrollbar">
+                                <div id="code-badge"
+                                    class="absolute top-4 right-4 text-slate-500 font-mono text-[10px] uppercase tracking-widest">
+                                    presentationTest.js
+                                </div>
+                                <pre class="text-blue-400 font-mono text-sm leading-relaxed"><code id="perf-code">export const options = {
+    stages: [
+        { duration: '2m', target: 30 },   // 워밍업
+        { duration: '26m', target: 30 },  // 30명 유지
+        { duration: '2m', target: 0 },    // 종료
+    ],
+    thresholds: {
+        http_req_duration: ['p(95)<1000'],
+        http_req_failed: ['rate<0.05'],
+    },
+};</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- === TAB CONTENT: Results & Stats === -->
+                    <div id="perf-content-area" class="space-y-12">
+                        <!-- Content will be injected via JS -->
+                    </div>
+
+                    <!-- Conclusion Card (Dynamic) -->
+                    <div
+                        class="bg-white rounded-3xl border border-slate-200 p-10 shadow-sm relative overflow-hidden transition-all duration-500 mt-12">
+                        <div id="conclusion-bg"
+                            class="absolute top-0 right-0 w-48 h-48 rounded-full -mr-24 -mt-24 opacity-10 bg-blue-500">
+                        </div>
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
+                            <div class="flex-shrink-0">
+                                <div id="conclusion-icon-bg"
+                                    class="w-20 h-20 rounded-2xl flex items-center justify-center shadow-inner bg-green-100">
+                                    <i id="conclusion-icon" data-lucide="check-circle"
+                                        class="w-10 h-10 text-green-600"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                    종합 결론: <span id="conclusion-title"
+                                        class="text-green-600 underline underline-offset-8 decoration-slate-200">발표 환경
+                                        최적화 완료</span>
+                                </h2>
+                                <p id="conclusion-text" class="text-slate-600 leading-relaxed text-lg font-medium">
+                                    30명의 가상 사용자를 투입한 결과, 에러율 0% 및 p95 응답 시간 60ms 미만이라는 압도적인 성능을 보였습니다. 현재의 t3.small 단일
+                                    인스턴스로도 매우 여유롭게 서비스가 가능합니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
+                <script>
+                    // === DATA CONSTANTS ===
+                    const SCENARIOS = {
+                        'load': {
+                            name: "기본 부하 테스트 (30 VU)",
+                            desc: "발표 시 예상되는 학급 전원 접속 상황을 재현한 안정성 테스트",
+                            color: "blue",
+                            scriptName: "presentationTest.js",
+                            code: `export const options = {
+    stages: [
+        { duration: '2m', target: 30 },   // 워밍업
+        { duration: '26m', target: 30 },  // 30명 유지
+        { duration: '2m', target: 0 },    // 종료
+    ],
+    thresholds: {
+        http_req_duration: ['p(95)<1000'],
+        http_req_failed: ['rate<0.05'],
+    },
+};`,
+                            isTuning: false,
+                            stats: {
+                                p95: "59.7ms", p95Sub: "기준 1.0s 대비 쾌적",
+                                error: "0.00%", errorSub: "13,695건 중 0건 실패",
+                                tps: "7.6/s", tpsSub: "초당 요청 처리 수",
+                                users: "30 VUs", active: 1, activeSub: "CPU 3% 미만 유지",
+                                med: "21.52ms", avg: "26.73ms", data: "568 MB", check: "100%"
+                            },
+                            conclusion: {
+                                title: "발표 환경 최적화 완료",
+                                text: "30명의 가상 사용자를 투입한 결과, 에러율 0% 및 p95 응답 시간 60ms 미만이라는 압도적인 성능을 보였습니다. 현재의 t3.small 단일 인스턴스로도 매우 여유롭게 서비스가 가능합니다.",
+                                badge: "t3.small (2GB) 환경 최적화"
+                            }
+                        },
+                        'stress': {
+                            name: "한계 스트레스 테스트 (500 VU)",
+                            desc: "시스템이 견딜 수 있는 최대 동시 접속 임계치를 확인하기 위한 고부하 테스트",
+                            color: "purple",
+                            scriptName: "stressTest.js",
+                            code: `export const options = {
+    stages: [
+        { duration: '4m', target: 30 },
+        { duration: '6m', target: 100 },
+        { duration: '6m', target: 200 },
+        { duration: '6m', target: 350 },
+        { duration: '6m', target: 500 },
+        { duration: '2m', target: 0 },
+    ],
+    thresholds: {
+        http_req_duration: ['p(95)<3000'],
+        http_req_failed: ['rate<0.10'],
+    },
+};`,
+                            isTuning: false,
+                            stats: {
+                                p95: "1.85s", p95Sub: "기준 3.0s 대비 우수",
+                                error: "0.00%", errorSub: "458,004건 중 0건 실패",
+                                tps: "254.4/s", tpsSub: "초당 요청 처리 수",
+                                users: "500 VUs", active: 2, activeSub: "500명 부하 시 오토스케일링 2대 작동",
+                                med: "149.0ms", avg: "452.9ms", data: "19 GB", check: "99.99%"
+                            },
+                            conclusion: {
+                                title: "대규모 트래픽 수용 능력 입증",
+                                text: "최대 500명의 동시 접속자가 발생하는 극한 상황에서도 에러율 0%대를 유지했습니다. 트래픽 증가에 따라 오토스케일링이 동작하여 인스턴스가 2대로 증설되었으며, 안정적인 서비스가 유지되었습니다.",
+                                badge: "Scale-Out: 2 Nodes"
+                            }
+                        },
+                        'tuning': {
+                            name: "JVM 성능 최적화 (Tuning)",
+                            desc: "제한된 인프라 리소스(RAM 2GB) 내에서 GC 성능을 극대화하고 응답 지연(Tail Latency)을 최소화하기 위한 설정",
+                            color: "emerald",
+                            scriptName: "catalina.sh / setenv.sh",
+                            code: `export CATALINA_OPTS="$CATALINA_OPTS -Duser.timezone=Asia/Seoul"
+export CATALINA_OPTS="$CATALINA_OPTS -Xms1024m -Xmx1024m"
+export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxMetaspaceSize=128m"
+export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
+                            isTuning: true,
+                            tuningDetails: [
+                                { title: "Heap Memory 고정 (-Xms, -Xmx)", tag: "1024m (1GB)", desc: "JVM 시작 시와 최대 힙 크기를 1GB로 동일하게 설정하여 런타임 중 힙 확장/축소 비용을 제거합니다.", effect: "GC 예측 가능성 향상 및 Stop-The-World 시간 단축" },
+                                { title: "Metaspace 크기 제한", tag: "MaxMetaspaceSize=128m", desc: "클래스 메타데이터 저장 공간을 제한하여 메모리 누수를 방지하고 EC2 전체 메모리 압박을 방어합니다.", effect: "메모리 사용량 예측 가능 및 OOM(Out of Memory) 위험 감소" },
+                                { title: "G1 Garbage Collector 활성화", tag: "-XX:+UseG1GC", desc: "힙을 Region 단위로 나누어 관리하는 서버용 Low-latency GC를 사용하여 긴 Full GC 발생을 억제합니다.", effect: "Tail Latency(p95/p99) 개선 및 응답 스파이크 방지" }
+                            ],
+                            conclusion: {
+                                title: "Tail Latency 최적화 성공",
+                                text: "t3.small의 2GB RAM 환경에서 JVM 힙을 1GB로 고정하고 G1GC를 적용함으로써, 부하 발생 시 응답 속도가 튀는 'Tail Latency' 현상을 억제하고 전체적인 서비스 가용성을 높였습니다.",
+                                badge: "Tail Latency 안정화"
+                            }
+                        }
+                    };
+
+                    function switchPerfTab(tabKey) {
+                        const data = SCENARIOS[tabKey];
+                        const contentArea = document.getElementById('perf-content-area');
+
+                        // 1. Buttons Update
+                        ['load', 'stress', 'tuning'].forEach(key => {
+                            const btn = document.getElementById('tab-btn-' + key);
+                            if (key === tabKey) {
+                                btn.className = "px-4 py-2 text-sm font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm";
+                                if (key === 'stress') btn.classList.replace('text-blue-600', 'text-purple-600');
+                                if (key === 'tuning') btn.classList.replace('text-blue-600', 'text-emerald-600');
+                            } else {
+                                btn.className = "px-4 py-2 text-sm font-bold rounded-lg transition-all text-slate-500 hover:text-slate-700";
+                            }
+                        });
+
+                        // 2. Intro Card Update
+                        document.getElementById('perf-title').innerText = data.name;
+                        document.getElementById('perf-desc').innerText = data.desc;
+                        const indicator = document.getElementById('perf-indicator');
+                        indicator.className = `w-2 h-8 rounded-full bg-\${data.color}-500 transition-colors duration-300`;
+
+                        // 3. Code Block Update
+                        document.getElementById('code-badge').innerText = data.scriptName;
+                        if (data.isTuning) {
+                            document.getElementById('code-title').innerText = "JVM 최적화 설정 코드";
+                            document.getElementById('code-subtitle').innerText = "Tomcat/JVM 옵션 적용";
+                        } else {
+                            document.getElementById('code-title').innerText = "테스트 시나리오 (k6)";
+                            document.getElementById('code-subtitle').innerText = "k6 스크립트 실행 조건";
+                        }
+                        // document.getElementById('perf-code').innerText = data.code; 
+                        // -> innerText changes format, use textContent then highlight? HTML content safer for preserving format
+                        document.getElementById('perf-code').textContent = data.code;
+
+                        // 4. Main Content (Stats vs Tuning)
+                        let html = '';
+                        if (!data.isTuning) {
+                            html = `
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900 mb-6">성능 측정 결과 <span class="text-sm font-normal text-slate-500 ml-2">처리량 및 응답 지표 분석</span></h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                                     <!-- 95th -->
+                                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
+                                        <div class="p-3 rounded-xl bg-blue-50"><i data-lucide="clock" class="text-blue-600 w-6 h-6"></i></div>
+                                        <div><p class="text-sm font-medium text-slate-500">95th Percentile</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.p95}</h3><p class="text-xs text-slate-400 mt-1">\${data.stats.p95Sub}</p></div>
+                                     </div>
+                                     <!-- Error -->
+                                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
+                                        <div class="p-3 rounded-xl bg-green-50"><i data-lucide="alert-circle" class="text-green-600 w-6 h-6"></i></div>
+                                        <div><p class="text-sm font-medium text-slate-500">HTTP 에러율</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.error}</h3><p class="text-xs text-slate-400 mt-1">\${data.stats.errorSub}</p></div>
+                                     </div>
+                                     <!-- TPS -->
+                                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
+                                        <div class="p-3 rounded-xl bg-amber-50"><i data-lucide="zap" class="text-amber-600 w-6 h-6"></i></div>
+                                        <div><p class="text-sm font-medium text-slate-500">평균 처리량</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.tps}</h3><p class="text-xs text-slate-400 mt-1">\${data.stats.tpsSub}</p></div>
+                                     </div>
+                                     <!-- Users -->
+                                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
+                                        <div class="p-3 rounded-xl bg-purple-50"><i data-lucide="users" class="text-purple-600 w-6 h-6"></i></div>
+                                        <div><p class="text-sm font-medium text-slate-500">최대 가상 유저</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.users}</h3><p class="text-xs text-slate-400 mt-1">동시 접속자 목표 달성</p></div>
+                                     </div>
+                                     <!-- Active Instances -->
+                                     <div class="bg-blue-600 rounded-2xl p-6 shadow-lg text-white flex flex-col justify-center border border-blue-500">
+                                        <div class="flex items-center space-x-3 mb-2"><i data-lucide="layout" class="w-5 h-5 opacity-80"></i><h3 class="text-sm font-bold opacity-90 uppercase tracking-tight">활성 인스턴스</h3></div>
+                                        <div class="flex items-baseline space-x-2"><span class="text-4xl font-black tracking-tighter">\${data.stats.active}</span><span class="text-sm opacity-80 font-medium">/ 8 Nodes</span></div>
+                                        <p class="mt-2 text-[10px] text-blue-100 leading-tight">\${data.stats.activeSub}</p>
+                                     </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center"><span class="text-xs font-semibold text-slate-400">중간 응답 시간</span><span class="text-sm font-bold text-slate-700">\${data.stats.med}</span></div>
+                                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center"><span class="text-xs font-semibold text-slate-400">평균 응답 시간</span><span class="text-sm font-bold text-slate-700">\${data.stats.avg}</span></div>
+                                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center"><span class="text-xs font-semibold text-slate-400">총 수신 데이터</span><span class="text-sm font-bold text-slate-700">\${data.stats.data}</span></div>
+                                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center"><span class="text-xs font-semibold text-slate-400">성공 체크율</span><span class="text-sm font-bold text-green-600">\${data.stats.check}</span></div>
+                                </div>
+                            </div>
+                            `;
+                        } else {
+                            // Tuning Detail
+                            html = `
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900 mb-6">JVM 튜닝 상세 내용 <span class="text-sm font-normal text-slate-500 ml-2">p95 지표 안정화 및 Stop-The-World 최소화 전략</span></h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                \${data.tuningDetails.map(d => `
+                                < div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col h-full shadow-sm hover:border-emerald-200 transition-colors" >
+                                        <div class="flex justify-between items-start mb-4">
+                                            <h3 class="font-bold text-slate-800 leading-snug">\${d.title}</h3>
+                                            <span class="text-[10px] font-black bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded uppercase">\${d.tag}</span>
+                                        </div>
+                                        <p class="text-sm text-slate-500 mb-6 flex-grow">\${d.desc}</p>
+                                        <div class="pt-4 border-t border-slate-50">
+                                            <p class="text-[10px] font-bold text-emerald-600 uppercase mb-1">최종 기대 효과</p>
+                                            <p class="text-xs font-semibold text-slate-700">\${d.effect}</p>
+                                        </div>
+                                    </div >
+                                `).join('')}
+                                </div>
+                                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 flex items-start space-x-4 mt-6">
+                                    <div class="bg-emerald-500 p-2 rounded-lg mt-1"><i data-lucide="info" class="text-white w-5 h-5"></i></div>
+                                    <div>
+                                        <h4 class="text-emerald-900 font-bold mb-1 underline underline-offset-4 decoration-emerald-200 tracking-tight">💡 용어 정리: Tail Latency (꼬리 지연 시간)</h4>
+                                        <p class="text-emerald-800 text-sm leading-relaxed">
+                                            전체 요청 중 가장 느린 소수(p95, p99 등)의 응답 시간을 의미합니다. <strong>JVM 튜닝은 평균 응답 시간보다 이러한 'Tail Latency'를 안정화하는 데 목적</strong>이 있습니다. Heap 크기를 고정함으로써 JVM이 메모리를 늘리거나 줄일 때 발생하는 오버헤드와 Stop-The-World 현상을 원천 차단하여 p95 지표를 효과적으로 제어합니다.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        }
+                        contentArea.innerHTML = html;
+
+                        // 5. Conclusion Update
+                        document.getElementById('conclusion-title').className = `text-\${data.color}-600 underline underline-offset-8 decoration-slate-200`;
+                        document.getElementById('conclusion-text').innerText = data.conclusion.text;
+
+                        document.getElementById('conclusion-bg').className = `absolute top-0 right-0 w-48 h-48 rounded-full -mr-24 -mt-24 opacity-10 bg-\${data.color}-500`;
+                        const iconBg = document.getElementById('conclusion-icon-bg');
+                        iconBg.className = `w-20 h-20 rounded-2xl flex items-center justify-center shadow-inner \${data.isTuning ? "bg-emerald-100" : "bg-green-100"}`;
+
+                        if (window.lucide) lucide.createIcons();
+                    }
+
+                    // 초기화 (Load 탭 기본)
+                    document.addEventListener('DOMContentLoaded', () => {
+                        switchPerfTab('load');
+                    });
+                </script>
             </section>
 
-            <!-- QA Reports Section (Separated) -->
             <section class="py-32 bg-gray-50 border-t border-gray-200">
-                <div class="max-w-7xl mx-auto px-6">
+                <div class="max-w-[1440px] mx-auto px-6">
                     <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Quality Assurance</h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <!-- Functional Test -->
-                        <div class="cursor-pointer reveal-card group"
-                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
-                            <div class="overflow-hidden rounded-2xl shadow-xl border border-gray-200 bg-white">
-                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
-                                    alt="Functional Test Report"
-                                    class="w-full h-64 object-cover object-top transform group-hover:scale-105 transition-transform duration-500">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2">기능 테스트 리포트</h3>
-                                    <p class="text-gray-500 text-sm">기능별 성공/실패 내역과 해결 방안을 엑셀로 상세히 관리했습니다.</p>
+                    <div class="space-y-24">
+
+                        <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
+                                <div
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                                    System Validation
+                                </div>
+                                <h3 class="text-3xl font-bold text-gray-900">기능 테스트 리포트</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    단위 기능부터 통합 시나리오까지, 엑셀을 활용해 테스트 케이스(TC)를 체계적으로 관리했습니다.
+                                    성공/실패 여부를 명확히 기록하고, 발견된 버그의 수정 현황을 추적하여 배포 전 시스템의 안정성을 확보했습니다.
+                                </p>
+                            </div>
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
+                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
+                                <div class="relative">
+                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
+                                        alt="Functional Test Report" class="w-full h-auto object-cover">
+                                    <div
+                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                        <i data-lucide="zoom-in"
+                                            class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- UI/UX Test -->
-                        <div class="cursor-pointer reveal-card group"
-                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')"
-                            style="transition-delay: 100ms;">
-                            <div class="overflow-hidden rounded-2xl shadow-xl border border-gray-200 bg-white">
-                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
-                                    alt="UI/UX Test Report"
-                                    class="w-full h-64 object-cover object-top transform group-hover:scale-105 transition-transform duration-500">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2">UI/UX 개선 내역</h3>
-                                    <p class="text-gray-500 text-sm">사용자 피드백을 반영한 화면 개선 사항을 기록하고 추적했습니다.</p>
+                        <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
+                                <div
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
+                                    User Experience
+                                </div>
+                                <h3 class="text-3xl font-bold text-gray-900">UI/UX 개선 내역</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    사용자 관점에서의 시나리오 테스트를 수행하여 사용성을 점검했습니다.
+                                    반응형 레이아웃, 인터랙션 피드백, 에러 메시지 노출 등 디테일한 UI 이슈를 기록하고 개선하여 직관적이고 완성도 높은 경험을 제공합니다.
+                                </p>
+                            </div>
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
+                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')">
+                                <div class="relative">
+                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
+                                        alt="UI/UX Test Report" class="w-full h-auto object-cover">
+                                    <div
+                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                        <i data-lucide="zoom-in"
+                                            class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </section>
@@ -2425,7 +2799,7 @@ public void approveJoinRequest(Long clubSeq, Long userId) {
                         const rotateX = ((y - centerY) / centerY) * -8; // Max 8deg
                         const rotateY = ((x - centerX) / centerX) * 8;
 
-                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                        card.style.transform = `perspective(1000px) rotateX(\${rotateX}deg) rotateY(\${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
                     }
 
                     resetTilt(card) {
@@ -2682,7 +3056,7 @@ public void approveJoinRequest(Long clubSeq, Long userId) {
 
                     const badge = document.getElementById('load-test-badge');
                     badge.innerText = data.badge;
-                    badge.className = `px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm border shrink-0 ${data.badgeColor}`;
+                    badge.className = `px-3 py-1.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm border shrink-0 \${data.badgeColor}`;
 
                     // Stats
                     document.getElementById('load-stat-duration').innerText = data.duration;
@@ -2692,7 +3066,7 @@ public void approveJoinRequest(Long clubSeq, Long userId) {
                     document.getElementById('infra-instance').innerText = data.instance;
                     document.getElementById('infra-scaling').innerText = data.scaling;
                     // Infra Card BG Update
-                    document.getElementById('infra-card-bg').className = `bg-gradient-to-br p-6 rounded-2xl shadow-lg text-white h-full relative overflow-hidden group ${data.infraColor}`;
+                    document.getElementById('infra-card-bg').className = `bg-gradient-to-br p-6 rounded-2xl shadow-lg text-white h-full relative overflow-hidden group \${data.infraColor}`;
 
                     // Key Metrics
                     document.getElementById('metric-vus').innerText = data.metrics.vus;
@@ -2843,7 +3217,7 @@ public void approveJoinRequest(Long clubSeq, Long userId) {
                     badge.className = "px-2 py-0.5 rounded text-[10px] font-black text-white " + colorClass;
                     endpoint.innerText = endpointText;
                     query.innerText = queryText;
-                    iconBox.className = `w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg border-2 transition-colors duration-500 ${borderColor} bg-white text-gray-700`;
+                    iconBox.className = `w-20 h-20 rounded-3xl flex items-center justify-center shadow-lg border-2 transition-colors duration-500 \${borderColor} bg-white text-gray-700`;
                 };
 
                 window.setReadFlowHit = function (isHit) {

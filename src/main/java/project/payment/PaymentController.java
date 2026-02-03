@@ -67,8 +67,8 @@ public class PaymentController {
         }
 
         // 검증 : 안전결제 대상 구매자인지 확인
-        if (pendingBuyerSeq == null || pendingBuyerSeq != sessionMember.getMember_seq()) {
-            return "redirect:/";  // 안전결제 대상 구매자가 아니면 접근 불가
+        if (pendingBuyerSeq == null || !pendingBuyerSeq.equals(sessionMember.getMember_seq())) {
+            return "redirect:/";
         }
 
         // 정상 로직
