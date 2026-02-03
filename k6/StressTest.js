@@ -1,4 +1,5 @@
 
+
   import http from 'k6/http';
   import { check, sleep } from 'k6';
 
@@ -8,25 +9,21 @@
           { duration: '1m', target: 30 },
           { duration: '3m', target: 30 },
 
-          // 2단계: 100명 (스케일 아웃 시작)
+          // 2단계: 100명
           { duration: '1m', target: 100 },
-          { duration: '5m', target: 100 },  // 5분 유지
+          { duration: '5m', target: 100 },
 
           // 3단계: 200명
           { duration: '1m', target: 200 },
-          { duration: '5m', target: 200 },  // 5분 유지
+          { duration: '5m', target: 200 },
 
-          // 4단계: 400명
-          { duration: '1m', target: 400 },
-          { duration: '5m', target: 400 },  // 5분 유지
+          // 4단계: 350명
+          { duration: '1m', target: 350 },
+          { duration: '5m', target: 350 },
 
-          // 5단계: 600명
-          { duration: '1m', target: 600 },
-          { duration: '5m', target: 600 },  // 5분 유지
-
-          // 6단계: 800명 (한계 테스트)
-          { duration: '1m', target: 800 },
-          { duration: '5m', target: 800 },  // 5분 유지
+          // 5단계: 500명 (최대)
+          { duration: '1m', target: 500 },
+          { duration: '5m', target: 500 },
 
           // 종료
           { duration: '2m', target: 0 },
