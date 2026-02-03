@@ -1518,40 +1518,60 @@ webClient.get().uri(url)
                 </div>
             </section>
 
-            <!-- QA Reports Section (Separated) -->
             <section class="py-32 bg-gray-50 border-t border-gray-200">
-                <div class="max-w-7xl mx-auto px-6">
+                <div class="max-w-[1440px] mx-auto px-6">
                     <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Quality Assurance</h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <!-- Functional Test -->
-                        <div class="cursor-pointer reveal-card group"
-                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
-                            <div class="overflow-hidden rounded-2xl shadow-xl border border-gray-200 bg-white">
-                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
-                                    alt="Functional Test Report"
-                                    class="w-full h-64 object-cover object-top transform group-hover:scale-105 transition-transform duration-500">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2">기능 테스트 리포트</h3>
-                                    <p class="text-gray-500 text-sm">기능별 성공/실패 내역과 해결 방안을 엑셀로 상세히 관리했습니다.</p>
+                    <div class="space-y-24">
+
+                        <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
+                                <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                                    System Validation
+                                </div>
+                                <h3 class="text-3xl font-bold text-gray-900">기능 테스트 리포트</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    단위 기능부터 통합 시나리오까지, 엑셀을 활용해 테스트 케이스(TC)를 체계적으로 관리했습니다.
+                                    성공/실패 여부를 명확히 기록하고, 발견된 버그의 수정 현황을 추적하여 배포 전 시스템의 안정성을 확보했습니다.
+                                </p>
+                            </div>
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
+                                 onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
+                                <div class="relative">
+                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
+                                         alt="Functional Test Report" class="w-full h-auto object-cover">
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                        <i data-lucide="zoom-in" class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- UI/UX Test -->
-                        <div class="cursor-pointer reveal-card group"
-                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')"
-                            style="transition-delay: 100ms;">
-                            <div class="overflow-hidden rounded-2xl shadow-xl border border-gray-200 bg-white">
-                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
-                                    alt="UI/UX Test Report"
-                                    class="w-full h-64 object-cover object-top transform group-hover:scale-105 transition-transform duration-500">
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2">UI/UX 개선 내역</h3>
-                                    <p class="text-gray-500 text-sm">사용자 피드백을 반영한 화면 개선 사항을 기록하고 추적했습니다.</p>
+                        <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
+                                <div class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
+                                    User Experience
+                                </div>
+                                <h3 class="text-3xl font-bold text-gray-900">UI/UX 개선 내역</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    사용자 관점에서의 시나리오 테스트를 수행하여 사용성을 점검했습니다.
+                                    반응형 레이아웃, 인터랙션 피드백, 에러 메시지 노출 등 디테일한 UI 이슈를 기록하고 개선하여 직관적이고 완성도 높은 경험을 제공합니다.
+                                </p>
+                            </div>
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
+                                 onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')">
+                                <div class="relative">
+                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
+                                         alt="UI/UX Test Report" class="w-full h-auto object-cover">
+                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                        <i data-lucide="zoom-in" class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </section>
