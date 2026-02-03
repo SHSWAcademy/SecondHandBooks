@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper
 public interface TradeMapper {
 
-    List<TradeVO> findAll(); // 전체조회
+    // List<TradeVO> findAll(); // 전체조회
     List<TradeVO> findAllWithPaging(@Param("size") int size, @Param("offset") int offset, @Param("searchVO") TradeVO searchVO);
     int countAll(@Param("searchVO") TradeVO searchVO);
 
