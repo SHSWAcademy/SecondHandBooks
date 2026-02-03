@@ -106,9 +106,9 @@
 
                 <div class="flex items-center gap-2 cursor-pointer mr-10 group" onclick="location.href='/home'">
                     <div class="flex flex-col leading-none">
-                        <span class="text-[10px] font-bold text-primary-500 tracking-widest mb-0.5 ml-0.5 opacity-80 group-hover:opacity-100 transition-opacity">PREMIUM</span>
+                        <span class="text-[10px] font-bold text-primary-500 tracking-widest mb-0.5 ml-0.5 opacity-80 group-hover:opacity-100 transition-opacity">SH BOOKS</span>
                         <span class="text-2xl font-black text-gray-900 tracking-tighter group-hover:text-primary-600 transition-colors">
-                            Shinhan<span class="text-primary-600 group-hover:text-gray-900 transition-colors">Books</span>
+                            SecondHand<span class="text-primary-600 group-hover:text-gray-900 transition-colors">Books</span>
                         </span>
                     </div>
                 </div>

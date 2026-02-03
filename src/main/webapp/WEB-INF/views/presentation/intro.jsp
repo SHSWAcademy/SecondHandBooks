@@ -233,7 +233,6 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김규태</p>
-                                        <p class="text-xs text-blue-600 font-bold">Team Leader</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -242,7 +241,6 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이승환</p>
-                                        <p class="text-xs text-gray-500">Backend Dev</p>
                                     </div>
                                 </div>
                             </div>
@@ -272,7 +270,6 @@
                                         C</div>
                                     <div>
                                         <p class="font-bold text-gray-900">최범근</p>
-                                        <p class="text-xs text-gray-500">Full Stack</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -281,7 +278,6 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이상원</p>
-                                        <p class="text-xs text-gray-500">Backend Dev</p>
                                     </div>
                                 </div>
                             </div>
@@ -311,7 +307,7 @@
                                         K</div>
                                     <div>
                                         <p class="font-bold text-gray-900">김도연</p>
-                                        <p class="text-xs text-gray-500">Frontend</p>
+                                        <p class="text-xs text-blue-600 font-bold">Team Leader</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -320,7 +316,6 @@
                                         L</div>
                                     <div>
                                         <p class="font-bold text-gray-900">이동희</p>
-                                        <p class="text-xs text-gray-500">Frontend</p>
                                     </div>
                                 </div>
                             </div>
@@ -494,7 +489,7 @@
                         <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">User
                             Journey</span>
                         <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
-                            구매 프로세스 <span class="text-gradient">Flow</span>
+                            구매 <span class="text-gradient">Flow</span>
                         </h2>
                         <p class="text-gray-500 font-medium text-lg">
                             사용자 관점의 중고책 거래 및 결제 흐름도
@@ -582,7 +577,6 @@
                                 <h3 class="font-bold text-gray-900">안전결제</h3>
                                 <p class="text-xs text-gray-500 mt-2 leading-relaxed">
                                     <strong>TossPay</strong> 연동<br>
-                                    에스크로 시스템 보호
                                 </p>
                             </div>
 
@@ -637,7 +631,7 @@
                                         Step</span>
                                     <h3 class="text-xl font-bold text-gray-900">구매 확정</h3>
                                     <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 (미확정 시
-                                        7일 후 자동 확정)</p>
+                                        15일 후 자동 확정)</p>
                                 </div>
                             </div>
                         </div>
@@ -839,7 +833,7 @@
                     <div class="text-center mb-20 reveal-text">
                         <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">Technical Deep
                             Dive</span>
-                        <h2 class="text-5xl font-bold text-gray-900">Evolution to Non-Blocking I/O</h2>
+                        <h2 class="text-5xl font-bold text-gray-900">Non-Blocking I/O</h2>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
