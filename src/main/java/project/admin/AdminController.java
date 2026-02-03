@@ -57,6 +57,9 @@ public class AdminController {
 
             // 4. 공지사항 목록 추가
             model.addAttribute("notices", adminService.selectNotices());
+
+            // 5. 안전결제 데이터 추가
+            model.addAttribute("safePayList", tradeService.safePayList());
             return "admin/dashboard";
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,6 +127,16 @@ public class AdminController {
         String action = (String) body.get("action");
         adminService.handleTradeAction(seq, action);
         return "ok";
+    }
+
+    // [API] 안전결제 내역
+    @GetMapping("/api/safepaylist")
+    @ResponseBody
+    public PageResult<TradeVO> getSafePayList(SearchVO searchVO) {
+        List<TradeVO> list = adminService.searchSafePayList(searchVO);
+
+        int total = adminService.countAllSafePayListBySearch(searchVO);
+        return new PageResult<>(list, total, searchVO.getPage(), searchVO.getSize());
     }
 
     // [API] 모임 목록

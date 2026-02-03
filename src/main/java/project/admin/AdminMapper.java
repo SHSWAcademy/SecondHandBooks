@@ -90,5 +90,7 @@ public interface AdminMapper {
     int countActiveNotices(SearchVO searchVO);
 
 
+    List<TradeVO> searchSafePayList(SearchVO searchVO);
 
+    int countAllSafePayListBySearch(SearchVO searchVO);
 }

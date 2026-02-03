@@ -86,4 +86,7 @@ public interface TradeMapper {
     PaymentVO getPaymentCheckInfo(@Param("trade_seq") Long trade_seq);
 
     List<String> findAllImageUrlsByMember(@Param("member_seq") long member_seq);
+
+    // 안전결제 리스트 조회 (관리자용)
+    List<TradeVO> safePayList();
 }

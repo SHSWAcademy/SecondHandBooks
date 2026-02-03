@@ -82,6 +82,10 @@ public class TradeVO {
 
     private Boolean confirm_purchase;
 
+    // 안전결제 출력용
+    private String member_seller_nm;
+    private String member_buyer_nm;
+
     public boolean checkTradeVO() {
 
         boolean result = false;
