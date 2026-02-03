@@ -376,21 +376,27 @@
             <section class="py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
                 <div class="max-w-7xl mx-auto px-6 text-center">
                     <div class="mb-20 reveal-text">
-                        <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">Growth Path</span>
+                        <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">Growth
+                            Path</span>
                         <h2 class="text-4xl font-black mb-4 text-gray-900">Project Evolution</h2>
                         <p class="text-gray-500 font-medium">단순 구현에서 아키텍처 설계로, 끊임없는 기술적 도전의 여정</p>
                     </div>
 
                     <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 relative">
 
-                        <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-gray-200 via-green-200 to-orange-200 -translate-y-1/2 z-0 opacity-50"></div>
+                        <div
+                            class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-gray-200 via-green-200 to-orange-200 -translate-y-1/2 z-0 opacity-50">
+                        </div>
 
                         <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 0ms;">
-                            <div class="bento-box p-8 border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 bg-white group">
-                                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-blue-100 text-[10px] font-bold text-blue-400 uppercase tracking-widest shadow-sm">
+                            <div
+                                class="bento-box p-8 border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 bg-white group">
+                                <div
+                                    class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-blue-100 text-[10px] font-bold text-blue-400 uppercase tracking-widest shadow-sm">
                                     Mini
                                 </div>
-                                <div class="w-24 h-24 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                <div
+                                    class="w-24 h-24 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
                                     <i data-lucide="gamepad-2" class="w-10 h-10 text-blue-500"></i>
                                 </div>
                                 <h3 class="text-2xl font-bold text-gray-900 mb-6">Omok</h3>
@@ -398,7 +404,9 @@
                                 <div class="space-y-4 text-sm">
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
-                                        <p class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">JDK 1.8</p>
+                                        <p
+                                            class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">
+                                            JDK 1.8</p>
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
@@ -412,13 +420,18 @@
                             </div>
                         </div>
 
-                        <div class="reveal-card relative z-10 w-full max-w-md transform md:-translate-y-4" style="transition-delay: 200ms;">
-                            <div class="absolute -inset-1 bg-gradient-to-br from-green-400 to-emerald-400 rounded-[28px] blur opacity-30 animate-pulse"></div>
+                        <div class="reveal-card relative z-10 w-full max-w-md transform md:-translate-y-4"
+                            style="transition-delay: 200ms;">
+                            <div
+                                class="absolute -inset-1 bg-gradient-to-br from-green-400 to-emerald-400 rounded-[28px] blur opacity-30 animate-pulse">
+                            </div>
                             <div class="bento-box p-10 border-2 border-green-500 shadow-2xl bg-white relative">
-                                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-green-500 px-6 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">
+                                <div
+                                    class="absolute -top-6 left-1/2 -translate-x-1/2 bg-green-500 px-6 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">
                                     First (Current)
                                 </div>
-                                <div class="w-28 h-28 mx-auto rounded-full bg-green-50 flex items-center justify-center mb-8 shadow-inner">
+                                <div
+                                    class="w-28 h-28 mx-auto rounded-full bg-green-50 flex items-center justify-center mb-8 shadow-inner">
                                     <i data-lucide="book-open-check" class="w-12 h-12 text-green-600"></i>
                                 </div>
                                 <h3 class="text-3xl font-black text-green-600 mb-8">SecondHand<br>Books</h3>
@@ -441,11 +454,14 @@
                         </div>
 
                         <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 400ms;">
-                            <div class="bento-box p-8 border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 bg-white group opacity-80 hover:opacity-100">
-                                <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-orange-100 text-[10px] font-bold text-orange-400 uppercase tracking-widest shadow-sm">
+                            <div
+                                class="bento-box p-8 border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 bg-white group opacity-80 hover:opacity-100">
+                                <div
+                                    class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-orange-100 text-[10px] font-bold text-orange-400 uppercase tracking-widest shadow-sm">
                                     Second
                                 </div>
-                                <div class="w-24 h-24 mx-auto rounded-full bg-orange-50 flex items-center justify-center mb-6 shadow-inner group-hover:rotate-12 transition-transform duration-500">
+                                <div
+                                    class="w-24 h-24 mx-auto rounded-full bg-orange-50 flex items-center justify-center mb-6 shadow-inner group-hover:rotate-12 transition-transform duration-500">
                                     <span class="text-4xl font-bold text-orange-400">?</span>
                                 </div>
                                 <h3 class="text-2xl font-bold text-gray-900 mb-6">Future Project</h3>
@@ -453,7 +469,9 @@
                                 <div class="space-y-4 text-sm">
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
-                                        <p class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">Java 21</p>
+                                        <p
+                                            class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">
+                                            Java 21</p>
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
@@ -461,7 +479,7 @@
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
-                                        <p class="font-bold text-gray-700">MySQL</p>
+                                        <p class="font-bold text-gray-700">Postgres</p>
                                     </div>
                                 </div>
                             </div>
@@ -473,7 +491,8 @@
             <section class="py-32 bg-gray-50 border-t border-gray-100">
                 <div class="max-w-3xl mx-auto px-6">
                     <div class="text-center mb-16 reveal-text">
-                        <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">User Journey</span>
+                        <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">User
+                            Journey</span>
                         <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
                             구매 프로세스 <span class="text-gradient">Flow</span>
                         </h2>
@@ -486,13 +505,17 @@
 
                         <div class="reveal-card">
                             <div class="bento-box p-6 flex items-center gap-6">
-                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                <div
+                                    class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
                                     <i data-lucide="edit-3" class="w-6 h-6"></i>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 01</span>
+                                    <span
+                                        class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step
+                                        01</span>
                                     <h3 class="text-xl font-bold text-gray-900">판매글 등록</h3>
-                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">카카오 REST API를 활용한 도서 정보 자동 입력 및 판매글 작성</p>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">카카오 REST API를 활용한 도서 정보 자동 입력
+                                        및 판매글 작성</p>
                                 </div>
                             </div>
                         </div>
@@ -503,11 +526,14 @@
 
                         <div class="reveal-card" style="transition-delay: 200ms;">
                             <div class="bento-box p-6 flex items-center gap-6">
-                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                <div
+                                    class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
                                     <i data-lucide="eye" class="w-6 h-6"></i>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 02</span>
+                                    <span
+                                        class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step
+                                        02</span>
                                     <h3 class="text-xl font-bold text-gray-900">판매글 확인</h3>
                                     <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자가 등록된 판매글 목록 및 상세 정보 열람</p>
                                 </div>
@@ -520,11 +546,14 @@
 
                         <div class="reveal-card" style="transition-delay: 400ms;">
                             <div class="bento-box p-6 flex items-center gap-6">
-                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                <div
+                                    class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
                                     <i data-lucide="message-circle" class="w-6 h-6"></i>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 03</span>
+                                    <span
+                                        class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step
+                                        03</span>
                                     <h3 class="text-xl font-bold text-gray-900">채팅 (1:1)</h3>
                                     <p class="text-sm text-gray-500 mt-1 leading-relaxed">판매자와 구매자 간의 실시간 대화 및 거래 조율</p>
                                 </div>
@@ -532,7 +561,8 @@
                         </div>
 
                         <div class="reveal-card text-center py-4" style="transition-delay: 500ms;">
-                            <div class="bg-gray-200 rounded-full px-3 py-1 text-[10px] font-bold text-gray-500 inline-block mb-2">
+                            <div
+                                class="bg-gray-200 rounded-full px-3 py-1 text-[10px] font-bold text-gray-500 inline-block mb-2">
                                 거래 방식 선택
                             </div>
                             <div class="flex justify-center gap-32 text-gray-300">
@@ -542,8 +572,10 @@
                         </div>
 
                         <div class="reveal-card grid grid-cols-2 gap-4" style="transition-delay: 600ms;">
-                            <div class="bento-box p-5 flex flex-col items-center text-center hover:border-blue-200 hover:bg-blue-50/30 transition-colors">
-                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-3">
+                            <div
+                                class="bento-box p-5 flex flex-col items-center text-center hover:border-blue-200 hover:bg-blue-50/30 transition-colors">
+                                <div
+                                    class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-3">
                                     <i data-lucide="shield-check" class="w-5 h-5"></i>
                                 </div>
                                 <span class="text-[10px] font-bold text-blue-600 uppercase mb-1">Option A</span>
@@ -554,8 +586,10 @@
                                 </p>
                             </div>
 
-                            <div class="bento-box p-5 flex flex-col items-center text-center hover:border-green-200 hover:bg-green-50/30 transition-colors">
-                                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-3">
+                            <div
+                                class="bento-box p-5 flex flex-col items-center text-center hover:border-green-200 hover:bg-green-50/30 transition-colors">
+                                <div
+                                    class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-3">
                                     <i data-lucide="banknote" class="w-5 h-5"></i>
                                 </div>
                                 <span class="text-[10px] font-bold text-green-600 uppercase mb-1">Option B</span>
@@ -573,11 +607,14 @@
 
                         <div class="reveal-card" style="transition-delay: 800ms;">
                             <div class="bento-box p-6 flex items-center gap-6">
-                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
+                                <div
+                                    class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
                                     <i data-lucide="list-checks" class="w-6 h-6"></i>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step 04</span>
+                                    <span
+                                        class="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">Step
+                                        04</span>
                                     <h3 class="text-xl font-bold text-gray-900">판매/구매 내역 확인</h3>
                                     <p class="text-sm text-gray-500 mt-1 leading-relaxed">거래 완료 상태 변경 및 내역 리스트 조회</p>
                                 </div>
@@ -590,20 +627,213 @@
 
                         <div class="reveal-card" style="transition-delay: 1000ms;">
                             <div class="bento-box p-6 flex items-center gap-6 border-blue-100 bg-blue-50/10">
-                                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shrink-0">
+                                <div
+                                    class="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shrink-0">
                                     <i data-lucide="check-circle" class="w-6 h-6"></i>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest block mb-1">Final Step</span>
+                                    <span
+                                        class="text-[10px] font-bold text-green-600 uppercase tracking-widest block mb-1">Final
+                                        Step</span>
                                     <h3 class="text-xl font-bold text-gray-900">구매 확정</h3>
-                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 (미확정 시 7일 후 자동 확정)</p>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 (미확정 시
+                                        7일 후 자동 확정)</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+
+            <!-- BookClub User Journey Section -->
+            <section class="py-32 bg-white border-t border-gray-100">
+                <div class="max-w-3xl mx-auto px-6">
+                    <div class="text-center mb-16 reveal-text">
+                        <span class="text-purple-600 font-bold tracking-wider text-sm uppercase mb-2 block">BookClub
+                            Journey</span>
+                        <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
+                            독서 모임 참여 <span class="text-gradient">Flow</span>
+                        </h2>
+                        <p class="text-gray-500 font-medium text-lg">
+                            검색부터 가입, 활동, 탈퇴까지의 전체 프로세스
+                        </p>
+                    </div>
+
+                    <div class="w-full max-w-lg mx-auto space-y-2">
+
+                        <!-- Step 1: Search -->
+                        <div class="reveal-card">
+                            <div class="bento-box p-6 flex items-center gap-6">
+                                <div
+                                    class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="search" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] font-bold text-purple-600 uppercase tracking-widest block mb-1">Step
+                                        01</span>
+                                    <h3 class="text-xl font-bold text-gray-900">모임 탐색</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">검색(키워드) + 정렬(최신/활동) + 페이지네이션
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 100ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <!-- Step 2: Join Request -->
+                        <div class="reveal-card" style="transition-delay: 200ms;">
+                            <div class="bento-box p-6 flex items-center gap-6">
+                                <div
+                                    class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="user-plus" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] font-bold text-purple-600 uppercase tracking-widest block mb-1">Step
+                                        02</span>
+                                    <h3 class="text-xl font-bold text-gray-900">가입 신청</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">신청 상태는 <strong
+                                            class="text-amber-600">대기(WAIT)</strong>로 저장</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 300ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <!-- Step 3: Approval Decision -->
+                        <div class="reveal-card" style="transition-delay: 400ms;">
+                            <div class="bento-box p-6 flex items-center gap-6 bg-purple-50/20">
+                                <div
+                                    class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="user-check" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] font-bold text-purple-600 uppercase tracking-widest block mb-1">Step
+                                        03</span>
+                                    <h3 class="text-xl font-bold text-gray-900">모임장 승인/거절</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">승인 시 멤버 <strong
+                                            class="text-green-600">JOINED</strong> 확정</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Concurrency Protection Highlight -->
+                        <div class="reveal-card" style="transition-delay: 450ms;">
+                            <div
+                                class="px-4 py-3 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border-l-4 border-red-400">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="shield-alert" class="w-5 h-5 text-red-600 shrink-0"></i>
+                                    <div>
+                                        <p class="text-xs font-bold text-red-700 mb-1">동시성 보호 (비관적 락)</p>
+                                        <p class="text-xs text-red-600">가입 승인 시 정원 초과 방지 - <code
+                                                class="bg-red-100 px-1 rounded text-[10px]">FOR UPDATE</code></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 500ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <!-- Step 4: Activity -->
+                        <div class="reveal-card" style="transition-delay: 600ms;">
+                            <div class="bento-box p-6 flex items-center gap-6">
+                                <div
+                                    class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="users" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] font-bold text-purple-600 uppercase tracking-widest block mb-1">Step
+                                        04</span>
+                                    <h3 class="text-xl font-bold text-gray-900">활동 / 탈퇴</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">
+                                        탈퇴는 <strong class="text-gray-600">LEFT</strong>, 강퇴는 <strong
+                                            class="text-red-600">KICKED</strong>로 상태 관리
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="reveal-card text-center py-2" style="transition-delay: 700ms;">
+                            <i data-lucide="arrow-down" class="w-6 h-6 text-gray-300 mx-auto"></i>
+                        </div>
+
+                        <!-- Step 5: Owner Leave (Special Case) -->
+                        <div class="reveal-card" style="transition-delay: 800ms;">
+                            <div class="bento-box p-6 flex items-center gap-6 border-purple-200 bg-purple-50/30">
+                                <div
+                                    class="w-12 h-12 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center shrink-0">
+                                    <i data-lucide="crown" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] font-bold text-purple-700 uppercase tracking-widest block mb-1">Special
+                                        Case</span>
+                                    <h3 class="text-xl font-bold text-gray-900">모임장 탈퇴</h3>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">
+                                        멤버 있으면 <strong class="text-blue-600">자동 승계</strong>, 없으면 <strong
+                                            class="text-red-600">모임 종료</strong> (Soft Delete)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Implementation Note -->
+                        <div class="reveal-card mt-8" style="transition-delay: 900ms;">
+                            <div
+                                class="p-6 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 rounded-2xl border border-purple-100">
+                                <h4 class="text-sm font-bold text-purple-900 mb-4 flex items-center gap-2">
+                                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                                    핵심 기술 구현
+                                </h4>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="flex items-start gap-3 bg-white p-3 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-red-100 text-red-600 rounded-lg flex items-center justify-center shrink-0">
+                                            <i data-lucide="lock" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-900">비관적 락 (FOR UPDATE)</p>
+                                            <p class="text-xs text-gray-600 mt-1">가입 승인 시 정원 초과 방지</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3 bg-white p-3 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-900">모임장 승계 로직</p>
+                                            <p class="text-xs text-gray-600 mt-1">탈퇴 시 가장 오래된 멤버에게 자동 양도</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3 bg-white p-3 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center shrink-0">
+                                            <i data-lucide="database" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-900">Soft Delete</p>
+                                            <p class="text-xs text-gray-600 mt-1">멤버 없는 모임은 deleted_at 타임스탬프로 관리</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- TECHNICAL DEEP DIVE Section (Light Mode Redesign) -->
+
             <section class="py-32 px-6 bg-white border-t border-gray-100">
                 <div class="max-w-7xl mx-auto">
                     <div class="text-center mb-20 reveal-text">
@@ -681,6 +911,198 @@ webClient.get().uri(url)
                 </div>
             </section>
 
+            <!-- BookClub Transaction Safety Pattern -->
+            <section class="py-32 bg-gray-50 border-t border-gray-100">
+                <div class="max-w-5xl mx-auto px-6">
+                    <div class="text-center mb-16 reveal-text">
+                        <span class="text-purple-600 font-bold tracking-wider text-sm uppercase mb-2 block">Transaction
+                            Safety</span>
+                        <h2 class="text-4xl font-bold text-gray-900 mb-4">BookClub 트랜잭션 안전성 패턴</h2>
+                        <p class="text-gray-500 text-lg">DB 커밋 성공 후에만 S3 리소스 삭제를 보장하는 설계</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Challenge Card -->
+                        <div class="bento-box p-8 reveal-card">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="p-3 bg-red-100 text-red-600 rounded-xl">
+                                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-900">문제 상황</h3>
+                            </div>
+                            <div class="space-y-4 text-gray-600 leading-relaxed">
+                                <p class="font-medium">독서 모임 이미지를 수정할 때, 기존 S3 이미지를 언제 삭제해야 할까?</p>
+                                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                                    <p class="text-sm font-bold text-red-700 mb-2">❌ 잘못된 접근</p>
+                                    <p class="text-sm text-red-600">DB 커밋 전에 S3를 먼저 삭제하면, <strong>트랜잭션 Rollback 시 복구
+                                            불가능</strong></p>
+                                </div>
+                                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg mt-3">
+                                    <p class="text-sm font-bold text-amber-700 mb-2">⚠️ 리스크</p>
+                                    <p class="text-sm text-amber-600">동시성 충돌, DB 제약 조건 위반 등으로 커밋 실패 시 데이터 유실</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Solution Card -->
+                        <div class="bento-box p-8 reveal-card cursor-pointer group hover:shadow-2xl hover:border-purple-300 transition-all"
+                            onclick="openCodeModal('bookclub')" style="transition-delay: 100ms;">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="p-3 bg-purple-100 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                        <i data-lucide="code-2" class="w-6 h-6"></i>
+                                    </div>
+                                    <h3
+                                        class="text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                                        해결 방안</h3>
+                                </div>
+                                <i data-lucide="arrow-right-circle"
+                                    class="w-6 h-6 text-gray-300 group-hover:text-purple-500 transition-colors"></i>
+                            </div>
+                            <div class="space-y-4 text-gray-600 leading-relaxed">
+                                <p class="font-bold text-gray-900">Spring <code
+                                        class="text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-sm">TransactionSynchronization</code>
+                                    활용</p>
+                                <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg">
+                                    <p class="text-sm font-bold text-green-700 mb-2">✅ 안전한 설계</p>
+                                    <p class="text-sm text-green-600"><strong>afterCommit()</strong> 콜백에 S3 삭제 로직을 예약하여
+                                        <strong>DB 커밋 성공 후에만 실행</strong>
+                                    </p>
+                                </div>
+                                <div class="mt-4 p-4 bg-purple-50 rounded-xl border border-purple-100">
+                                    <p class="text-xs font-bold text-purple-700 mb-2 flex items-center gap-2">
+                                        <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i>
+                                        클릭하여 코드 보기
+                                    </p>
+                                    <p class="text-xs text-purple-600">실제 구현 코드와 동작 원리를 확인하세요</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benefits -->
+                    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 reveal-card"
+                        style="transition-delay: 200ms;">
+                        <div
+                            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div
+                                    class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-900">데이터 정합성</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">DB와 S3의 상태가 항상 일치하도록 보장</p>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div
+                                    class="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-900">Rollback 안전</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">트랜잭션 실패 시 기존 이미지 보존</p>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div
+                                    class="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="layers" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-900">선언적 구조</h4>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed">@Transactional과 완벽하게 통합</p>
+                        </div>
+                    </div>
+
+                    <!-- Implementation Examples -->
+                    <div class="mt-12 reveal-card" style="transition-delay: 150ms;">
+                        <div
+                            class="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-3xl border border-purple-100">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="p-2 bg-purple-600 text-white rounded-lg">
+                                    <i data-lucide="code-2" class="w-5 h-5"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900">실제 구현 사례</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Example 1: Image Update -->
+                                <div class="bg-white p-6 rounded-2xl border border-purple-100 hover:border-purple-300 hover:shadow-xl transition-all cursor-pointer group"
+                                    onclick="openCodeModal('bookclub-update')">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                <i data-lucide="image" class="w-5 h-5"></i>
+                                            </div>
+                                            <div>
+                                                <h4
+                                                    class="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                                                    이미지 수정</h4>
+                                                <p class="text-xs text-gray-500">updateBookClub()</p>
+                                            </div>
+                                        </div>
+                                        <i data-lucide="chevron-right"
+                                            class="w-5 h-5 text-gray-300 group-hover:text-purple-500 transition-colors"></i>
+                                    </div>
+                                    <p class="text-sm text-gray-600 leading-relaxed mb-3">
+                                        독서모임 이미지 변경 시 새 이미지 업로드 후 기존 이미지 안전 삭제
+                                    </p>
+                                    <div class="flex items-center gap-2 text-xs">
+                                        <span
+                                            class="px-2 py-1 bg-purple-50 text-purple-700 rounded font-mono">@Transactional</span>
+                                        <span
+                                            class="px-2 py-1 bg-green-50 text-green-700 rounded font-mono">afterCommit()</span>
+                                    </div>
+                                </div>
+
+                                <!-- Example 2: Post Deletion -->
+                                <div class="bg-white p-6 rounded-2xl border border-purple-100 hover:border-purple-300 hover:shadow-xl transition-all cursor-pointer group"
+                                    onclick="openCodeModal('bookclub-delete')">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 bg-red-100 text-red-600 rounded-lg flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                            </div>
+                                            <div>
+                                                <h4
+                                                    class="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                                                    게시글 삭제</h4>
+                                                <p class="text-xs text-gray-500">deleteBoardPost()</p>
+                                            </div>
+                                        </div>
+                                        <i data-lucide="chevron-right"
+                                            class="w-5 h-5 text-gray-300 group-hover:text-purple-500 transition-colors"></i>
+                                    </div>
+                                    <p class="text-sm text-gray-600 leading-relaxed mb-3">
+                                        게시글 소프트 삭제 성공 시에만 첨부된 이미지 파일 제거
+                                    </p>
+                                    <div class="flex items-center gap-2 text-xs">
+                                        <span
+                                            class="px-2 py-1 bg-purple-50 text-purple-700 rounded font-mono">@Transactional</span>
+                                        <span class="px-2 py-1 bg-green-50 text-green-700 rounded font-mono">Soft
+                                            Delete</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-4 bg-white/70 rounded-xl border border-purple-100/50">
+                                <p class="text-xs text-purple-700 font-medium flex items-center gap-2">
+                                    <i data-lucide="info" class="w-4 h-4"></i>
+                                    카드를 클릭하여 실제 구현 코드를 확인하세요
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- CORE FEATURES Section -->
             <section class="py-32 px-6">
                 <div class="max-w-7xl mx-auto">
@@ -690,66 +1112,47 @@ webClient.get().uri(url)
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
                         <div
-                            class="bento-box p-8 md:col-span-2 flex flex-col md:flex-row items-center gap-8 reveal-card shadow-lg rounded-3xl bg-white border border-gray-100">
-                            <div class="flex-1">
+                            class="bento-box p-8 reveal-card border border-gray-200 rounded-3xl bg-white flex flex-col justify-between h-full">
+                            <div>
                                 <span class="text-blue-600 font-bold mb-2 block">01. API Integration</span>
-                                <h3 class="text-3xl font-bold mb-4">1초 자동 등록 (WebClient)</h3>
-                                <p class="text-gray-500 leading-relaxed mb-4">
-                                    책 제목만 입력하세요. Kakao 도서 API를 이용하여 저자, 출판사, 가격, 표지 이미지를 자동으로 불러옵니다.
-                                    Blocking 방식의 RestTemplate 대신 <strong>Non-blocking WebClient</strong>를 사용하여 대량 요청에도
-                                    서버 성능 저하 없이 안정적으로 동작합니다.
+                                <h3 class="text-2xl font-bold mb-4">1초 자동 등록</h3>
+                                <p class="text-gray-500 text-sm leading-relaxed">
+                                    책 제목만 입력하세요. Kakao 도서 API를 통해 정보를 자동으로 불러옵니다.<br><br>
+                                    Blocking 방식 대신 <strong>Non-blocking WebClient</strong>를 사용하여 대량 요청에도 안정적으로 동작합니다.
                                 </p>
                             </div>
-                            <div class="flex-1 w-full bg-blue-50 rounded-2xl h-48 flex items-center justify-center">
-                                <i data-lucide="book-open" class="w-16 h-16 text-blue-300"></i>
-                            </div>
+                            <i data-lucide="book-open" class="w-10 h-10 text-blue-500 mt-8"></i>
                         </div>
 
-                        <div class="bento-box p-8 bg-gray-900 text-white reveal-card rounded-3xl shadow-lg"
+                        <div class="bento-box p-8 bg-gray-900 text-white reveal-card rounded-3xl shadow-lg flex flex-col justify-between h-full"
                             style="transition-delay: 100ms;">
-                            <div class="h-full flex flex-col justify-between">
-                                <div>
-                                    <span class="text-green-400 font-bold mb-2 block">02. Safe Payment</span>
-                                    <h3 class="text-2xl font-bold mb-2">Escrow System</h3>
-                                    <p class="text-gray-400 text-sm">
-                                        구매 확정 시까지 대금을 플랫폼 보호합니다.
-                                        <strong>Pessimistic Lock</strong>으로 중복 결제를 방지하고, <strong>Scheduler</strong>로
-                                        미입금/미확정 건을 자동 관리합니다.
-                                    </p>
-                                </div>
-                                <i data-lucide="shield-check" class="w-10 h-10 text-green-400 mt-4"></i>
-                            </div>
-                        </div>
-
-                        <div class="bento-box p-8 reveal-card border border-gray-200 rounded-3xl bg-white"
-                            style="transition-delay: 200ms;">
-                            <div class="h-full flex flex-col justify-between">
-                                <div>
-                                    <span class="text-yellow-500 font-bold mb-2 block">03. Real-time</span>
-                                    <h3 class="text-2xl font-bold mb-2">WebSocket Chat</h3>
-                                    <p class="text-gray-500 text-sm">STOMP 프로토콜과 Pub/Sub 모델을 적용하여 1:N 실시간 채팅을 지연 없이
-                                        제공합니다.</p>
-                                </div>
-                                <i data-lucide="message-circle" class="w-10 h-10 text-yellow-500 mt-4"></i>
-                            </div>
-                        </div>
-
-                        <div class="bento-box p-8 md:col-span-2 flex flex-col md:flex-row-reverse items-center gap-8 reveal-card border border-gray-200 rounded-3xl bg-white"
-                            style="transition-delay: 300ms;">
-                            <div class="flex-1">
-                                <span class="text-purple-600 font-bold mb-2 block">04. Performance</span>
-                                <h3 class="text-3xl font-bold mb-4">Redis Caching</h3>
-                                <p class="text-gray-500 leading-relaxed">
-                                    메인 페이지 및 검색 결과에 <strong>Look-aside Caching</strong> 전략을 적용했습니다.
-                                    응답 속도를 <strong>0.5s에서 0.02s</strong>로 96% 단축시켰으며, JSON Serializer를 사용하여 사람이 읽을 수 있는
-                                    데이터로 저장, 디버깅 효율을 높였습니다.
+                            <div>
+                                <span class="text-green-400 font-bold mb-2 block">02. Safe Payment</span>
+                                <h3 class="text-2xl font-bold mb-4">Escrow System</h3>
+                                <p class="text-gray-400 text-sm leading-relaxed">
+                                    구매 확정 시까지 대금을 플랫폼이 보호합니다.<br><br>
+                                    <strong>Pessimistic Lock</strong>으로 중복 결제를 방지하고, <strong>Scheduler</strong>로 미입금/미확정
+                                    건을 자동 관리합니다.
                                 </p>
                             </div>
-                            <div class="flex-1 w-full bg-purple-50 rounded-2xl h-48 flex items-center justify-center">
-                                <i data-lucide="zap" class="w-16 h-16 text-purple-300"></i>
-                            </div>
+                            <i data-lucide="shield-check" class="w-10 h-10 text-green-400 mt-8"></i>
                         </div>
+
+                        <div class="bento-box p-8 reveal-card border border-gray-200 rounded-3xl bg-white flex flex-col justify-between h-full"
+                            style="transition-delay: 200ms;">
+                            <div>
+                                <span class="text-yellow-500 font-bold mb-2 block">03. Real-time</span>
+                                <h3 class="text-2xl font-bold mb-4">WebSocket Chat</h3>
+                                <p class="text-gray-500 text-sm leading-relaxed">
+                                    STOMP 프로토콜과 Pub/Sub 모델을 적용하여 1:N 실시간 채팅을 지연 없이 제공합니다.<br><br>
+                                    실시간으로 가격을 흥정하고 거래 약속을 잡으세요.
+                                </p>
+                            </div>
+                            <i data-lucide="message-circle" class="w-10 h-10 text-yellow-500 mt-8"></i>
+                        </div>
+
                     </div>
                 </div>
             </section>
@@ -853,7 +1256,7 @@ webClient.get().uri(url)
 
                         <!-- Concurrency -->
                         <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all cursor-pointer group"
-                            style="transition-delay: 100ms;" onclick="openDiffModal('concurrency')">
+                            style="transition-delay: 100ms;" onclick="openCodeModal('concurrency-lock')">
                             <div class="flex items-center justify-between mb-6">
                                 <div class="flex items-center gap-4">
                                     <div
@@ -1110,37 +1513,85 @@ webClient.get().uri(url)
             <section class="py-32 bg-gray-50 border-t border-gray-100">
                 <div class="max-w-[1440px] mx-auto px-6">
                     <div class="text-center mb-16 reveal-text">
-                        <span class="text-orange-600 font-bold tracking-wider text-sm uppercase mb-2 block">Real-time Monitoring</span>
+                        <span class="text-orange-600 font-bold tracking-wider text-sm uppercase mb-2 block">Real-time
+                            Monitoring</span>
                         <h2 class="text-4xl font-black mb-4 text-gray-900">CloudWatch Metrics</h2>
                         <p class="text-gray-500 font-medium">AWS 인프라의 실시간 상태와 성능 지표를 모니터링합니다.</p>
                     </div>
 
                     <div class="reveal-card">
-                        <div class="bento-box overflow-hidden bg-white border border-gray-200 shadow-2xl" style="height: 800px;">
-                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                        <div class="bento-box overflow-hidden bg-white border border-gray-200 shadow-2xl"
+                            style="height: 800px;">
+                            <div
+                                class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                                 <div class="flex items-center gap-3">
                                     <div class="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></div>
-                                    <span class="text-sm font-bold text-gray-700">Live Dashboard: SecondaryBook-Dashboard</span>
+                                    <span class="text-sm font-bold text-gray-700">Live Dashboard:
+                                        SecondaryBook-Dashboard</span>
                                 </div>
                                 <a href="https://cloudwatch.amazonaws.com/dashboard.html?dashboard=SecondaryBook-Dashboard&context=eyJSIjoidXMtZWFzdC0xIiwiRCI6ImN3LWRiLTEzNDA1MTA1MjAyNSIsIlUiOiJ1cy1lYXN0LTFfU3JKVzBoaEZPIiwiQyI6IjFvM3VicjkzNjZyMzZibHI1amFlbmpwazd0IiwiSSI6InVzLWVhc3QtMTpmNDM1NDdmYi01NzQ1LTRlM2ItODIyNS00OTkxYzdhMzhlNWEiLCJNIjoiUHVibGljIn0="
-                                   target="_blank" class="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                                    target="_blank"
+                                    class="text-xs text-blue-600 hover:underline flex items-center gap-1">
                                     새 창에서 보기 <i data-lucide="external-link" class="w-3 h-3"></i>
                                 </a>
                             </div>
 
                             <iframe
-                                    src="https://cloudwatch.amazonaws.com/dashboard.html?dashboard=SecondaryBook-Dashboard&context=eyJSIjoidXMtZWFzdC0xIiwiRCI6ImN3LWRiLTEzNDA1MTA1MjAyNSIsIlUiOiJ1cy1lYXN0LTFfU3JKVzBoaEZPIiwiQyI6IjFvM3VicjkzNjZyMzZibHI1amFlbmpwazd0IiwiSSI6InVzLWVhc3QtMTpmNDM1NDdmYi01NzQ1LTRlM2ItODIyNS00OTkxYzdhMzhlNWEiLCJNIjoiUHVibGljIn0="
-                                    width="100%"
-                                    height="100%"
-                                    frameborder="0"
-                                    style="border:0; min-height: 740px;"
-                                    allowfullscreen>
+                                src="https://cloudwatch.amazonaws.com/dashboard.html?dashboard=SecondaryBook-Dashboard&context=eyJSIjoidXMtZWFzdC0xIiwiRCI6ImN3LWRiLTEzNDA1MTA1MjAyNSIsIlUiOiJ1cy1lYXN0LTFfU3JKVzBoaEZPIiwiQyI6IjFvM3VicjkzNjZyMzZibHI1amFlbmpwazd0IiwiSSI6InVzLWVhc3QtMTpmNDM1NDdmYi01NzQ1LTRlM2ItODIyNS00OTkxYzdhMzhlNWEiLCJNIjoiUHVibGljIn0="
+                                width="100%" height="100%" frameborder="0" style="border:0; min-height: 740px;"
+                                allowfullscreen>
                             </iframe>
                         </div>
                     </div>
                 </div>
             </section>
+
+            <!-- Code Modal (for BookClub Transaction) -->
+            <div id="codeModal"
+                class="fixed inset-0 z-[99995] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+                onclick="closeCodeModal(event)">
+                <div class="bg-[#1e1e1e] w-[90vw] max-w-4xl rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 flex flex-col max-h-[85vh]"
+                    id="codeModalContent">
+
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-[#252526]">
+                        <div class="flex items-center gap-4">
+                            <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                                <i data-lucide="code-2" class="w-5 h-5 text-purple-400"></i>
+                                <span id="codeModalTitle">Code Implementation</span>
+                            </h3>
+                            <span id="codeModalBadge"
+                                class="px-3 py-1 bg-purple-600 text-white text-xs rounded-full font-mono"></span>
+                        </div>
+                        <button onclick="closeCodeModal()" class="text-gray-400 hover:text-white transition-colors">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+
+                    <!-- Code Content -->
+                    <div class="flex-1 overflow-auto p-0">
+                        <div class="p-6">
+                            <div class="mb-6">
+                                <p class="text-sm text-gray-400 mb-2" id="codeModalDesc"></p>
+                            </div>
+                            <pre
+                                class="p-6 text-sm font-mono text-gray-300 bg-[#1e1e1e] leading-relaxed overflow-x-auto rounded-xl border border-gray-800"><code id="codeModalCode"></code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-3 bg-[#252526] border-t border-gray-800 flex justify-between items-center">
+                        <span class="text-xs text-gray-500">Press ESC to close</span>
+                        <div class="flex items-center gap-2 text-xs text-gray-400">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+                            <span>Transaction Safety Pattern</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Code Diff Modal -->
+
             <div id="diffModal"
                 class="fixed inset-0 z-[99990] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"
                 onclick="closeDiffModal(event)">
@@ -1406,8 +1857,254 @@ Other transactions wait here. -->`
                     if (e.key === "Escape") {
                         closeLightbox();
                         closeDiffModal();
+                        closeCodeModal();
                     }
                 });
+
+                // Code Modal Logic (for BookClub Transaction Pattern)
+                const codeModal = document.getElementById('codeModal');
+                const codeModalContent = document.getElementById('codeModalContent');
+
+                const codeData = {
+                    'bookclub': {
+                        title: 'BookClub Transaction Safety',
+                        badge: 'S3Service.java',
+                        desc: 'TransactionSynchronization을 활용하여 DB 커밋 성공 후에만 S3 리소스를 삭제합니다. 트랜잭션 Rollback 시 기존 이미지가 보존되어 데이터 정합성을 보장합니다.',
+                        code: `private void scheduleS3DeletionAfterCommit(String oldUrl) {
+    if (oldUrl == null || oldUrl.isBlank()) return;
+    if (!oldUrl.startsWith("http")) return;
+
+    // Spring의 Transaction 동기화 메커니즘 활용
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                // ✅ DB 커밋 성공 후에만 실행됨
+                deleteS3ImageSafely(oldUrl);
+            }
+            
+            // afterCompletion도 오버라이드 가능
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                    log.info("Transaction rolled back. S3 deletion skipped.");
+                }
+            }
+        }
+    );
+}
+
+private void deleteS3ImageSafely(String s3Url) {
+    try {
+        String key = extractS3Key(s3Url);
+        s3Client.deleteObject(bucketName, key);
+        log.info("S3 image deleted: {}", key);
+    } catch (Exception e) {
+        // S3 삭제 실패는 로깅만 (DB는 이미 커밋됨)
+        log.error("Failed to delete S3 image: {}", s3Url, e);
+    }
+}
+
+/* 사용 예시: BookClubService */
+@Transactional
+public void updateBookClub(Long id, BookClubDto dto) {
+    BookClub club = repository.findById(id)
+        .orElseThrow(() -> new NotFoundException("BookClub not found"));
+    
+    String oldImageUrl = club.getImageUrl();
+    
+    // 1. DB 업데이트
+    club.updateImage(dto.getNewImageUrl());
+    repository.save(club);
+    
+    // 2. 커밋 후 S3 삭제 예약 (안전한 순서 보장)
+    scheduleS3DeletionAfterCommit(oldImageUrl);
+    
+    // ⚠️ 만약 여기서 예외 발생 시:
+    // - DB Rollback → 기존 이미지 URL 보존
+    // - S3 삭제 예약 취소 → 기존 파일 유지
+}`
+                    },
+                    'bookclub-update': {
+                        title: '이미지 수정 - updateBookClub()',
+                        badge: 'BookClubService.java',
+                        desc: '독서모임 이미지를 변경할 때, 새 이미지 업로드 후 DB 커밋이 성공한 경우에만 기존 S3 이미지를 삭제합니다. 트랜잭션이 실패하면 기존 이미지가 보존됩니다.',
+                        code: `@Transactional
+public void updateBookClub(Long id, BookClubDto dto) {
+    // 1. 기존 독서모임 조회
+    BookClub club = repository.findById(id)
+        .orElseThrow(() -> new NotFoundException("BookClub not found"));
+    
+    // 2. 기존 이미지 URL 백업 (삭제용)
+    String oldImageUrl = club.getImageUrl();
+    
+    // 3. 새 이미지 업로드 (S3)
+    String newImageUrl = s3Service.uploadImage(dto.getNewImage());
+    
+    // 4. DB 업데이트
+    club.updateImage(newImageUrl);
+    club.updateTitle(dto.getTitle());
+    club.updateDescription(dto.getDescription());
+    
+    repository.save(club);
+    
+    // 5. ✅ 커밋 성공 후에만 기존 S3 이미지 삭제 예약
+    scheduleS3DeletionAfterCommit(oldImageUrl);
+    
+    /* 시나리오별 동작:
+     * 
+     * [성공 케이스]
+     * - DB 커밋 성공 → afterCommit() 실행 → 기존 S3 이미지 삭제 ✅
+     * 
+     * [실패 케이스 1: DB 제약조건 위반]
+     * - save() 실패 → 트랜잭션 Rollback
+     * - afterCommit() 실행 안 됨 → 기존 이미지 보존 ✅
+     * - 새 이미지는 S3에 남지만 DB에는 참조 안 됨 (고아 파일)
+     * 
+     * [실패 케이스 2: 동시성 충돌]
+     * - 낙관적 락 예외 발생 → Rollback
+     * - 기존 이미지 그대로 유지 ✅
+     */
+}`
+                    },
+                    'bookclub-delete': {
+                        title: '게시글 삭제 - deleteBoardPost()',
+                        badge: 'BookClubService.java',
+                        desc: '독서모임 게시글을 소프트 삭제할 때, DB 삭제가 성공한 후에만 첨부 이미지를 S3에서 제거합니다. Rollback 시 이미지가 보존되어 데이터 복구가 가능합니다.',
+                        code: `@Transactional
+public boolean deleteBoardPost(Long clubSeq, Long postId) {
+    // 1. 삭제할 게시글의 이미지 URL 조회
+    String oldUrl = bookClubMapper.selectBoardImgUrl(clubSeq, postId);
+    
+    // 2. 게시글 소프트 삭제 (deleted_at 컬럼 업데이트)
+    int result = bookClubMapper.softDeletePost(clubSeq, postId);
+    
+    // 3. ✅ DB 삭제 성공(커밋) 이후에만 이미지 정리
+    if (result > 0) {
+        scheduleS3DeletionAfterCommit(oldUrl);
+    }
+    
+    return result > 0;
+    
+    /* 동작 흐름:
+     * 
+     * [정상 삭제 케이스]
+     * 1) softDeletePost() 성공 (result = 1)
+     * 2) 트랜잭션 커밋
+     * 3) afterCommit() 콜백 실행
+     * 4) S3 이미지 삭제 ✅
+     * 
+     * [삭제 실패 케이스]
+     * 1) softDeletePost() 실패 (result = 0)
+     * 2) scheduleS3DeletionAfterCommit() 호출 안 됨
+     * 3) 이미지 보존 ✅
+     * 
+     * [트랜잭션 Rollback 케이스]
+     * 1) softDeletePost() 성공
+     * 2) 이후 로직에서 예외 발생 (예: 권한 검증 실패)
+     * 3) 트랜잭션 Rollback
+     * 4) afterCommit() 실행 안 됨
+     * 5) DB 복구 + 이미지 보존 ✅
+     * 
+     * ⚠️ 주의사항:
+     * - Soft Delete이므로 실제 데이터는 남아있음
+     * - 나중에 복구 시 이미지도 함께 사용 가능
+     * - Hard Delete라면 별도의 복구 전략 필요
+     */
+}`
+                    },
+                    'concurrency-lock': {
+                        title: 'Concurrency Control - FOR UPDATE',
+                        badge: 'BookClubMapper.xml',
+                        desc: '독서모임 가입 승인 시 정원 초과를 방지하기 위해 비관적 락(Pessimistic Lock)을 사용합니다. FOR UPDATE로 book_club 행을 잠그고, 트랜잭션이 완료될 때까지 다른 트랜잭션의 접근을 차단합니다.',
+                        code: `<!-- book_club 행 잠금 (동시성 제어) -->
+<select id="lockBookClubForUpdate" resultType="java.lang.Long">
+    SELECT book_club_seq
+    FROM book_club
+    WHERE book_club_seq = \\#{bookClubSeq}
+    AND book_club_deleted_dt IS NULL
+    FOR UPDATE
+</select>
+
+/* 사용 예시: BookClubService */
+@Transactional
+public void approveJoinRequest(Long clubSeq, Long userId) {
+    // 1. ✅ book_club 행 잠금 (다른 트랜잭션 대기)
+    Long lockedSeq = mapper.lockBookClubForUpdate(clubSeq);
+    
+    if (lockedSeq == null) {
+        throw new NotFoundException("BookClub not found or deleted");
+    }
+    
+    // 2. 현재 멤버 수 조회
+    int currentCount = mapper.countMembers(clubSeq);
+    
+    // 3. 정원 확인
+    BookClub club = mapper.selectOne(clubSeq);
+    if (currentCount >= club.getCapacity()) {
+        throw new CapacityExceededException("모임 정원 초과");
+    }
+    
+    // 4. 멤버 상태 변경: WAIT → JOINED
+    mapper.updateMemberStatus(clubSeq, userId, "JOINED");
+    
+    // 5. 커밋 시 락 해제
+}
+
+/* 동시성 시나리오:
+ * 
+ * [문제 상황] - FOR UPDATE 없이
+ * - 정원 19/20인 모임에 2명 동시 가입 시도
+ * - 두 트랜잭션 모두 currentCount=19로 읽음
+ * - 둘 다 승인 → 최종 21명 (정원 초과 ❌)
+ * 
+ * [해결] - FOR UPDATE 적용
+ * - Tx1: lockBookClubForUpdate() → 행 잠금 획득
+ * - Tx2: lockBookClubForUpdate() → 대기 (Tx1 완료까지)
+ * - Tx1: count=19, 승인, 커밋 → 락 해제
+ * - Tx2: count=20, 정원 초과 예외 발생 ✅
+ * 
+ * ⚠️ 주의사항:
+ * - @Transactional 필수 (트랜잭션 범위 내에서만 락 유효)
+ * - 데드락 방지를 위해 락 획득 순서 일관성 유지
+ * - 장시간 락 보유 지양 (성능 저하 방지)
+ */`
+                    }
+                };
+
+
+                window.openCodeModal = function (key) {
+                    const data = codeData[key];
+                    if (!data) return;
+
+                    document.getElementById('codeModalTitle').innerText = data.title;
+                    document.getElementById('codeModalBadge').innerText = data.badge;
+                    document.getElementById('codeModalDesc').innerText = data.desc;
+                    document.getElementById('codeModalCode').innerText = data.code;
+
+                    codeModal.classList.remove('hidden');
+                    void codeModal.offsetWidth; // Force reflow
+                    codeModal.classList.remove('opacity-0');
+                    codeModalContent.classList.remove('scale-95', 'opacity-0');
+                    codeModalContent.classList.add('scale-100', 'opacity-100');
+
+                    document.body.style.overflow = 'hidden';
+
+                    if (window.lucide) lucide.createIcons();
+                };
+
+                window.closeCodeModal = function (e) {
+                    if (e && e.target !== codeModal && !e.target.closest('button')) return;
+
+                    codeModal.classList.add('opacity-0');
+                    codeModalContent.classList.remove('scale-100', 'opacity-100');
+                    codeModalContent.classList.add('scale-95', 'opacity-0');
+
+                    setTimeout(() => {
+                        codeModal.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }, 300);
+                };
             </script>
             <style>
                 /* CSS for 3D perspective and spotlight overlay */
