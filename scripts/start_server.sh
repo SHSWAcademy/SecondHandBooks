@@ -27,6 +27,9 @@ fi
 
 # JVM 타임존을 한국 시간(KST)으로 설정
 export CATALINA_OPTS="$CATALINA_OPTS -Duser.timezone=Asia/Seoul"
+export CATALINA_OPTS="$CATALINA_OPTS -Xms512m -Xmx1024m"
+export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxMetaspaceSize=128m"
+export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"
 
 # Tomcat 시작
 $TOMCAT_HOME/bin/startup.sh

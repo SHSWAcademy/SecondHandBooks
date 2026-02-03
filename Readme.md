@@ -947,9 +947,7 @@ src/main/java/project/
 
 ## 🔗 Links
 
-- **배포 URL**: [https://your-domain.com](https://your-domain.com)
-- **GitHub**: [https://github.com/your-repo](https://github.com/your-repo)
-
+- **배포 URL**: https://www.shinhan6th.com
 ---
 
 <p align="center">
