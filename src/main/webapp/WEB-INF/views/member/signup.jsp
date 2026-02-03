@@ -9,7 +9,7 @@
 
         <div class="text-center mb-8 relative z-10">
             <h2 class="text-2xl font-black text-gray-900 tracking-tight">회원가입</h2>
-            <p class="text-gray-500 text-xs mt-2 font-medium">Shinhan Books의 회원이 되어보세요.</p>
+            <p class="text-gray-500 text-xs mt-2 font-medium">SecondHand Books의 회원이 되어보세요.</p>
         </div>
 
         <form action="/auth/signup" method="post" onsubmit="return validateForm()" class="space-y-5 relative z-10">
@@ -180,7 +180,7 @@
     const termsData = {
         'service': `
             <p class="font-bold mb-2 text-gray-900">제 1 조 (목적)</p>
-            <p class="mb-4">본 약관은 Shinhan Books(이하 "회사")가 제공하는 중고 서적 거래 및 관련 제반 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+            <p class="mb-4">본 약관은 SecondHand Books(이하 "회사")가 제공하는 중고 서적 거래 및 관련 제반 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
 
             <p class="font-bold mb-2 text-gray-900">제 2 조 (회원의 의무)</p>
             <p class="mb-2">1. 회원은 관계법령, 본 약관의 규정, 이용안내 및 주의사항 등 회사가 통지하는 사항을 준수하여야 합니다.</p>

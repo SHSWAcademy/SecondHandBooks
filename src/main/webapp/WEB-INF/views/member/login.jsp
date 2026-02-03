@@ -41,7 +41,7 @@
 
         <div class="text-center mb-10 relative z-10">
             <h1 class="text-3xl font-black text-gray-900 tracking-tighter cursor-pointer inline-flex items-center gap-1 group" onclick="location.href='/home'">
-                Shinhan<span class="text-primary-600 group-hover:text-primary-700 transition-colors">Books</span>
+                SecondHand<span class="text-primary-600 group-hover:text-primary-700 transition-colors">Books</span>
             </h1>
             <p class="text-gray-500 text-sm mt-2 font-medium">금융처럼 안전한 중고 서적 거래</p>
         </div>
