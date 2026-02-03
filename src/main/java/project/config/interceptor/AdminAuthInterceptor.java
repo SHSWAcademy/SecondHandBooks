@@ -2,6 +2,7 @@ package project.config.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import project.admin.AdminVO;
@@ -17,6 +18,12 @@ import javax.servlet.http.HttpSession;
 @Slf4j
 public class AdminAuthInterceptor implements HandlerInterceptor {
     private final LogoutPendingManager logoutPendingManager;
+
+    @Value("${admin.login.code1}")
+    private String adminCode1;
+
+    @Value("${admin.login.code2}")
+    private String adminCode2;
 
     @Override
     public boolean preHandle(HttpServletRequest request,
@@ -40,16 +47,15 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
 
         // ★ 강제 로그아웃 체크 ★
         if (logoutPendingManager.isForceLogout(UserType.ADMIN, admin.getAdmin_seq())) {
-            System.out.println("!!!!!!!!!! [FORCE LOGOUT DETECTED] !!!!!!!!!!");
             // 세션 무효화
             request.getSession().invalidate();
             // 강제 로그아웃 대상에서 제거
             logoutPendingManager.removeForceLogout(UserType.ADMIN, admin.getAdmin_seq());
 
-            response.sendRedirect("/admin/login?code1=qorhqtlrp&code2=rptlrhqqo");
+            response.sendRedirect("/admin/login?code1="+ adminCode1 +"&code2="+adminCode2);
             return false;
         } else {
-            System.out.println("DEBUG: Not in force logout list. Seq: " + admin.getAdmin_seq());
+            log.debug("Not in force logout list. Seq: {}", admin.getAdmin_seq());
         }
         // pending 상태 제거 (활동 감지)
         // logout-pending API는 제외
