@@ -245,13 +245,6 @@
                                return;
                            }
 
-                           // 파라미터 구성
-                           if (addrType !== 'direct') {
-                               addrParams += "&post_no=" + encodeURIComponent(postNo);
-                               addrParams += "&addr_h=" + encodeURIComponent(addrH);
-                               addrParams += "&addr_d=" + encodeURIComponent(addrD);
-                           }
-
                        addrParams += "&post_no=" + encodeURIComponent(postNo);
                        addrParams += "&addr_h=" + encodeURIComponent(addrH);
                        addrParams += "&addr_d=" + encodeURIComponent(addrD);

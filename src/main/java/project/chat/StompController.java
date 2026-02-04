@@ -140,4 +140,21 @@ public class StompController {
 
         return sessionMember;
     }
+    // 메세지 읽음처리
+    @MessageMapping("/chat/{chat_room_seq}/read")
+    public void handleReadEvent(@DestinationVariable Long chat_room_seq,
+                                SimpMessageHeaderAccessor headerAccessor) {
+        MemberVO sessionMember = validateSessionAndMembership(chat_room_seq, headerAccessor);
+        if (sessionMember == null) return;
+
+        // 1. DB 읽음 처리
+        messageService.markAsRead(chat_room_seq, sessionMember.getMember_seq());
+
+        // 2. 상대방에게 읽음 이벤트 브로드캐스트
+        messagingTemplate.convertAndSend(
+                "/chatroom/" + chat_room_seq + "/read",
+                sessionMember.getMember_seq()
+        );
+    }
+
 }

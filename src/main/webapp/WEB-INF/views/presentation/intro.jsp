@@ -846,76 +846,168 @@
             </section>
 
             <section class="py-32 bg-gray-50 border-t border-gray-200">
-                            <div class="max-w-[1440px] mx-auto px-6">
-                                <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Testing : Quality Assurance</h2>
+                <div class="max-w-[1440px] mx-auto px-6">
+                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Testing : Quality Assurance</h2>
 
-                                <div class="space-y-24">
+                    <div class="space-y-24">
 
-                                    <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
-                                        <div class="flex-1 space-y-6">
-                                            <div
-                                                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold">
-                                                <i data-lucide="clipboard-check" class="w-4 h-4"></i>
-                                                System Validation
-                                            </div>
-                                            <h3 class="text-3xl font-bold text-gray-900">기능 테스트 리포트</h3>
-                                            <p class="text-gray-500 leading-relaxed text-lg">
-                                                단위 기능부터 통합 시나리오까지, 엑셀을 활용해 테스트 케이스(TC)를 체계적으로 관리했습니다.
-                                                성공/실패 여부를 명확히 기록하고, 발견된 버그의 수정 현황을 추적하여 배포 전 시스템의 안정성을 확보했습니다.
-                                            </p>
-                                        </div>
-                                        <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
-                                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
-                                            <div class="relative">
-                                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
-                                                    alt="Functional Test Report" class="w-full h-auto object-cover">
-                                                <div
-                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                                    <i data-lucide="zoom-in"
-                                                        class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
-                                                </div>
-                                            </div>
-                                        </div>
+                        <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
+                                <div
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                                    System Validation
+                                </div>
+                                <h3 class="text-3xl font-bold text-gray-900">기능 테스트 리포트</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    단위 기능부터 통합 시나리오까지, 엑셀을 활용해 테스트 케이스(TC)를 체계적으로 관리했습니다.
+                                    성공/실패 여부를 명확히 기록하고, 발견된 버그의 수정 현황을 추적하여 배포 전 시스템의 안정성을 확보했습니다.
+                                </p>
+                            </div>
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
+                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
+                                <div class="relative">
+                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
+                                        alt="Functional Test Report" class="w-full h-auto object-cover">
+                                    <div
+                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                        <i data-lucide="zoom-in"
+                                            class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
                                     </div>
-
-                                    <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
-                                        <div class="flex-1 space-y-6">
-                                            <div
-                                                class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold">
-                                                <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
-                                                User Experience
-                                            </div>
-                                            <h3 class="text-3xl font-bold text-gray-900">UI/UX 개선 내역</h3>
-                                            <p class="text-gray-500 leading-relaxed text-lg">
-                                                사용자 관점에서의 시나리오 테스트를 수행하여 사용성을 점검했습니다.
-                                                반응형 레이아웃, 인터랙션 피드백, 에러 메시지 노출 등 디테일한 UI 이슈를 기록하고 개선하여 직관적이고 완성도 높은 경험을 제공합니다.
-                                            </p>
-                                        </div>
-                                        <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
-                                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')">
-                                            <div class="relative">
-                                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
-                                                    alt="UI/UX Test Report" class="w-full h-auto object-cover">
-                                                <div
-                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                                    <i data-lucide="zoom-in"
-                                                        class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
-                        </section>
+                        </div>
 
+                        <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
+                            <div class="flex-1 space-y-6">
+                                <div
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold">
+                                    <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
+                                    User Experience
+                                </div>
+                                <h3 class="text-3xl font-bold text-gray-900">UI/UX 개선 내역</h3>
+                                <p class="text-gray-500 leading-relaxed text-lg">
+                                    사용자 관점에서의 시나리오 테스트를 수행하여 사용성을 점검했습니다.
+                                    반응형 레이아웃, 인터랙션 피드백, 에러 메시지 노출 등 디테일한 UI 이슈를 기록하고 개선하여 직관적이고 완성도 높은 경험을 제공합니다.
+                                </p>
+                            </div>
+                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
+                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')">
+                                <div class="relative">
+                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
+                                        alt="UI/UX Test Report" class="w-full h-auto object-cover">
+                                    <div
+                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                        <i data-lucide="zoom-in"
+                                            class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                    </div>
+                </div>
+            </section>
+
+            <!-- Triple Circle Comparison Layout -->
+            <div class="relative mb-32">
+                <!-- Desktop Connection Line -->
+                <div> <br> <br> <br> <br> <br> <br> <br> </div>
+                <div
+                    class="hidden lg:block absolute top-1/2 left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-slate-200 -translate-y-1/2 z-0">
+                </div>
+                <div><h2 class="text-4xl font-bold mb-16 text-center reveal-text">Why SecondHand Books?</h2></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center relative z-10">
+
+                    <!-- Left: Danggeun / Joonggonara -->
+                    <div class="flex flex-col items-center reveal-card" style="transition-delay: 100ms;">
+                        <div
+                            class="w-full max-w-[360px] aspect-square rounded-[40px] bg-white border border-slate-100 shadow-2xl p-10 flex flex-col items-center justify-center text-center hover:scale-105 transition-transform duration-500">
+                            <div
+                                class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 mb-6 shadow-inner">
+                                <span class="text-3xl">🥕</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-4 text-slate-800">당근 / 중고나라</h4>
+                            <div class="space-y-4 w-full">
+                                <div class="text-sm p-3 bg-slate-50 rounded-xl">
+                                    <span class="block font-bold text-emerald-600 mb-1">장점</span>
+                                    <p class="text-slate-500 leading-tight text-xs">최저가, 수수료 없음</p>
+                                </div>
+                                <div class="text-sm p-3 bg-slate-50 rounded-xl">
+                                    <span class="block font-bold text-red-400 mb-1">단점</span>
+                                    <p class="text-slate-500 leading-tight text-xs">상태 불확실, 사기 위험</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-8 text-slate-400 font-bold text-sm tracking-wide">"싸지만 불안한 거래"</p>
+                    </div>
+
+                    <!-- Middle: SecondHand Books (THE SYNERGY) -->
+                    <div class="flex flex-col items-center reveal-card relative z-20"
+                        style="transition-delay: 200ms;">
+                        <div
+                            class="w-full max-w-[420px] aspect-square rounded-[48px] bg-gradient-to-br from-indigo-600 to-blue-700 shadow-2xl shadow-indigo-200 p-12 flex flex-col items-center justify-center text-center relative overflow-hidden group hover:scale-105 transition-transform duration-500">
+                            <!-- Animated light effect -->
+                            <div
+                                class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                            </div>
+
+                            <div class="relative z-10 flex flex-col items-center">
+                                <div
+                                    class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-black rounded-full mb-8 tracking-widest uppercase border border-white/10">
+                                    The Perfect Bridge</div>
+                                <div
+                                    class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-indigo-600 mb-6 shadow-xl transform group-hover:rotate-12 transition-transform duration-500">
+                                    <span class="text-4xl font-black">S</span>
+                                </div>
+                                <h4 class="text-2xl font-black mb-4 text-white tracking-tight">SecondHand Books
+                                </h4>
+                                <p class="text-indigo-100 text-sm leading-relaxed font-medium">
+                                    기업형 검수 시스템으로<br>
+                                    개인간 거래의 혁신을 실현
+                                </p>
+                                <div class="mt-8 flex gap-2">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse delay-75">
+                                    </div>
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white/20 animate-pulse delay-150">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right: Aladin / Corporate -->
+                    <div class="flex flex-col items-center reveal-card" style="transition-delay: 300ms;">
+                        <div
+                            class="w-full max-w-[360px] aspect-square rounded-[40px] bg-white border border-slate-100 shadow-2xl p-10 flex flex-col items-center justify-center text-center hover:scale-105 transition-transform duration-500">
+                            <div
+                                class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 mb-6 shadow-inner">
+                                <i data-lucide="book-open" class="w-8 h-8"></i>
+                            </div>
+                            <h4 class="text-xl font-bold mb-4 text-slate-800">알라딘 / 예스24</h4>
+                            <div class="space-y-4 w-full">
+                                <div class="text-sm p-3 bg-slate-50 rounded-xl">
+                                    <span class="block font-bold text-emerald-600 mb-1">장점</span>
+                                    <p class="text-slate-500 leading-tight text-xs">확실한 품질, 배송</p>
+                                </div>
+                                <div class="text-sm p-3 bg-slate-50 rounded-xl">
+                                    <span class="block font-bold text-red-400 mb-1">단점</span>
+                                    <p class="text-slate-500 leading-tight text-xs">비싼 가격, 매입 제한</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-8 text-slate-400 font-bold text-sm tracking-wide">"편하지만 비싼 구매"</p>
+                    </div>
+
+                </div>
+            </div>
 
             <!-- MOTIVATION Section -->
             <section class="py-32 bg-gray-50 relative overflow-hidden">
                 <div class="max-w-5xl mx-auto px-6 relative z-10">
-                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Why SecondHand Books?</h2>
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div class="bento-box p-8 reveal-card">
                             <div

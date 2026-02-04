@@ -440,18 +440,7 @@
                 </div>
 
                 <div class="ml-auto text-right">
-                    <c:choose>
-                        <c:when test="${trade_info.sale_st eq 'SALE'}">
-                            <h4 id="chatSale_st" class="font-bold text-sm text-gray-700">
-                                판매중
-                            </h4>
-                        </c:when>
-                        <c:when test="${trade_info.sale_st eq 'SOLD'}">
-                            <h4 id="chatSale_st" class="font-bold text-sm text-red-500">
-                                판매완료
-                            </h4>
-                        </c:when>
-                    </c:choose>
+                    <h4 id="chatSale_st" class="font-bold text-sm"></h4>
                 </div>
 
             </div>
@@ -1073,7 +1062,7 @@ function showSafePaymentAccept(msg) {
                     '<line x1="1" y1="10" x2="23" y2="10"></line>' +
                 '</svg>' +
                 '<span class="card-title">결제 정보</span>' +
-                '<span class="timer" id="timer-' + msgId + '">01:00</span>' +
+                '<span class="timer" id="timer-' + msgId + '"></span>' +
             '</div>' +
             '<div class="product-info">' +
                 '<img src="' + bookImg + '" alt="상품 이미지" class="product-img" onerror="this.src=\'/img/no-image.png\'">' +
@@ -1600,8 +1589,6 @@ fetchMessages = function(roomSeq) {
                 }
             }
 
-
-            // 메시지 렌더링 전에 결제 완료/실패 메시지가 있는지 확인
             // 메시지 렌더링
             if (Array.isArray(messages)) {
                 messages.forEach(msg => showMessage(msg));
@@ -1663,17 +1650,28 @@ function renderChatBookInfo(tradeInfo) {
             default: bookStatusEl.textContent = ''; break;
         }
     }
+    console.log('북상태 확인 !!!', tradeInfo.sale_st);
     // 거래 상태
     if (bookSale_stEl) {
+        // 상태 변경 전에 색상 초기화
+        bookSale_stEl.classList.remove('text-red-500');
+
         switch (tradeInfo.sale_st) {
-            case 'SALE': bookSale_stEl.textContent = '판매중'; break;
+            case 'SALE':
+                bookSale_stEl.textContent = '판매중';
+                break;
+
             case 'SOLD':
                 bookSale_stEl.textContent = '판매완료';
                 bookSale_stEl.classList.add('text-red-500');
                 break;
-            default: bookSale_stEl.textContent = ''; break;
+
+            default:
+                bookSale_stEl.textContent = '';
+                break;
         }
     }
+
 
     // 책 정보 영역 보이게
     if (bookInfoEl) bookInfoEl.style.display = 'flex';
