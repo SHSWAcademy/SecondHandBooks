@@ -1839,11 +1839,10 @@ webClient.get().uri(url)
             </section>
 
             <!-- Load Test Visualizer (Ported from React App) -->
-            <section class="py-24 bg-slate-50 border-t border-slate-200 relative overflow-hidden"
+<section class="py-24 bg-slate-50 border-t border-slate-200 relative overflow-hidden"
                 id="loadtest-visualizer-section">
 
                 <div class="max-w-7xl mx-auto px-6 relative z-10">
-                    <!-- Header with Tab Switcher -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                         <div class="flex items-center space-x-3">
                             <div class="bg-blue-600 p-2 rounded-lg shadow-sm">
@@ -1856,7 +1855,6 @@ webClient.get().uri(url)
                             </div>
                         </div>
 
-                        <!-- Tab Switcher -->
                         <div class="inline-flex p-1 bg-slate-200 rounded-xl border border-slate-300">
                             <button onclick="switchPerfTab('load')" id="tab-btn-load"
                                 class="px-4 py-2 text-sm font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
@@ -1873,7 +1871,6 @@ webClient.get().uri(url)
                         </div>
                     </div>
 
-                    <!-- Intro Card -->
                     <div
                         class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm mb-12 transition-all duration-300">
                         <div class="flex items-center space-x-4 mb-4">
@@ -1886,9 +1883,7 @@ webClient.get().uri(url)
                         </p>
                     </div>
 
-                    <!-- Environment & Config (Grid) -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                        <!-- Infra Config (Static) -->
                         <div class="lg:col-span-1 space-y-6">
                             <div class="mb-4">
                                 <h3 class="text-lg font-bold text-slate-900">인프라 구성 환경</h3>
@@ -1934,7 +1929,6 @@ webClient.get().uri(url)
                             </div>
                         </div>
 
-                        <!-- Code Block (Dynamic) -->
                         <div class="lg:col-span-2 space-y-6">
                             <div class="mb-4">
                                 <h3 id="code-title" class="text-lg font-bold text-slate-900">테스트 시나리오 (k6)</h3>
@@ -1961,12 +1955,9 @@ webClient.get().uri(url)
                         </div>
                     </div>
 
-                    <!-- === TAB CONTENT: Results & Stats === -->
                     <div id="perf-content-area" class="space-y-12">
-                        <!-- Content will be injected via JS -->
-                    </div>
+                        </div>
 
-                    <!-- Conclusion Card (Dynamic) -->
                     <div
                         class="bg-white rounded-3xl border border-slate-200 p-10 shadow-sm relative overflow-hidden transition-all duration-500 mt-12">
                         <div id="conclusion-bg"
@@ -2116,8 +2107,6 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                             document.getElementById('code-title').innerText = "테스트 시나리오 (k6)";
                             document.getElementById('code-subtitle').innerText = "k6 스크립트 실행 조건";
                         }
-                        // document.getElementById('perf-code').innerText = data.code; 
-                        // -> innerText changes format, use textContent then highlight? HTML content safer for preserving format
                         document.getElementById('perf-code').textContent = data.code;
 
                         // 4. Main Content (Stats vs Tuning)
@@ -2127,27 +2116,22 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                             <div>
                                 <h3 class="text-xl font-bold text-slate-900 mb-6">성능 측정 결과 <span class="text-sm font-normal text-slate-500 ml-2">처리량 및 응답 지표 분석</span></h3>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                                     <!-- 95th -->
                                      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
                                         <div class="p-3 rounded-xl bg-blue-50"><i data-lucide="clock" class="text-blue-600 w-6 h-6"></i></div>
                                         <div><p class="text-sm font-medium text-slate-500">95th Percentile</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.p95}</h3><p class="text-xs text-slate-400 mt-1">\${data.stats.p95Sub}</p></div>
                                      </div>
-                                     <!-- Error -->
                                      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
                                         <div class="p-3 rounded-xl bg-green-50"><i data-lucide="alert-circle" class="text-green-600 w-6 h-6"></i></div>
                                         <div><p class="text-sm font-medium text-slate-500">HTTP 에러율</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.error}</h3><p class="text-xs text-slate-400 mt-1">\${data.stats.errorSub}</p></div>
                                      </div>
-                                     <!-- TPS -->
                                      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
                                         <div class="p-3 rounded-xl bg-amber-50"><i data-lucide="zap" class="text-amber-600 w-6 h-6"></i></div>
                                         <div><p class="text-sm font-medium text-slate-500">평균 처리량</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.tps}</h3><p class="text-xs text-slate-400 mt-1">\${data.stats.tpsSub}</p></div>
                                      </div>
-                                     <!-- Users -->
                                      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start space-x-4">
                                         <div class="p-3 rounded-xl bg-purple-50"><i data-lucide="users" class="text-purple-600 w-6 h-6"></i></div>
                                         <div><p class="text-sm font-medium text-slate-500">최대 가상 유저</p><h3 class="text-2xl font-bold text-slate-900 mt-1">\${data.stats.users}</h3><p class="text-xs text-slate-400 mt-1">동시 접속자 목표 달성</p></div>
                                      </div>
-                                     <!-- Active Instances -->
                                      <div class="bg-blue-600 rounded-2xl p-6 shadow-lg text-white flex flex-col justify-center border border-blue-500">
                                         <div class="flex items-center space-x-3 mb-2"><i data-lucide="layout" class="w-5 h-5 opacity-80"></i><h3 class="text-sm font-bold opacity-90 uppercase tracking-tight">활성 인스턴스</h3></div>
                                         <div class="flex items-baseline space-x-2"><span class="text-4xl font-black tracking-tighter">\${data.stats.active}</span><span class="text-sm opacity-80 font-medium">/ 8 Nodes</span></div>
@@ -2163,13 +2147,13 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                             </div>
                             `;
                         } else {
-                            // Tuning Detail
+                            // Tuning Detail - (Fixed the HTML tag syntax error here)
                             html = `
                             <div>
                                 <h3 class="text-xl font-bold text-slate-900 mb-6">JVM 튜닝 상세 내용 <span class="text-sm font-normal text-slate-500 ml-2">p95 지표 안정화 및 Stop-The-World 최소화 전략</span></h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 \${data.tuningDetails.map(d => `
-                                < div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 group/jvm relative overflow-hidden" >
+                                    <div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 group/jvm relative overflow-hidden">
                                         <div class="absolute top-0 right-0 p-4 opacity-5 group-hover/jvm:opacity-10 transition-opacity">
                                             <i data-lucide="\${d.icon}" class="w-24 h-24 text-emerald-600"></i>
                                         </div>
@@ -2190,7 +2174,7 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                                             </div>
                                             <p class="text-sm font-semibold text-slate-700 pl-3.5">\${d.effect}</p>
                                         </div>
-                                    </div >
+                                    </div>
                                 `).join('')}
                                 </div>
                                 <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 flex items-start space-x-4 mt-6">

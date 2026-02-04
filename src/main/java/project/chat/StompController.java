@@ -30,18 +30,17 @@ public class StompController {
     private final TradeService tradeService;
 
     /*
-      1. 클라이언트 전송: /sendMessage/chat/{chat_room_seq}
-
-      2. StompController @MessageMapping("/chat/{chat_room_seq}")
-
-      3. DB 저장, 구독자에게 전송: /chatroom/{chat_room_seq}
-
-      4. 클라이언트 구독: /chatroom/{chat_room_seq}
+     * 1. 클라이언트 전송: /sendMessage/chat/{chat_room_seq}
+     * 
+     * 2. StompController @MessageMapping("/chat/{chat_room_seq}")
+     * 
+     * 3. DB 저장, 구독자에게 전송: /chatroom/{chat_room_seq}
+     * 
+     * 4. 클라이언트 구독: /chatroom/{chat_room_seq}
      */
     @MessageMapping("/chat/{chat_room_seq}")
     public void sendMessage(@DestinationVariable Long chat_room_seq, @Payload MessageVO message,
-                            SimpMessageHeaderAccessor headerAccessor) {
-
+            SimpMessageHeaderAccessor headerAccessor) {
 
         // 검증 : 로그인 및 채팅방 참여자, trade 번호, 채팅 메시지 길이 최대 1000자
         MemberVO sessionMember = validateSessionAndMembership(chat_room_seq, headerAccessor);
@@ -65,15 +64,18 @@ public class StompController {
             }
         }
         // 안전 결제 메시지일 경우
-//        switch (chatMessage) {
-//            case "[SAFE_PAYMENT_REQUEST]" : // 안전 결제 요청일 경우, 이용 불가 시 return, 이용 가능 시 안전 결제 시작 (PENDING 수정, 5분 할당)
-//                if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember)) {return;}
-//                break;
-//            case "[SAFE_PAYMENT_FAILED]" :
-//                break;
-//        }
+        // switch (chatMessage) {
+        // case "[SAFE_PAYMENT_REQUEST]" : // 안전 결제 요청일 경우, 이용 불가 시 return, 이용 가능 시 안전
+        // 결제 시작 (PENDING 수정, 5분 할당)
+        // if (!canUseSafePayment(chat_room_seq, trade_seq, chatMessage, sessionMember))
+        // {return;}
+        // break;
+        // case "[SAFE_PAYMENT_FAILED]" :
+        // break;
+        // }
 
-        log.info("메시지 수신: chat_room_seq={}, sender={}, content={}", chat_room_seq, message.getSender_seq(), message.getChat_cont());
+        log.info("메시지 수신: chat_room_seq={}, sender={}, content={}", chat_room_seq, message.getSender_seq(),
+                message.getChat_cont());
 
         // 1. DB에 메시지 저장
         messageService.saveMessage(message);
