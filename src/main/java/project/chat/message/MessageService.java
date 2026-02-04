@@ -38,4 +38,8 @@ public class MessageService {
     public String findBySellerNicknm (long member_seq) {
         return messageMapper.findBySellerNicknm(member_seq);
     }
+
+    public void markAsRead(long chat_room_seq, long member_seq) {
+        messageMapper.updateReadStatus(chat_room_seq, member_seq);
+    }
 }
