@@ -13,6 +13,7 @@
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="https://unpkg.com/lucide@latest"></script>
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+            <script src="https://d3js.org/d3.v7.min.js"></script>
             <style>
                 body {
                     font-family: 'Pretendard', sans-serif;
@@ -327,6 +328,353 @@
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <!-- Project Roadmap Visualizer (Added) -->
+            <section class="py-24 bg-slate-50 border-t border-slate-200 overflow-hidden"
+                id="roadmap-visualizer-section">
+                <div class="max-w-[1440px] mx-auto px-6">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-16 reveal-text">
+                        <div class="text-center md:text-left mb-6 md:mb-0">
+                            <span
+                                class="text-indigo-600 font-bold tracking-wider text-sm uppercase mb-2 block">Development
+                                Roadmap</span>
+                            <h2 class="text-4xl font-black text-slate-800 tracking-tight">2026 Project Master Plan</h2>
+                            <p class="text-slate-500 text-sm font-medium mt-2">Jan 05, 2026 - Feb 04, 2026 Schedule</p>
+                        </div>
+                        <div class="flex gap-4 items-center">
+                            <div class="text-right">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global
+                                    Status</div>
+                                <div class="text-xs font-bold text-emerald-600">On Track</div>
+                            </div>
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col xl:flex-row gap-6 items-start">
+
+                        <!-- Main Roadmap Area: Three Circles -->
+                        <div class="flex-1 w-full">
+                            <div
+                                class="bg-white rounded-[48px] shadow-2xl shadow-slate-200 border border-slate-100 p-8 md:p-12 relative overflow-hidden reveal-card">
+                                <!-- Background Decoration -->
+                                <div
+                                    class="absolute -top-20 -left-20 w-80 h-80 bg-blue-50 rounded-full blur-3xl opacity-30">
+                                </div>
+
+                                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-1 md:gap-2 px-0"
+                                    id="roadmap-circles-container">
+                                    <!-- Circles will be rendered here by D3 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Selected Details -->
+                        <aside class="w-full xl:w-[350px] sticky top-[120px] reveal-card"
+                            style="transition-delay: 100ms;">
+                            <div id="phase-details-panel"
+                                class="bg-white rounded-[40px] p-10 shadow-2xl border border-slate-100 min-h-[560px] flex flex-col transition-all duration-500 overflow-hidden relative">
+                                <!-- Default State -->
+                                <div id="phase-details-empty"
+                                    class="flex-1 flex flex-col items-center justify-center text-center p-8">
+                                    <div
+                                        class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 border border-slate-100">
+                                        <i data-lucide="map" class="w-8 h-8 text-slate-200"></i>
+                                    </div>
+                                    <h3 class="text-xl font-black text-slate-800 mb-2 tracking-tight">Step Navigation
+                                    </h3>
+                                    <p class="text-slate-400 text-sm leading-relaxed max-w-[240px] font-medium">
+                                        로드맵의 원형 단계를 탐색하여 각 단계별 상세 과업과 전략을 확인하세요.
+                                    </p>
+                                </div>
+
+                                <!-- Content State (Hidden by default) -->
+                                <div id="phase-details-content"
+                                    class="hidden animate-in fade-in slide-in-from-right-4 duration-500">
+                                    <div class="mb-6 flex justify-between items-start">
+                                        <div id="detail-tag"
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white">
+                                            Phase Details
+                                        </div>
+                                        <div id="detail-index" class="text-slate-300 font-bold text-2xl">01</div>
+                                    </div>
+
+                                    <h2 id="detail-title"
+                                        class="text-4xl font-black text-slate-800 mb-2 leading-tight tracking-tight">
+                                        Design & Spec
+                                    </h2>
+                                    <div class="flex items-center gap-2 text-slate-400 font-bold text-sm mb-10">
+                                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                                        <span id="detail-date">Jan 01 ~ Jan 10</span>
+                                    </div>
+
+                                    <div class="space-y-8">
+                                        <div>
+                                            <h4
+                                                class="text-[11px] font-black text-slate-300 uppercase tracking-widest mb-4">
+                                                Milestone Checklist</h4>
+                                            <div id="detail-tasks" class="space-y-3">
+                                                <!-- Tasks injected here -->
+                                            </div>
+                                        </div>
+
+                                        <div class="p-6 bg-slate-900 rounded-3xl text-white">
+                                            <h4
+                                                class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">
+                                                Scope
+                                                Summary</h4>
+                                            <p id="detail-desc"
+                                                class="text-sm text-slate-300 leading-relaxed font-medium">
+                                                Description goes here...
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                <script>
+                    (function () {
+                        const PROJECT_DATA = {
+                            phases: [
+                                {
+                                    id: "planning",
+                                    title: "Design & Specs",
+                                    startDate: new Date("2026-01-05"),
+                                    endDate: new Date("2026-01-11"),
+                                    description: "ERD Design, API Spec, Page Flow, Wireframes",
+                                    color: "#6366f1", // Indigo
+                                    details: ["ERD 설계", "API 설계", "페이지 플로우 설계", "목업 페이지 와이어프레임"]
+                                },
+                                {
+                                    id: "development",
+                                    title: "Main Development",
+                                    startDate: new Date("2026-01-12"),
+                                    endDate: new Date("2026-01-25"),
+                                    description: "Core Implementation Phase",
+                                    color: "#10b981", // Emerald
+                                    details: ["기능 개발 및 구현", "프론트엔드/백엔드 통합"]
+                                },
+                                {
+                                    id: "deployment",
+                                    title: "QA & Launch",
+                                    startDate: new Date("2026-01-26"),
+                                    endDate: new Date("2026-02-01"),
+                                    description: "Testing & Initial Deployment",
+                                    color: "#f59e0b", // Amber
+                                    details: ["테스팅", "배포 (Initial Release)"]
+                                },
+                                {
+                                    id: "final",
+                                    title: "Final Review",
+                                    startDate: new Date("2026-02-02"),
+                                    endDate: new Date("2026-02-04"),
+                                    description: "Final Testing & Presentation Prep",
+                                    color: "#ef4444", // Red
+                                    details: ["최종 테스팅", "발표 준비 및 시연"]
+                                }
+                            ]
+                        };
+
+                        // Group phases for circles
+                        const circlesData = [
+                            { phases: [PROJECT_DATA.phases[0]], title: "Design & Spec", id: "c1" },
+                            { phases: [PROJECT_DATA.phases[1]], title: "Main Dev", id: "c2" },
+                            { phases: [PROJECT_DATA.phases[2], PROJECT_DATA.phases[3]], title: "QA & Final", id: "c3" }
+                        ];
+
+                        function renderRoadmap() {
+                            const container = document.getElementById('roadmap-circles-container');
+                            if (!container) return;
+                            container.innerHTML = ''; // Clear
+
+                            circlesData.forEach((circle, index) => {
+                                const wrapper = document.createElement('div');
+                                wrapper.className = "flex-1 flex flex-col items-center relative";
+                                wrapper.id = `roadmap-circle-${index}`;
+                                container.appendChild(wrapper);
+
+                                renderCircle(wrapper, circle.phases, circle.title);
+
+                                // Add connector if not last
+                                if (index < circlesData.length - 1) {
+                                    const connector = document.createElement('div');
+                                    connector.className = "hidden md:block text-slate-300";
+                                    connector.innerHTML = `<i data-lucide="chevron-right" class="w-8 h-8"></i>`;
+                                    container.appendChild(connector);
+                                }
+                            });
+                        }
+
+                        function renderCircle(wrapper, phases, title) {
+                            const size = 800;
+                            const width = size;
+                            const height = size;
+                            const margin = 15;
+                            const radius = Math.min(width, height) / 2 - margin;
+                            const innerRadius = radius * 0.75;
+
+                            const svg = d3.select(wrapper)
+                                .append("svg")
+                                .attr("width", size)
+                                .attr("height", size)
+                                .attr("viewBox", `0 0 \${size} \${size}`)
+                                .attr("class", "max-w-full h-auto drop-shadow-sm");
+
+                            const g = svg.append("g")
+                                .attr("transform", `translate(\${width / 2}, \${height / 2})`);
+
+                            // Scale
+                            const minDate = d3.min(phases, d => d.startDate.getTime()) || 0;
+                            const maxDate = d3.max(phases, d => d.endDate.getTime()) || 0;
+
+                            const angleScale = d3.scaleLinear()
+                                .domain([minDate, maxDate + (phases.length === 1 ? 86400000 : 0)])
+                                .range([0, 2 * Math.PI]);
+
+                            // Outer Ring
+                            g.append("circle")
+                                .attr("r", radius)
+                                .attr("fill", "transparent")
+                                .attr("stroke", "#f1f5f9")
+                                .attr("stroke-width", 1);
+
+                            // Inner White
+                            g.append("circle")
+                                .attr("r", innerRadius)
+                                .attr("fill", "#ffffff")
+                                .attr("filter", "drop-shadow(0px 4px 6px rgba(0,0,0,0.05))");
+
+                            // Arcs
+                            const arcGenerator = d3.arc()
+                                .innerRadius(innerRadius)
+                                .outerRadius(radius)
+                                .startAngle(d => angleScale(d.startDate.getTime()))
+                                .endAngle(d => angleScale(d.endDate.getTime() + 86400000))
+                                .cornerRadius(phases.length > 1 ? size / 40 : 0)
+                                .padAngle(0);
+
+                            g.selectAll(".phase-arc")
+                                .data(phases)
+                                .enter()
+                                .append("path")
+                                .attr("class", "phase-arc cursor-pointer transition-all duration-300")
+                                .attr("d", arcGenerator)
+                                .attr("fill", d => d.color)
+                                .attr("opacity", 0.85)
+                                .on("mouseenter", function (event, d) {
+                                    d3.select(this).attr("opacity", 1).attr("transform", "scale(1.02)");
+                                    updateDetailsPanel(d);
+                                })
+                                .on("mouseleave", function (event, d) {
+                                    d3.select(this).attr("opacity", 0.85).attr("transform", "scale(1)");
+                                    // Optional: updateDetailsPanel(null); // Keep last selected or clear?
+                                    // Implementation choice: sticky selection or clear on leave?
+                                    // Original React code clears on leave, but has 'selectedPhase' state.
+                                    // Let's implement click to select for mobile friendliness, or just hover.
+                                    // React code: onPhaseSelect(d) on mouseenter.
+                                });
+
+                            // Text Container
+                            const textContainer = g.append("g")
+                                .attr("text-anchor", "middle")
+                                .style("pointer-events", "none");
+
+                            // Title
+                            textContainer.append("text")
+                                .attr("y", -innerRadius * 0.5)
+                                .attr("class", "fill-slate-400 font-bold text-4xl uppercase tracking-widest")
+                                .text(title);
+
+                            // Date Range
+                            const dateStr = phases.length === 1
+                                ? `\${phases[0].startDate.getMonth() + 1}/\${phases[0].startDate.getDate()} ~ \${phases[0].endDate.getMonth() + 1}/\${phases[0].endDate.getDate()}`
+                                : `\${phases[0].startDate.getMonth() + 1}/\${phases[0].startDate.getDate()} ~ \${phases[phases.length - 1].endDate.getMonth() + 1}/\${phases[phases.length - 1].endDate.getDate()}`;
+
+                            textContainer.append("text")
+                                .attr("y", -innerRadius * 0.2)
+                                .attr("class", "fill-slate-800 font-black text-6xl")
+                                .text(dateStr);
+
+                            // Tasks list (Top 4)
+                            const allTasks = phases.flatMap(p => p.details);
+                            const displayTasks = allTasks.slice(0, 4);
+
+                            const taskGroup = textContainer.append("g")
+                                .attr("transform", `translate(0, \${innerRadius * 0.1})`);
+
+                            displayTasks.forEach((task, i) => {
+                                taskGroup.append("text")
+                                    .attr("y", i * 36)
+                                    .attr("class", "fill-slate-600 font-bold text-3xl")
+                                    .text(`• \${task}`);
+                            });
+
+                            if (allTasks.length > 4) {
+                                taskGroup.append("text")
+                                    .attr("y", displayTasks.length * 36)
+                                    .attr("class", "fill-slate-300 italic text-2xl")
+                                    .text(`+ \${allTasks.length - 4} more tasks`);
+                            }
+                        }
+
+                        function updateDetailsPanel(phase) {
+                            const emptyState = document.getElementById('phase-details-empty');
+                            const contentState = document.getElementById('phase-details-content');
+
+                            if (!phase) {
+                                emptyState.classList.remove('hidden');
+                                contentState.classList.add('hidden');
+                                return;
+                            }
+
+                            emptyState.classList.add('hidden');
+                            contentState.classList.remove('hidden');
+
+                            // Update Content
+                            const overallIndex = PROJECT_DATA.phases.findIndex(p => p.id === phase.id);
+
+                            document.getElementById('detail-tag').style.backgroundColor = phase.color;
+                            document.getElementById('detail-index').innerText = `0\${overallIndex + 1}`;
+                            document.getElementById('detail-title').innerText = phase.title;
+
+                            const dateStr = `\${phase.startDate.getMonth() + 1}월 \${phase.startDate.getDate()}일 ~ \${phase.endDate.getMonth() + 1}월 \${phase.endDate.getDate()}일`;
+                            document.getElementById('detail-date').innerText = dateStr;
+                            document.getElementById('detail-desc').innerText = phase.description;
+
+                            // Update Tasks
+                            const taskContainer = document.getElementById('detail-tasks');
+                            taskContainer.innerHTML = phase.details.map(task => `
+                                            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-white transition-all group">
+                                              <div class="w-5 h-5 rounded-full border-2 border-slate-200 flex items-center justify-center group-hover:border-indigo-400 transition-colors">
+                                                <div class="w-2 h-2 rounded-full bg-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                              </div>
+                                              <span class="text-sm font-bold text-slate-700">\${task}</span>
+                                            </div>
+                                        `).join('');
+                        }
+
+                        // Initialize
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (typeof d3 !== 'undefined') {
+                                renderRoadmap();
+                            } else {
+                                window.addEventListener('load', () => {
+                                    if (typeof d3 !== 'undefined') renderRoadmap();
+                                });
+                            }
+                        });
+
+
+                    })();
+                </script>
             </section>
 
             <!-- MOTIVATION Section -->
