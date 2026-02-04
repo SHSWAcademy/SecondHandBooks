@@ -13,6 +13,7 @@
             <script src="https://cdn.tailwindcss.com"></script>
             <script src="https://unpkg.com/lucide@latest"></script>
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+            <script src="https://d3js.org/d3.v7.min.js"></script>
             <style>
                 body {
                     font-family: 'Pretendard', sans-serif;
@@ -329,6 +330,587 @@
                 </div>
             </section>
 
+            <section class="py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
+                            <div class="max-w-7xl mx-auto px-6 text-center">
+                                <div class="mb-20 reveal-text">
+                                    <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">Growth
+                                        Path</span>
+                                    <h2 class="text-4xl font-black mb-4 text-gray-900">Our Project</h2>
+                                    <p class="text-gray-500 font-medium">단순 구현에서 아키텍처 설계로, 끊임없는 기술적 도전의 여정</p>
+                                </div>
+
+                                <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 relative">
+
+                                    <div
+                                        class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-gray-200 via-green-200 to-orange-200 -translate-y-1/2 z-0 opacity-50">
+                                    </div>
+
+                                    <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 0ms;">
+                                        <div
+                                            class="bento-box p-8 border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 bg-white group">
+                                            <div
+                                                class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-blue-100 text-[10px] font-bold text-blue-400 uppercase tracking-widest shadow-sm">
+                                                Mini
+                                            </div>
+                                            <div
+                                                class="w-24 h-24 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                                <i data-lucide="gamepad-2" class="w-10 h-10 text-blue-500"></i>
+                                            </div>
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-6">Omok</h3>
+
+                                            <div class="space-y-4 text-sm">
+                                                <div>
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
+                                                    <p
+                                                        class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">
+                                                        JDK 1.8</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
+                                                    <p class="font-bold text-gray-700">JSP / Servlet</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
+                                                    <p class="font-bold text-gray-700">MariaDB</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="reveal-card relative z-10 w-full max-w-md transform md:-translate-y-4"
+                                        style="transition-delay: 200ms;">
+                                        <div
+                                            class="absolute -inset-1 bg-gradient-to-br from-green-400 to-emerald-400 rounded-[28px] blur opacity-30 animate-pulse">
+                                        </div>
+                                        <div class="bento-box p-10 border-2 border-green-500 shadow-2xl bg-white relative">
+                                            <div
+                                                class="absolute -top-6 left-1/2 -translate-x-1/2 bg-green-500 px-6 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">
+                                                First (Current)
+                                            </div>
+                                            <div
+                                                class="w-28 h-28 mx-auto rounded-full bg-green-50 flex items-center justify-center mb-8 shadow-inner">
+                                                <i data-lucide="book-open-check" class="w-12 h-12 text-green-600"></i>
+                                            </div>
+                                            <h3 class="text-3xl font-black text-green-600 mb-8">SecondHand<br>Books</h3>
+
+                                            <div class="space-y-5 text-base">
+                                                <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                                    <span class="text-[10px] font-bold text-gray-400 uppercase">Language</span>
+                                                    <span class="font-bold text-gray-900">Java 17</span>
+                                                </div>
+                                                <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                                                    <span class="text-[10px] font-bold text-gray-400 uppercase">Framework</span>
+                                                    <span class="font-bold text-gray-900">Spring Legacy (JSP)</span>
+                                                </div>
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[10px] font-bold text-gray-400 uppercase">Database</span>
+                                                    <span class="font-bold text-gray-900">Postgres</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 400ms;">
+                                        <div
+                                            class="bento-box p-8 border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 bg-white group opacity-80 hover:opacity-100">
+                                            <div
+                                                class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-orange-100 text-[10px] font-bold text-orange-400 uppercase tracking-widest shadow-sm">
+                                                Second
+                                            </div>
+                                            <div
+                                                class="w-24 h-24 mx-auto rounded-full bg-orange-50 flex items-center justify-center mb-6 shadow-inner group-hover:rotate-12 transition-transform duration-500">
+                                                <span class="text-4xl font-bold text-orange-400">?</span>
+                                            </div>
+                                            <h3 class="text-2xl font-bold text-gray-900 mb-6">Future Project</h3>
+
+                                            <div class="space-y-4 text-sm">
+                                                <div>
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
+                                                    <p
+                                                        class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">
+                                                        Java 21</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
+                                                    <p class="font-bold text-gray-700">SpringBoot / React</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
+                                                    <p class="font-bold text-gray-700">MySQL</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </section>
+
+            <!-- Project Roadmap Visualizer (Added) -->
+            <section class="py-24 bg-slate-50 border-t border-slate-200 overflow-hidden"
+                id="roadmap-visualizer-section">
+                <div class="max-w-[1440px] mx-auto px-6">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-16 reveal-text">
+                        <div class="text-center md:text-left mb-6 md:mb-0">
+                            <span
+                                class="text-indigo-600 font-bold tracking-wider text-sm uppercase mb-2 block">Development
+                                Roadmap</span>
+                            <h2 class="text-4xl font-black text-slate-800 tracking-tight">2026 Project Master Plan</h2>
+                            <p class="text-slate-500 text-sm font-medium mt-2">Jan 05, 2026 - Feb 04, 2026 Schedule</p>
+                        </div>
+                        <div class="flex gap-4 items-center">
+                            <div class="text-right">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global
+                                    Status</div>
+                                <div class="text-xs font-bold text-emerald-600">On Track</div>
+                            </div>
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col xl:flex-row gap-6 items-start">
+
+                        <!-- Main Roadmap Area: Three Circles -->
+                        <div class="flex-1 w-full">
+                            <div
+                                class="bg-white rounded-[48px] shadow-2xl shadow-slate-200 border border-slate-100 p-8 md:p-12 relative overflow-hidden reveal-card">
+                                <!-- Background Decoration -->
+                                <div
+                                    class="absolute -top-20 -left-20 w-80 h-80 bg-blue-50 rounded-full blur-3xl opacity-30">
+                                </div>
+
+                                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-1 md:gap-2 px-0"
+                                    id="roadmap-circles-container">
+                                    <!-- Circles will be rendered here by D3 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Selected Details -->
+                        <aside class="w-full xl:w-[350px] sticky top-[120px] reveal-card"
+                            style="transition-delay: 100ms;">
+                            <div id="phase-details-panel"
+                                class="bg-white rounded-[40px] p-10 shadow-2xl border border-slate-100 min-h-[560px] flex flex-col transition-all duration-500 overflow-hidden relative">
+                                <!-- Default State -->
+                                <div id="phase-details-empty"
+                                    class="flex-1 flex flex-col items-center justify-center text-center p-8">
+                                    <div
+                                        class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 border border-slate-100">
+                                        <i data-lucide="map" class="w-8 h-8 text-slate-200"></i>
+                                    </div>
+                                    <h3 class="text-xl font-black text-slate-800 mb-2 tracking-tight">Step Navigation
+                                    </h3>
+                                    <p class="text-slate-400 text-sm leading-relaxed max-w-[240px] font-medium">
+                                        로드맵의 원형 단계를 탐색하여 각 단계별 상세 과업과 전략을 확인하세요.
+                                    </p>
+                                </div>
+
+                                <!-- Content State (Hidden by default) -->
+                                <div id="phase-details-content"
+                                    class="hidden animate-in fade-in slide-in-from-right-4 duration-500">
+                                    <div class="mb-6 flex justify-between items-start">
+                                        <div id="detail-tag"
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white">
+                                            Phase Details
+                                        </div>
+                                        <div id="detail-index" class="text-slate-300 font-bold text-2xl">01</div>
+                                    </div>
+
+                                    <h2 id="detail-title"
+                                        class="text-4xl font-black text-slate-800 mb-2 leading-tight tracking-tight">
+                                        Design & Spec
+                                    </h2>
+                                    <div class="flex items-center gap-2 text-slate-400 font-bold text-sm mb-10">
+                                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                                        <span id="detail-date">Jan 01 ~ Jan 10</span>
+                                    </div>
+
+                                    <div class="space-y-8">
+                                        <div>
+                                            <h4
+                                                class="text-[11px] font-black text-slate-300 uppercase tracking-widest mb-4">
+                                                Milestone Checklist</h4>
+                                            <div id="detail-tasks" class="space-y-3">
+                                                <!-- Tasks injected here -->
+                                            </div>
+                                        </div>
+
+                                        <div class="p-6 bg-slate-900 rounded-3xl text-white">
+                                            <h4
+                                                class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">
+                                                Scope
+                                                Summary</h4>
+                                            <p id="detail-desc"
+                                                class="text-sm text-slate-300 leading-relaxed font-medium">
+                                                Description goes here...
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                 <!-- Project Management (GitHub) -->
+                            <section class="py-32 bg-gray-50">
+                                <div class="max-w-[1440px] mx-auto px-6">
+                                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Develop : Collaboration & Workflow</h2>
+
+                                    <div class="space-y-24">
+                                        <!-- Part 1: Issue & Branch Board -->
+                                        <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
+                                            <div class="flex-1 space-y-6">
+                                                <div
+                                                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-bold">
+                                                    <i data-lucide="trello" class="w-4 h-4"></i>
+                                                    Kanban Board
+                                                </div>
+                                                <h3 class="text-3xl font-bold text-gray-900">투명한 진행 상황 공유</h3>
+                                                <p class="text-gray-500 leading-relaxed text-lg">
+                                                    GitHub Projects를 활용하여 모든 기능을 이슈 단위로 관리했습니다.
+                                                    Ready -> In Progress -> In Review -> Done 파이프라인을 구축하여
+                                                    팀원 간의 진행 상황을 실시간으로 동기화했습니다.
+                                                </p>
+                                            </div>
+                                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
+                                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/github_board.png')">
+                                                <img src="${pageContext.request.contextPath}/resources/presentation/img/github_board.png"
+                                                    alt="GitHub Project Board" class="w-full h-auto">
+                                            </div>
+                                        </div>
+
+                                        <!-- Part 2: Table View & Labels -->
+                                        <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
+                                            <div class="flex-1 space-y-6">
+                                                <div
+                                                    class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full text-sm font-bold">
+                                                    <i data-lucide="table" class="w-4 h-4"></i>
+                                                    Structured Issues
+                                                </div>
+                                                <h3 class="text-3xl font-bold text-gray-900">체계적인 이슈 트래킹</h3>
+                                                <p class="text-gray-500 leading-relaxed text-lg">
+                                                    P0(Critical), P1(High) 등 우선순위 라벨링과 [FEAT], [FIX] 헤더 규칙을 통해
+                                                    개발의 방향성을 명확히 했습니다. PR과 이슈를 연동하여 코드 변경 사항을 히스토리로 남겼습니다.
+                                                </p>
+                                            </div>
+                                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
+                                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/github_table.png')">
+                                                <img src="${pageContext.request.contextPath}/resources/presentation/img/github_table.png"
+                                                    alt="GitHub Issue Table" class="w-full h-auto">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                <script>
+                    (function () {
+                        const PROJECT_DATA = {
+                            phases: [
+                                {
+                                    id: "planning",
+                                    title: "Design & Specs",
+                                    startDate: new Date("2026-01-05"),
+                                    endDate: new Date("2026-01-11"),
+                                    description: "ERD Design, API Spec, Page Flow, Wireframes",
+                                    color: "#6366f1", // Indigo
+                                    details: ["ERD 설계", "API 설계", "페이지 플로우 설계", "목업 페이지 와이어프레임"]
+                                },
+                                {
+                                    id: "development",
+                                    title: "Main Development",
+                                    startDate: new Date("2026-01-12"),
+                                    endDate: new Date("2026-01-25"),
+                                    description: "Core Implementation Phase",
+                                    color: "#10b981", // Emerald
+                                    details: ["기능 개발 및 구현", "프론트엔드/백엔드 통합"]
+                                },
+                                {
+                                    id: "deployment",
+                                    title: "QA & Launch",
+                                    startDate: new Date("2026-01-26"),
+                                    endDate: new Date("2026-02-01"),
+                                    description: "Testing & Initial Deployment",
+                                    color: "#f59e0b", // Amber
+                                    details: ["테스팅", "배포 (Initial Release)"]
+                                },
+                                {
+                                    id: "final",
+                                    title: "Final Review",
+                                    startDate: new Date("2026-02-02"),
+                                    endDate: new Date("2026-02-04"),
+                                    description: "Final Testing & Presentation Prep",
+                                    color: "#ef4444", // Red
+                                    details: ["최종 테스팅", "발표 준비 및 시연"]
+                                }
+                            ]
+                        };
+
+                        // Group phases for circles
+                        const circlesData = [
+                            { phases: [PROJECT_DATA.phases[0]], title: "Design & Spec", id: "c1" },
+                            { phases: [PROJECT_DATA.phases[1]], title: "Main Dev", id: "c2" },
+                            { phases: [PROJECT_DATA.phases[2], PROJECT_DATA.phases[3]], title: "QA & Final", id: "c3" }
+                        ];
+
+                        function renderRoadmap() {
+                            const container = document.getElementById('roadmap-circles-container');
+                            if (!container) return;
+                            container.innerHTML = ''; // Clear
+
+                            circlesData.forEach((circle, index) => {
+                                const wrapper = document.createElement('div');
+                                wrapper.className = "flex-1 flex flex-col items-center relative";
+                                wrapper.id = `roadmap-circle-${index}`;
+                                container.appendChild(wrapper);
+
+                                renderCircle(wrapper, circle.phases, circle.title);
+
+                                // Add connector if not last
+                                if (index < circlesData.length - 1) {
+                                    const connector = document.createElement('div');
+                                    connector.className = "hidden md:block text-slate-300";
+                                    connector.innerHTML = `<i data-lucide="chevron-right" class="w-8 h-8"></i>`;
+                                    container.appendChild(connector);
+                                }
+                            });
+                        }
+
+                        function renderCircle(wrapper, phases, title) {
+                            const size = 800;
+                            const width = size;
+                            const height = size;
+                            const margin = 15;
+                            const radius = Math.min(width, height) / 2 - margin;
+                            const innerRadius = radius * 0.75;
+
+                            const svg = d3.select(wrapper)
+                                .append("svg")
+                                .attr("width", size)
+                                .attr("height", size)
+                                .attr("viewBox", `0 0 \${size} \${size}`)
+                                .attr("class", "max-w-full h-auto drop-shadow-sm");
+
+                            const g = svg.append("g")
+                                .attr("transform", `translate(\${width / 2}, \${height / 2})`);
+
+                            // Scale
+                            const minDate = d3.min(phases, d => d.startDate.getTime()) || 0;
+                            const maxDate = d3.max(phases, d => d.endDate.getTime()) || 0;
+
+                            const angleScale = d3.scaleLinear()
+                                .domain([minDate, maxDate + (phases.length === 1 ? 86400000 : 0)])
+                                .range([0, 2 * Math.PI]);
+
+                            // Outer Ring
+                            g.append("circle")
+                                .attr("r", radius)
+                                .attr("fill", "transparent")
+                                .attr("stroke", "#f1f5f9")
+                                .attr("stroke-width", 1);
+
+                            // Inner White
+                            g.append("circle")
+                                .attr("r", innerRadius)
+                                .attr("fill", "#ffffff")
+                                .attr("filter", "drop-shadow(0px 4px 6px rgba(0,0,0,0.05))");
+
+                            // Arcs
+                            const arcGenerator = d3.arc()
+                                .innerRadius(innerRadius)
+                                .outerRadius(radius)
+                                .startAngle(d => angleScale(d.startDate.getTime()))
+                                .endAngle(d => angleScale(d.endDate.getTime() + 86400000))
+                                .cornerRadius(phases.length > 1 ? size / 40 : 0)
+                                .padAngle(0);
+
+                            g.selectAll(".phase-arc")
+                                .data(phases)
+                                .enter()
+                                .append("path")
+                                .attr("class", "phase-arc cursor-pointer transition-all duration-300")
+                                .attr("d", arcGenerator)
+                                .attr("fill", d => d.color)
+                                .attr("opacity", 0.85)
+                                .on("mouseenter", function (event, d) {
+                                    d3.select(this).attr("opacity", 1).attr("transform", "scale(1.02)");
+                                    updateDetailsPanel(d);
+                                })
+                                .on("mouseleave", function (event, d) {
+                                    d3.select(this).attr("opacity", 0.85).attr("transform", "scale(1)");
+                                    // Optional: updateDetailsPanel(null); // Keep last selected or clear?
+                                    // Implementation choice: sticky selection or clear on leave?
+                                    // Original React code clears on leave, but has 'selectedPhase' state.
+                                    // Let's implement click to select for mobile friendliness, or just hover.
+                                    // React code: onPhaseSelect(d) on mouseenter.
+                                });
+
+                            // Text Container
+                            const textContainer = g.append("g")
+                                .attr("text-anchor", "middle")
+                                .style("pointer-events", "none");
+
+                            // Title
+                            textContainer.append("text")
+                                .attr("y", -innerRadius * 0.5)
+                                .attr("class", "fill-slate-400 font-bold text-4xl uppercase tracking-widest")
+                                .text(title);
+
+                            // Date Range
+                            const dateStr = phases.length === 1
+                                ? `\${phases[0].startDate.getMonth() + 1}/\${phases[0].startDate.getDate()} ~ \${phases[0].endDate.getMonth() + 1}/\${phases[0].endDate.getDate()}`
+                                : `\${phases[0].startDate.getMonth() + 1}/\${phases[0].startDate.getDate()} ~ \${phases[phases.length - 1].endDate.getMonth() + 1}/\${phases[phases.length - 1].endDate.getDate()}`;
+
+                            textContainer.append("text")
+                                .attr("y", -innerRadius * 0.2)
+                                .attr("class", "fill-slate-800 font-black text-6xl")
+                                .text(dateStr);
+
+                            // Tasks list (Top 4)
+                            const allTasks = phases.flatMap(p => p.details);
+                            const displayTasks = allTasks.slice(0, 4);
+
+                            const taskGroup = textContainer.append("g")
+                                .attr("transform", `translate(0, \${innerRadius * 0.1})`);
+
+                            displayTasks.forEach((task, i) => {
+                                taskGroup.append("text")
+                                    .attr("y", i * 36)
+                                    .attr("class", "fill-slate-600 font-bold text-3xl")
+                                    .text(`• \${task}`);
+                            });
+
+                            if (allTasks.length > 4) {
+                                taskGroup.append("text")
+                                    .attr("y", displayTasks.length * 36)
+                                    .attr("class", "fill-slate-300 italic text-2xl")
+                                    .text(`+ \${allTasks.length - 4} more tasks`);
+                            }
+                        }
+
+                        function updateDetailsPanel(phase) {
+                            const emptyState = document.getElementById('phase-details-empty');
+                            const contentState = document.getElementById('phase-details-content');
+
+                            if (!phase) {
+                                emptyState.classList.remove('hidden');
+                                contentState.classList.add('hidden');
+                                return;
+                            }
+
+                            emptyState.classList.add('hidden');
+                            contentState.classList.remove('hidden');
+
+                            // Update Content
+                            const overallIndex = PROJECT_DATA.phases.findIndex(p => p.id === phase.id);
+
+                            document.getElementById('detail-tag').style.backgroundColor = phase.color;
+                            document.getElementById('detail-index').innerText = `0\${overallIndex + 1}`;
+                            document.getElementById('detail-title').innerText = phase.title;
+
+                            const dateStr = `\${phase.startDate.getMonth() + 1}월 \${phase.startDate.getDate()}일 ~ \${phase.endDate.getMonth() + 1}월 \${phase.endDate.getDate()}일`;
+                            document.getElementById('detail-date').innerText = dateStr;
+                            document.getElementById('detail-desc').innerText = phase.description;
+
+                            // Update Tasks
+                            const taskContainer = document.getElementById('detail-tasks');
+                            taskContainer.innerHTML = phase.details.map(task => `
+                                            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-white transition-all group">
+                                              <div class="w-5 h-5 rounded-full border-2 border-slate-200 flex items-center justify-center group-hover:border-indigo-400 transition-colors">
+                                                <div class="w-2 h-2 rounded-full bg-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                              </div>
+                                              <span class="text-sm font-bold text-slate-700">\${task}</span>
+                                            </div>
+                                        `).join('');
+                        }
+
+                        // Initialize
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (typeof d3 !== 'undefined') {
+                                renderRoadmap();
+                            } else {
+                                window.addEventListener('load', () => {
+                                    if (typeof d3 !== 'undefined') renderRoadmap();
+                                });
+                            }
+                        });
+
+
+                    })();
+                </script>
+            </section>
+
+            <section class="py-32 bg-gray-50 border-t border-gray-200">
+                            <div class="max-w-[1440px] mx-auto px-6">
+                                <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Testing : Quality Assurance</h2>
+
+                                <div class="space-y-24">
+
+                                    <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
+                                        <div class="flex-1 space-y-6">
+                                            <div
+                                                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold">
+                                                <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+                                                System Validation
+                                            </div>
+                                            <h3 class="text-3xl font-bold text-gray-900">기능 테스트 리포트</h3>
+                                            <p class="text-gray-500 leading-relaxed text-lg">
+                                                단위 기능부터 통합 시나리오까지, 엑셀을 활용해 테스트 케이스(TC)를 체계적으로 관리했습니다.
+                                                성공/실패 여부를 명확히 기록하고, 발견된 버그의 수정 현황을 추적하여 배포 전 시스템의 안정성을 확보했습니다.
+                                            </p>
+                                        </div>
+                                        <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
+                                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
+                                            <div class="relative">
+                                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
+                                                    alt="Functional Test Report" class="w-full h-auto object-cover">
+                                                <div
+                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                                    <i data-lucide="zoom-in"
+                                                        class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
+                                        <div class="flex-1 space-y-6">
+                                            <div
+                                                class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold">
+                                                <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
+                                                User Experience
+                                            </div>
+                                            <h3 class="text-3xl font-bold text-gray-900">UI/UX 개선 내역</h3>
+                                            <p class="text-gray-500 leading-relaxed text-lg">
+                                                사용자 관점에서의 시나리오 테스트를 수행하여 사용성을 점검했습니다.
+                                                반응형 레이아웃, 인터랙션 피드백, 에러 메시지 노출 등 디테일한 UI 이슈를 기록하고 개선하여 직관적이고 완성도 높은 경험을 제공합니다.
+                                            </p>
+                                        </div>
+                                        <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group interactive-3d"
+                                            onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')">
+                                            <div class="relative">
+                                                <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
+                                                    alt="UI/UX Test Report" class="w-full h-auto object-cover">
+                                                <div
+                                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                                    <i data-lucide="zoom-in"
+                                                        class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </section>
+
+
+
             <!-- MOTIVATION Section -->
             <section class="py-32 bg-gray-50 relative overflow-hidden">
                 <div class="max-w-5xl mx-auto px-6 relative z-10">
@@ -368,128 +950,14 @@
                     </div>
                 </div>
             </section>
-            <section class="py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
-                <div class="max-w-7xl mx-auto px-6 text-center">
-                    <div class="mb-20 reveal-text">
-                        <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">Growth
-                            Path</span>
-                        <h2 class="text-4xl font-black mb-4 text-gray-900">Project Evolution</h2>
-                        <p class="text-gray-500 font-medium">단순 구현에서 아키텍처 설계로, 끊임없는 기술적 도전의 여정</p>
-                    </div>
 
-                    <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 relative">
-
-                        <div
-                            class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-gray-200 via-green-200 to-orange-200 -translate-y-1/2 z-0 opacity-50">
-                        </div>
-
-                        <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 0ms;">
-                            <div
-                                class="bento-box p-8 border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 bg-white group">
-                                <div
-                                    class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-blue-100 text-[10px] font-bold text-blue-400 uppercase tracking-widest shadow-sm">
-                                    Mini
-                                </div>
-                                <div
-                                    class="w-24 h-24 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                                    <i data-lucide="gamepad-2" class="w-10 h-10 text-blue-500"></i>
-                                </div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-6">Omok</h3>
-
-                                <div class="space-y-4 text-sm">
-                                    <div>
-                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
-                                        <p
-                                            class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">
-                                            JDK 1.8</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
-                                        <p class="font-bold text-gray-700">JSP / Servlet</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
-                                        <p class="font-bold text-gray-700">MariaDB</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="reveal-card relative z-10 w-full max-w-md transform md:-translate-y-4"
-                            style="transition-delay: 200ms;">
-                            <div
-                                class="absolute -inset-1 bg-gradient-to-br from-green-400 to-emerald-400 rounded-[28px] blur opacity-30 animate-pulse">
-                            </div>
-                            <div class="bento-box p-10 border-2 border-green-500 shadow-2xl bg-white relative">
-                                <div
-                                    class="absolute -top-6 left-1/2 -translate-x-1/2 bg-green-500 px-6 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest shadow-lg">
-                                    First (Current)
-                                </div>
-                                <div
-                                    class="w-28 h-28 mx-auto rounded-full bg-green-50 flex items-center justify-center mb-8 shadow-inner">
-                                    <i data-lucide="book-open-check" class="w-12 h-12 text-green-600"></i>
-                                </div>
-                                <h3 class="text-3xl font-black text-green-600 mb-8">SecondHand<br>Books</h3>
-
-                                <div class="space-y-5 text-base">
-                                    <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase">Language</span>
-                                        <span class="font-bold text-gray-900">Java 17</span>
-                                    </div>
-                                    <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase">Framework</span>
-                                        <span class="font-bold text-gray-900">Spring Legacy (JSP)</span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase">Database</span>
-                                        <span class="font-bold text-gray-900">MySQL</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="reveal-card relative z-10 w-full max-w-sm" style="transition-delay: 400ms;">
-                            <div
-                                class="bento-box p-8 border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 bg-white group opacity-80 hover:opacity-100">
-                                <div
-                                    class="absolute -top-6 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-orange-100 text-[10px] font-bold text-orange-400 uppercase tracking-widest shadow-sm">
-                                    Second
-                                </div>
-                                <div
-                                    class="w-24 h-24 mx-auto rounded-full bg-orange-50 flex items-center justify-center mb-6 shadow-inner group-hover:rotate-12 transition-transform duration-500">
-                                    <span class="text-4xl font-bold text-orange-400">?</span>
-                                </div>
-                                <h3 class="text-2xl font-bold text-gray-900 mb-6">Future Project</h3>
-
-                                <div class="space-y-4 text-sm">
-                                    <div>
-                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Language</p>
-                                        <p
-                                            class="font-bold text-gray-700 bg-gray-100 inline-block px-3 py-1 rounded-lg">
-                                            Java 21</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Framework</p>
-                                        <p class="font-bold text-gray-700">SpringBoot / React</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Database</p>
-                                        <p class="font-bold text-gray-700">Postgres</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
             <section class="py-32 bg-gray-50 border-t border-gray-100">
                 <div class="max-w-3xl mx-auto px-6">
                     <div class="text-center mb-16 reveal-text">
                         <span class="text-blue-600 font-bold tracking-wider text-sm uppercase mb-2 block">User
                             Journey</span>
                         <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
-                            구매 <span class="text-gradient">Flow</span>
+                            거래 <span class="text-gradient">Flow</span>
                         </h2>
                         <p class="text-gray-500 font-medium text-lg">
                             사용자 관점의 중고책 거래 및 결제 흐름도
@@ -630,8 +1098,8 @@
                                         class="text-[10px] font-bold text-green-600 uppercase tracking-widest block mb-1">Final
                                         Step</span>
                                     <h3 class="text-xl font-bold text-gray-900">구매 확정</h3>
-                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 (미확정 시
-                                        15일 후 자동 확정)</p>
+                                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">구매자 확정 처리 시 판매자에게 대금 지급 <br>
+                                        (미확정 시 15일 후 자동 확정)</p>
                                 </div>
                             </div>
                         </div>
@@ -646,7 +1114,7 @@
                         <span class="text-purple-600 font-bold tracking-wider text-sm uppercase mb-2 block">BookClub
                             Journey</span>
                         <h2 class="text-4xl font-black mb-4 leading-tight tracking-tight text-gray-900">
-                            독서 모임 참여 <span class="text-gradient">Flow</span>
+                            독서 모임 <span class="text-gradient">Flow</span>
                         </h2>
                         <p class="text-gray-500 font-medium text-lg">
                             검색부터 가입, 활동, 탈퇴까지의 전체 프로세스
@@ -819,6 +1287,26 @@
                                             <p class="text-xs text-gray-600 mt-1">멤버 없는 모임은 deleted_at 타임스탬프로 관리</p>
                                         </div>
                                     </div>
+                                    <div class="flex items-start gap-3 bg-white p-3 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-green-100 text-green-600 rounded-lg flex items-center justify-center shrink-0">
+                                            <i data-lucide="image" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-900">이미지 수정 <code class="bg-gray-100 px-1 rounded text-[10px]">updateBookClub()</code></p>
+                                            <p class="text-xs text-gray-600 mt-1">새 이미지 업로드 후 기존 이미지 안전 삭제 <code class="bg-green-100 px-1 rounded text-[10px]">@Transactional afterCommit()</code></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3 bg-white p-3 rounded-xl">
+                                        <div
+                                            class="w-8 h-8 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center shrink-0">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-900">게시글 삭제 <code class="bg-gray-100 px-1 rounded text-[10px]">deleteBoardPost()</code></p>
+                                            <p class="text-xs text-gray-600 mt-1">Soft Delete 성공 시에만 첨부 이미지 제거 <code class="bg-orange-100 px-1 rounded text-[10px]">@Transactional</code></p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -905,197 +1393,6 @@ webClient.get().uri(url)
                 </div>
             </section>
 
-            <!-- BookClub Transaction Safety Pattern -->
-            <section class="py-32 bg-gray-50 border-t border-gray-100">
-                <div class="max-w-5xl mx-auto px-6">
-                    <div class="text-center mb-16 reveal-text">
-                        <span class="text-purple-600 font-bold tracking-wider text-sm uppercase mb-2 block">Transaction
-                            Safety</span>
-                        <h2 class="text-4xl font-bold text-gray-900 mb-4">BookClub 트랜잭션 안전성 패턴</h2>
-                        <p class="text-gray-500 text-lg">DB 커밋 성공 후에만 S3 리소스 삭제를 보장하는 설계</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Challenge Card -->
-                        <div class="bento-box p-8 reveal-card">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="p-3 bg-red-100 text-red-600 rounded-xl">
-                                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-                                </div>
-                                <h3 class="text-2xl font-bold text-gray-900">문제 상황</h3>
-                            </div>
-                            <div class="space-y-4 text-gray-600 leading-relaxed">
-                                <p class="font-medium">독서 모임 이미지를 수정할 때, 기존 S3 이미지를 언제 삭제해야 할까?</p>
-                                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
-                                    <p class="text-sm font-bold text-red-700 mb-2">❌ 잘못된 접근</p>
-                                    <p class="text-sm text-red-600">DB 커밋 전에 S3를 먼저 삭제하면, <strong>트랜잭션 Rollback 시 복구
-                                            불가능</strong></p>
-                                </div>
-                                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg mt-3">
-                                    <p class="text-sm font-bold text-amber-700 mb-2">⚠️ 리스크</p>
-                                    <p class="text-sm text-amber-600">동시성 충돌, DB 제약 조건 위반 등으로 커밋 실패 시 데이터 유실</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Solution Card -->
-                        <div class="bento-box p-8 reveal-card cursor-pointer group hover:shadow-2xl hover:border-purple-300 transition-all"
-                            onclick="openCodeModal('bookclub')" style="transition-delay: 100ms;">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="p-3 bg-purple-100 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                                        <i data-lucide="code-2" class="w-6 h-6"></i>
-                                    </div>
-                                    <h3
-                                        class="text-2xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                                        해결 방안</h3>
-                                </div>
-                                <i data-lucide="arrow-right-circle"
-                                    class="w-6 h-6 text-gray-300 group-hover:text-purple-500 transition-colors"></i>
-                            </div>
-                            <div class="space-y-4 text-gray-600 leading-relaxed">
-                                <p class="font-bold text-gray-900">Spring <code
-                                        class="text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-sm">TransactionSynchronization</code>
-                                    활용</p>
-                                <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg">
-                                    <p class="text-sm font-bold text-green-700 mb-2">✅ 안전한 설계</p>
-                                    <p class="text-sm text-green-600"><strong>afterCommit()</strong> 콜백에 S3 삭제 로직을 예약하여
-                                        <strong>DB 커밋 성공 후에만 실행</strong>
-                                    </p>
-                                </div>
-                                <div class="mt-4 p-4 bg-purple-50 rounded-xl border border-purple-100">
-                                    <p class="text-xs font-bold text-purple-700 mb-2 flex items-center gap-2">
-                                        <i data-lucide="mouse-pointer-click" class="w-4 h-4"></i>
-                                        클릭하여 코드 보기
-                                    </p>
-                                    <p class="text-xs text-purple-600">실제 구현 코드와 동작 원리를 확인하세요</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Benefits -->
-                    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 reveal-card"
-                        style="transition-delay: 200ms;">
-                        <div
-                            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-3 mb-3">
-                                <div
-                                    class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
-                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
-                                </div>
-                                <h4 class="font-bold text-gray-900">데이터 정합성</h4>
-                            </div>
-                            <p class="text-sm text-gray-600 leading-relaxed">DB와 S3의 상태가 항상 일치하도록 보장</p>
-                        </div>
-                        <div
-                            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-3 mb-3">
-                                <div
-                                    class="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
-                                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
-                                </div>
-                                <h4 class="font-bold text-gray-900">Rollback 안전</h4>
-                            </div>
-                            <p class="text-sm text-gray-600 leading-relaxed">트랜잭션 실패 시 기존 이미지 보존</p>
-                        </div>
-                        <div
-                            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                            <div class="flex items-center gap-3 mb-3">
-                                <div
-                                    class="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
-                                    <i data-lucide="layers" class="w-5 h-5"></i>
-                                </div>
-                                <h4 class="font-bold text-gray-900">선언적 구조</h4>
-                            </div>
-                            <p class="text-sm text-gray-600 leading-relaxed">@Transactional과 완벽하게 통합</p>
-                        </div>
-                    </div>
-
-                    <!-- Implementation Examples -->
-                    <div class="mt-12 reveal-card" style="transition-delay: 150ms;">
-                        <div
-                            class="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-3xl border border-purple-100">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="p-2 bg-purple-600 text-white rounded-lg">
-                                    <i data-lucide="code-2" class="w-5 h-5"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-900">실제 구현 사례</h3>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Example 1: Image Update -->
-                                <div class="bg-white p-6 rounded-2xl border border-purple-100 hover:border-purple-300 hover:shadow-xl transition-all cursor-pointer group"
-                                    onclick="openCodeModal('bookclub-update')">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                                <i data-lucide="image" class="w-5 h-5"></i>
-                                            </div>
-                                            <div>
-                                                <h4
-                                                    class="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                                                    이미지 수정</h4>
-                                                <p class="text-xs text-gray-500">updateBookClub()</p>
-                                            </div>
-                                        </div>
-                                        <i data-lucide="chevron-right"
-                                            class="w-5 h-5 text-gray-300 group-hover:text-purple-500 transition-colors"></i>
-                                    </div>
-                                    <p class="text-sm text-gray-600 leading-relaxed mb-3">
-                                        독서모임 이미지 변경 시 새 이미지 업로드 후 기존 이미지 안전 삭제
-                                    </p>
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <span
-                                            class="px-2 py-1 bg-purple-50 text-purple-700 rounded font-mono">@Transactional</span>
-                                        <span
-                                            class="px-2 py-1 bg-green-50 text-green-700 rounded font-mono">afterCommit()</span>
-                                    </div>
-                                </div>
-
-                                <!-- Example 2: Post Deletion -->
-                                <div class="bg-white p-6 rounded-2xl border border-purple-100 hover:border-purple-300 hover:shadow-xl transition-all cursor-pointer group"
-                                    onclick="openCodeModal('bookclub-delete')">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-10 h-10 bg-red-100 text-red-600 rounded-lg flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors">
-                                                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                            </div>
-                                            <div>
-                                                <h4
-                                                    class="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                                                    게시글 삭제</h4>
-                                                <p class="text-xs text-gray-500">deleteBoardPost()</p>
-                                            </div>
-                                        </div>
-                                        <i data-lucide="chevron-right"
-                                            class="w-5 h-5 text-gray-300 group-hover:text-purple-500 transition-colors"></i>
-                                    </div>
-                                    <p class="text-sm text-gray-600 leading-relaxed mb-3">
-                                        게시글 소프트 삭제 성공 시에만 첨부된 이미지 파일 제거
-                                    </p>
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <span
-                                            class="px-2 py-1 bg-purple-50 text-purple-700 rounded font-mono">@Transactional</span>
-                                        <span class="px-2 py-1 bg-green-50 text-green-700 rounded font-mono">Soft
-                                            Delete</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mt-6 p-4 bg-white/70 rounded-xl border border-purple-100/50">
-                                <p class="text-xs text-purple-700 font-medium flex items-center gap-2">
-                                    <i data-lucide="info" class="w-4 h-4"></i>
-                                    카드를 클릭하여 실제 구현 코드를 확인하세요
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <section class="py-32 bg-white border-t border-gray-100">
                 <div class="max-w-6xl mx-auto px-6">
@@ -1263,193 +1560,103 @@ webClient.get().uri(url)
                 </div>
             </section>
 
-            <section class="py-32 px-6">
-                <div class="max-w-7xl mx-auto">
-                    <div class="text-center mb-24 reveal-text">
-                        <h2 class="text-5xl font-bold mb-6">Seamless Solution.</h2>
+
+
+
+<!-- Query Optimization Section -->
+<section class="py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+        <h3 class="text-2xl font-bold mb-12 pl-4 border-l-4 border-green-500">
+            Query Optimization
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- Card 1 -->
+            <div class="p-8 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition cursor-pointer"
+                 onclick="openDiffModal('main')">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-900">메인 페이지 조회</h4>
+                        <p class="mt-1 font-mono text-xs text-gray-500">
+                            Mapper ID: findAllWithPaging
+                        </p>
                     </div>
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                        +14.6%
+                    </span>
+                </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-                        <div
-                            class="bento-box p-8 reveal-card border border-gray-200 rounded-3xl bg-white flex flex-col justify-between h-full">
-                            <div>
-                                <span class="text-blue-600 font-bold mb-2 block">01. API Integration</span>
-                                <h3 class="text-2xl font-bold mb-4">1초 자동 등록</h3>
-                                <p class="text-gray-500 text-sm leading-relaxed">
-                                    책 제목만 입력하세요. Kakao 도서 API를 통해 정보를 자동으로 불러옵니다.<br><br>
-                                    Blocking 방식 대신 <strong>Non-blocking WebClient</strong>를 사용하여 대량 요청에도 안정적으로 동작합니다.
-                                </p>
-                            </div>
-                            <i data-lucide="book-open" class="w-10 h-10 text-blue-500 mt-8"></i>
-                        </div>
-
-                        <div class="bento-box p-8 bg-gray-900 text-white reveal-card rounded-3xl shadow-lg flex flex-col justify-between h-full"
-                            style="transition-delay: 100ms;">
-                            <div>
-                                <span class="text-green-400 font-bold mb-2 block">02. Safe Payment</span>
-                                <h3 class="text-2xl font-bold mb-4">Escrow System</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed">
-                                    구매 확정 시까지 대금을 플랫폼이 보호합니다.<br><br>
-                                    <strong>Pessimistic Lock</strong>으로 중복 결제를 방지하고, <strong>Scheduler</strong>로 미입금/미확정
-                                    건을 자동 관리합니다.
-                                </p>
-                            </div>
-                            <i data-lucide="shield-check" class="w-10 h-10 text-green-400 mt-8"></i>
-                        </div>
-
-                        <div class="bento-box p-8 reveal-card border border-gray-200 rounded-3xl bg-white flex flex-col justify-between h-full"
-                            style="transition-delay: 200ms;">
-                            <div>
-                                <span class="text-yellow-500 font-bold mb-2 block">03. Real-time</span>
-                                <h3 class="text-2xl font-bold mb-4">WebSocket Chat</h3>
-                                <p class="text-gray-500 text-sm leading-relaxed">
-                                    STOMP 프로토콜과 Pub/Sub 모델을 적용하여 1:N 실시간 채팅을 지연 없이 제공합니다.<br><br>
-                                    실시간으로 가격을 흥정하고 거래 약속을 잡으세요.
-                                </p>
-                            </div>
-                            <i data-lucide="message-circle" class="w-10 h-10 text-yellow-500 mt-8"></i>
-                        </div>
-
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <p class="text-xs text-gray-400">기존 성능</p>
+                        <p class="text-2xl font-bold text-red-500">150.4 ms</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">개선 성능</p>
+                        <p class="text-2xl font-bold text-blue-600">128.4 ms</p>
                     </div>
                 </div>
-            </section>
 
-            <!-- Project Management (GitHub) -->
-            <section class="py-32 bg-gray-50">
-                <div class="max-w-[1440px] mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Collaboration & Workflow</h2>
+                <div class="pt-4 border-t text-sm text-gray-600">
+                    <span class="font-medium">개선 포인트</span><br />
+                    서브쿼리 제거 (SELECT COUNT → LEFT JOIN)
+                </div>
+            </div>
 
-                    <div class="space-y-24">
-                        <!-- Part 1: Issue & Branch Board -->
-                        <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
-                            <div class="flex-1 space-y-6">
-                                <div
-                                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-bold">
-                                    <i data-lucide="trello" class="w-4 h-4"></i>
-                                    Kanban Board
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-900">투명한 진행 상황 공유</h3>
-                                <p class="text-gray-500 leading-relaxed text-lg">
-                                    GitHub Projects를 활용하여 모든 기능을 이슈 단위로 관리했습니다.
-                                    Ready -> In Progress -> In Review -> Done 파이프라인을 구축하여
-                                    팀원 간의 진행 상황을 실시간으로 동기화했습니다.
-                                </p>
-                            </div>
-                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
-                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/github_board.png')">
-                                <img src="${pageContext.request.contextPath}/resources/presentation/img/github_board.png"
-                                    alt="GitHub Project Board" class="w-full h-auto">
-                            </div>
-                        </div>
+            <!-- Card 2 -->
+            <div class="p-8 rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition cursor-pointer"
+                 onclick="openDiffModal('payment')">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-900">결제창 진입</h4>
+                        <p class="mt-1 font-mono text-xs text-gray-500">
+                            Mapper ID: getPaymentCheckInfo
+                        </p>
+                    </div>
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                        +21%
+                    </span>
+                </div>
 
-                        <!-- Part 2: Table View & Labels -->
-                        <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
-                            <div class="flex-1 space-y-6">
-                                <div
-                                    class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-full text-sm font-bold">
-                                    <i data-lucide="table" class="w-4 h-4"></i>
-                                    Structured Issues
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-900">체계적인 이슈 트래킹</h3>
-                                <p class="text-gray-500 leading-relaxed text-lg">
-                                    P0(Critical), P1(High) 등 우선순위 라벨링과 [FEAT], [FIX] 헤더 규칙을 통해
-                                    개발의 방향성을 명확히 했습니다. PR과 이슈를 연동하여 코드 변경 사항을 히스토리로 남겼습니다.
-                                </p>
-                            </div>
-                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
-                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/github_table.png')">
-                                <img src="${pageContext.request.contextPath}/resources/presentation/img/github_table.png"
-                                    alt="GitHub Issue Table" class="w-full h-auto">
-                            </div>
-                        </div>
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <p class="text-xs text-gray-400">기존 성능</p>
+                        <p class="text-2xl font-bold text-red-500">168.0 ms</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">개선 성능</p>
+                        <p class="text-2xl font-bold text-blue-600">132.0 ms</p>
                     </div>
                 </div>
-            </section>
 
-            <!-- TROUBLESHOOTING Section -->
-            <section class="py-32 bg-white">
-                <div class="max-w-6xl mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 reveal-text border-l-4 border-red-500 pl-6">Troubleshooting
-                        Challenges</h2>
+                <div class="pt-4 border-t text-sm text-gray-600">
+                    <span class="font-medium">개선 포인트</span><br />
+                    3회 Select → 1회 통합 조회
+                </div>
+            </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <!-- N+1 -->
-                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all cursor-pointer group"
-                            onclick="openDiffModal('n1')">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-4">
-                                    <div
-                                        class="p-3 bg-red-100 text-red-600 rounded-xl group-hover:bg-red-600 group-hover:text-white transition-colors">
-                                        <i data-lucide="database" class="w-6 h-6"></i>
-                                    </div>
-                                    <h3 class="text-2xl font-bold group-hover:text-blue-600 transition-colors">N+1
-                                        Problem</h3>
-                                </div>
-                                <i data-lucide="arrow-right-circle"
-                                    class="w-6 h-6 text-gray-300 group-hover:text-blue-500 transition-colors"></i>
-                            </div>
-                            <div class="space-y-6">
-                                <div>
-                                    <p class="text-sm font-bold text-gray-400 mb-1">ISSUE</p>
-                                    <p class="text-gray-700">판매글 목록 조회 시, 각 책의 썸네일 이미지를 위해 N번의 추가 쿼리 발생</p>
-                                </div>
-                                <div class="pointer-events-none">
-                                    <p class="text-sm font-bold text-blue-500 mb-1">SOLUTION</p>
-                                    <p class="text-gray-700 mb-4">MyBatis <code>&lt;foreach&gt;</code>를 활용한 <strong>IN
-                                            Query</strong> 최적화</p>
-                                    <div class="code-window">
-                                        <div class="p-3 text-xs bg-[#1e1e1e] text-green-400 font-mono">
-                                            SELECT ... WHERE trade_seq IN (1, 2, ..., 20)
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="inline-flex items-center gap-2 text-sm font-bold text-green-600 bg-green-50 px-4 py-2 rounded-lg">
-                                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
-                                    Query Count: 21 → 2
-                                </div>
-                            </div>
-                        </div>
+        </div>
+    </div>
+</section>
 
-                        <!-- Concurrency -->
-                        <div class="bento-box p-10 reveal-card border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all cursor-pointer group"
-                            style="transition-delay: 100ms;" onclick="openCodeModal('concurrency-lock')">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-4">
-                                    <div
-                                        class="p-3 bg-orange-100 text-orange-600 rounded-xl group-hover:bg-orange-500 group-hover:text-white transition-colors">
-                                        <i data-lucide="lock" class="w-6 h-6"></i>
-                                    </div>
-                                    <h3 class="text-2xl font-bold group-hover:text-blue-600 transition-colors">
-                                        Concurrency Control</h3>
-                                </div>
-                                <i data-lucide="arrow-right-circle"
-                                    class="w-6 h-6 text-gray-300 group-hover:text-blue-500 transition-colors"></i>
-                            </div>
-                            <div class="space-y-6">
-                                <div>
-                                    <p class="text-sm font-bold text-gray-400 mb-1">ISSUE</p>
-                                    <p class="text-gray-700">인기 독서모임(잔여 1석)에 0.01초 차이로 2명 동시 가입 시도 시 정원 초과</p>
-                                </div>
-                                <div class="pointer-events-none">
-                                    <p class="text-sm font-bold text-blue-500 mb-1">SOLUTION</p>
-                                    <p class="text-gray-700 mb-4">PostgreSQL <strong>Pessimistic Lock</strong> 적용</p>
-                                    <div class="code-window">
-                                        <div class="p-3 text-xs bg-[#1e1e1e] text-yellow-400 font-mono">
-                                            SELECT ... FOR UPDATE
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="inline-flex items-center gap-2 text-sm font-bold text-green-600 bg-green-50 px-4 py-2 rounded-lg">
-                                    <i data-lucide="check" class="w-4 h-4"></i>
-                                    Data Integrity 100%
-                                </div>
-                            </div>
+
+
+            <!-- Redis Cache Strategy Detail (AJAX) -->
+            <section class="py-32 bg-gray-50 border-t border-gray-100" id="redis-visualizer-section">
+                <div class="max-w-7xl mx-auto px-6">
+                    <h3 class="text-3xl font-bold mb-8 text-center text-gray-900 reveal-text">Redis Caching Optimization</h3>
+                    <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+                        Spring Cache와 AOP를 활용하여 구현된 고성능 캐싱 레이어의 동작 원리를 시각화했습니다.
+                    </p>
+                    <div id="redis-ajax-container" class="min-h-[600px] flex items-center justify-center">
+                        <div class="flex flex-col items-center gap-4 text-gray-500">
+                            <i data-lucide="loader-2" class="w-10 h-10 animate-spin"></i>
+                            <span class="text-sm font-mono">Loading Redis Strategy Data...</span>
                         </div>
                     </div>
-                </div>
             </section>
 
             <!-- Dynamic Architecture Visualizer (AJAX) -->
@@ -1474,21 +1681,7 @@ webClient.get().uri(url)
                 </div>
             </section>
 
-            <!-- Redis Cache Strategy Detail (AJAX) -->
-            <section class="py-32 bg-gray-50 border-t border-gray-100" id="redis-visualizer-section">
-                <div class="max-w-7xl mx-auto px-6">
-                    <h2 class="text-3xl font-bold mb-8 text-center text-gray-900 reveal-text">Redis Caching Strategy
-                        Deep Dive</h2>
-                    <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
-                        Spring Cache와 AOP를 활용하여 구현된 고성능 캐싱 레이어의 동작 원리를 시각화했습니다.
-                    </p>
-                    <div id="redis-ajax-container" class="min-h-[600px] flex items-center justify-center">
-                        <div class="flex flex-col items-center gap-4 text-gray-500">
-                            <i data-lucide="loader-2" class="w-10 h-10 animate-spin"></i>
-                            <span class="text-sm font-mono">Loading Redis Strategy Data...</span>
-                        </div>
-                    </div>
-            </section>
+
 
             <!-- Load Test Visualizer (Ported from React App) -->
             <section class="py-24 bg-slate-50 border-t border-slate-200 relative overflow-hidden"
@@ -1725,9 +1918,9 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:MaxMetaspaceSize=128m"
 export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                             isTuning: true,
                             tuningDetails: [
-                                { title: "Heap Memory 고정 (-Xms, -Xmx)", tag: "1024m (1GB)", desc: "JVM 시작 시와 최대 힙 크기를 1GB로 동일하게 설정하여 런타임 중 힙 확장/축소 비용을 제거합니다.", effect: "GC 예측 가능성 향상 및 Stop-The-World 시간 단축" },
-                                { title: "Metaspace 크기 제한", tag: "MaxMetaspaceSize=128m", desc: "클래스 메타데이터 저장 공간을 제한하여 메모리 누수를 방지하고 EC2 전체 메모리 압박을 방어합니다.", effect: "메모리 사용량 예측 가능 및 OOM(Out of Memory) 위험 감소" },
-                                { title: "G1 Garbage Collector 활성화", tag: "-XX:+UseG1GC", desc: "힙을 Region 단위로 나누어 관리하는 서버용 Low-latency GC를 사용하여 긴 Full GC 발생을 억제합니다.", effect: "Tail Latency(p95/p99) 개선 및 응답 스파이크 방지" }
+                                { title: "Heap Memory 고정", icon: "memory-stick", tag: "-Xms1024m", desc: "JVM 힙 크기를 1GB로 고정하여 런타임 확장 비용 제거", effect: "STW 시간 50% 단축" },
+                                { title: "Metaspace 제한", icon: "box-select", tag: "MaxMetaspace=128m", desc: "메타데이터 공간을 제한하여 피지컬 메모리 고갈 방지", effect: "OOM(Kill) 방어" },
+                                { title: "G1GC 활성화", icon: "server-cog", tag: "-XX:+UseG1GC", desc: "대용량 힙에 최적화된 G1 Collector로 지연 시간 개선", effect: "p99 60ms 미만 안정화" }
                             ],
                             conclusion: {
                                 title: "Tail Latency 최적화 성공",
@@ -1768,7 +1961,7 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                             document.getElementById('code-title').innerText = "테스트 시나리오 (k6)";
                             document.getElementById('code-subtitle').innerText = "k6 스크립트 실행 조건";
                         }
-                        // document.getElementById('perf-code').innerText = data.code; 
+                        // document.getElementById('perf-code').innerText = data.code;
                         // -> innerText changes format, use textContent then highlight? HTML content safer for preserving format
                         document.getElementById('perf-code').textContent = data.code;
 
@@ -1821,15 +2014,26 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                                 <h3 class="text-xl font-bold text-slate-900 mb-6">JVM 튜닝 상세 내용 <span class="text-sm font-normal text-slate-500 ml-2">p95 지표 안정화 및 Stop-The-World 최소화 전략</span></h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 \${data.tuningDetails.map(d => `
-                                < div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col h-full shadow-sm hover:border-emerald-200 transition-colors" >
-                                        <div class="flex justify-between items-start mb-4">
-                                            <h3 class="font-bold text-slate-800 leading-snug">\${d.title}</h3>
-                                            <span class="text-[10px] font-black bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded uppercase">\${d.tag}</span>
+                                < div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col h-full shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 group/jvm relative overflow-hidden" >
+                                        <div class="absolute top-0 right-0 p-4 opacity-5 group-hover/jvm:opacity-10 transition-opacity">
+                                            <i data-lucide="\${d.icon}" class="w-24 h-24 text-emerald-600"></i>
                                         </div>
-                                        <p class="text-sm text-slate-500 mb-6 flex-grow">\${d.desc}</p>
-                                        <div class="pt-4 border-t border-slate-50">
-                                            <p class="text-[10px] font-bold text-emerald-600 uppercase mb-1">최종 기대 효과</p>
-                                            <p class="text-xs font-semibold text-slate-700">\${d.effect}</p>
+                                        <div class="flex items-center gap-3 mb-4 relative z-10">
+                                            <div class="p-2 bg-emerald-50 rounded-lg group-hover/jvm:bg-emerald-100 transition-colors">
+                                                <i data-lucide="\${d.icon}" class="w-6 h-6 text-emerald-600"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-slate-800 leading-tight text-lg group-hover/jvm:text-emerald-700 transition-colors">\${d.title}</h3>
+                                                <span class="text-[10px] font-mono text-slate-400">\${d.tag}</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-slate-500 mb-6 flex-grow leading-relaxed relative z-10 p-2 bg-slate-50/50 rounded-lg">\${d.desc}</p>
+                                        <div class="pt-4 border-t border-slate-100 mt-auto relative z-10">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                                <p class="text-xs font-bold text-emerald-700 uppercase tracking-wider">최종 기대 효과</p>
+                                            </div>
+                                            <p class="text-sm font-semibold text-slate-700 pl-3.5">\${d.effect}</p>
                                         </div>
                                     </div >
                                 `).join('')}
@@ -1866,173 +2070,8 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                 </script>
             </section>
 
-            <section class="py-32 bg-gray-50 border-t border-gray-200">
-                <div class="max-w-[1440px] mx-auto px-6">
-                    <h2 class="text-4xl font-bold mb-16 text-center reveal-text">Quality Assurance</h2>
 
-                    <div class="space-y-24">
 
-                        <div class="flex flex-col md:flex-row items-center gap-12 reveal-card">
-                            <div class="flex-1 space-y-6">
-                                <div
-                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-bold">
-                                    <i data-lucide="clipboard-check" class="w-4 h-4"></i>
-                                    System Validation
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-900">기능 테스트 리포트</h3>
-                                <p class="text-gray-500 leading-relaxed text-lg">
-                                    단위 기능부터 통합 시나리오까지, 엑셀을 활용해 테스트 케이스(TC)를 체계적으로 관리했습니다.
-                                    성공/실패 여부를 명확히 기록하고, 발견된 버그의 수정 현황을 추적하여 배포 전 시스템의 안정성을 확보했습니다.
-                                </p>
-                            </div>
-                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
-                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg')">
-                                <div class="relative">
-                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_func.jpg"
-                                        alt="Functional Test Report" class="w-full h-auto object-cover">
-                                    <div
-                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                        <i data-lucide="zoom-in"
-                                            class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col md:flex-row-reverse items-center gap-12 reveal-card">
-                            <div class="flex-1 space-y-6">
-                                <div
-                                    class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-bold">
-                                    <i data-lucide="monitor-smartphone" class="w-4 h-4"></i>
-                                    User Experience
-                                </div>
-                                <h3 class="text-3xl font-bold text-gray-900">UI/UX 개선 내역</h3>
-                                <p class="text-gray-500 leading-relaxed text-lg">
-                                    사용자 관점에서의 시나리오 테스트를 수행하여 사용성을 점검했습니다.
-                                    반응형 레이아웃, 인터랙션 피드백, 에러 메시지 노출 등 디테일한 UI 이슈를 기록하고 개선하여 직관적이고 완성도 높은 경험을 제공합니다.
-                                </p>
-                            </div>
-                            <div class="flex-[2] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 transform hover:scale-[1.02] transition-transform duration-500 cursor-pointer group"
-                                onclick="openLightbox('${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg')">
-                                <div class="relative">
-                                    <img src="${pageContext.request.contextPath}/resources/presentation/img/excel_test_uiux.jpg"
-                                        alt="UI/UX Test Report" class="w-full h-auto object-cover">
-                                    <div
-                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                        <i data-lucide="zoom-in"
-                                            class="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <!-- Query Optimization Section -->
-            <section class="py-32 bg-white">
-                <div class="max-w-7xl mx-auto px-6">
-                    <h3 class="text-2xl font-bold mb-8 pl-4 border-l-4 border-green-500">Query Optimization Data
-                    </h3>
-                    <div class="overflow-x-auto rounded-2xl shadow-xl border border-gray-200">
-                        <table class="w-full text-sm text-left bg-white">
-                            <thead class="text-xs text-gray-500 uppercase bg-gray-100 border-b">
-                                <tr>
-                                    <th class="px-6 py-4 font-bold">기능명</th>
-                                    <th class="px-6 py-4 font-bold">Mapper ID</th>
-                                    <th class="px-6 py-4 font-bold">기존 성능 (ms)</th>
-                                    <th class="px-6 py-4 font-bold">개선 성능 (ms)</th>
-                                    <th class="px-6 py-4 font-bold text-center">Efficiency</th>
-                                    <th class="px-6 py-4 font-bold">Improvement Key</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                <!-- Row 1: Main Page -->
-                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
-                                    onclick="openDiffModal('main')">
-                                    <td class="px-6 py-4 font-bold text-gray-900">메인 페이지 조회</td>
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">findAllWithPaging</td>
-                                    <td class="px-6 py-4 text-red-500 font-medium">150.4</td>
-                                    <td class="px-6 py-4 text-blue-600 font-bold">128.4</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            +14.6%
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500">서브쿼리 제거 (SELECT COUNT -> LEFT JOIN)</td>
-                                </tr>
-
-                                <!-- Row 3: Purchase History -->
-                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
-                                    onclick="openDiffModal('purchase')">
-                                    <td class="px-6 py-4 font-bold text-gray-900">구매내역 조회</td>
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">selectPurchase...</td>
-                                    <td class="px-6 py-4 text-red-500 font-medium">4,885.0</td>
-                                    <td class="px-6 py-4 text-blue-600 font-bold">355.0</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            +1376%
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500">N번 호출 → IN 절 단일 호출 (Bulk Select)</td>
-                                </tr>
-
-                                <!-- Row 4: Chat Room -->
-                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
-                                    onclick="openDiffModal('chat')">
-                                    <td class="px-6 py-4 font-bold text-gray-900">채팅방 목록</td>
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">findAllByMember...</td>
-                                    <td class="px-6 py-4 text-red-500 font-medium">143.0</td>
-                                    <td class="px-6 py-4 text-blue-600 font-bold">140.3</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            -
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500">닉네임 서브쿼리 → JOIN, EXISTS → GroupBy</td>
-                                </tr>
-
-                                <!-- Row 5: Payment Entry -->
-                                <tr class="hover:bg-blue-50/50 transition-colors cursor-pointer"
-                                    onclick="openDiffModal('payment')">
-                                    <td class="px-6 py-4 font-bold text-gray-900">결제창 진입</td>
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">getPaymentCheckInfo</td>
-                                    <td class="px-6 py-4 text-red-500 font-medium">168.0</td>
-                                    <td class="px-6 py-4 text-blue-600 font-bold">132.0</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            +21%
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500">3회 Select → 1회 통합 조회</td>
-                                </tr>
-
-                                <!-- Row 6: Redis -->
-                                <tr class="hover:bg-blue-50/50 transition-colors bg-purple-50/30 cursor-pointer"
-                                    onclick="openDiffModal('redis')">
-                                    <td class="px-6 py-4 font-bold text-gray-900">메인(Redis)</td>
-                                    <td class="px-6 py-4 font-mono text-xs text-gray-500">Cacheable</td>
-                                    <td class="px-6 py-4 text-red-500 font-medium">111.0</td>
-                                    <td class="px-6 py-4 text-blue-600 font-bold">62.0</td>
-                                    <td class="px-6 py-4 text-center">
-                                        <span
-                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            +44%
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-500">Local Cache (Redis Look-aside)</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                </div>
-            </section>
 
             <!-- Responsive Holo Lightbox (Inline Implementation) -->
             <!-- Simple Fullscreen Lightbox -->
@@ -2053,8 +2092,8 @@ export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseG1GC"`,
                     <div class="text-center mb-16 reveal-text">
                         <span class="text-orange-600 font-bold tracking-wider text-sm uppercase mb-2 block">Real-time
                             Monitoring</span>
-                        <h2 class="text-4xl font-black mb-4 text-gray-900">CloudWatch Metrics</h2>
-                        <p class="text-gray-500 font-medium">AWS 인프라의 실시간 상태와 성능 지표를 모니터링합니다.</p>
+                        <h2 class="text-4xl font-black mb-4 text-gray-900">AWS CloudWatch Metrics</h2>
+                        <p class="text-gray-500 font-medium">보이지 않으면, 관리할 수 없습니다.</p>
                     </div>
 
                     <div class="reveal-card">
@@ -2420,7 +2459,7 @@ Other transactions wait here. -->`
                 // ✅ DB 커밋 성공 후에만 실행됨
                 deleteS3ImageSafely(oldUrl);
             }
-            
+
             // afterCompletion도 오버라이드 가능
             @Override
             public void afterCompletion(int status) {
@@ -2448,16 +2487,16 @@ private void deleteS3ImageSafely(String s3Url) {
 public void updateBookClub(Long id, BookClubDto dto) {
     BookClub club = repository.findById(id)
         .orElseThrow(() -> new NotFoundException("BookClub not found"));
-    
+
     String oldImageUrl = club.getImageUrl();
-    
+
     // 1. DB 업데이트
     club.updateImage(dto.getNewImageUrl());
     repository.save(club);
-    
+
     // 2. 커밋 후 S3 삭제 예약 (안전한 순서 보장)
     scheduleS3DeletionAfterCommit(oldImageUrl);
-    
+
     // ⚠️ 만약 여기서 예외 발생 시:
     // - DB Rollback → 기존 이미지 URL 보존
     // - S3 삭제 예약 취소 → 기존 파일 유지
@@ -2472,33 +2511,33 @@ public void updateBookClub(Long id, BookClubDto dto) {
     // 1. 기존 독서모임 조회
     BookClub club = repository.findById(id)
         .orElseThrow(() -> new NotFoundException("BookClub not found"));
-    
+
     // 2. 기존 이미지 URL 백업 (삭제용)
     String oldImageUrl = club.getImageUrl();
-    
+
     // 3. 새 이미지 업로드 (S3)
     String newImageUrl = s3Service.uploadImage(dto.getNewImage());
-    
+
     // 4. DB 업데이트
     club.updateImage(newImageUrl);
     club.updateTitle(dto.getTitle());
     club.updateDescription(dto.getDescription());
-    
+
     repository.save(club);
-    
+
     // 5. ✅ 커밋 성공 후에만 기존 S3 이미지 삭제 예약
     scheduleS3DeletionAfterCommit(oldImageUrl);
-    
+
     /* 시나리오별 동작:
-     * 
+     *
      * [성공 케이스]
      * - DB 커밋 성공 → afterCommit() 실행 → 기존 S3 이미지 삭제 ✅
-     * 
+     *
      * [실패 케이스 1: DB 제약조건 위반]
      * - save() 실패 → 트랜잭션 Rollback
      * - afterCommit() 실행 안 됨 → 기존 이미지 보존 ✅
      * - 새 이미지는 S3에 남지만 DB에는 참조 안 됨 (고아 파일)
-     * 
+     *
      * [실패 케이스 2: 동시성 충돌]
      * - 낙관적 락 예외 발생 → Rollback
      * - 기존 이미지 그대로 유지 ✅
@@ -2513,37 +2552,37 @@ public void updateBookClub(Long id, BookClubDto dto) {
 public boolean deleteBoardPost(Long clubSeq, Long postId) {
     // 1. 삭제할 게시글의 이미지 URL 조회
     String oldUrl = bookClubMapper.selectBoardImgUrl(clubSeq, postId);
-    
+
     // 2. 게시글 소프트 삭제 (deleted_at 컬럼 업데이트)
     int result = bookClubMapper.softDeletePost(clubSeq, postId);
-    
+
     // 3. ✅ DB 삭제 성공(커밋) 이후에만 이미지 정리
     if (result > 0) {
         scheduleS3DeletionAfterCommit(oldUrl);
     }
-    
+
     return result > 0;
-    
+
     /* 동작 흐름:
-     * 
+     *
      * [정상 삭제 케이스]
      * 1) softDeletePost() 성공 (result = 1)
      * 2) 트랜잭션 커밋
      * 3) afterCommit() 콜백 실행
      * 4) S3 이미지 삭제 ✅
-     * 
+     *
      * [삭제 실패 케이스]
      * 1) softDeletePost() 실패 (result = 0)
      * 2) scheduleS3DeletionAfterCommit() 호출 안 됨
      * 3) 이미지 보존 ✅
-     * 
+     *
      * [트랜잭션 Rollback 케이스]
      * 1) softDeletePost() 성공
      * 2) 이후 로직에서 예외 발생 (예: 권한 검증 실패)
      * 3) 트랜잭션 Rollback
      * 4) afterCommit() 실행 안 됨
      * 5) DB 복구 + 이미지 보존 ✅
-     * 
+     *
      * ⚠️ 주의사항:
      * - Soft Delete이므로 실제 데이터는 남아있음
      * - 나중에 복구 시 이미지도 함께 사용 가능
@@ -2569,39 +2608,39 @@ public boolean deleteBoardPost(Long clubSeq, Long postId) {
 public void approveJoinRequest(Long clubSeq, Long userId) {
     // 1. ✅ book_club 행 잠금 (다른 트랜잭션 대기)
     Long lockedSeq = mapper.lockBookClubForUpdate(clubSeq);
-    
+
     if (lockedSeq == null) {
         throw new NotFoundException("BookClub not found or deleted");
     }
-    
+
     // 2. 현재 멤버 수 조회
     int currentCount = mapper.countMembers(clubSeq);
-    
+
     // 3. 정원 확인
     BookClub club = mapper.selectOne(clubSeq);
     if (currentCount >= club.getCapacity()) {
         throw new CapacityExceededException("모임 정원 초과");
     }
-    
+
     // 4. 멤버 상태 변경: WAIT → JOINED
     mapper.updateMemberStatus(clubSeq, userId, "JOINED");
-    
+
     // 5. 커밋 시 락 해제
 }
 
 /* 동시성 시나리오:
- * 
+ *
  * [문제 상황] - FOR UPDATE 없이
  * - 정원 19/20인 모임에 2명 동시 가입 시도
  * - 두 트랜잭션 모두 currentCount=19로 읽음
  * - 둘 다 승인 → 최종 21명 (정원 초과 ❌)
- * 
+ *
  * [해결] - FOR UPDATE 적용
  * - Tx1: lockBookClubForUpdate() → 행 잠금 획득
  * - Tx2: lockBookClubForUpdate() → 대기 (Tx1 완료까지)
  * - Tx1: count=19, 승인, 커밋 → 락 해제
  * - Tx2: count=20, 정원 초과 예외 발생 ✅
- * 
+ *
  * ⚠️ 주의사항:
  * - @Transactional 필수 (트랜잭션 범위 내에서만 락 유효)
  * - 데드락 방지를 위해 락 획득 순서 일관성 유지
@@ -2762,8 +2801,8 @@ public void approveJoinRequest(Long clubSeq, Long userId) {
                 /* --- INTERACTIVE 3D ENGINE --- */
                 class InteractiveManager {
                     constructor() {
-                        // Apply to Bento Boxes and Deep Dive Cards
-                        this.targets = document.querySelectorAll('.bento-box, .reveal-card > div');
+                        // Apply to elements explicitly marked with .interactive-3d
+                        this.targets = document.querySelectorAll('.interactive-3d');
                         this.init();
                         this.initCursor();
                     }
@@ -2933,7 +2972,7 @@ public void approveJoinRequest(Long clubSeq, Long userId) {
                         duration: '2m 30s',
                         totalReq: '2,450',
                         instance: 't3.micro (1GB)',
-                        scaling: 'Min 1 / Max 2',
+                        scaling: 'Min 1 / Max 8',
                         metrics: {
                             vus: '50',
                             latency: '44.7',
