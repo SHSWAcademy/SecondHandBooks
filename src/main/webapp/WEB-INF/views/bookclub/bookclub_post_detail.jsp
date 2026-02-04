@@ -110,7 +110,7 @@
         color: #2d3748;
         font-size: 1rem;
         line-height: 1.75;
-        white-space: pre-wrap;
+        white-space: normal;
         word-break: break-word;
         margin-bottom: 2rem;
     }

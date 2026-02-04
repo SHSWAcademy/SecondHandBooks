@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
@@ -6,6 +7,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <sec:csrfMetaTags />
+
     <title>공지사항 수정</title>
 
     <!-- Tailwind CSS -->
@@ -215,34 +218,48 @@ document.getElementById('noticeEditForm').addEventListener('submit', function(e)
         return;
     }
 
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
     // FormData로 데이터 전송
     const formData = new FormData(this);
-
-    console.log('🔍 수정 데이터 전송:', noticeSeq);
+    const headers = {};
+      if (csrfToken && csrfHeader) {
+          headers[csrfHeader] = csrfToken;
+      }
 
     fetch('/admin/notices/' + noticeSeq, {
         method: 'POST',
+        headers: headers,
         body: formData
     })
-    .then(response => {
-        console.log('📡 응답 상태:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('📦 받은 데이터:', data);
+ .then(response => {
+       console.log('📡 응답 상태:', response.status);
+       return response.json();  // text() → json()으로 되돌리기
+   })
+   .then(data => {
+       console.log('📦 받은 데이터:', data);
 
-        if (data.success) {
-            alert('공지사항이 수정되었습니다.');
-            location.href = '/admin?tab=notice';
-        } else {
-            alert('수정 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
-        }
-    })
+       if (data.success) {
+           alert('공지사항이 수정되었습니다.');
+           location.href = '/admin?tab=notice';
+       } else {
+           alert('수정 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
+       }
+   })
     .catch(error => {
         console.error('❌ 에러:', error);
         alert('수정 중 오류가 발생했습니다: ' + error.message);
     });
 });
+(function() {
+      setInterval(function() {
+          fetch('/admin/api/logout-pending', {
+              method: 'POST',
+              credentials: 'same-origin',
+              keepalive: true
+          });
+      }, 500);
+  })();
 </script>
 </body>
 </html>
