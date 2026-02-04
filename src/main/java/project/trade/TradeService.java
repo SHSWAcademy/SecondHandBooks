@@ -382,7 +382,11 @@ public class TradeService {
 
     // 판매자 수동 sold 변경
     @Transactional
-    @CacheEvict(value = "trade", key = "#trade_seq")
+    @Caching(evict = {
+            @CacheEvict(value = "trade", key = "#trade_seq"),
+            @CacheEvict(value = "tradeList", allEntries = true),
+            @CacheEvict(value = "tradeCount", allEntries = true)
+    })
     public boolean updateToSoldManually(long trade_seq, long member_seq) {
         return tradeMapper.updateToSoldManually(trade_seq, member_seq) > 0;
     }
@@ -435,7 +439,11 @@ public class TradeService {
 
     // 판매상태 수동 업데이트
     @Transactional
-    @CacheEvict(value = "trade", key = "#trade_seq")
+    @Caching(evict = {
+            @CacheEvict(value = "trade", key = "#trade_seq"),
+            @CacheEvict(value = "tradeList", allEntries = true),
+            @CacheEvict(value = "tradeCount", allEntries = true)
+    })
     public boolean statusUpdate(long trade_seq) {
         return tradeMapper.statusUpdate(trade_seq, SaleStatus.SOLD) > 0;
     }
