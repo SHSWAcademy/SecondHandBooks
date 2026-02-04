@@ -140,7 +140,7 @@ public class StompController {
 
         return sessionMember;
     }
-
+    // 메세지 읽음처리
     @MessageMapping("/chat/{chat_room_seq}/read")
     public void handleReadEvent(@DestinationVariable Long chat_room_seq,
                                 SimpMessageHeaderAccessor headerAccessor) {
