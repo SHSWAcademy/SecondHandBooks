@@ -111,10 +111,18 @@
 - **구매 내역** - 안전결제 구매 목록, 구매 확정 버튼
 - **찜 목록** - 찜한 상품/모임
 - **회원 정보 수정**
+- **배송 주소 관리** - 배송지 등록/수정/삭제
+- **나의 모임** - 가입한 독서모임 목록
 
 ---
 
-### 7. 관리자
+### 7. 공지사항
+- **공지사항 목록** - 관리자가 등록한 공지사항 조회
+- **공지사항 상세** - 공지사항 내용 확인
+
+---
+
+### 8. 관리자
 - **대시보드** - 회원 수, 거래 수, 모임 수 통계
 - **회원 관리** - 회원 목록, 검색, 상세 조회
 - **상품 관리** - 판매글 목록, 검색
@@ -177,7 +185,9 @@ public String uploadFile(MultipartFile file) {
 | **Backend** | Spring MVC 5.3.39, MyBatis 3.5.19 |
 | **Database** | PostgreSQL (AWS RDS) |
 | **Connection Pool** | HikariCP 4.0.3 |
-| **Real-time** | WebSocket, STOMP, Redis (Lettuce) |
+| **Cache/Broker** | Redis (Lettuce) - ElastiCache |
+| **Real-time** | WebSocket, STOMP, Redis Pub/Sub |
+| **Storage** | AWS S3 + CloudFront CDN |
 | **Payment** | Toss Payments API |
 | **OAuth** | 카카오, 네이버 |
 | **External API** | 카카오 책 검색 API |
@@ -192,46 +202,163 @@ public String uploadFile(MultipartFile file) {
 ```
 secondaryBook/
 ├── src/main/java/project/
-│   ├── config/                # Spring 설정
-│   │   ├── AppConfig.java
-│   │   ├── MvcConfig.java
-│   │   ├── RedisConfig.java
-│   │   ├── StompConfig.java
-│   │   └── WebClientConfig.java
-│   ├── member/                # 회원 관리
-│   ├── trade/                 # 중고책 거래
-│   ├── payment/               # 결제
-│   ├── chat/                  # 실시간 채팅
-│   │   ├── chatroom/          # 채팅방
-│   │   ├── message/           # 메시지
-│   │   └── StompController.java
-│   ├── bookclub/              # 독서 모임
+│   ├── config/                    # Spring 설정
+│   │   ├── AppConfig.java         # RestTemplate, ObjectMapper Bean
+│   │   ├── MvcConfig.java         # View Resolver, 정적 리소스
+│   │   ├── StompConfig.java       # WebSocket STOMP 설정
+│   │   ├── S3Config.java          # AWS S3 Client
+│   │   ├── SchedulerConfig.java   # @EnableScheduling
+│   │   ├── WebClientConfig.java   # OAuth, Toss API WebClient
+│   │   ├── InterceptorConfig.java
+│   │   ├── interceptor/           # 인터셉터
+│   │   │   ├── AdminAuthInterceptor.java
+│   │   │   └── MemberActivityInterceptor.java
+│   │   └── redis/                 # Redis 설정
+│   │       ├── RedisConfig.java
+│   │       └── RedisCacheConfig.java
+│   │
+│   ├── member/                    # 회원 관리
+│   │   ├── MemberController.java  # OAuth, 회원가입/로그인
+│   │   ├── MemberService.java
+│   │   ├── MemberMapper.java
+│   │   ├── MemberVO.java
+│   │   ├── MailService.java       # Gmail SMTP
+│   │   └── ENUM/
+│   │       └── MemberStatus.java
+│   │
+│   ├── trade/                     # 중고책 거래
+│   │   ├── TradeController.java   # 판매글 CRUD
+│   │   ├── TradeService.java
+│   │   ├── TradeMapper.java
+│   │   ├── TradeVO.java
+│   │   ├── BookImgMapper.java
+│   │   └── ENUM/
+│   │       ├── SaleStatus.java    # SELLING, SOLD_OUT
+│   │       ├── BookStatus.java
+│   │       └── PaymentType.java
+│   │
+│   ├── payment/                   # 안전 결제
+│   │   ├── PaymentController.java
+│   │   ├── PaymentService.java
+│   │   ├── TossApiService.java    # Toss Payments API
+│   │   ├── PaymentVO.java
+│   │   └── SafePaymentScheduler.java  # 타임아웃/자동확정
+│   │
+│   ├── chat/                      # 실시간 채팅
+│   │   ├── StompController.java   # WebSocket 메시지 핸들러
+│   │   ├── chatroom/
+│   │   │   ├── ChatroomController.java
+│   │   │   ├── ChatroomService.java
+│   │   │   └── ChatroomVO.java
+│   │   └── message/
+│   │       ├── MessageService.java
+│   │       └── MessageVO.java
+│   │
+│   ├── bookclub/                  # 독서 모임
 │   │   ├── controller/
+│   │   │   ├── BookClubController.java
+│   │   │   └── BookClubManageController.java
 │   │   ├── service/
+│   │   │   └── BookClubService.java
 │   │   ├── mapper/
-│   │   └── vo/
-│   ├── mypage/                # 마이페이지
-│   ├── admin/                 # 관리자
-│   ├── address/               # 주소 관리
-│   └── util/                  # 유틸리티
-│       ├── book/              # 책 API
-│       ├── imgUpload/         # 이미지 업로드
-│       ├── exception/         # 예외 처리
-│       └── interceptor/       # 인터셉터
+│   │   │   └── BookClubMapper.java
+│   │   ├── dto/                   # 데이터 전송 객체
+│   │   │   ├── BookClubJoinRequestDTO.java
+│   │   │   └── BookClubPageResponseDTO.java
+│   │   ├── vo/
+│   │   │   ├── BookClubVO.java
+│   │   │   ├── BookClubBoardVO.java
+│   │   │   ├── BookClubMemberVO.java
+│   │   │   └── BookClubWishVO.java
+│   │   └── ENUM/
+│   │       └── JoinStatus.java    # WAIT, JOINED, REJECTED
+│   │
+│   ├── mypage/                    # 마이페이지
+│   │   └── MypageController.java
+│   │
+│   ├── admin/                     # 관리자
+│   │   ├── AdminController.java
+│   │   ├── AdminService.java
+│   │   ├── BannerVO.java
+│   │   └── notice/
+│   │       └── NoticeVO.java
+│   │
+│   ├── address/                   # 배송 주소 관리
+│   │   ├── AddressController.java
+│   │   ├── AddressService.java
+│   │   └── AddressVO.java
+│   │
+│   ├── notice/                    # 공지사항
+│   │   └── NoticeController.java
+│   │
+│   ├── common/                    # 공통 기능
+│   │   └── LogoutPendingManager.java
+│   │
+│   └── util/                      # 유틸리티
+│       ├── S3Service.java         # S3 파일 업로드
+│       ├── HomeController.java
+│       ├── HealthController.java  # 헬스체크
+│       ├── book/
+│       │   └── BookApiService.java  # 카카오 책 검색 API
+│       ├── imgUpload/
+│       │   └── FileStore.java
+│       ├── exception/
+│       │   └── GlobalExceptionHandler.java
+│       └── paging/
+│           ├── PageResult.java
+│           └── SearchVO.java
+│
 ├── src/main/resources/
-│   ├── project/               # MyBatis Mapper XML
-│   └── application.properties # 설정 파일
+│   ├── project/                   # MyBatis Mapper XML
+│   │   ├── trade/
+│   │   ├── chat/
+│   │   ├── bookclub/
+│   │   ├── member/
+│   │   ├── admin/
+│   │   └── address/
+│   ├── application.properties     # 환경 설정
+│   └── logback.xml                # 로깅 설정
+│
 ├── src/main/webapp/WEB-INF/
-│   ├── spring/                # Spring XML 설정
-│   └── views/                 # JSP
+│   ├── spring/
+│   │   ├── root-context.xml
+│   │   └── appServlet/
+│   │       └── servlet-context.xml
+│   └── views/                     # JSP (59개)
 │       ├── member/
+│       │   ├── mypage.jsp
+│       │   ├── signup.jsp
+│       │   └── tabs/              # 마이페이지 탭
+│       │       ├── profile.jsp
+│       │       ├── sales.jsp
+│       │       ├── purchases.jsp
+│       │       ├── wishlist.jsp
+│       │       ├── groups.jsp
+│       │       └── addresses.jsp
 │       ├── trade/
-│       ├── payment/
+│       │   ├── tradelist.jsp
+│       │   ├── tradedetail.jsp
+│       │   ├── tradeform.jsp
+│       │   └── tradeupdate.jsp
 │       ├── chat/
+│       │   └── chatrooms.jsp
 │       ├── bookclub/
+│       │   ├── bookclub_list.jsp
+│       │   ├── bookclub_create.jsp
+│       │   ├── bookclub_detail.jsp
+│       │   ├── bookclub_manage.jsp
+│       │   └── bookclub_posts.jsp
+│       ├── payment/
+│       │   ├── payform.jsp
+│       │   ├── success.jsp
+│       │   └── fail.jsp
 │       ├── admin/
 │       ├── common/
 │       └── error/
+│
+├── k6/                            # 부하 테스트 스크립트
+├── scripts/                       # 배포 스크립트
+├── appspec.yml                    # AWS CodeDeploy
 └── pom.xml
 ```
 
