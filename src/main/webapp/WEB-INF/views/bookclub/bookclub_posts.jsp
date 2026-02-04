@@ -73,10 +73,10 @@
     .bc-post-input {
         width: 100%;
         padding: 16px;
-        background: #2d3748;
+        background: #fff;
         border: none;
         border-radius: 8px;
-        color: #fff;
+        color: black;
         font-size: 1rem;
         box-sizing: border-box;
     }
@@ -93,6 +93,7 @@
     /* 제목 입력 */
     .bc-post-title-input {
         font-weight: 600;
+        border: 1px solid #4299E1;
     }
 
     /* 내용 입력 */
@@ -100,6 +101,7 @@
         min-height: 280px;
         resize: vertical;
         line-height: 1.6;
+        border: 1px solid #4299E1;
     }
 
     /* 선택된 책 카드 */
